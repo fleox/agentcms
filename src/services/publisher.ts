@@ -1,0 +1,1353 @@
+import { renderMarkdown, markdownToPlainText } from "../core/markdown";
+import { applyFilters, doAction } from "../core/pluginRegistry";
+import { renderPageToHtml } from "../core/render";
+import {
+  buildAuthorUrl,
+  buildPostUrl,
+  buildTermUrl,
+  HOME_PATH,
+  NOT_FOUND_PATH,
+  pathToPublicUrl,
+} from "../core/slug";
+import { sha256Hex } from "../lib/utils";
+import { mediaToView, pickFormat } from "../core/media";
+import { resolveMenuItems } from "../core/menuResolver";
+import { getActiveTheme } from "../themes";
+import type {
+  AuthorView,
+  BaseLayoutProps,
+  CardPost,
+  CategoryTemplateProps,
+  HomeTemplateProps,
+  MediaView,
+  SingleTemplateProps,
+  SiteContext,
+} from "../themes/types";
+import type { Media, Post, SiteSettings, Term, UserRecord } from "../core/types";
+import { deleteFile, uploadFile, withStorageBatch } from "./flexwegApi";
+import { listAllMedia } from "./media";
+import { publishMenuJson } from "./menuPublisher";
+import { publishPostsJson } from "./postsJsonPublisher";
+import { publishAuthorsJson } from "./authorsJsonPublisher";
+import { fetchAllPosts, markPostDraft, markPostOnline } from "./posts";
+import { fetchAllTerms } from "./taxonomies";
+import { postSortMillis } from "../core/postSort";
+import { setCurrentPublishContext } from "./publishContext";
+import { resolveArchivesLink } from "../plugins/flexweg-archives/generator";
+import { renderHero } from "../themes/default/blocks/hero/render";
+import { renderPostsList } from "../themes/default/blocks/postsList/render";
+import type { DefaultThemeConfig } from "../themes/default/config";
+import { renderMagazineHero } from "../themes/magazine/blocks/magazineHero/render";
+import { renderLatestList } from "../themes/magazine/blocks/latestList/render";
+import { renderMostRead } from "../themes/magazine/blocks/mostRead/render";
+import { renderPromoCard } from "../themes/magazine/blocks/promoCard/render";
+import type { MagazineThemeConfig } from "../themes/magazine/config";
+import { DEFAULT_MAGAZINE_HOME_LAYOUT } from "../themes/magazine/config";
+
+export interface PublishLogEntry {
+  level: "info" | "success" | "warn" | "error";
+  message: string;
+}
+
+export type PublishLogger = (entry: PublishLogEntry) => void;
+
+// Exported so plugins receiving action-hook callbacks (publish.complete,
+// post.unpublished, post.deleted) can type their handlers without
+// re-declaring the shape.
+export interface PublishContext {
+  posts: Post[]; // all posts
+  pages: Post[]; // all static pages
+  terms: Term[]; // all terms (categories + tags)
+  media: Map<string, Media>;
+  settings: SiteSettings;
+  // All known user records — used by republishAuthorsJson to compose
+  // the public-side /authors.json snapshot. Subscribed via
+  // CmsDataContext and forwarded by publish callers (PublishButton,
+  // PostEditPage, ThemesPage).
+  users: UserRecord[];
+  // Resolves a userId to its full AuthorView (display name, bio,
+  // avatar). Used by templates rendered at publish time and (via the
+  // resolved values) by authors.json on every publish.
+  authorLookup: (id: string) => AuthorView | undefined;
+  // When set, `publishPost`, `unpublishPost` and `deletePostAndUnpublish`
+  // do the minimum per-entity work (render + upload + bookkeeping +
+  // in-memory ctx mutation) but SKIP the cascade (listings, author
+  // archives, menus, JSON snapshots) and SKIP the heavyweight lifecycle
+  // actions (`publish.after` / `publish.complete` / `post.unpublished`
+  // / `post.deleted`). The caller is responsible for running
+  // `flushBulkRegeneration(ctx, log)` once after the bulk loop to do
+  // the cascade + plugin regeneration targets a single time instead of
+  // N times. Pre-render hooks (`publish.before`) still fire — multilang
+  // needs them to seed hreflang state before renderSingle.
+  bulkMode?: boolean;
+}
+
+// THEME CSS PATH on Flexweg, mirrors what the build script produces.
+const THEME_CSS_PREFIX = "theme-assets";
+
+// True when the post (must be a page) is the one currently bound to
+// the static-page home. Such a page lives at index.html only — no
+// per-page <slug>.html mirror — because the home regen pass writes
+// the actual file via the theme's home template.
+function isStaticHome(post: Post, settings: SiteSettings): boolean {
+  return (
+    post.type === "page" &&
+    settings.homeMode === "static-page" &&
+    settings.homePageId === post.id
+  );
+}
+
+function themeCssPath(themeId: string): string {
+  return `${THEME_CSS_PREFIX}/${themeId}.css`;
+}
+
+function resolveMedia(id: string | undefined, media: Map<string, Media>): MediaView | undefined {
+  if (!id) return undefined;
+  return mediaToView(media.get(id));
+}
+
+// Exported so plugins that render through the active theme's
+// BaseLayout (archives, future custom-page generators…) can build
+// the same SiteContext the core publisher uses, without duplicating
+// the menu/theme-config resolution logic.
+export function buildSiteContext(ctx: PublishContext): SiteContext {
+  // Menus are also resolved by the dynamic menu.json publisher; the shared
+  // helper in core/menuResolver.ts is the single source of truth so static
+  // header rendering and the runtime JSON stay in lockstep.
+  const theme = getActiveTheme(ctx.settings.activeThemeId);
+  // Resolve the active theme's settings the same way PluginSettingsRoute
+  // does — defaults merged with whatever the user saved. Themes without
+  // a settings page get `undefined`.
+  let themeConfig: unknown = undefined;
+  if (theme.settings) {
+    const stored = (ctx.settings.themeConfigs as Record<string, unknown> | undefined)?.[theme.id];
+    themeConfig = {
+      ...(theme.settings.defaultConfig as object),
+      ...((stored as object) ?? {}),
+    };
+  }
+  return {
+    settings: ctx.settings,
+    resolvedMenus: {
+      header: resolveMenuItems(ctx.settings.menus.header ?? [], ctx),
+      footer: resolveMenuItems(ctx.settings.menus.footer ?? [], ctx),
+    },
+    themeCssPath: themeCssPath(ctx.settings.activeThemeId),
+    themeConfig,
+  };
+}
+
+function postToCardData(post: Post, ctx: PublishContext): CardPost {
+  const term = post.primaryTermId ? ctx.terms.find((t) => t.id === post.primaryTermId) : undefined;
+  const url = buildPostUrl({ post, primaryTerm: term });
+  // Resolve the category's archive URL once so the template doesn't have
+  // to call buildTermUrl itself — keeps theme code free of slug logic.
+  const category =
+    term && term.type === "category"
+      ? { name: term.name, url: `/${buildTermUrl(term)}` }
+      : undefined;
+  // Pre-format the publication date in the site's language. Falls back to
+  // updatedAt then createdAt so cards never render with an empty meta line.
+  const dateMs =
+    post.publishedAt?.toMillis?.() ??
+    post.updatedAt?.toMillis?.() ??
+    post.createdAt?.toMillis?.();
+  let dateLabel: string | undefined;
+  if (dateMs) {
+    try {
+      dateLabel = new Intl.DateTimeFormat(ctx.settings.language || "en", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }).format(new Date(dateMs));
+    } catch {
+      dateLabel = new Date(dateMs).toDateString();
+    }
+  }
+  return {
+    ...post,
+    url,
+    hero: resolveMedia(post.heroMediaId, ctx.media),
+    category,
+    dateLabel,
+  };
+}
+
+// Public entry point for the editor's Preview modal. Renders the
+// post's HTML using the same pipeline that produces the published
+// page — same filters, same template, same plugin hooks — without
+// any side effect on Firestore or Flexweg. The caller is expected to
+// have built a `ctx` whose posts/pages array contains the *draft*
+// version of `post` so unsaved edits show up.
+//
+// Routing: when the post is the page bound to the static home, the
+// home template is what the user sees on the public site, so we
+// dispatch to renderHome instead of renderSingle. Listing pages
+// (category, author archives) aren't reachable via this entry — they
+// are just static lists of cards driven by the same posts array.
+export async function renderPreviewHtml(
+  post: Post,
+  ctx: PublishContext,
+): Promise<string> {
+  if (isStaticHome(post, ctx.settings)) {
+    return renderHome(ctx);
+  }
+  return renderSingle(post, ctx);
+}
+
+// Renders a single post or page to HTML, ready to upload.
+async function renderSingle(post: Post, ctx: PublishContext): Promise<string> {
+  const theme = getActiveTheme(ctx.settings.activeThemeId);
+  const site = buildSiteContext(ctx);
+
+  // Expose the full publish context to the post.html.body filter
+  // chain so theme blocks (Hero, Posts list, …) can resolve queries
+  // against posts/terms/media without us having to widen the filter
+  // signature. Cleared in the finally below so a stale ctx never
+  // bleeds into another page or a non-publish code path.
+  setCurrentPublishContext(ctx);
+  let bodyHtml = "";
+  try {
+    const filteredMd = await applyFilters<string>("post.markdown.before", post.contentMarkdown, post);
+    bodyHtml = renderMarkdown(filteredMd);
+    bodyHtml = await applyFilters<string>("post.html.body", bodyHtml, post);
+  } finally {
+    setCurrentPublishContext(null);
+  }
+
+  const tags = ctx.terms.filter((t) => post.termIds.includes(t.id) && t.type === "tag");
+  const primaryTerm = post.primaryTermId
+    ? ctx.terms.find((t) => t.id === post.primaryTermId && t.type === "category")
+    : undefined;
+  const author = ctx.authorLookup(post.authorId);
+  const hero = resolveMedia(post.heroMediaId, ctx.media);
+  const term = post.primaryTermId ? ctx.terms.find((t) => t.id === post.primaryTermId) : undefined;
+  const currentPath = buildPostUrl({ post, primaryTerm: term });
+  const description = post.seo?.description ?? markdownToPlainText(post.contentMarkdown, 160);
+
+  const baseProps: Omit<BaseLayoutProps, "children" | "extraHead"> = {
+    site,
+    pageTitle: post.seo?.title ?? post.title,
+    pageDescription: description || undefined,
+    ogImage: post.seo?.ogImage ?? pickFormat(hero, "large"),
+    currentPath,
+  };
+  // Related posts are no longer pre-resolved server-side: the theme's
+  // single template renders an empty `[data-cms-related]` placeholder
+  // and a runtime loader (theme-assets/<id>-posts.js) populates it from
+  // /posts.json on every page load. This keeps published HTML stable
+  // when a sibling post is added later — same trade-off as the
+  // header/footer menu (loaded from /menu.json) and avoids re-rendering
+  // every post in a category on each new publish.
+  const templateProps: SingleTemplateProps & { site: SiteContext } = {
+    site,
+    post,
+    bodyHtml,
+    author,
+    hero,
+    primaryTerm,
+    tags,
+  };
+  const finalProps = await applyFilters("post.template.props", templateProps, post);
+
+  return renderPageToHtml({
+    base: theme.templates.base,
+    baseProps,
+    template: theme.templates.single,
+    templateProps: finalProps as SingleTemplateProps & { site: SiteContext },
+  });
+}
+
+// Options accepted by `renderHome`. Used by plugins (e.g. multilang)
+// that need to render the home page through the active theme but
+// with a slightly different context — typically a per-locale URL
+// path + currentLocale for `<html lang>`. The default render path
+// passes no options, so this is a pure superset.
+export interface RenderHomeOptions {
+  // Overrides `currentPath` in the BaseLayout props. Use for
+  // per-locale homes (e.g. "fr/index.html").
+  homePath?: string;
+  // Sets `currentLocale` in the BaseLayout props so the rendered
+  // <html lang> reflects the right language. Defaults to
+  // `ctx.settings.language`.
+  currentLocale?: string;
+}
+
+export async function renderHome(
+  ctx: PublishContext,
+  options: RenderHomeOptions = {},
+): Promise<string> {
+  const theme = getActiveTheme(ctx.settings.activeThemeId);
+  const baseSite = buildSiteContext(ctx);
+  // When the caller passed a `homePath` override (multilang plugin
+  // rendering a per-locale home), propagate it onto the SiteContext
+  // so theme Header/Footer can build the right "home" link without
+  // hardcoding "/index.html". `homePath` is documented as an href
+  // (leading slash convention) — normalise to ensure that, since
+  // the same `homePath` value also flows into `currentPath` (path
+  // convention, no leading slash) below. Without the normalisation,
+  // a relative href like "fr/index.html" gets appended to the
+  // current URL by the browser, producing `/fr/fr/index.html`.
+  const homeHref = options.homePath
+    ? options.homePath.startsWith("/")
+      ? options.homePath
+      : `/${options.homePath}`
+    : undefined;
+  const site: SiteContext = homeHref
+    ? { ...baseSite, homePath: homeHref }
+    : baseSite;
+  const onlinePosts = ctx.posts
+    .filter((p) => p.status === "online")
+    .sort((a, b) => postSortMillis(b) - postSortMillis(a))
+    .slice(0, ctx.settings.postsPerPage)
+    .map((p) => postToCardData(p, ctx));
+
+  // Optional "See full archives →" link, resolved by the
+  // flexweg-archives plugin when enabled. Returns undefined when the
+  // plugin is off, the home toggle is off, or no posts exist yet —
+  // so the link never appears spuriously.
+  const archivesLink = resolveArchivesLink(ctx.settings, ctx.posts, "home");
+
+  // Default theme delegates the hero + grid to its own block render
+  // functions so the home shares variants with the editor's Hero /
+  // Posts list blocks. We resolve the HTML here (publisher) so the
+  // template stays a pure props consumer — same contract as
+  // postToCardData / CardPost.
+  // Other themes ignore heroHtml/listHtml and render from `posts`.
+  let heroHtml: string | undefined;
+  let listHtml: string | undefined;
+  let mostReadHtml: string | undefined;
+  let promoCardHtml: string | undefined;
+  if (
+    ctx.settings.activeThemeId === "default" &&
+    ctx.settings.homeMode !== "static-page"
+  ) {
+    const themeConfig = (site.themeConfig as DefaultThemeConfig | undefined) ?? undefined;
+    // Defaults match the manifest's DEFAULT_THEME_CONFIG.home so a
+    // site that hasn't saved theme settings yet still gets the
+    // intended look (image-overlay hero + cards grid).
+    const heroVariant = themeConfig?.home?.heroVariant ?? "image-overlay";
+    const listVariant = themeConfig?.home?.listVariant ?? "cards";
+    const listColumns = themeConfig?.home?.listColumns ?? 3;
+    // The home page has no canonical "current post"; use a sentinel
+    // so the env API stays satisfied without accidentally pinning or
+    // excluding any real post.
+    const homeStub = { id: "__home__" } as unknown as Post;
+    const used = new Set<string>();
+    const heroResult = renderHero(
+      { featuredPostId: "latest", variant: heroVariant },
+      { ctx, current: homeStub },
+    );
+    heroHtml = heroResult.html;
+    if (heroResult.consumedPostId) used.add(heroResult.consumedPostId);
+    const listResult = renderPostsList(
+      {
+        query: "latest",
+        variant: listVariant,
+        // Match the previous HomeTemplate behaviour: hero + (postsPerPage − 1)
+        // grid items below. The Posts list block clamps to a max of 24.
+        count: Math.max(1, ctx.settings.postsPerPage - 1),
+        // Cards-only column count. wrapList ignores this for the
+        // other variants and clamps to 1–4 either way.
+        columns: listColumns,
+        excludeUsed: true,
+      },
+      { ctx, current: homeStub, used },
+    );
+    listHtml = listResult.html;
+  } else if (
+    ctx.settings.activeThemeId === "magazine" &&
+    ctx.settings.homeMode !== "static-page"
+  ) {
+    // Magazine theme: separate hero / latest list / sidebar widgets.
+    // Each block reserves the post ids it consumed against `used` so
+    // subsequent blocks (and the latestList in particular) never
+    // duplicate items.
+    const themeConfig = (site.themeConfig as MagazineThemeConfig | undefined) ?? undefined;
+    const homeConfig = themeConfig?.home ?? DEFAULT_MAGAZINE_HOME_LAYOUT;
+    const homeStub = { id: "__home__" } as unknown as Post;
+    const used = new Set<string>();
+
+    const heroResult = renderMagazineHero(
+      {
+        featuredPostId: "latest",
+        secondary1PostId: "auto",
+        secondary2PostId: "auto",
+        showFeaturedBadge: true,
+      },
+      { ctx, current: homeStub },
+    );
+    heroHtml = heroResult.html;
+    for (const id of heroResult.consumedPostIds) used.add(id);
+
+    // "Latest Intelligence" — `postsPerPage` minus the 3 hero items,
+    // bottoming out at 1 so a tiny corpus still renders something.
+    const listResult = renderLatestList(
+      { count: Math.max(1, ctx.settings.postsPerPage - heroResult.consumedPostIds.length) },
+      { ctx, current: homeStub, used },
+    );
+    listHtml = listResult.html;
+    for (const id of listResult.consumedPostIds) used.add(id);
+
+    // Sidebar widgets, driven by the theme config.
+    const renderSidebarWidget = (variant: typeof homeConfig.sidebarTop): string => {
+      if (variant === "most-read") {
+        const result = renderMostRead(
+          { count: homeConfig.mostReadCount, showHeading: true },
+          { ctx, current: homeStub },
+        );
+        return result.html;
+      }
+      if (variant === "promo") {
+        // Skip silently when the user hasn't filled in the promo card
+        // (no image and no title). Avoids rendering an empty card slot.
+        if (!homeConfig.promoImageUrl && !homeConfig.promoTitle) return "";
+        const result = renderPromoCard(
+          {
+            imageUrl: homeConfig.promoImageUrl,
+            imageAlt: homeConfig.promoImageAlt,
+            eyebrow: homeConfig.promoEyebrow,
+            title: homeConfig.promoTitle,
+            href: homeConfig.promoHref,
+          },
+          { ctx },
+        );
+        return result.html;
+      }
+      return "";
+    };
+    const topHtml = renderSidebarWidget(homeConfig.sidebarTop);
+    const bottomHtml =
+      homeConfig.sidebarBottom !== homeConfig.sidebarTop
+        ? renderSidebarWidget(homeConfig.sidebarBottom)
+        : "";
+    // Carry both slots on `mostReadHtml` (top) + `promoCardHtml`
+    // (bottom). The HomeTemplate places them in the right column in
+    // that order — naming is historical (the most common pairing is
+    // most-read on top + promo on bottom) but the template is variant-
+    // agnostic and just renders whatever string each prop holds.
+    mostReadHtml = topHtml || undefined;
+    promoCardHtml = bottomHtml || undefined;
+  }
+
+  let templateProps: HomeTemplateProps & { site: SiteContext };
+  // When a static page drives the home, surface its title + SEO meta
+  // through baseProps so the rendered <title>, <meta description> and
+  // og:image reflect what the admin set on that page — without this,
+  // the home was stuck on `pageTitle: ""` + the site-wide description,
+  // even if the wired page had explicit `seo.title` / `seo.description`.
+  // The multilang plugin's per-locale home (`renderLocalizedHome`)
+  // delegates to this same function, so this fix also flows through
+  // the localised variants automatically (the page object in
+  // `ctx.pages` is already the translated view in that case).
+  let staticHomePage: Post | undefined;
+  if (ctx.settings.homeMode === "static-page" && ctx.settings.homePageId) {
+    const page = ctx.pages.find((p) => p.id === ctx.settings.homePageId && p.status === "online");
+    if (page) {
+      staticHomePage = page;
+      // Same publish-context exposure as renderSingle so home-bound
+      // pages can use theme blocks (Hero, Posts list, …) too. The
+      // home page is the most likely place to use them.
+      setCurrentPublishContext(ctx);
+      let bodyHtml = "";
+      try {
+        const md = await applyFilters<string>("post.markdown.before", page.contentMarkdown, page);
+        bodyHtml = renderMarkdown(md);
+        bodyHtml = await applyFilters<string>("post.html.body", bodyHtml, page);
+      } finally {
+        setCurrentPublishContext(null);
+      }
+      templateProps = {
+        site,
+        posts: onlinePosts,
+        staticPage: { post: page, bodyHtml },
+        archivesLink,
+      };
+    } else {
+      templateProps = {
+        site,
+        posts: onlinePosts,
+        archivesLink,
+        heroHtml,
+        listHtml,
+        mostReadHtml,
+        promoCardHtml,
+      };
+    }
+  } else {
+    templateProps = {
+      site,
+      posts: onlinePosts,
+      archivesLink,
+      heroHtml,
+      listHtml,
+      mostReadHtml,
+      promoCardHtml,
+    };
+  }
+
+  // Resolve the home's SEO meta from the wired static page first, then
+  // fall back to the page's title / excerpt and finally to the site-
+  // wide settings. The category-grid home (no static page) still gets
+  // `pageTitle: ""` so BaseLayout falls back to the site title alone —
+  // matches the pre-fix behaviour.
+  const homePageTitle = staticHomePage?.seo?.title || staticHomePage?.title || "";
+  const homePageDescription =
+    staticHomePage?.seo?.description ||
+    staticHomePage?.excerpt ||
+    ctx.settings.description;
+  const homeOgImage = staticHomePage?.seo?.ogImage;
+  const baseProps: Omit<BaseLayoutProps, "children" | "extraHead"> = {
+    site,
+    pageTitle: homePageTitle,
+    pageDescription: homePageDescription,
+    ogImage: homeOgImage,
+    currentPath: options.homePath ?? HOME_PATH,
+    currentLocale: options.currentLocale,
+  };
+
+  return renderPageToHtml({
+    base: theme.templates.base,
+    baseProps,
+    template: theme.templates.home,
+    templateProps,
+  });
+}
+
+async function renderCategory(term: Term, ctx: PublishContext): Promise<string> {
+  const theme = getActiveTheme(ctx.settings.activeThemeId);
+  const site = buildSiteContext(ctx);
+  const posts = ctx.posts
+    .filter((p) => p.status === "online" && p.primaryTermId === term.id)
+    .sort((a, b) => postSortMillis(b) - postSortMillis(a))
+    .map((p) => postToCardData(p, ctx));
+
+  // If the flexweg-rss plugin has a feed configured for this category,
+  // expose its absolute URL so the template can render a Follow button.
+  // Reading pluginConfigs here is a small leak from publisher into the
+  // plugin config shape — accepted in exchange for keeping the flexweg-rss
+  // module out of the publisher's import graph.
+  const baseUrl = (ctx.settings.baseUrl || "").replace(/\/+$/, "");
+  const rssConfig = ctx.settings.pluginConfigs?.["flexweg-rss"] as
+    | { categoryFeeds?: Array<{ termId: string }> }
+    | undefined;
+  const hasCategoryFeed = !!rssConfig?.categoryFeeds?.some((f) => f.termId === term.id);
+  const categoryRssUrl =
+    hasCategoryFeed && baseUrl
+      ? pathToPublicUrl(baseUrl, `${term.slug}/${term.slug}.xml`)
+      : undefined;
+
+  const archivesLink = resolveArchivesLink(ctx.settings, ctx.posts, "category");
+
+  // Sidebar data — an alphabetically sorted list of every category
+  // (so themes can render a section nav) and the top N tags by usage
+  // count (for a "Popular tags" widget). Cheap to compute on every
+  // category page since publish-time runs are sequential and the
+  // corpus is in memory anyway. Themes that don't need them ignore
+  // the props.
+  const allCategories = ctx.terms
+    .filter((t) => t.type === "category")
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name));
+  const tagCounts = new Map<string, number>();
+  for (const p of ctx.posts) {
+    if (p.status !== "online") continue;
+    for (const id of p.termIds ?? []) {
+      tagCounts.set(id, (tagCounts.get(id) ?? 0) + 1);
+    }
+  }
+  const popularTags = ctx.terms
+    .filter((t) => t.type === "tag" && (tagCounts.get(t.id) ?? 0) > 0)
+    .sort((a, b) => (tagCounts.get(b.id) ?? 0) - (tagCounts.get(a.id) ?? 0))
+    .slice(0, 10);
+
+  const templateProps: CategoryTemplateProps & { site: SiteContext } = {
+    site,
+    term,
+    posts,
+    categoryRssUrl,
+    archivesLink,
+    allCategories,
+    popularTags,
+  };
+  const baseProps: Omit<BaseLayoutProps, "children" | "extraHead"> = {
+    site,
+    pageTitle: term.seo?.title || term.name,
+    pageDescription: term.seo?.description || term.description,
+    ogImage: term.seo?.ogImage,
+    currentPath: buildTermUrl(term),
+  };
+
+  return renderPageToHtml({
+    base: theme.templates.base,
+    baseProps,
+    template: theme.templates.category,
+    templateProps,
+  });
+}
+
+// Renders an author archive page (the AuthorTemplate from the active
+// theme) for a single user. Lists every online post they've authored,
+// already resolved to CardPost shape so the theme template stays free
+// of lookups. Author archives are statically rendered today: when a
+// user updates their profile we re-render it; when one of their posts
+// is published/unpublished/deleted we re-render it. The dynamic
+// AuthorBio block on single posts (loaded from /authors.json) keeps
+// the rest of the site in sync without re-rendering each post HTML.
+async function renderAuthor(authorId: string, ctx: PublishContext): Promise<string | null> {
+  const user = ctx.users.find((u) => u.id === authorId);
+  if (!user) return null;
+  const author = ctx.authorLookup(authorId);
+  if (!author) return null;
+
+  const theme = getActiveTheme(ctx.settings.activeThemeId);
+  const site = buildSiteContext(ctx);
+  const posts = ctx.posts
+    .filter((p) => p.status === "online" && p.authorId === authorId)
+    .sort((a, b) => postSortMillis(b) - postSortMillis(a))
+    .map((p) => postToCardData(p, ctx));
+
+  const path = buildAuthorUrl(user, ctx.users);
+  const templateProps = { site, author, posts };
+  const baseProps: Omit<BaseLayoutProps, "children" | "extraHead"> = {
+    site,
+    pageTitle: author.displayName,
+    pageDescription: author.bio,
+    currentPath: path,
+  };
+  return renderPageToHtml({
+    base: theme.templates.base,
+    baseProps,
+    template: theme.templates.author,
+    templateProps,
+  });
+}
+
+// Publishes an author archive at /author/<slug>.html. Used by
+// regenerateListings to refresh archives after every post change, and
+// directly from the user-edit modal in /users so a profile update
+// reflects on the archive header in one click.
+async function publishAuthorArchiveUnbatched(
+  authorId: string,
+  ctx: PublishContext,
+  log: PublishLogger,
+): Promise<void> {
+  const user = ctx.users.find((u) => u.id === authorId);
+  if (!user) return;
+  const path = buildAuthorUrl(user, ctx.users);
+  const html = await renderAuthor(authorId, ctx);
+  if (!html) return;
+  await uploadIfChanged(path, html, undefined, log);
+}
+
+async function renderNotFound(ctx: PublishContext): Promise<string> {
+  const theme = getActiveTheme(ctx.settings.activeThemeId);
+  const site = buildSiteContext(ctx);
+  return renderPageToHtml({
+    base: theme.templates.base,
+    baseProps: {
+      site,
+      pageTitle: "Page not found",
+      currentPath: NOT_FOUND_PATH,
+    },
+    template: theme.templates.notFound,
+    templateProps: { site },
+  });
+}
+
+async function uploadIfChanged(
+  path: string,
+  html: string,
+  knownHash: string | undefined,
+  log: PublishLogger,
+): Promise<{ uploaded: boolean; hash: string }> {
+  const hash = await sha256Hex(html);
+  if (knownHash && knownHash === hash) {
+    log({ level: "info", message: `Skipped ${path} (no changes)` });
+    return { uploaded: false, hash };
+  }
+  log({ level: "info", message: `Uploading ${path}…` });
+  await uploadFile({ path, content: html });
+  return { uploaded: true, hash };
+}
+
+// Payload returned by the `publish.additional` filter — one entry per
+// additional file the plugin wants the publisher to upload during this
+// `publishPost` call. Tracked together with the post's main file in
+// `previousPublishedPaths` so the standard cleanup retry logic also
+// covers them on the next publish.
+//
+// Used by the multilang plugin to publish translated variants of a
+// post (e.g. /fr/article.html) without duplicating upload + cleanup
+// bookkeeping. The plugin produces the HTML; the publisher handles
+// the I/O.
+export interface AdditionalRender {
+  // Absolute path on Flexweg, no leading slash (matches Post.lastPublishedPath).
+  path: string;
+  // Pre-rendered HTML ready to upload.
+  html: string;
+}
+
+// Same shape as AdditionalRender but for files attached to a listing
+// regeneration (home + category archives) rather than to a single
+// post. Returned by the `publish.extraListings` filter and uploaded
+// in `regenerateListings`. Used by multilang to write per-locale
+// homes and per-locale category archives.
+export type AdditionalListingRender = AdditionalRender;
+
+// Loads everything the publisher needs from the data context. Caller should
+// pass already-subscribed arrays so we avoid double fetching.
+// Builds the PublishContext needed by every render / regen op. Posts
+// + pages are fetched on demand from Firestore (cached briefly — see
+// fetchAllPosts in services/posts.ts) so the admin SPA no longer
+// needs a global posts subscription. terms / users / settings are
+// small + ambient enough that callers still pass them explicitly
+// from useCmsData().
+export async function buildPublishContext(args: {
+  terms: Term[];
+  settings: SiteSettings;
+  users: UserRecord[];
+  authorLookup: (id: string) => AuthorView | undefined;
+  // Optional pre-fetched lists. Callers that just persisted a post
+  // and need the new state visible in the publish ctx can pass the
+  // fresh list here instead of relying on the cache.
+  posts?: Post[];
+  pages?: Post[];
+  // When true, refetch terms from Firestore inside this call instead
+  // of trusting `args.terms`. Use this when the caller just wrote
+  // new terms in the same turn and can't rely on the React
+  // subscription's eventual update — e.g. flexweg-import after
+  // creating new categories. Default false to keep hot-path callers
+  // (UI clicks) free of an extra read.
+  refreshTerms?: boolean;
+}): Promise<PublishContext> {
+  const [posts, pages, mediaList, terms] = await Promise.all([
+    args.posts ? Promise.resolve(args.posts) : fetchAllPosts({ type: "post" }),
+    args.pages ? Promise.resolve(args.pages) : fetchAllPosts({ type: "page" }),
+    listAllMedia(),
+    args.refreshTerms ? fetchAllTerms() : Promise.resolve(args.terms),
+  ]);
+  const media = new Map(mediaList.map((m) => [m.id, m]));
+  return {
+    posts,
+    pages,
+    terms,
+    settings: args.settings,
+    users: args.users,
+    authorLookup: args.authorLookup,
+    media,
+  };
+}
+
+// Patches the post inside the publish context's `posts`/`pages` arrays. The
+// Firestore subscription in CmsDataContext is the eventual source of truth,
+// but it lands on a future render — too late for `regenerateListings(ctx)`
+// running synchronously after `markPostOnline`/`markPostDraft`. Without this
+// patch, the home/category listings would render the pre-transition state
+// and miss (or stubbornly include) the post we just toggled.
+function applyPostStatusInCtx(ctx: PublishContext, postId: string, patch: Partial<Post>): void {
+  const update = (list: Post[]): Post[] =>
+    list.map((p) => (p.id === postId ? { ...p, ...patch } : p));
+  ctx.posts = update(ctx.posts);
+  ctx.pages = update(ctx.pages);
+}
+
+// Removes every stale historical path attached to a post (lastPublishedPath
+// + previousPublishedPaths) except for `keepPath`. Returns the list of
+// paths whose deletion *failed* with a non-404 error so the caller can
+// re-persist them for retry on the next publish. 404 is silent — the file
+// was already gone.
+async function cleanupStalePaths(
+  paths: Iterable<string>,
+  keepPath: string,
+  log: PublishLogger,
+): Promise<string[]> {
+  const stale = new Set<string>();
+  for (const p of paths) {
+    if (p && p !== keepPath) stale.add(p);
+  }
+  const failed: string[] = [];
+  for (const path of stale) {
+    log({ level: "info", message: `Deleting ${path}…` });
+    try {
+      await deleteFile(path);
+    } catch (err) {
+      log({ level: "warn", message: `Could not delete ${path}: ${(err as Error).message}` });
+      failed.push(path);
+    }
+  }
+  return failed;
+}
+
+// Publish a single post: renders, uploads, deletes every known stale path
+// (current `lastPublishedPath` + any `previousPublishedPaths` left over
+// from a partially-failed previous publish), then refreshes home + the
+// category archive that owns it. Failed deletions are persisted back into
+// `previousPublishedPaths` so the next publish retries them.
+async function publishPostUnbatched(
+  postId: string,
+  ctx: PublishContext,
+  log: PublishLogger,
+  options?: { publishedAt?: Date },
+): Promise<void> {
+  const post = ctx.posts.find((p) => p.id === postId) ?? ctx.pages.find((p) => p.id === postId);
+  if (!post) throw new Error(`Post ${postId} not found.`);
+
+  // Now fires with (post, ctx) — older handlers ignoring the second
+  // arg keep working. Plugins that need to refresh module-level
+  // caches before rendering (e.g. multilang's pathRegistry for
+  // hreflang injection) use this hook because it runs BEFORE
+  // renderSingle, which calls page.head.extra. The publish.complete
+  // action fires too late to seed the head filter for the same
+  // publish pass.
+  await doAction("publish.before", post, ctx);
+
+  const term = post.primaryTermId ? ctx.terms.find((t) => t.id === post.primaryTermId) : undefined;
+  // Pages bound to the static home live at index.html only. The home
+  // regeneration pass below renders the actual file via the theme's
+  // home template — we just need to clean up any leftover <slug>.html
+  // (e.g. from a previous publish before this page was bound) and
+  // mark the post as online at the home path.
+  const homeBound = isStaticHome(post, ctx.settings);
+  const newPath = homeBound ? HOME_PATH : buildPostUrl({ post, primaryTerm: term });
+
+  // Wipe every known stale path before re-uploading. If a previous publish
+  // failed to clean a path, it lives in previousPublishedPaths and is
+  // retried here. Deletion happens BEFORE upload so a same-path republish
+  // only ever transitions the file (delete-then-upload), and a path-change
+  // never leaves the old file orphaned.
+  const failedDeletions = await cleanupStalePaths(
+    [post.lastPublishedPath ?? "", ...(post.previousPublishedPaths ?? [])],
+    newPath,
+    log,
+  );
+
+  let hash = "";
+  if (homeBound) {
+    log({ level: "info", message: "Page bound to home — index.html will be written by the listing pass." });
+  } else {
+    log({ level: "info", message: "Rendering page…" });
+    const html = await renderSingle(post, ctx);
+    const result = await uploadIfChanged(newPath, html, post.lastPublishedHash, log);
+    hash = result.hash;
+  }
+
+  // Plugin-driven additional renders (e.g. multilang translations). Each
+  // entry is uploaded to its own path and any path that used to be in
+  // the post's previously-known set but isn't in the new set gets pushed
+  // into `previousPublishedPaths` for the standard cleanup retry on the
+  // next publish.
+  const additional = await applyFilters<AdditionalRender[]>(
+    "publish.additional",
+    [],
+    post,
+    ctx,
+  );
+  const newAdditionalPaths: string[] = [];
+  for (const entry of additional) {
+    if (!entry.path || entry.path === newPath) continue;
+    log({ level: "info", message: `Uploading ${entry.path}…` });
+    await uploadFile({ path: entry.path, content: entry.html });
+    newAdditionalPaths.push(entry.path);
+  }
+  // Plugins that wrote additional paths last time but skipped them this
+  // time (e.g. user disabled a language) are detected by diffing
+  // `lastPublishedPathsByLocale` against the new set. Any orphan goes
+  // into `failedDeletions` so the publisher cleanup pipeline retries it
+  // on the next publish.
+  const previousByLocale = post.lastPublishedPathsByLocale ?? {};
+  for (const orphan of Object.values(previousByLocale)) {
+    if (!orphan || orphan === newPath) continue;
+    if (newAdditionalPaths.includes(orphan)) continue;
+    try {
+      await deleteFile(orphan);
+      log({ level: "info", message: `Deleted stale additional ${orphan}` });
+    } catch (err) {
+      log({ level: "warn", message: `Could not delete ${orphan}: ${(err as Error).message}` });
+      failedDeletions.push(orphan);
+    }
+  }
+
+  await markPostOnline(post.id, {
+    lastPublishedPath: newPath,
+    lastPublishedHash: hash,
+    previousPublishedPaths: failedDeletions,
+    publishedAt: options?.publishedAt,
+  });
+  // Reflect the transition locally so the listings regenerated below
+  // include this post. Without this, renderHome would still see status
+  // "draft" and silently skip it until the next publish action.
+  applyPostStatusInCtx(ctx, post.id, {
+    status: "online",
+    lastPublishedPath: newPath,
+    lastPublishedHash: hash,
+    previousPublishedPaths: failedDeletions,
+  });
+
+  if (!ctx.bulkMode) {
+    log({ level: "info", message: "Regenerating listings…" });
+    await regenerateListings(ctx, log);
+    // Refresh the author's archive so it lists this post (or doesn't,
+    // when it just transitioned in/out of online). Other authors are
+    // unaffected — only re-render the one we touched.
+    if (post.authorId) await publishAuthorArchive(post.authorId, ctx, log);
+    await republishMenu(ctx, log);
+    await republishPostsJson(ctx, log);
+    await republishAuthorsJson(ctx, log);
+  }
+
+  log({ level: "success", message: `Published to /${newPath}` });
+  if (!ctx.bulkMode) {
+    // Bulk callers run a single flushBulkRegeneration() at the end
+    // instead of letting each post trigger sitemaps / RSS / search
+    // regenerations individually. publish.before still fires above
+    // because per-render state (multilang hreflang cache) needs it.
+    await doAction("publish.after", post, ctx);
+    await doAction("publish.complete", post, ctx);
+  }
+}
+
+async function unpublishPostUnbatched(
+  postId: string,
+  ctx: PublishContext,
+  log: PublishLogger,
+): Promise<void> {
+  const post = ctx.posts.find((p) => p.id === postId) ?? ctx.pages.find((p) => p.id === postId);
+  if (!post) throw new Error(`Post ${postId} not found.`);
+  // Wipe every known historical path so unpublishing never leaves a
+  // visible file on the public site. `keepPath: ""` makes cleanupStalePaths
+  // attempt every path it sees (the empty string is filtered out by the
+  // truthy check inside).
+  await cleanupStalePaths(
+    [post.lastPublishedPath ?? "", ...(post.previousPublishedPaths ?? [])],
+    "",
+    log,
+  );
+  await markPostDraft(post.id);
+  // Mirror of the publish path: drop the post from the in-memory online set
+  // so renderHome / renderCategory exclude it on the very next regeneration.
+  applyPostStatusInCtx(ctx, post.id, {
+    status: "draft",
+    lastPublishedPath: undefined,
+    lastPublishedHash: undefined,
+  });
+  if (!ctx.bulkMode) {
+    await regenerateListings(ctx, log);
+    if (post.authorId) await publishAuthorArchive(post.authorId, ctx, log);
+    await republishMenu(ctx, log);
+    await republishPostsJson(ctx, log);
+    await republishAuthorsJson(ctx, log);
+  }
+  log({ level: "success", message: "Unpublished." });
+  if (!ctx.bulkMode) {
+    await doAction("post.unpublished", post, ctx);
+  }
+}
+
+// Regenerates the home page and every category archive. Doesn't touch
+// individual posts. Called on every publish/unpublish so listings stay in
+// sync with the latest state.
+async function regenerateListingsUnbatched(ctx: PublishContext, log: PublishLogger): Promise<void> {
+  // Fires BEFORE renderHome/renderCategory so plugins can refresh
+  // module-level caches (multilang's pathRegistry for hreflang on
+  // listing pages). Same pattern as publishPost's `publish.before`
+  // but scoped to the listing-only regeneration path — there's no
+  // single "post" to pass, just the live ctx.
+  await doAction("regenerate.listings.before", ctx);
+  const homeHtml = await renderHome(ctx);
+  await uploadIfChanged(HOME_PATH, homeHtml, undefined, log);
+
+  for (const term of ctx.terms.filter((t) => t.type === "category")) {
+    const html = await renderCategory(term, ctx);
+    await uploadIfChanged(buildTermUrl(term), html, undefined, log);
+  }
+
+  // Plugin-driven additional listings (e.g. per-locale homes + per-locale
+  // category archives produced by flexweg-multilang). The plugin owns its
+  // own cleanup of stale paths because we don't track these across calls
+  // — they're regenerated wholesale on every listing pass.
+  const extras = await applyFilters<AdditionalListingRender[]>(
+    "publish.extraListings",
+    [],
+    ctx,
+  );
+  for (const entry of extras) {
+    if (!entry.path) continue;
+    await uploadIfChanged(entry.path, entry.html, undefined, log);
+  }
+}
+
+// Publishes ONLY the home page — no category archives, no JSON
+// snapshots, no posts. Surfaces the cheapest "I touched the home"
+// regeneration entry for the Themes ▸ Regenerate ▾ dropdown.
+async function regenerateHomeOnlyUnbatched(
+  ctx: PublishContext,
+  log: PublishLogger,
+): Promise<void> {
+  log({ level: "info", message: "Regenerating home page…" });
+  // Same pre-render hook as regenerateListings — gives plugins a
+  // chance to refresh their caches (e.g. multilang's pathRegistry).
+  await doAction("regenerate.listings.before", ctx);
+  const homeHtml = await renderHome(ctx);
+  await uploadIfChanged(HOME_PATH, homeHtml, undefined, log);
+  // Fire `publish.extraListings` so plugin-driven per-locale homes
+  // are also re-rendered. Without this, the multilang plugin's
+  // localised homes stay stale when the user clicks "Regenerate home".
+  // The filter signature is shared with regenerateListings so the
+  // same handlers fire here too.
+  const extras = await applyFilters<AdditionalListingRender[]>(
+    "publish.extraListings",
+    [],
+    ctx,
+  );
+  for (const entry of extras) {
+    if (!entry.path) continue;
+    await uploadIfChanged(entry.path, entry.html, undefined, log);
+  }
+  log({ level: "success", message: "Home page regenerated." });
+}
+
+// Re-publish the dynamic /menu.json blob the public-side burger loader
+// reads. Called as a tail-step of every publish/unpublish/delete so menu
+// items stay in sync with post slugs / category slugs even though we
+// don't re-render every HTML page. Best-effort: a failure here gets
+// logged + already-toasted by flexwegApi but never aborts the publish.
+async function republishMenu(ctx: PublishContext, log: PublishLogger): Promise<void> {
+  try {
+    await publishMenuJson(ctx.settings, ctx.posts, ctx.pages, ctx.terms);
+  } catch (err) {
+    log({ level: "warn", message: `Menu JSON republish failed: ${(err as Error).message}` });
+  }
+}
+
+// Re-publish /posts.json — the snapshot consumed by the theme's runtime
+// posts loader to fill sidebar widgets (related posts today, latest /
+// recommended later). Same lifecycle as republishMenu: tail step on
+// every publish/unpublish/delete + regenerateAll, best-effort.
+async function republishPostsJson(ctx: PublishContext, log: PublishLogger): Promise<void> {
+  try {
+    await publishPostsJson(ctx.settings, ctx.posts, ctx.pages, ctx.terms, ctx.media);
+  } catch (err) {
+    log({ level: "warn", message: `Posts JSON republish failed: ${(err as Error).message}` });
+  }
+}
+
+// Re-publish /authors.json — the snapshot consumed by the theme's
+// posts-loader to fill the AuthorBio sidebar block on single posts.
+// Lets bio / avatar / name updates reflect on the public site without
+// having to re-render every post HTML the author ever wrote. Also
+// invoked directly from the user-edit modal in /users on profile save.
+// Best-effort: failure is logged + already-toasted by flexwegApi.
+async function republishAuthorsJson(ctx: PublishContext, log: PublishLogger): Promise<void> {
+  try {
+    await publishAuthorsJson(ctx.users, ctx.media, ctx.posts, ctx.pages);
+  } catch (err) {
+    log({ level: "warn", message: `Authors JSON republish failed: ${(err as Error).message}` });
+  }
+}
+
+// Repair pass: walks every online post, recomputes the canonical
+// `buildPostUrl` against the current `ctx.terms`, and re-publishes the
+// posts whose current `lastPublishedPath` no longer matches. Lighter
+// than `regenerateAll` because it skips the home / listings / author
+// passes and skips any post whose path is already correct.
+//
+// Useful after an import that ran with a stale terms list (or any
+// scenario where a post got published at a wrong path and the user
+// wants a one-click fix without doing surgery on individual posts).
+//
+// Cleanup of the stale path happens via the standard cleanupStalePaths
+// flow — the old file is deleted before the new one is uploaded.
+async function repairPublishPathsUnbatched(
+  ctx: PublishContext,
+  log: PublishLogger,
+): Promise<{ repaired: number; checked: number }> {
+  const onlinePosts = [...ctx.posts, ...ctx.pages].filter((p) => p.status === "online");
+  log({ level: "info", message: `Checking ${onlinePosts.length} online posts for path drift…` });
+
+  let repaired = 0;
+  for (const post of onlinePosts) {
+    const term = post.primaryTermId ? ctx.terms.find((t) => t.id === post.primaryTermId) : undefined;
+    const homeBound = isStaticHome(post, ctx.settings);
+    const expectedPath = homeBound ? HOME_PATH : buildPostUrl({ post, primaryTerm: term });
+    if (post.lastPublishedPath === expectedPath) continue;
+    log({
+      level: "info",
+      message: `Repairing "${post.title}": ${post.lastPublishedPath || "(none)"} → ${expectedPath}`,
+    });
+    const failedDeletions = await cleanupStalePaths(
+      [post.lastPublishedPath ?? "", ...(post.previousPublishedPaths ?? [])],
+      expectedPath,
+      log,
+    );
+    let hash = "";
+    if (!homeBound) {
+      // Fire publish.before for the same reason regenerateAll does —
+      // gives plugins (multilang's pathRegistry) a chance to seed
+      // their caches before renderSingle reads them.
+      await doAction("publish.before", post, ctx);
+      const html = await renderSingle(post, ctx);
+      const result = await uploadIfChanged(expectedPath, html, undefined, log);
+      hash = result.hash;
+    }
+    await markPostOnline(post.id, {
+      lastPublishedPath: expectedPath,
+      lastPublishedHash: hash,
+      previousPublishedPaths: failedDeletions,
+    });
+    repaired++;
+    await new Promise((r) => setTimeout(r, 75));
+  }
+
+  // After repairing the post files, refresh listings + menu.json + the
+  // posts/authors JSON so any URL change propagates. Skip if nothing
+  // moved.
+  if (repaired > 0) {
+    await regenerateListings(ctx, log);
+    await republishMenu(ctx, log);
+    await republishPostsJson(ctx, log);
+  }
+
+  log({
+    level: "success",
+    message: `Repair complete: ${repaired} of ${onlinePosts.length} posts moved.`,
+  });
+  return { repaired, checked: onlinePosts.length };
+}
+
+// Full regeneration: every online post, every category, the home, the 404.
+// Used after a theme switch or a settings change that affects every page.
+// Throttled to avoid hammering the Flexweg API.
+async function regenerateAllUnbatched(ctx: PublishContext, log: PublishLogger): Promise<void> {
+  const onlinePosts = [...ctx.posts, ...ctx.pages].filter((p) => p.status === "online");
+  log({ level: "info", message: `Regenerating ${onlinePosts.length + ctx.terms.length + 2} files…` });
+
+  for (const post of onlinePosts) {
+    // Mirror publishPost's pre-render lifecycle so plugin handlers
+    // that prep state for rendering (e.g. multilang refreshing its
+    // pathRegistry for hreflang injection) fire ahead of the
+    // primary renderSingle call. Without this, regenerate-all would
+    // emit primary pages without hreflang tags — breaking hreflang
+    // reciprocity since the localised variants below get the
+    // refresh through `publish.additional`.
+    await doAction("publish.before", post, ctx);
+    const term = post.primaryTermId ? ctx.terms.find((t) => t.id === post.primaryTermId) : undefined;
+    // Same home-binding short-circuit as publishPost: a page bound to
+    // the static home lives at index.html only, written by the
+    // regenerateListings pass right after this loop.
+    const homeBound = isStaticHome(post, ctx.settings);
+    const path = homeBound ? HOME_PATH : buildPostUrl({ post, primaryTerm: term });
+    // Same multi-path cleanup as a single publish — keeps the public site
+    // in a consistent state if regenerateAll is invoked after a series of
+    // path changes that left orphans.
+    const failedDeletions = await cleanupStalePaths(
+      [post.lastPublishedPath ?? "", ...(post.previousPublishedPaths ?? [])],
+      path,
+      log,
+    );
+    let hash = "";
+    if (!homeBound) {
+      const html = await renderSingle(post, ctx);
+      const result = await uploadIfChanged(path, html, undefined, log);
+      hash = result.hash;
+    }
+    // Plugin-driven additional renders (multilang translations etc.) —
+    // same hook as publishPost so a full regeneration carries every
+    // language variant too. Without this, "Regenerate all" only
+    // refreshes primary-language pages and leaves localised variants
+    // pinned at their last manually-published state.
+    const additional = await applyFilters<AdditionalRender[]>(
+      "publish.additional",
+      [],
+      post,
+      ctx,
+    );
+    for (const entry of additional) {
+      if (!entry.path || entry.path === path) continue;
+      log({ level: "info", message: `Uploading ${entry.path}…` });
+      await uploadFile({ path: entry.path, content: entry.html });
+    }
+    await markPostOnline(post.id, {
+      lastPublishedPath: path,
+      lastPublishedHash: hash,
+      previousPublishedPaths: failedDeletions,
+    });
+    // Soft throttle: avoid bursting the API with hundreds of uploads in a tight loop.
+    await new Promise((r) => setTimeout(r, 75));
+  }
+
+  await regenerateListings(ctx, log);
+
+  // Author archives — one per user referenced as authorId on at least
+  // one online post. Same throttle as the post pass to spare the API.
+  const authorIds = new Set<string>();
+  for (const p of onlinePosts) if (p.authorId) authorIds.add(p.authorId);
+  for (const id of authorIds) {
+    await publishAuthorArchive(id, ctx, log);
+    await new Promise((r) => setTimeout(r, 75));
+  }
+
+  const notFoundHtml = await renderNotFound(ctx);
+  await uploadIfChanged(NOT_FOUND_PATH, notFoundHtml, undefined, log);
+  await republishMenu(ctx, log);
+  await republishPostsJson(ctx, log);
+  await republishAuthorsJson(ctx, log);
+
+  log({ level: "success", message: "Regeneration complete." });
+}
+
+// Called once at the end of a bulk operation (import, multi-publish,
+// multi-delete) to do the cascade work that was deferred by setting
+// `ctx.bulkMode = true` on every per-entity call. Re-renders the home
+// + every category archive + every touched author archive, refreshes
+// the menu / posts / authors JSON snapshots, and runs every registered
+// plugin regeneration target (sitemaps, RSS, search, archives, …) so
+// the public site reflects the bulk changes as cheaply as possible.
+//
+// `regenerationTargets` is supplied by the caller (typically loaded
+// via `listRegenerationTargets()` from the in-tree registry) so this
+// module doesn't take a dependency on the registry directly — keeps
+// the publisher importable without pulling the plugin-side glue.
+async function flushBulkRegenerationUnbatched(
+  ctx: PublishContext,
+  log: PublishLogger,
+  regenerationTargets: Array<{
+    id: string;
+    run: (ctx: PublishContext, log: PublishLogger) => Promise<void>;
+  }>,
+): Promise<void> {
+  // Clear bulkMode so the cascade helpers below run their inner
+  // pre-render hooks (publish.before, regenerate.listings.before)
+  // and any `doAction` calls they make fire normally.
+  ctx.bulkMode = false;
+
+  log({ level: "info", message: "Flushing bulk regeneration — listings…" });
+  await regenerateListings(ctx, log);
+
+  // One author archive per author with at least one post — collected
+  // from the live ctx so deletes don't leak archives for now-empty
+  // authors (their archive is overwritten or left in place, callers
+  // can delete it explicitly via the Users page).
+  const onlinePosts = [...ctx.posts, ...ctx.pages].filter((p) => p.status === "online");
+  const authorIds = new Set<string>();
+  for (const p of onlinePosts) if (p.authorId) authorIds.add(p.authorId);
+  for (const id of authorIds) {
+    await publishAuthorArchive(id, ctx, log);
+  }
+
+  await republishMenu(ctx, log);
+  await republishPostsJson(ctx, log);
+  await republishAuthorsJson(ctx, log);
+
+  // Plugin regeneration targets — sitemaps, RSS, search, archives, …
+  // Each target does a FULL rebuild (not incremental), which is the
+  // correct shape after a bulk operation touched many posts.
+  for (const target of regenerationTargets) {
+    try {
+      await target.run(ctx, log);
+    } catch (err) {
+      log({
+        level: "error",
+        message: `Plugin "${target.id}" regen failed: ${(err as Error).message}`,
+      });
+    }
+  }
+
+  log({ level: "success", message: "Bulk regeneration complete." });
+}
+
+async function deletePostAndUnpublishUnbatched(
+  postId: string,
+  ctx: PublishContext,
+  log: PublishLogger,
+): Promise<void> {
+  const post = ctx.posts.find((p) => p.id === postId) ?? ctx.pages.find((p) => p.id === postId);
+  if (!post) return;
+  // Wipe every recorded historical path. The Firestore doc is about to
+  // be removed by the caller, so even paths whose deletion still fails
+  // become unrecoverable orphans — best-effort is the right policy here.
+  await cleanupStalePaths(
+    [post.lastPublishedPath ?? "", ...(post.previousPublishedPaths ?? [])],
+    "",
+    log,
+  );
+  // Drop the post from the in-memory listings so the regeneration below
+  // doesn't keep referencing it. Caller still handles Firestore deletion
+  // afterwards (services/posts.ts).
+  ctx.posts = ctx.posts.filter((p) => p.id !== postId);
+  ctx.pages = ctx.pages.filter((p) => p.id !== postId);
+  if (post.status === "online" && !ctx.bulkMode) {
+    log({ level: "info", message: "Regenerating listings…" });
+    await regenerateListings(ctx, log);
+    if (post.authorId) await publishAuthorArchive(post.authorId, ctx, log);
+    await republishMenu(ctx, log);
+    await republishPostsJson(ctx, log);
+    await republishAuthorsJson(ctx, log);
+  }
+  if (!ctx.bulkMode) {
+    await doAction("post.deleted", post, ctx);
+  }
+}
+
+// ─── Batched entry points ───────────────────────────────────────────────
+// Every public mutating entry point runs inside a storage batch so a
+// "commit" / "deployment" publish target (git-backed Pages, …) receives
+// ONE commit per user action instead of one per file. Nested calls
+// (publishPost → regenerateListings, …) share the outer batch. For the
+// "files" model (Flexweg) the batch is a pass-through.
+// Hoisted function declarations on purpose — same TDZ-safety reason as
+// the service dispatchers (flexwegRuntime reads these at module init).
+
+export function publishAuthorArchive(
+  ...args: Parameters<typeof publishAuthorArchiveUnbatched>
+): ReturnType<typeof publishAuthorArchiveUnbatched> {
+  return withStorageBatch(() => publishAuthorArchiveUnbatched(...args));
+}
+
+export function publishPost(
+  ...args: Parameters<typeof publishPostUnbatched>
+): ReturnType<typeof publishPostUnbatched> {
+  return withStorageBatch(() => publishPostUnbatched(...args));
+}
+
+export function unpublishPost(
+  ...args: Parameters<typeof unpublishPostUnbatched>
+): ReturnType<typeof unpublishPostUnbatched> {
+  return withStorageBatch(() => unpublishPostUnbatched(...args));
+}
+
+export function regenerateListings(
+  ...args: Parameters<typeof regenerateListingsUnbatched>
+): ReturnType<typeof regenerateListingsUnbatched> {
+  return withStorageBatch(() => regenerateListingsUnbatched(...args));
+}
+
+export function regenerateHomeOnly(
+  ...args: Parameters<typeof regenerateHomeOnlyUnbatched>
+): ReturnType<typeof regenerateHomeOnlyUnbatched> {
+  return withStorageBatch(() => regenerateHomeOnlyUnbatched(...args));
+}
+
+export function repairPublishPaths(
+  ...args: Parameters<typeof repairPublishPathsUnbatched>
+): ReturnType<typeof repairPublishPathsUnbatched> {
+  return withStorageBatch(() => repairPublishPathsUnbatched(...args));
+}
+
+export function regenerateAll(
+  ...args: Parameters<typeof regenerateAllUnbatched>
+): ReturnType<typeof regenerateAllUnbatched> {
+  return withStorageBatch(() => regenerateAllUnbatched(...args));
+}
+
+export function flushBulkRegeneration(
+  ...args: Parameters<typeof flushBulkRegenerationUnbatched>
+): ReturnType<typeof flushBulkRegenerationUnbatched> {
+  return withStorageBatch(() => flushBulkRegenerationUnbatched(...args));
+}
+
+export function deletePostAndUnpublish(
+  ...args: Parameters<typeof deletePostAndUnpublishUnbatched>
+): ReturnType<typeof deletePostAndUnpublishUnbatched> {
+  return withStorageBatch(() => deletePostAndUnpublishUnbatched(...args));
+}

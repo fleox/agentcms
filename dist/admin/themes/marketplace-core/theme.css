@@ -1,0 +1,1613 @@
+/* Marketplace Core — hand-written theme stylesheet (no Tailwind
+   build for the external scaffold to keep `npm install` light). All
+   rules use CSS variables for the Material 3 palette, so the
+   Theme Settings → Style tab can swap them at upload time via
+   compileCss. */
+@import url("https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
+
+:root {
+  --color-background: 249 249 255;
+  --color-surface: 249 249 255;
+  --color-surface-container-lowest: 255 255 255;
+  --color-surface-container-low: 241 243 255;
+  --color-surface-container: 233 237 255;
+  --color-surface-container-high: 227 232 249;
+  --color-surface-container-highest: 221 226 243;
+  --color-on-surface: 22 28 40;
+  --color-on-surface-variant: 67 70 85;
+  --color-outline: 116 118 134;
+  --color-outline-variant: 196 197 215;
+  --color-primary: 0 55 176;
+  --color-on-primary: 255 255 255;
+  --color-primary-container: 29 78 216;
+  --color-on-primary-container: 202 211 255;
+  --color-secondary: 70 72 212;
+  --color-on-secondary: 255 255 255;
+  --color-tertiary: 101 0 174;
+  --color-on-tertiary: 255 255 255;
+  --color-success: 46 125 50;
+  --color-success-container: 232 245 233;
+  --font-headline: "Hanken Grotesk";
+  --font-body: "Inter";
+}
+
+/* ───── Reset / base ───── */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: rgb(var(--color-background));
+  color: rgb(var(--color-on-surface));
+  font-family: var(--font-body), Inter, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; height: auto; }
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+/* ───── Material Symbols ───── */
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  vertical-align: middle;
+  line-height: 1;
+  font-size: 24px;
+}
+
+/* ───── Typography helpers ───── */
+.font-headline {
+  font-family: var(--font-headline), "Hanken Grotesk", system-ui, sans-serif;
+}
+.text-display-lg {
+  font-size: 48px; line-height: 1.1; font-weight: 800; letter-spacing: -0.02em;
+}
+.text-headline-lg { font-size: 32px; line-height: 1.2; font-weight: 700; letter-spacing: -0.01em; }
+.text-headline-md { font-size: 24px; line-height: 1.3; font-weight: 600; }
+.text-body-lg { font-size: 18px; line-height: 1.6; }
+.text-body-md { font-size: 16px; line-height: 1.5; }
+.text-label-md { font-size: 14px; font-weight: 600; line-height: 1; letter-spacing: 0.02em; }
+@media (max-width: 768px) {
+  .text-display-lg { font-size: 36px; }
+  .text-headline-lg { font-size: 28px; }
+}
+
+/* ───── Layout shell ───── */
+.mp-app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.mp-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgb(var(--color-surface));
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+  /* Scroll-hide: the inline script in BaseLayout toggles
+     `.is-hidden` based on scroll direction (down → hide, up or
+     near top → show). We use translateY rather than display so
+     the transition runs smoothly. `will-change` hints the
+     browser to keep this on a compositing layer. */
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+.mp-header.is-hidden {
+  transform: translateY(-100%);
+  box-shadow: none;
+}
+.mp-header__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  gap: 24px;
+}
+.mp-brand {
+  font-family: var(--font-headline);
+  font-size: 28px;
+  font-weight: 800;
+  color: rgb(var(--color-primary));
+  letter-spacing: -0.01em;
+}
+.mp-header__nav {
+  display: none;
+  align-items: center;
+  gap: 24px;
+}
+.mp-nav-link {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgb(var(--color-on-surface-variant));
+  padding: 8px 12px;
+  border-radius: 9999px;
+  transition: background 0.2s, color 0.2s;
+}
+.mp-nav-link:hover { background: rgb(var(--color-surface-container)); color: rgb(var(--color-on-surface)); }
+.mp-nav-link.is-active { background: rgb(var(--color-primary)); color: rgb(var(--color-on-primary)); }
+.mp-header__langswitch {
+  /* Sits between the nav and the search input. Collapsed when
+     the multilang plugin hasn't injected entries yet (empty
+     attribute) so it doesn't push spacing around. */
+  --cms-langswitch-on: rgb(var(--color-on-primary));
+  color: rgb(var(--color-on-surface-variant));
+  margin-left: 8px;
+}
+.mp-header__langswitch[data-cms-langswitch-empty] { display: none; }
+.mp-header__langswitch .cms-langswitch__current { background: rgb(var(--color-primary)); }
+.mp-footer__langswitch {
+  --cms-langswitch-on: rgb(var(--color-on-primary));
+  color: rgb(var(--color-on-surface-variant));
+  margin-right: 12px;
+}
+.mp-footer__langswitch[data-cms-langswitch-empty] { display: none; }
+.mp-footer__langswitch .cms-langswitch__current { background: rgb(var(--color-primary)); }
+
+.mp-header__search {
+  flex: 1;
+  max-width: 480px;
+  display: none;
+}
+.mp-search-input {
+  width: 100%;
+  background: rgb(var(--color-surface-container));
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 14px;
+  color: rgb(var(--color-on-surface));
+  outline: none;
+  cursor: pointer;
+  text-overflow: ellipsis;
+}
+.mp-search-input:hover {
+  background: rgb(var(--color-surface-container-high));
+}
+.mp-search-input:focus {
+  border-color: rgb(var(--color-primary));
+  background: rgb(var(--color-surface-container-lowest));
+}
+@media (min-width: 768px) {
+  .mp-header__nav { display: flex; }
+  .mp-header__search { display: block; }
+}
+
+.mp-layout {
+  display: flex;
+  flex: 1;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 20px;
+  gap: 24px;
+}
+@media (min-width: 768px) {
+  .mp-layout { padding: 0 24px; }
+}
+
+.mp-sidebar {
+  display: none;
+  width: 280px;
+  flex-shrink: 0;
+  padding-top: 24px;
+}
+@media (min-width: 1024px) {
+  .mp-sidebar {
+    display: block;
+    position: sticky;
+    top: 88px;
+    height: calc(100vh - 88px);
+    overflow-y: auto;
+  }
+}
+.mp-sidebar__heading {
+  font-family: var(--font-headline);
+  font-size: 24px;
+  font-weight: 700;
+  color: rgb(var(--color-on-surface));
+  margin: 0 0 16px 8px;
+}
+.mp-sidebar__group { margin-bottom: 24px; }
+.mp-sidebar__label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(var(--color-on-surface-variant));
+  padding: 0 12px;
+  margin-bottom: 8px;
+}
+.mp-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgb(var(--color-on-surface-variant));
+  transition: background 0.15s, color 0.15s;
+}
+.mp-sidebar__link:hover { background: rgb(var(--color-surface-container)); color: rgb(var(--color-on-surface)); }
+.mp-sidebar__link.is-active { background: rgb(var(--color-primary-container)); color: rgb(var(--color-on-primary-container)); }
+.mp-sidebar__link .material-symbols-outlined { font-size: 20px; }
+
+.mp-main {
+  flex: 1;
+  min-width: 0;
+  padding: 24px 0 64px;
+}
+
+/* ───── Cards (product card — Level 1 elevation) ───── */
+.mp-card {
+  background: rgb(var(--color-surface-container-lowest));
+  border-radius: 24px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  display: block;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.mp-card:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+.mp-card__image {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: rgb(var(--color-surface-container));
+  object-fit: cover;
+}
+.mp-card__body { padding: 20px 24px 24px; }
+.mp-card__category {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgb(var(--color-primary));
+  margin-bottom: 6px;
+}
+.mp-card__title {
+  font-family: var(--font-headline);
+  font-size: 18px;
+  font-weight: 700;
+  color: rgb(var(--color-on-surface));
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+.mp-card__excerpt {
+  font-size: 14px;
+  color: rgb(var(--color-on-surface-variant));
+  margin: 0 0 16px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.mp-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.mp-card__author {
+  font-size: 13px;
+  color: rgb(var(--color-on-surface-variant));
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mp-badge-free {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgb(var(--color-success));
+  background: rgb(var(--color-success-container));
+  padding: 4px 10px;
+  border-radius: 9999px;
+}
+
+/* ───── Grid layouts ───── */
+.mp-grid { display: grid; gap: 24px; }
+.mp-grid--3 { grid-template-columns: 1fr; }
+@media (min-width: 640px) { .mp-grid--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .mp-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.mp-grid--2 { grid-template-columns: 1fr; }
+@media (min-width: 768px) { .mp-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.mp-section { margin-bottom: 64px; }
+.mp-section__heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 16px;
+}
+.mp-section__heading h2 {
+  font-family: var(--font-headline);
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+.mp-section__see-all {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgb(var(--color-primary));
+}
+
+/* ───── Hero banner ───── */
+.mp-hero {
+  position: relative;
+  background: linear-gradient(135deg, rgb(var(--color-primary)) 0%, rgb(var(--color-tertiary)) 100%);
+  border-radius: 32px;
+  overflow: hidden;
+  padding: 56px 48px;
+  color: rgb(var(--color-on-primary));
+  margin-bottom: 64px;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.mp-hero__eyebrow {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  margin-bottom: 12px;
+}
+.mp-hero h1 {
+  font-family: var(--font-headline);
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 16px;
+  max-width: 680px;
+}
+@media (min-width: 768px) {
+  .mp-hero h1 { font-size: 48px; }
+}
+.mp-hero p {
+  font-size: 18px;
+  line-height: 1.6;
+  max-width: 580px;
+  opacity: 0.95;
+  margin: 0 0 24px;
+}
+
+/* ───── Buttons ───── */
+.mp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 9999px;
+  padding: 14px 28px;
+  transition: opacity 0.15s, transform 0.1s, box-shadow 0.2s;
+  min-height: 48px;
+}
+.mp-btn:active { transform: scale(0.98); }
+a.mp-btn { text-decoration: none; }
+.mp-btn.mp-btn--primary {
+  background: rgb(var(--color-primary));
+  color: rgb(var(--color-on-primary));
+  box-shadow: 0 6px 20px rgba(0, 55, 176, 0.25);
+}
+.mp-btn.mp-btn--primary:hover { opacity: 0.92; color: rgb(var(--color-on-primary)); }
+.mp-btn.mp-btn--secondary {
+  background: rgb(var(--color-surface-container));
+  color: rgb(var(--color-primary));
+  border: 1px solid rgb(var(--color-outline-variant));
+}
+.mp-btn.mp-btn--secondary:hover { background: rgb(var(--color-surface-container-high)); }
+.mp-btn.mp-btn--ghost {
+  background: rgb(var(--color-surface));
+  color: rgb(var(--color-on-surface));
+}
+.mp-btn.mp-btn--ghost:hover { background: rgb(var(--color-surface-container)); }
+
+/* ───── Single page ───── */
+.mp-product {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  margin-bottom: 64px;
+}
+@media (min-width: 1024px) {
+  .mp-product { grid-template-columns: 7fr 5fr; }
+}
+.mp-product__gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.mp-product__hero-image {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: rgb(var(--color-surface-container));
+  border-radius: 24px;
+  object-fit: cover;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+}
+.mp-product__thumbs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.mp-product__thumb {
+  aspect-ratio: 1 / 1;
+  background: rgb(var(--color-surface-container));
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+.mp-product__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mp-product__thumb:hover, .mp-product__thumb.is-active { border-color: rgb(var(--color-primary)); }
+.mp-product__hero-image { cursor: zoom-in; }
+
+.mp-product__info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.mp-product__category {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgb(var(--color-primary));
+}
+.mp-product__title {
+  font-family: var(--font-headline);
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.mp-product__author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: rgb(var(--color-on-surface-variant));
+  font-size: 14px;
+}
+.mp-product__author img {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  object-fit: cover;
+  background: rgb(var(--color-surface-container));
+}
+.mp-product__excerpt {
+  font-size: 18px;
+  line-height: 1.6;
+  color: rgb(var(--color-on-surface-variant));
+}
+.mp-product__cta-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+.mp-product__cta-row .mp-btn { flex: 1; }
+
+/* ───── Sections inside single (description, body prose) ───── */
+.mp-section-heading {
+  font-family: var(--font-headline);
+  font-size: 24px;
+  font-weight: 700;
+  border-bottom: 1px solid rgb(var(--color-outline-variant));
+  padding-bottom: 16px;
+  margin: 48px 0 24px;
+}
+.mp-prose {
+  font-size: 16px;
+  line-height: 1.7;
+  color: rgb(var(--color-on-surface));
+  max-width: 720px;
+}
+.mp-prose p { margin: 0 0 16px; }
+.mp-prose h2 {
+  font-family: var(--font-headline);
+  font-size: 24px;
+  font-weight: 700;
+  margin: 32px 0 16px;
+}
+.mp-prose h3 {
+  font-family: var(--font-headline);
+  font-size: 18px;
+  font-weight: 600;
+  margin: 24px 0 12px;
+}
+.mp-prose ul, .mp-prose ol { padding-left: 24px; margin: 0 0 16px; }
+.mp-prose ul { list-style: disc; }
+.mp-prose ol { list-style: decimal; }
+.mp-prose li { margin-bottom: 6px; }
+.mp-prose a {
+  color: rgb(var(--color-primary));
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.mp-prose img {
+  border-radius: 16px;
+  margin: 24px 0;
+}
+.mp-prose code {
+  background: rgb(var(--color-surface-container));
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  font-family: ui-monospace, Menlo, monospace;
+}
+.mp-prose pre {
+  background: rgb(var(--color-surface-container));
+  padding: 16px;
+  border-radius: 12px;
+  overflow-x: auto;
+  margin: 16px 0;
+}
+
+/* ───── Specs block ───── */
+.mp-specs {
+  background: rgb(var(--color-surface-container-lowest));
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+}
+.mp-specs__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px 32px;
+}
+@media (max-width: 640px) {
+  .mp-specs__grid { grid-template-columns: 1fr; }
+}
+.mp-specs__row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mp-specs__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgb(var(--color-on-surface-variant));
+}
+.mp-specs__value {
+  font-size: 16px;
+  color: rgb(var(--color-on-surface));
+  font-weight: 500;
+}
+
+/* ───── Features bento ───── */
+.mp-features {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 640px) {
+  .mp-features { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.mp-features__item {
+  background: rgb(var(--color-surface-container-lowest));
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.mp-features__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgb(var(--color-primary-container));
+  color: rgb(var(--color-on-primary-container));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mp-features__icon .material-symbols-outlined { font-size: 28px; color: rgb(var(--color-on-primary));}
+.mp-features__title {
+  font-family: var(--font-headline);
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* ───── Author profile card ───── */
+.mp-author-card {
+  background: rgb(var(--color-surface-container-lowest));
+  border-radius: 32px;
+  padding: 32px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 48px;
+}
+@media (min-width: 768px) {
+  .mp-author-card { flex-direction: row; align-items: flex-start; }
+}
+.mp-author-card__avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 9999px;
+  background: rgb(var(--color-surface-container));
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.mp-author-card__info { flex: 1; text-align: center; }
+@media (min-width: 768px) { .mp-author-card__info { text-align: left; } }
+.mp-author-card__name {
+  font-family: var(--font-headline);
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+.mp-author-card__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgb(var(--color-primary));
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.mp-author-card__bio { color: rgb(var(--color-on-surface-variant)); margin: 0; }
+
+/* ───── Breadcrumb ───── */
+.mp-breadcrumb {
+  font-size: 13px;
+  color: rgb(var(--color-on-surface-variant));
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.mp-breadcrumb a:hover { color: rgb(var(--color-primary)); }
+.mp-breadcrumb__sep { opacity: 0.6; }
+
+/* ───── Footer ───── */
+.mp-footer {
+  background: rgb(var(--color-surface));
+  padding: 48px 24px 32px;
+  border-top: 1px solid rgb(var(--color-outline-variant));
+}
+.mp-footer__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+@media (min-width: 768px) {
+  .mp-footer__inner { flex-direction: row; align-items: center; justify-content: space-between; }
+}
+.mp-footer__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+.mp-footer__nav a {
+  font-size: 14px;
+  color: rgb(var(--color-on-surface-variant));
+}
+.mp-footer__nav a:hover { color: rgb(var(--color-primary)); }
+.mp-footer__copyright {
+  font-size: 13px;
+  color: rgb(var(--color-on-surface-variant));
+}
+
+/* ───── Mobile bottom nav ───── */
+.mp-bottom-nav {
+  display: flex;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgb(var(--color-surface));
+  border-top: 1px solid rgb(var(--color-outline-variant));
+  z-index: 40;
+  padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+  /* Scroll-hide: paired with `.mp-header` via the same script.
+     Slides off the bottom of the viewport when the user scrolls
+     down, slides back when they reverse or land near the top. */
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+.mp-bottom-nav.is-hidden {
+  transform: translateY(100%);
+}
+@media (min-width: 1024px) { .mp-bottom-nav { display: none; } }
+.mp-bottom-nav__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgb(var(--color-on-surface-variant));
+  padding: 8px 4px;
+}
+.mp-bottom-nav__item.is-active { color: rgb(var(--color-primary)); }
+.mp-bottom-nav__item .material-symbols-outlined { font-size: 24px; }
+
+/* Add bottom padding on mobile main canvas so content doesn't sit
+   under the bottom nav. */
+@media (max-width: 1023px) {
+  .mp-app { padding-bottom: 72px; }
+}
+
+/* ───── Filter tabs ───── */
+.mp-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid rgb(var(--color-outline-variant));
+  overflow-x: auto;
+}
+.mp-tabs__tab {
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgb(var(--color-on-surface-variant));
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+}
+.mp-tabs__tab.is-active {
+  color: rgb(var(--color-primary));
+  border-bottom-color: rgb(var(--color-primary));
+}
+
+/* ───── 404 ───── */
+.mp-404 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 96px 24px;
+  gap: 16px;
+}
+.mp-404 .material-symbols-outlined {
+  font-size: 80px;
+  color: rgb(var(--color-primary));
+}
+.mp-404 h1 {
+  font-family: var(--font-headline);
+  font-size: 48px;
+  font-weight: 800;
+  margin: 0;
+}
+
+/* ───── Static page body ───── */
+.mp-page-body {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 48px 0;
+}
+.mp-page-body h1 {
+  font-family: var(--font-headline);
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0 0 32px;
+}
+
+/* ───── Lightbox (gallery zoom) ───── */
+.mp-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.92);
+  padding: 24px;
+  animation: mp-lightbox-fade 0.18s ease-out;
+}
+.mp-lightbox[hidden] { display: none; }
+@keyframes mp-lightbox-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.mp-lightbox__stage {
+  position: relative;
+  max-width: min(1200px, 100%);
+  max-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mp-lightbox__image {
+  max-width: 100%;
+  max-height: calc(100vh - 96px);
+  width: auto;
+  height: auto;
+  border-radius: 16px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  object-fit: contain;
+  user-select: none;
+}
+.mp-lightbox__close,
+.mp-lightbox__prev,
+.mp-lightbox__next {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+  backdrop-filter: blur(8px);
+}
+.mp-lightbox__close:hover,
+.mp-lightbox__prev:hover,
+.mp-lightbox__next:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+.mp-lightbox__close:active,
+.mp-lightbox__prev:active,
+.mp-lightbox__next:active {
+  transform: scale(0.94);
+}
+.mp-lightbox__close {
+  top: 20px;
+  right: 20px;
+}
+.mp-lightbox__prev {
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.mp-lightbox__next {
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.mp-lightbox__prev:active { transform: translateY(-50%) scale(0.94); }
+.mp-lightbox__next:active { transform: translateY(-50%) scale(0.94); }
+.mp-lightbox__prev .material-symbols-outlined,
+.mp-lightbox__next .material-symbols-outlined,
+.mp-lightbox__close .material-symbols-outlined {
+  font-size: 28px;
+}
+.mp-lightbox__counter {
+  position: absolute;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+}
+@media (max-width: 640px) {
+  .mp-lightbox { padding: 12px; }
+  .mp-lightbox__close,
+  .mp-lightbox__prev,
+  .mp-lightbox__next {
+    width: 40px;
+    height: 40px;
+  }
+  .mp-lightbox__close { top: 12px; right: 12px; }
+  .mp-lightbox__prev { left: 12px; }
+  .mp-lightbox__next { right: 12px; }
+  .mp-lightbox__image { max-height: calc(100vh - 72px); }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   Landing surfaces (v1.3.0) — used by the marketplace home page.
+   All blocks: full-width sections, max-width inner column, generous
+   vertical padding that breathes on desktop and condenses on mobile.
+   ────────────────────────────────────────────────────────────────── */
+
+/* Shared section primitives */
+.mp-section-heading {
+  font-family: var(--font-headline);
+  font-size: clamp(28px, 3vw, 36px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: rgb(var(--color-on-surface));
+  margin: 0 0 12px;
+  text-align: center;
+}
+.mp-section-sub {
+  font-size: 16px;
+  color: rgb(var(--color-on-surface-variant));
+  margin: 0 auto 40px;
+  text-align: center;
+  max-width: 640px;
+  line-height: 1.55;
+}
+
+/* ── Landing hero ───────────────────────────────────────────────── */
+/* Single-column on every viewport: copy on top, visual below.
+   padding-top: 0 keeps the hero flush against the header so the
+   first thing the visitor sees is the headline, not whitespace. */
+.mp-hero-x {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  align-items: center;
+  padding: 0 0 56px;
+  margin-bottom: 24px;
+}
+@media (min-width: 900px) {
+  .mp-hero-x {
+    gap: 48px;
+    padding: 0 0 96px;
+  }
+}
+.mp-hero-x__eyebrow {
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  color: rgb(var(--color-primary));
+  margin: 0 0 16px;
+}
+.mp-hero-x__headline {
+  font-family: var(--font-headline);
+  font-size: clamp(36px, 5vw, 56px);
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: rgb(var(--color-on-surface));
+  margin: 0 0 20px;
+}
+.mp-hero-x__sub {
+  font-size: clamp(16px, 1.2vw, 19px);
+  color: rgb(var(--color-on-surface-variant));
+  line-height: 1.55;
+  margin: 0 0 28px;
+  max-width: 540px;
+}
+.mp-hero-x__ctas {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.mp-hero-x__visual {
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow:
+    0 30px 60px -20px rgb(0 0 0 / 25%),
+    0 0 0 1px rgb(var(--color-surface-container));
+  background: rgb(var(--color-surface-container));
+}
+.mp-hero-x__visual img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ── Stats bar ──────────────────────────────────────────────────── */
+.mp-stats {
+  padding: 24px 0;
+  margin: 8px 0 16px;
+}
+.mp-stats__row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  padding: 28px 32px;
+  background: rgb(var(--color-surface-container-low));
+  border: 1px solid rgb(var(--color-surface-container));
+  border-radius: 16px;
+}
+@media (min-width: 720px) {
+  .mp-stats__row {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.mp-stats__cell { text-align: center; }
+.mp-stats__value {
+  font-family: var(--font-headline);
+  font-size: clamp(28px, 3vw, 40px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: rgb(var(--color-on-surface));
+  margin: 0 0 4px;
+}
+.mp-stats__label {
+  font-size: 13px;
+  color: rgb(var(--color-on-surface-variant));
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ── Feature grid (3-col cards) ─────────────────────────────────── */
+.mp-grid-feat {
+  padding: 64px 0;
+}
+.mp-grid-feat__row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+@media (min-width: 720px) {
+  .mp-grid-feat__row { grid-template-columns: repeat(3, 1fr); }
+}
+.mp-grid-feat__card {
+  padding: 28px;
+  background: rgb(var(--color-surface-container-low));
+  border: 1px solid rgb(var(--color-surface-container));
+  border-radius: 16px;
+  transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+}
+.mp-grid-feat__card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px -16px rgb(0 0 0 / 30%);
+  border-color: rgb(var(--color-primary) / 30%);
+}
+.mp-grid-feat__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgb(var(--color-primary) / 12%);
+  color: rgb(var(--color-primary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.mp-grid-feat__icon .material-symbols-outlined {
+  font-size: 28px;
+}
+.mp-grid-feat__title {
+  font-family: var(--font-headline);
+  font-size: 19px;
+  font-weight: 700;
+  color: rgb(var(--color-on-surface));
+  margin: 0 0 8px;
+}
+.mp-grid-feat__body {
+  font-size: 15px;
+  color: rgb(var(--color-on-surface-variant));
+  margin: 0;
+  line-height: 1.55;
+}
+
+/* ── Feature row (text on top, image below) ────────────────────── */
+/* Stacked single-column on every viewport. The DOM has the image
+   first for legacy reasons (kept for backward compat with v1.3.0
+   exports); CSS `order` flips it so the copy always reads above
+   the visual — matches the mobile-style flow the design specifies
+   even on desktop. The `imagePosition` attribute is preserved on
+   the wrapper for any future visual treatment but doesn't affect
+   layout anymore. */
+.mp-row-feat {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  align-items: stretch;
+  padding: 56px 0;
+}
+.mp-row-feat__copy { order: 0; }
+.mp-row-feat__visual { order: 1; }
+.mp-row-feat__eyebrow {
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  color: rgb(var(--color-primary));
+  margin: 0 0 14px;
+}
+.mp-row-feat__headline {
+  font-family: var(--font-headline);
+  font-size: clamp(26px, 3vw, 38px);
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: rgb(var(--color-on-surface));
+  margin: 0 0 16px;
+}
+.mp-row-feat__body {
+  font-size: 16px;
+  color: rgb(var(--color-on-surface-variant));
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+.mp-row-feat__bullets {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+}
+.mp-row-feat__bullets li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 15px;
+  color: rgb(var(--color-on-surface));
+}
+.mp-row-feat__bullets .material-symbols-outlined {
+  color: rgb(var(--color-primary));
+  font-size: 20px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+.mp-row-feat__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgb(var(--color-primary));
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+}
+.mp-row-feat__cta:hover { opacity: 0.85; text-decoration: none; }
+/* Belt-and-braces — explicitly suppress underline on every landing-
+   block button. `a.mp-btn` already declares `text-decoration: none`
+   globally, but some user-agent stylesheets (Safari mainly) re-add
+   it on hover or focus, so we pin it here per surface. */
+.mp-hero-x .mp-btn,
+.mp-hero-x .mp-btn:hover,
+.mp-hero-x .mp-btn:focus,
+.mp-row-feat__cta,
+.mp-row-feat__cta:hover,
+.mp-row-feat__cta:focus,
+.mp-cta-banner .mp-btn,
+.mp-cta-banner .mp-btn:hover,
+.mp-cta-banner .mp-btn:focus { text-decoration: none; }
+.mp-row-feat__visual {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow:
+    0 20px 50px -20px rgb(0 0 0 / 20%),
+    0 0 0 1px rgb(var(--color-surface-container));
+  background: rgb(var(--color-surface-container));
+}
+.mp-row-feat__visual img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ── CTA banner ─────────────────────────────────────────────────── */
+.mp-cta-banner {
+  padding: 56px 0;
+}
+.mp-cta-banner__inner {
+  padding: 56px 32px;
+  background:
+    linear-gradient(135deg,
+      rgb(var(--color-primary) / 92%),
+      rgb(var(--color-primary-container) / 75%));
+  border-radius: 24px;
+  text-align: center;
+  color: rgb(var(--color-on-primary));
+}
+.mp-cta-banner__headline {
+  font-family: var(--font-headline);
+  font-size: clamp(28px, 3vw, 40px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0 0 16px;
+  color: rgb(var(--color-on-primary));
+}
+.mp-cta-banner__body {
+  font-size: 16px;
+  opacity: 0.92;
+  margin: 0 auto 28px;
+  max-width: 560px;
+  line-height: 1.55;
+}
+.mp-cta-banner__ctas {
+  display: inline-flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.mp-cta-banner .mp-btn--primary {
+  background: rgb(var(--color-on-primary));
+  color: rgb(var(--color-primary));
+}
+.mp-cta-banner .mp-btn--primary:hover { opacity: 0.92; }
+.mp-cta-banner .mp-btn--ghost {
+  background: transparent;
+  color: rgb(var(--color-on-primary));
+  border: 1px solid rgb(var(--color-on-primary) / 50%);
+}
+.mp-cta-banner .mp-btn--ghost:hover {
+  background: rgb(var(--color-on-primary) / 12%);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+ * No-image card variant — used by ProductCard when card.hero is
+ * absent (typical for imported docs). Drops the 16:10 image slot,
+ * adds top padding to compensate, hides the Free-badge footer.
+ * The category line becomes more prominent so the card still feels
+ * intentional rather than a stripped-down product card.
+ * ───────────────────────────────────────────────────────────────── */
+.mp-card--no-image .mp-card__image { display: none; }
+.mp-card--no-image .mp-card__body { padding: 28px 24px; }
+.mp-card--no-image .mp-card__category {
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+.mp-card--no-image .mp-card__title {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+.mp-card--no-image .mp-card__excerpt {
+  -webkit-line-clamp: 3;
+  margin: 0;
+}
+.mp-card--no-image .mp-card__footer { display: none; }
+
+/* ─────────────────────────────────────────────────────────────────
+ * Documentation single-post layout — used when the post has no
+ * hero image. Centered reading column, no product chrome (no
+ * download/CTA slot, no gallery, no Free badge). Includes a
+ * breadcrumb at the top and prev/next sibling navigation at the
+ * bottom.
+ * ───────────────────────────────────────────────────────────────── */
+.mp-doc {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 8px 0 64px;
+}
+.mp-doc__header {
+  margin: 24px 0 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgb(var(--color-outline-variant));
+}
+.mp-doc__title {
+  font-family: var(--font-headline);
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: rgb(var(--color-on-surface));
+  margin: 0 0 12px;
+}
+.mp-doc__excerpt {
+  font-size: 17px;
+  line-height: 1.55;
+  color: rgb(var(--color-on-surface-variant));
+  margin: 0;
+}
+.mp-doc__body { margin-top: 8px; }
+
+/* Prev / Next sibling pager at the bottom of a doc page. Two-cell
+ * grid on desktop; stacks on mobile. The non-existing side (e.g.
+ * "no previous post on the first page") gets a placeholder <span/>
+ * so the grid stays balanced and the next button keeps its right
+ * alignment. */
+.mp-doc__pagerow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 56px;
+  padding-top: 28px;
+  border-top: 1px solid rgb(var(--color-outline-variant));
+}
+.mp-doc__pager {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 22px;
+  border-radius: 16px;
+  background: rgb(var(--color-surface-container-lowest));
+  border: 1px solid rgb(var(--color-outline-variant));
+  text-decoration: none;
+  color: rgb(var(--color-on-surface));
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+.mp-doc__pager:hover {
+  background: rgb(var(--color-surface-container-low));
+  border-color: rgb(var(--color-primary) / 40%);
+  transform: translateY(-1px);
+}
+.mp-doc__pager--next {
+  text-align: right;
+  align-items: flex-end;
+}
+.mp-doc__pager-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgb(var(--color-primary));
+}
+.mp-doc__pager-title {
+  font-family: var(--font-headline);
+  font-size: 16px;
+  font-weight: 600;
+  color: rgb(var(--color-on-surface));
+  line-height: 1.35;
+}
+@media (max-width: 600px) {
+  .mp-doc__pagerow {
+    grid-template-columns: 1fr;
+  }
+  .mp-doc__pager--next { text-align: left; align-items: flex-start; }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+ * Documentation prose enhancements — applied to .mp-prose content
+ * inside .mp-doc (the no-hero doc layout). Three pieces:
+ *   - Admonition boxes (rewritten from blockquote-with-strong)
+ *   - Code blocks (chrome + dark background + copy button)
+ *   - Tables (proper borders, header bg, zebra rows)
+ * ───────────────────────────────────────────────────────────────── */
+
+/* ── Admonitions ──────────────────────────────────────────────── */
+.mp-admonition {
+  margin: 24px 0;
+  border-radius: 12px;
+  padding: 16px 18px;
+  border-left: 4px solid;
+  background: rgb(var(--color-surface-container-low));
+  color: rgb(var(--color-on-surface));
+  display: block;
+}
+.mp-admonition__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 8px;
+  letter-spacing: -0.005em;
+}
+.mp-admonition__icon {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: currentColor;
+  opacity: 0.18;
+  position: relative;
+}
+.mp-admonition__icon::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 1;
+  transform: scale(0.35);
+}
+.mp-admonition__body {
+  font-size: 15px;
+  line-height: 1.6;
+}
+.mp-admonition__body > :first-child { margin-top: 0; }
+.mp-admonition__body > :last-child { margin-bottom: 0; }
+
+/* Per-kind colors. Borders + title color shift; body stays neutral
+ * so the box doesn't fight for attention with the surrounding prose. */
+.mp-admonition--info {
+  border-left-color: rgb(60 130 246);
+  background: rgb(60 130 246 / 6%);
+}
+.mp-admonition--info .mp-admonition__title { color: rgb(30 80 200); }
+.mp-admonition--tip {
+  border-left-color: rgb(34 156 99);
+  background: rgb(34 156 99 / 6%);
+}
+.mp-admonition--tip .mp-admonition__title { color: rgb(22 110 70); }
+.mp-admonition--warning {
+  border-left-color: rgb(217 134 23);
+  background: rgb(217 134 23 / 8%);
+}
+.mp-admonition--warning .mp-admonition__title { color: rgb(160 92 0); }
+.mp-admonition--danger {
+  border-left-color: rgb(225 67 67);
+  background: rgb(225 67 67 / 7%);
+}
+.mp-admonition--danger .mp-admonition__title { color: rgb(166 38 38); }
+.mp-admonition--note {
+  border-left-color: rgb(110 90 200);
+  background: rgb(110 90 200 / 6%);
+}
+.mp-admonition--note .mp-admonition__title { color: rgb(80 60 175); }
+
+/* Dark-mode adjustments: lift the title color toward the lighter
+ * end of the swatch so contrast against the dark background stays
+ * comfortable. Backgrounds keep their tinted look. */
+@media (prefers-color-scheme: dark) {
+  .mp-admonition { background: rgb(255 255 255 / 4%); }
+  .mp-admonition--info .mp-admonition__title { color: rgb(140 175 255); }
+  .mp-admonition--tip .mp-admonition__title { color: rgb(120 200 160); }
+  .mp-admonition--warning .mp-admonition__title { color: rgb(245 190 100); }
+  .mp-admonition--danger .mp-admonition__title { color: rgb(250 140 140); }
+  .mp-admonition--note .mp-admonition__title { color: rgb(180 165 245); }
+}
+
+/* ── Code blocks ──────────────────────────────────────────────── */
+.mp-codeblock {
+  margin: 24px 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgb(20 23 32);
+  border: 1px solid rgb(36 40 52);
+}
+.mp-codeblock__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: rgb(28 32 44);
+  border-bottom: 1px solid rgb(40 44 60);
+}
+.mp-codeblock__lang {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: rgb(160 168 190);
+  text-transform: uppercase;
+}
+.mp-codeblock__copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid rgb(60 65 82);
+  color: rgb(200 205 220);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+.mp-codeblock__copy:hover {
+  background: rgb(40 44 60);
+  border-color: rgb(90 95 115);
+}
+.mp-codeblock__copy:active { transform: translateY(1px); }
+.mp-codeblock__copy.is-copied {
+  background: rgb(34 156 99 / 18%);
+  border-color: rgb(34 156 99);
+  color: rgb(160 220 195);
+}
+.mp-codeblock__copy-icon {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.7;
+  position: relative;
+}
+.mp-codeblock__copy-icon::before {
+  content: "";
+  position: absolute;
+  inset: -3px -3px 3px 3px;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  background: transparent;
+  opacity: 0.5;
+}
+.mp-codeblock > pre {
+  margin: 0;
+  padding: 16px 18px;
+  background: transparent;
+  overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, "Cascadia Code", monospace;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: rgb(225 228 240);
+}
+.mp-codeblock > pre > code {
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+  color: inherit;
+}
+
+/* Inline code (NOT inside pre) — kept light + neutral so it pops
+ * against the body text without competing with the code-block chrome. */
+.mp-prose :not(pre) > code,
+.mp-prose code:not(pre code) {
+  background: rgb(0 0 0 / 6%);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.92em;
+  color: rgb(180 60 110);
+}
+@media (prefers-color-scheme: dark) {
+  .mp-prose :not(pre) > code,
+  .mp-prose code:not(pre code) {
+    background: rgb(255 255 255 / 8%);
+    color: rgb(245 145 185);
+  }
+}
+
+/* ── Tables ───────────────────────────────────────────────────── */
+.mp-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 24px 0;
+  font-size: 14.5px;
+  background: rgb(var(--color-surface-container-lowest));
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgb(var(--color-outline-variant));
+}
+.mp-prose thead {
+  background: rgb(var(--color-surface-container-low));
+}
+.mp-prose thead th {
+  text-align: left;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  padding: 12px 14px;
+  color: rgb(var(--color-on-surface));
+  border-bottom: 1px solid rgb(var(--color-outline-variant));
+}
+.mp-prose tbody td {
+  padding: 11px 14px;
+  vertical-align: top;
+  color: rgb(var(--color-on-surface));
+  border-bottom: 1px solid rgb(var(--color-outline-variant));
+}
+.mp-prose tbody tr:last-child td { border-bottom: 0; }
+.mp-prose tbody tr:nth-child(even) {
+  background: rgb(var(--color-surface-container-low) / 50%);
+}
+.mp-prose tbody tr:hover {
+  background: rgb(var(--color-primary) / 4%);
+}
+.mp-prose table code {
+  font-size: 0.88em;
+}
+
+/* Responsive overflow — narrow viewports get a horizontal scroll
+ * around the table instead of mangled wrapping. The .mp-prose
+ * wrapper already has overflow:auto on small screens via the
+ * existing rule, but we add a safety here for direct table
+ * children too. */
+@media (max-width: 720px) {
+  .mp-prose table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .mp-prose tbody td { white-space: normal; }
+}

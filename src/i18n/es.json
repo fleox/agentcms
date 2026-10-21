@@ -1,0 +1,1056 @@
+{
+  "common": {
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "saved": "Guardado",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "deleting": "Eliminando…",
+    "edit": "Editar",
+    "create": "Crear",
+    "search": "Buscar",
+    "loading": "Cargando…",
+    "yes": "Sí",
+    "no": "No",
+    "confirm": "Confirmar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "close": "Cerrar",
+    "all": "Todos",
+    "none": "Ninguno",
+    "actions": "Acciones",
+    "name": "Nombre",
+    "slug": "Slug",
+    "description": "Descripción",
+    "status": "Estado",
+    "createdAt": "Creado",
+    "updatedAt": "Actualizado",
+    "publishedAt": "Publicado",
+    "language": "Idioma",
+    "darkMode": "Modo oscuro",
+    "lightMode": "Modo claro",
+    "signOut": "Cerrar sesión",
+    "administrator": "Administrador",
+    "editor": "Editor",
+    "appName": "Flexweg CMS"
+  },
+  "auth": {
+    "signIn": "Iniciar sesión",
+    "signingIn": "Iniciando sesión…",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "emailPlaceholder": "tu@empresa.com",
+    "passwordPlaceholder": "••••••••",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "resetEmailSent": "Correo de restablecimiento de contraseña enviado a {{email}}.",
+    "enterEmailFirst": "Introduce primero tu correo arriba y luego haz clic en restablecer.",
+    "emailPasswordRequired": "El correo y la contraseña son obligatorios.",
+    "signInSubtitle": "Usa tu correo de trabajo y tu contraseña.",
+    "footer": "Las solicitudes de cuenta se gestionan a través de tu administrador.",
+    "errors": {
+      "invalidEmail": "Dirección de correo no válida.",
+      "invalidCredentials": "Correo o contraseña no válidos.",
+      "tooManyRequests": "Demasiados intentos. Inténtalo más tarde o restablece tu contraseña.",
+      "userDisabled": "Esta cuenta ha sido deshabilitada.",
+      "networkFailed": "Error de red. Comprueba tu conexión.",
+      "generic": "Error de autenticación."
+    }
+  },
+  "nav": {
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
+    "dashboard": "Panel",
+    "posts": "Entradas",
+    "pages": "Páginas",
+    "taxonomies": "Categorías y etiquetas",
+    "media": "Medios",
+    "themes": "Temas",
+    "themeSettings": "Ajustes del tema",
+    "plugins": "Plugins",
+    "menus": "Menús",
+    "users": "Usuarios",
+    "settings": "Ajustes"
+  },
+  "dashboard": {
+    "title": "Panel",
+    "welcome": "Bienvenido de nuevo, {{email}}.",
+    "stats": {
+      "totalPosts": "Entradas",
+      "totalPages": "Páginas",
+      "online": "En línea",
+      "drafts": "Borradores"
+    }
+  },
+  "posts": {
+    "title": "Entradas",
+    "newPost": "Nueva entrada",
+    "noPosts": "Aún no hay entradas. Crea la primera para empezar.",
+    "noPostsInFilter": "Ninguna entrada coincide con el filtro actual.",
+    "search": {
+      "placeholder": "Buscar entradas…",
+      "clear": "Borrar búsqueda",
+      "noResults": "Ninguna entrada coincide con tu búsqueda."
+    },
+    "pagination": {
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "showing": "Mostrando {{from}}–{{to}} de {{total}}",
+      "pageOf": "Página {{page}} de {{total}}"
+    },
+    "bulk": {
+      "selectedCount_one": "{{count}} seleccionada",
+      "selectedCount_other": "{{count}} seleccionadas",
+      "selectPage_one": "Seleccionar {{count}} en esta página",
+      "selectPage_other": "Seleccionar las {{count}} de esta página",
+      "deselectPage": "Deseleccionar página",
+      "allOnPageSelected_one": "{{count}} en esta página seleccionada.",
+      "allOnPageSelected_other": "Las {{count}} de esta página están seleccionadas.",
+      "selectAllMatching_one": "Seleccionar la entrada coincidente",
+      "selectAllMatching_other": "Seleccionar las {{count}} entradas coincidentes",
+      "allMatchingSelected_one": "La entrada coincidente está seleccionada.",
+      "allMatchingSelected_other": "Las {{count}} entradas coincidentes están seleccionadas.",
+      "selectOne": "Seleccionar «{{title}}»",
+      "publish": "Publicar ({{count}})",
+      "publishing": "Publicando…",
+      "publishedCount": "{{ok}} publicada(s), {{failed}} fallo(s).",
+      "unpublish": "Despublicar ({{count}})",
+      "unpublishing": "Despublicando…",
+      "unpublishedCount": "{{ok}} despublicada(s), {{failed}} fallo(s).",
+      "delete": "Eliminar",
+      "deleting": "Eliminando…",
+      "deletedCount": "{{ok}} eliminada(s), {{failed}} fallo(s).",
+      "confirmDelete_one": "¿Eliminar {{count}} entrada? Se despublica de Flexweg y no se puede deshacer.",
+      "confirmDelete_other": "¿Eliminar {{count}} entradas? Se despublican de Flexweg y no se puede deshacer.",
+      "noDraftSelected": "Ninguna entrada en borrador seleccionada.",
+      "noOnlineSelected": "Ninguna entrada en línea seleccionada.",
+      "clear": "Borrar selección"
+    },
+    "filters": {
+      "all": "Todas",
+      "draft": "Borrador",
+      "online": "En línea"
+    },
+    "fields": {
+      "title": "Título",
+      "slug": "Slug",
+      "excerpt": "Extracto",
+      "content": "Contenido",
+      "category": "Categoría",
+      "tags": "Etiquetas",
+      "heroImage": "Imagen destacada",
+      "seoTitle": "Título SEO",
+      "seoDescription": "Descripción SEO",
+      "createdAt": "Creado el",
+      "updatedAt": "Última actualización",
+      "publishedAt": "Publicado el"
+    },
+    "edit": {
+      "newTitle": "Nueva entrada",
+      "editTitle": "Editar entrada",
+      "saved": "Guardado.",
+      "savedAndRepublished": "Guardado y republicado.",
+      "saveFailed": "Error al guardar.",
+      "saveAndRepublish": "Guardar y republicar",
+      "draftSaved": "Borrador guardado.",
+      "slugCollision": {
+        "post": "Esta URL ya la usa la entrada: \"{{label}}\".",
+        "page": "Esta URL ya la usa la página: \"{{label}}\".",
+        "category": "Esta URL ya la usa la categoría: \"{{label}}\"."
+      },
+      "publish": "Publicar",
+      "unpublish": "Despublicar",
+      "publishing": "Publicando…",
+      "unpublishing": "Despublicando…",
+      "titlePlaceholder": "Añadir título",
+      "permalink": "Enlace permanente",
+      "slugFormatHint": "Solo minúsculas, ASCII, separadas por guiones.",
+      "slugAutoSuffixed": "Se añadió un sufijo porque \"{{base}}\" ya lo usa {{owner}}.",
+      "slugAutoSuffixedOwner": {
+        "post": "publicación: \"{{label}}\"",
+        "page": "página: \"{{label}}\"",
+        "category": "categoría: \"{{label}}\""
+      },
+      "saveBlocked": {
+        "titleRequired": "Añade un título antes de guardar.",
+        "slugRequired": "Se requieren un título y un slug de URL para guardar.",
+        "slugInvalid": "Formato de slug inválido (ASCII en minúsculas + guiones).",
+        "slugCollision": "Resuelve el conflicto de URL antes de guardar."
+      },
+      "viewPublished": "Ver",
+      "confirmDelete": "¿Eliminar esta entrada?",
+      "inspector": {
+        "document": "Documento",
+        "block": "Bloque",
+        "blockEmpty": "Selecciona un bloque en el editor para ver sus opciones.",
+        "publishing": "Publicación",
+        "permalink": "Enlace permanente",
+        "categories": "Categorías y etiquetas",
+        "featured": "Imagen destacada",
+        "seo": "SEO",
+        "excerpt": "Extracto",
+        "dates": "Fechas"
+      },
+      "blocks": {
+        "addBlock": "Añadir bloque",
+        "transform": "Transformar a",
+        "moveUp": "Mover arriba",
+        "moveDown": "Mover abajo",
+        "duplicate": "Duplicar",
+        "remove": "Eliminar bloque",
+        "paragraph": "Párrafo",
+        "heading2": "Título 2",
+        "heading3": "Título 3",
+        "bulletList": "Lista con viñetas",
+        "orderedList": "Lista numerada",
+        "blockquote": "Cita",
+        "codeBlock": "Código",
+        "image": "Imagen",
+        "horizontalRule": "Separador",
+        "categories": {
+          "text": "Texto",
+          "media": "Medios",
+          "layout": "Diseño",
+          "embed": "Incrustaciones",
+          "advanced": "Avanzado"
+        },
+        "noSettings": "Este bloque no tiene ajustes.",
+        "noSelection": "Selecciona un bloque en el editor para ver sus opciones.",
+        "slash": {
+          "noResults": "Ningún bloque coincide."
+        }
+      }
+    },
+    "status": {
+      "draft": "Borrador",
+      "online": "En línea"
+    },
+    "preview": {
+      "title": "Vista previa",
+      "rendering": "Generando vista previa…",
+      "error": "Error en la vista previa: {{error}}",
+      "viewports": {
+        "mobile": "Móvil",
+        "tablet": "Tableta",
+        "desktop": "Escritorio"
+      }
+    }
+  },
+  "pages": {
+    "title": "Páginas",
+    "newPage": "Nueva página",
+    "noPages": "Aún no hay páginas.",
+    "homeBadge": "Inicio",
+    "homeBadgeTooltip": "Se usa como página de inicio del sitio"
+  },
+  "taxonomies": {
+    "title": "Categorías y etiquetas",
+    "categories": "Categorías",
+    "tags": "Etiquetas",
+    "newCategory": "Nueva categoría",
+    "newTag": "Nueva etiqueta",
+    "noCategories": "Aún no hay categorías.",
+    "noTags": "Aún no hay etiquetas.",
+    "slugCollision": "Este slug ya lo usa \"{{label}}\".",
+    "seo": {
+      "button": "SEO",
+      "buttonTitle": "Editar metaetiquetas SEO",
+      "title": "Metaetiquetas SEO",
+      "subtitle": "Título y descripción personalizados para la página de archivo de \"{{name}}\".",
+      "metaTitle": "Meta título",
+      "metaTitleHint": "Se usa como <title> de la página. Por defecto: el nombre del término.",
+      "metaDescription": "Meta descripción",
+      "metaDescriptionHint": "Se usa como meta descripción de la página. Por defecto: la descripción del término."
+    }
+  },
+  "media": {
+    "title": "Biblioteca de medios",
+    "upload": "Subir",
+    "uploading": "Subiendo…",
+    "finalizing": "Finalizando…",
+    "uploadFailed": "Error al subir",
+    "retry": "Reintentar",
+    "noMedia": "Aún no hay medios.",
+    "alt": "Texto alternativo",
+    "caption": "Pie de foto",
+    "filename": "Nombre de archivo",
+    "size": "Tamaño",
+    "type": "Tipo"
+  },
+  "themes": {
+    "title": "Temas",
+    "active": "Activo",
+    "activate": "Activar",
+    "installExternal": "Instalar tema",
+    "uninstallDisabledTitle": "Cambia a otro tema antes de desinstalar este.",
+    "syncAssets": "Sincronizar recursos del tema",
+    "regenerateSite": "Regenerar el sitio",
+    "regenerating": "Regenerando…",
+    "regenerate": {
+      "button": "Regenerar",
+      "running": "Ejecutando…",
+      "groupBuiltins": "Sitio",
+      "groupPlugins": "Plugins",
+      "home": "Solo página de inicio",
+      "homeHelp": "Regenera solo index.html — la opción más rápida.",
+      "allHtml": "Todas las páginas HTML",
+      "allHtmlHelp": "Cada entrada, página, archivo y listado — además de los snapshots menu / posts / authors JSON.",
+      "repair": "Reparar URLs",
+      "repairHelp": "Recalcula la URL canónica de cada publicación online y mueve los archivos que terminaron en la URL equivocada. Útil tras una importación realizada antes de que los términos se sincronizaran.",
+      "assets": "Recursos del tema",
+      "assetsHelp": "Sube el CSS y los scripts del tema activo a /theme-assets/.",
+      "everything": "Todo",
+      "everythingHelp": "Recursos del tema + todo HTML + cada salida de plugin. Opción más lenta.",
+      "noPluginTargets": "Sin regeneraciones de plugin — activa un plugin que soporte regenerar."
+    },
+    "confirmSwitch": {
+      "title": "¿Cambiar a {{theme}}?",
+      "body": "Cambiar de tema requiere volver a subir los recursos del tema y regenerar cada página publicada para que el nuevo aspecto se propague en todas partes. Puede tardar un momento.",
+      "confirm": "Cambiar y regenerar",
+      "cancel": "Cancelar"
+    }
+  },
+  "plugins": {
+    "title": "Plugins",
+    "enabled": "Activado",
+    "disabled": "Desactivado",
+    "enable": "Activar",
+    "disable": "Desactivar",
+    "configure": "Configurar",
+    "author": "autor",
+    "learnMore": "Más información",
+    "mustUseBadge": "Obligatorio",
+    "installExternal": "Instalar plugin",
+    "tabs": {
+      "regular": "Plugins",
+      "mustUse": "Obligatorios"
+    }
+  },
+  "externalInstall": {
+    "titlePlugin": "Instalar un plugin",
+    "titleTheme": "Instalar un tema",
+    "labelPlugin": "plugin",
+    "labelTheme": "tema",
+    "intro": "Suelta un archivo ZIP que contenga un bundle de {{label}} (manifest.json + bundle.js en la raíz del ZIP). El {{label}} se subirá a tu sitio Flexweg y se registrará tras una recarga. Volver a subir un ZIP con el mismo id de manifest actualiza la entrada existente en el sitio — no hace falta desinstalar.",
+    "zipField": "Archivo ZIP del bundle",
+    "install": "Instalar",
+    "installing": "Instalando…",
+    "installSuccess": "{{name}} instalado ({{count}} archivos subidos). Recargando…",
+    "upgradeSuccess": "{{name}} actualizado de v{{previousVersion}} a v{{newVersion}} ({{count}} archivos subidos). Recargando…",
+    "installedTitle": "Ya instalado",
+    "bundledDefaultsTitle": "Plugins/temas incluidos disponibles",
+    "bundledDefaultsHint": "{{count}} plugin/tema incluido está actualmente desinstalado. Restáuralos para recuperar lo que venía con esta versión del admin.",
+    "bundledDefaultsRestore": "Restaurar",
+    "bundledDefaultsRestored": "Restaurados {{plugins}} plugin(s) y {{themes}} tema(s). Recargando…",
+    "uninstall": "Desinstalar",
+    "uninstallSuccess": "{{id}} desinstalado. Recargando…",
+    "confirmUninstall": "¿Desinstalar {{id}}? Los archivos se eliminarán de Flexweg.",
+    "errors": {
+      "no-manifest": "El ZIP no tiene manifest.json en la raíz.",
+      "invalid-manifest": "manifest.json no es válido (falta algún campo obligatorio o no es JSON válido).",
+      "incompatible-api": "El bundle se compiló contra una versión incompatible de la API runtime.",
+      "no-bundle": "El ZIP no contiene el archivo de entrada declarado en el manifest.",
+      "fetch-manifest": "No se pudo leer el external.json actual en Flexweg.",
+      "upload-failed": "Falló la subida — revisa tu clave API de Flexweg y tu conexión."
+    }
+  },
+  "externalLoader": {
+    "someFailed": "{{count}} bundle(s) externo(s) no se pudieron cargar. Mira la consola del navegador."
+  },
+  "menus": {
+    "title": "Menús",
+    "header": "Menú de cabecera",
+    "footer": "Menú de pie de página",
+    "label": "Etiqueta",
+    "saveAndPublish": "Guardar y generar",
+    "discard": "Descartar",
+    "saved": "Menús guardados y publicados.",
+    "saveFailed": "No se pudieron guardar los menús.",
+    "unsavedChanges": "Tienes cambios sin guardar."
+  },
+  "settings": {
+    "title": "Ajustes",
+    "tabs": {
+      "general": "General"
+    },
+    "site": {
+      "title": "Sitio",
+      "siteTitle": "Título del sitio",
+      "siteDescription": "Descripción del sitio",
+      "siteLanguage": "Idioma del sitio",
+      "siteLanguageHelp": "Etiqueta BCP-47 (p. ej. en, fr-CA) inyectada en <html lang=\"…\"> de cada página publicada. El prefijo se compara con los locales de traducción soportados para los textos de sitemap / RSS y las cadenas integradas en el tema; los locales no soportados recurren al inglés.",
+      "siteLanguageResolved": "Las traducciones usarán: {{label}}",
+      "baseUrl": "URL pública del sitio",
+      "postsPerPage": "Entradas por página",
+      "homeMode": "Contenido de la página de inicio",
+      "homeLatest": "Últimas entradas",
+      "homeStatic": "Página estática",
+      "homePage": "Página de inicio",
+      "discourageIndexing": "Disuadir a los motores de búsqueda de indexar este sitio",
+      "discourageIndexingHelp": "Si se activa, cada página publicada recibe una etiqueta meta noindex/nofollow y robots.txt bloquea a todos los rastreadores. Replica el comportamiento de WordPress — útil para sitios de staging o revisiones antes del lanzamiento. Los motores de búsqueda que respetan la directiva no indexarán el sitio.",
+      "discourageRegenerateHint": "Ajuste de indexación guardado. Haz clic en «Regenerar todo» en Temas para aplicar el cambio a todas las páginas publicadas y a robots.txt."
+    },
+    "flexweg": {
+      "title": "API de Flexweg",
+      "apiKey": "Clave API",
+      "apiKeyHelp": "Generada desde tu cuenta Flexweg → API.",
+      "siteUrl": "URL del sitio",
+      "siteUrlHelp": "URL pública de tu sitio Flexweg sin barra final.",
+      "apiBaseUrl": "URL base de la API",
+      "storageHelpFirebase": "Almacenada en Firestore (config/flexweg). Lectura para cualquier miembro con sesión iniciada, escritura solo para administradores.",
+      "storageHelpSqlite": "Almacenada en la tabla SQLite local config. Lectura para cualquier miembro con sesión iniciada, escritura solo para administradores."
+    },
+    "backend": {
+      "title": "Backend de datos",
+      "active": "Backend activo:",
+      "switchButton": "Cambiar de backend…",
+      "confirmTitle": "Se perderán todos los datos actuales.",
+      "confirmBody": "Cambiar borra la configuración del navegador y recarga el formulario de configuración. El nuevo backend empieza vacío — los datos del backend anterior siguen donde estaban (en Firestore o como un archivo .sqlite en Flexweg), pero el CMS no los leerá hasta que vuelvas a cambiar.",
+      "confirmYes": "Sí, cambiar de backend",
+      "downloadBackup": "Descargar una copia de seguridad del archivo .sqlite",
+      "downloadBackupHelp": "hazlo antes de cambiar de backend.",
+      "markdownGit": "Markdown — {{source}}",
+      "localFolder": "carpeta local",
+      "localBrowser": "Este navegador (local, un solo usuario)",
+      "sqliteFile": "Archivo SQLite — {{location}}"
+    },
+    "performance": {
+      "title": "Rendimiento",
+      "help": "Cómo el admin carga entradas y páginas. El modo por defecto funciona en el plan gratuito de Firestore sin configuración; el modo paginado es para sitios muy grandes y requiere crear índices una vez.",
+      "mode": "Modo de carga",
+      "modeGlobal": "Estándar (sin configuración)",
+      "modePaginated": "Paginación del servidor (requiere índices de Firestore)",
+      "globalHelp": "Carga toda la colección de entradas en una suscripción en vivo. Orden, filtros y búsqueda se hacen en memoria. Recomendado para sitios con menos de ~5 000 entradas.",
+      "paginatedHelp": "Suscripciones paginadas por cursor, una página a la vez. Requiere índices compuestos de Firestore — ver README. Recomendado para sitios muy grandes.",
+      "savedReload": "Guardado. Recarga el admin para aplicar el nuevo modo."
+    },
+    "editor": {
+      "title": "Editor",
+      "help": "Tipografía usada dentro del editor de entradas/páginas. Independiente del tema público.",
+      "fontFamily": "Familia tipográfica",
+      "bodySize": "Tamaño del cuerpo",
+      "h1Size": "Tamaño H1",
+      "h2Size": "Tamaño H2",
+      "h3Size": "Tamaño H3",
+      "sizeHelp": "Longitud CSS, p. ej. 16px o 1rem. Deja vacío para el valor por defecto.",
+      "reset": "Restablecer valores predeterminados"
+    },
+    "profile": {
+      "title": "Perfil",
+      "adminLocale": "Idioma del admin",
+      "adminLocaleHelp": "Idioma usado por la interfaz de administración. Guardado en tu perfil.",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "headline": "Título",
+      "headlinePlaceholder": "p. ej. Periodista, Redactor jefe…",
+      "headlineHelp": "Se muestra públicamente bajo tu nombre en las tarjetas de autor y en tu página de archivo.",
+      "bio": "Biografía",
+      "bioPlaceholder": "Un párrafo corto que se muestra en tu página de autor y debajo de tus artículos.",
+      "bioHelp": "Visible en el sitio público en la barra lateral de autor y en la página de archivo del autor.",
+      "socials": "Perfiles sociales",
+      "socialsHelp": "Añade las URL de los perfiles que quieres mostrar en el sitio público y marca «Mostrar» para los que deben ser visibles. Las URL vacías se ignoran.",
+      "socialsShow": "Mostrar",
+      "socialsShowHelp": "Activa la visibilidad de esta red en el sitio público.",
+      "avatar": "Foto de perfil",
+      "avatarHelp": "Elige una imagen de tu biblioteca de medios. Las imágenes cuadradas se muestran mejor.",
+      "pickAvatar": "Elegir de medios",
+      "changeAvatar": "Cambiar foto",
+      "removeAvatar": "Eliminar",
+      "save": "Guardar perfil"
+    },
+    "transfer": {
+      "title": "Mover o hacer copia de seguridad del contenido",
+      "help": "Exporta todo (entradas, páginas, categorías, metadatos de medios, perfiles, ajustes) en un único archivo JSON. En un backend Markdown o local puedes importar ese archivo conservando los ids — así se migra desde Firebase o SQLite. Los archivos de medios y las claves secretas no se incluyen.",
+      "export": "Exportar el contenido (JSON)",
+      "import": "Importar contenido…",
+      "modeMerge": "Combinar (sobrescribe los mismos ids)",
+      "modeReplace": "Reemplazar las colecciones importadas",
+      "replaceConfirm": "El modo Reemplazar elimina todos los elementos existentes de las colecciones presentes en el archivo antes de importar. ¿Continuar?",
+      "invalidFile": "Este archivo no es una exportación de contenido de Flexweg CMS.",
+      "imported": "Se han importado {{posts}} entradas/páginas, {{terms}} términos y {{media}} medios. Ejecuta Regenerar → Todo para publicarlos."
+    }
+  },
+  "users": {
+    "title": "Usuarios",
+    "noUsers": "Aún no hay usuarios.",
+    "role": "Rol",
+    "disabled": "Deshabilitado",
+    "editProfileTitle": "Editar perfil — {{email}}",
+    "profileSaved": "Perfil guardado.",
+    "descriptionFirebase": "Gestiona tu equipo. Las nuevas cuentas se crean en la Firebase Console y se replican aquí en el primer inicio de sesión.",
+    "descriptionSqlite": "Gestiona tu equipo. Usa el botón +Añadir usuario más abajo para crear cuentas directamente.",
+    "addUser": "Añadir usuario",
+    "addUserSuccess": "{{email}} añadido.",
+    "removeConfirmFirebase": "¿Eliminar la ficha de {{email}}? Se quita su perfil y rol del CMS. Para revocar el acceso, elimina además la cuenta en la Firebase Console.",
+    "removeConfirmSqlite": "¿Eliminar permanentemente a {{email}}? Se revoca su acceso Y se quitan su perfil y rol. Esta acción no se puede deshacer.",
+    "empty": {
+      "title": "Aún no hay miembros del equipo",
+      "descriptionFirebase": "Crea la primera cuenta en la Firebase Console y luego inicia sesión aquí una vez para registrar el perfil.",
+      "descriptionSqlite": "Pulsa +Añadir usuario arriba para invitar al primer miembro."
+    },
+    "help": {
+      "title": "Cómo añadir un nuevo miembro al equipo",
+      "bootstrapLine": "El admin inicial (siempre con acceso total) es:",
+      "firebase": {
+        "step1": "Abre la Firebase Console → Authentication → Add user.",
+        "step2": "Pon un correo y una contraseña y envíalos al nuevo miembro.",
+        "step3": "Pídele que inicie sesión aquí una vez — su perfil aparece en la lista de arriba y puedes editar su rol y sus datos."
+      },
+      "sqlite": {
+        "step1": "Pulsa el botón +Añadir usuario de arriba.",
+        "step2": "Introduce su correo y una contraseña temporal (8+ caracteres).",
+        "step3": "Comparte las credenciales de forma segura — podrá cambiar la contraseña desde su perfil una vez iniciada la sesión."
+      },
+      "git": {
+        "step1": "Añade a la persona como colaboradora del repositorio de contenido (escritura = editor, admin / maintainer = admin).",
+        "step2": "La persona crea su propio token de acceso personal en GitHub / GitLab.",
+        "step3": "Abre el admin e inicia sesión con ese token — su perfil se crea aquí automáticamente."
+      }
+    },
+    "addUserModal": {
+      "title": "Añadir un nuevo miembro del equipo",
+      "intro": "Crea la cuenta directamente en la base de datos Flexweg SQLite Auth. El nuevo usuario tiene rol de editor por defecto; promociónalo desde la lista de abajo si necesita acceso de admin.",
+      "submit": "Crear usuario",
+      "submitting": "Creando…"
+    },
+    "actions": {
+      "editProfile": "Editar perfil",
+      "promote": "Promover a administrador",
+      "demote": "Degradar a editor",
+      "disable": "Deshabilitar",
+      "enable": "Habilitar",
+      "delete": "Eliminar registro"
+    },
+    "descriptionGit": "Los miembros del equipo son las personas con acceso de escritura al repositorio de contenido. Aparecen aquí tras su primer inicio de sesión; su rol sigue sus permisos en el repositorio.",
+    "descriptionLocal": "Este admin funciona en modo de un solo usuario: el contenido se guarda en este navegador y no hay cuentas.",
+    "descriptionSqliteFile": "Sin cuentas de usuario con este backend: cualquiera que pueda abrir el admin puede editar. Protege la carpeta del admin desde tu alojamiento. Los perfiles de autor de abajo son informativos."
+  },
+  "firestoreSetup": {
+    "title": "Configuración de Firestore necesaria",
+    "intro": "Las páginas de listado de entradas y páginas necesitan algunos índices compuestos de Firestore para consultar eficientemente. Deben crearse manualmente — Firebase reserva la creación de índices a los administradores del proyecto.",
+    "checking": "Verificando tus índices Firestore…",
+    "missingCount_one": "{{count}} índice falta:",
+    "missingCount_other": "{{count}} índices faltan:",
+    "openConsole": "Abrir Firebase Console para crear",
+    "noUrl": "No se pudo extraer la URL de autosugerencia — consulta el README para el comando gcloud.",
+    "howItWorks": "Cómo funciona",
+    "step1": "Haz clic en el enlace de cada índice faltante — Firebase Console se abre con la definición pre-rellenada.",
+    "step2": "Pulsa «Create» y espera 1–5 minutos a que el índice se construya (estado en la consola).",
+    "step3": "Vuelve aquí y pulsa Reintentar. Cuando ambas consultas tengan éxito, el admin se carga.",
+    "retry": "Reintentar",
+    "retrying": "Reintentando…",
+    "buildHint": "Los índices pueden tardar unos minutos en construirse tras la creación.",
+    "allReady": "Todos los índices están listos.",
+    "unexpectedTitle": "No se puede acceder a Firestore",
+    "unexpectedHint": "Verifica tu conexión y las reglas de Firestore. Si acabas de crear los índices, espera a que terminen y reintenta."
+  },
+  "errors": {
+    "appError": "Error de la aplicación",
+    "loadAccountFailed": "No se pudo cargar tu cuenta",
+    "loadAccountHint": "Si el problema persiste, cierra sesión e inténtalo de nuevo.",
+    "accountDisabled": "Cuenta deshabilitada",
+    "accountDisabledMessage": "Tu acceso a este CMS ha sido deshabilitado. Contacta con tu administrador.",
+    "firebaseNotConfigured": "Firebase no está configurado",
+    "firebaseEnvMissing": "Faltan las siguientes variables de entorno:\n{{vars}}\n\nCopia .env.example a .env, rellena las credenciales de tu proyecto Firebase y reinicia el servidor de desarrollo.",
+    "adminEmailNotConfigured": "El correo del admin no está configurado",
+    "adminEmailMessage": "Falta VITE_ADMIN_EMAIL en .env. Establécelo con el correo del administrador inicial.",
+    "consoleHint": "Revisa la consola del navegador y tu configuración .env. Consulta el README para las instrucciones de configuración."
+  },
+  "identity": {
+    "brandTitle": "Flexweg CMS",
+    "brandSubtitle": "Publicación estática",
+    "login": {
+      "heading": "Iniciar sesión",
+      "intro": "Usa el correo y la contraseña que te ha facilitado tu administrador.",
+      "submit": "Iniciar sesión",
+      "submitting": "Iniciando sesión…"
+    },
+    "fields": {
+      "name": "Nombre a mostrar (opcional)",
+      "namePlaceholder": "Juan Pérez",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "passwordHint": "Al menos 8 caracteres."
+    },
+    "footer": "Las nuevas cuentas las crea un administrador desde la página Usuarios.",
+    "errors": {
+      "invalidEmail": "Introduce una dirección de correo válida.",
+      "missingPassword": "La contraseña es obligatoria.",
+      "passwordTooShort": "La contraseña debe tener al menos 8 caracteres."
+    }
+  },
+  "setup": {
+    "title": "Bienvenido a Flexweg CMS",
+    "subtitle": "Configuración inicial",
+    "intro": "Introduce tus credenciales de Firebase, la cuenta del administrador inicial y tu clave API de Flexweg. Los valores se validan, se guardan en tu proyecto (Firestore + un archivo config.js en Flexweg) y el admin recarga al flujo de inicio de sesión normal. Solo tienes que hacerlo una vez.",
+    "introFirebase": "Paso 1 — Firebase. Introduce las credenciales de tu proyecto Firebase y la cuenta de administrador bootstrap. Iniciamos sesión, verificamos el correo y comprobamos que tus reglas de Firestore reconozcan a este admin antes de pasar al paso Flexweg.",
+    "introFlexweg": "Paso 2 — Flexweg. Introduce tu clave API Flexweg y la URL del sitio. Probamos la API, guardamos la configuración en Firestore, subimos config.js a tu sitio y sincronizamos los activos del tema.",
+    "continueToFlexweg": "Validar Firebase y continuar",
+    "stepper": {
+      "terms": "Condiciones",
+      "backend": "Backend",
+      "firebase": "Firebase",
+      "flexweg": "Flexweg",
+      "sqlite": "SQLite",
+      "docstore": "Contenido y publicación",
+      "data": "Datos",
+      "hosting": "Hosting",
+      "install": "Instalación"
+    },
+    "backend": {
+      "title": "Elige un backend de datos",
+      "intro": "Elige dónde el CMS guardará tus posts, páginas, usuarios y ajustes. Puedes cambiarlo luego desde Ajustes (los datos no se migran).",
+      "sqliteTitle": "Flexweg SQLite (recomendado)",
+      "sqliteHint": "Todos los datos se quedan en tu sitio Flexweg como un archivo SQLite. Sin servicio externo. La auth la proporciona la API SQLite de Flexweg.",
+      "firebaseTitle": "Firebase",
+      "firebaseHint": "Usa un proyecto Firebase para Firestore + Auth. Gratis con el plan Spark. Actualizaciones en tiempo real vía onSnapshot.",
+      "continue": "Continuar",
+      "markdownGitTitle": "Archivos Markdown en un repositorio Git",
+      "markdownGitHint": "Entradas como archivos .md en GitHub / GitLab (o un clon local). Cada editor inicia sesión con su propio token de acceso; cada cambio es un commit. Sin base de datos, funciona con varios editores y equipos.",
+      "localTitle": "Solo este navegador",
+      "localHint": "Un solo usuario, sin inicio de sesión, nada que configurar. El contenido se queda en este navegador (expórtalo desde Ajustes). Ideal para un admin que se ejecuta en tu propio ordenador."
+    },
+    "sqlite": {
+      "heading": "Conecta tu sitio Flexweg",
+      "intro": "Usaremos tu clave API maestra de Flexweg UNA SOLA VEZ para crear un token con alcance limitado para la base de datos SQLite. Tras la instalación, la clave maestra se descarta y solo se almacena el token con alcance (limitado a este único archivo SQLite).",
+      "apiKeyHint": "Clave API maestra de Flexweg. Se usa solo para instalar — nunca se almacena después.",
+      "detectedFromUrl": "Detectado desde la URL",
+      "advanced": "Ajustes avanzados (URL del sitio, ruta SQLite…)",
+      "pathHint": "Dónde vive el archivo SQLite en tu sitio Flexweg. Las carpetas se crean automáticamente.",
+      "adminHeading": "Cuenta de administrador",
+      "adminIntro": "Crea el primer usuario — esta cuenta obtiene derechos de admin automáticamente. Los miembros siguientes se incorporan desde la página Usuarios una vez con sesión iniciada.",
+      "passwordHint": "Al menos 8 caracteres.",
+      "submit": "Instalar base de datos SQLite"
+    },
+    "terms": {
+      "title": "Condiciones de uso",
+      "intro": "Por favor, lee y acepta las condiciones a continuación antes de utilizar Flexweg CMS. Están redactadas en lenguaje sencillo para que se lean rápido.",
+      "section1": {
+        "title": "1. Servicio gratuito",
+        "body": "Flexweg CMS es una herramienta que Flexweg pone a tu disposición de forma gratuita. Puedes usarla sin límite con tu hosting Flexweg — Flexweg nunca te facturará por usar el CMS en sí. Las tarifas habituales de tu plan de hosting Flexweg y de tu plan Firebase siguen aplicándose, cada una en la cuenta correspondiente."
+      },
+      "section2": {
+        "title": "2. Servicio «tal cual», sin garantía",
+        "body": "El CMS se proporciona tal cual. Trabajamos para mantenerlo estable y mejorarlo con el tiempo, pero no podemos garantizar que esté libre de errores, defectos o interrupciones. Úsalo con la misma precaución que cualquier herramienta que no hayas escrito tú mismo: mantén copias de seguridad de los contenidos importantes."
+      },
+      "section3": {
+        "title": "3. Tus contenidos, tu responsabilidad",
+        "body": "Eres el único responsable de los contenidos que publicas a través del CMS — textos, imágenes, vídeos, formularios, integraciones de código y cualquier otro medio. Debes respetar la legislación aplicable en tu jurisdicción (y en las que te dirijas), los derechos de autor, los derechos de imagen y de personalidad, las normas de protección de datos personales y las condiciones de cualquier servicio de terceros que utilices (fuentes embebidas, vídeos, etc.). Flexweg no es responsable de los contenidos publicados por los usuarios del CMS."
+      },
+      "section4": {
+        "title": "4. Tu cuenta de Firebase, tu seguridad",
+        "body": "El CMS almacena sus datos en tu propio proyecto Firebase. Eres responsable de la seguridad de ese proyecto: elige una contraseña robusta para la cuenta de administrador inicial, configura las reglas de seguridad de Firestore como se documenta, rota tus claves API cuando sea necesario y revisa quién tiene acceso. Flexweg no podrá en ningún caso ser responsabilizado por accesos no autorizados, fugas de datos, hackeos o pérdidas derivadas de una mala configuración o de un compromiso de tu cuenta Firebase."
+      },
+      "section5": {
+        "title": "5. Limitación de responsabilidad",
+        "body": "Flexweg no podrá ser responsabilizado por ninguna pérdida de ingresos, pérdida de datos, pérdida de oportunidad comercial ni por ningún daño directo o indirecto derivado del uso, mal uso o falta de disponibilidad del CMS. Cuando la legislación aplicable obligue a Flexweg a asumir alguna responsabilidad, ésta se limita al importe efectivamente pagado a Flexweg por el CMS durante los últimos 12 meses — es decir, cero, ya que el CMS es gratuito."
+      },
+      "section6": {
+        "title": "6. Tus datos siguen siendo tuyos",
+        "body": "Los contenidos que creas con el CMS se almacenan en tu propio proyecto Firebase (textos, ajustes, metadatos de los medios) y en tu propio hosting Flexweg (HTML publicado, imágenes, assets de tema). El CMS en sí no transmite tus contenidos a ningún servicio de terceros. Los plugins o temas que decidas activar pueden tener su propio comportamiento — revisa lo que hacen antes de activarlos."
+      },
+      "section7": {
+        "title": "7. Uso correcto",
+        "body": "El uso del CMS para actividades ilegales, fraudulentas o nocivas, o de manera contraria a las condiciones generales de uso de Flexweg, puede provocar la suspensión de tu acceso al hosting Flexweg. También podemos actualizar estas condiciones del CMS con el tiempo; los cambios significativos se comunicarán a través del admin o por email."
+      },
+      "accept": "He leído y acepto las Condiciones de uso.",
+      "continue": "Continuar a la configuración",
+      "back": "Volver"
+    },
+    "sections": {
+      "firebase": "Firebase",
+      "admin": "Administrador inicial",
+      "flexweg": "API de Flexweg"
+    },
+    "help": {
+      "firebase": "Encuentra estos valores en Firebase Console → Configuración del proyecto → General → Tus apps → Configuración del SDK.",
+      "admin": "Usa un usuario existente de Firebase Authentication. Cualquiera que inicie sesión con este correo es tratado como administrador y se salta la comprobación del registro de usuario. Crea el usuario en Firebase Console → Authentication si aún no existe.",
+      "flexweg": "Genera una clave API permanente en tu cuenta Flexweg → API. La URL del sitio es la dirección pública de tu sitio Flexweg (p. ej. https://tu-sitio.flexweg.com).",
+      "flexwegApiKeyHint": "Obtén tu clave API desde la configuración de tu cuenta Flexweg.",
+      "flexwegApiKeyLink": "Abrir configuración de la cuenta"
+    },
+    "fields": {
+      "apiKey": "Clave API",
+      "authDomain": "Dominio de autenticación",
+      "projectId": "ID del proyecto",
+      "storageBucket": "Bucket de almacenamiento",
+      "messagingSenderId": "ID de remitente de mensajería",
+      "appId": "ID de la app",
+      "adminEmail": "Correo",
+      "adminPassword": "Contraseña",
+      "flexwegApiKey": "Clave API",
+      "flexwegSiteUrl": "URL del sitio",
+      "flexwegApiBaseUrl": "URL base de la API",
+      "sqlitePath": "Ruta SQLite"
+    },
+    "submit": "Guardar y continuar",
+    "submitting": "Configurando…",
+    "success": "¡Configuración completada!",
+    "reloadingHint": "Se recargará el admin en un momento — espera un instante.",
+    "footer": "Estos valores se guardan en tu proyecto (Firestore + Flexweg). No se envían a ningún otro sitio.",
+    "steps": {
+      "signInFirebase": "Iniciando sesión en Firebase…",
+      "testFlexweg": "Probando la API de Flexweg…",
+      "writeFirestore": "Guardando configuración…",
+      "uploadConfig": "Subiendo config.js a Flexweg…",
+      "syncThemes": "Sincronizando assets de tema con Flexweg…",
+      "sqliteInstall": "Creando token SQLite con alcance limitado…",
+      "sqliteRegisterAdmin": "Registrando la cuenta de admin…",
+      "sqliteSchema": "Inicializando el esquema SQLite…"
+    },
+    "stepsDone": {
+      "sqliteInstall": "Token SQLite con alcance limitado emitido",
+      "sqliteRegisterAdmin": "Admin registrado y con sesión iniciada",
+      "sqliteSchema": "Esquema SQLite listo"
+    },
+    "errors": {
+      "missingFields": "Por favor, rellena todos los campos.",
+      "rootDeploymentTitle": "El admin debe estar en una subcarpeta, no en la raíz del sitio.",
+      "rootDeploymentHint": "Mueve los archivos del admin (index.html, config.js, runtime/, …) a una subcarpeta en Flexweg — por ejemplo /admin/ o un nombre aleatorio como /erf34f654GH3/ para mayor discreción. Luego recarga el admin desde la URL de la subcarpeta y vuelve a ejecutar la configuración.",
+      "firebaseAuthGeneric": "No se pudo iniciar sesión en Firebase.",
+      "firebaseAuthInvalidCredential": "Firebase rechazó la combinación de correo y contraseña.",
+      "firebaseAuthInvalidCredentialHint": "Los proyectos de Firebase recientes activan por defecto la protección contra enumeración de correos, que devuelve el mismo error tanto si la contraseña es incorrecta, como si el usuario no existe o inicia sesión con otro proveedor. A comprobar:\n• Vuelve a introducir la contraseña — copia y pega desde un gestor de contraseñas para descartar erratas. La longitud mínima es 6 caracteres.\n• Abre Firebase Console → Authentication → Users y confirma que el correo existe. Revisa la columna «Providers»: si solo muestra Google (u otro proveedor) sin «Email/Password», establece o restablece la contraseña desde el menú de la fila (⋮ → Restablecer contraseña).\n• Verifica que el correo coincida exactamente con lo que está almacenado en Firebase.",
+      "firebaseAuthUserNotFound": "No existe un usuario de Firebase con este correo. Créalo primero en Firebase Console → Authentication → Users.",
+      "firebaseAuthInvalidEmail": "El correo del administrador no es una dirección válida.",
+      "firebaseInvalidApiKey": "La clave API de Firebase no es válida. Verifica el valor en Firebase Console.",
+      "firebaseNetwork": "Error de red al iniciar sesión en Firebase. Verifica tu conexión.",
+      "firebaseTooManyRequests": "Demasiados intentos de inicio de sesión. Inténtalo más tarde o restablece la contraseña desde Firebase Console.",
+      "firebaseOperationNotAllowed": "El inicio de sesión con correo/contraseña no está activado en este proyecto Firebase. Abre Firebase Console → Authentication → Sign-in method y habilita el proveedor Email/Password.",
+      "firebaseUserDisabled": "Esta cuenta de usuario de Firebase está deshabilitada. Vuelve a habilitarla desde Firebase Console → Authentication → Users.",
+      "wrongAdminEmail": "La cuenta de Firebase con la que iniciaste sesión no coincide con el correo de admin que has escrito. Inténtalo de nuevo.",
+      "rulesNotPinnedTitle": "Las reglas de Firestore aún no te reconocen como admin bootstrap.",
+      "rulesNotPinnedHint": "Abre Firebase Console → Firestore → Reglas y sustituye el valor de `bootstrapAdminEmail()` por: {{email}} — luego haz clic en Publicar. La plantilla de reglas del README incluye un marcador `you@example.com` que debe sustituirse por tu correo de admin real. Una vez publicadas las nuevas reglas, vuelve a hacer clic en Enviar aquí.",
+      "flexwegAuth": "Clave API de Flexweg rechazada. Verifica el valor en tu cuenta Flexweg → API.",
+      "flexwegNetwork": "Error de red al contactar con Flexweg. Verifica la URL base de la API y tu conexión.",
+      "flexwegHttp": "Error de la API de Flexweg ({{status}}): {{detail}}",
+      "firestoreRulesTitle": "Firestore rechazó la escritura de la configuración.",
+      "firestoreRulesHint": "Abre Firebase Console → Firestore → Reglas y comprueba que el correo de admin de bootstrap está fijado en '{{email}}'. El README incluye una plantilla de reglas lista para copiar.",
+      "firestoreOther": "Falló la escritura en Firestore",
+      "uploadFailed": "No se pudo subir config.js a Flexweg",
+      "generic": "Algo salió mal."
+    },
+    "docstore": {
+      "contentTitle": "Repositorio de contenido",
+      "contentIntro": "Donde se guardan tus entradas, páginas y ajustes como archivos Markdown + JSON. Un repositorio vacío sirve — el CMS crea los archivos.",
+      "provider": "Repositorio",
+      "localClone": "Carpeta local (clon git)",
+      "localCloneHint": "Elige la carpeta de tu clon. Sincronízala con tu cliente git habitual — el CMS lee y escribe archivos, no ejecuta git.",
+      "contentDir": "Carpeta de contenido en el repositorio",
+      "privateRepo": "Usa un repositorio privado: los borradores se guardan allí.",
+      "folderRequired": "Elige primero la carpeta de contenido.",
+      "checking": "Comprobando el acceso al repositorio…",
+      "publishIntro": "Dónde se publica el sitio generado. Puedes cambiarlo más tarde en Ajustes.",
+      "existingSite": "Este repositorio ya está configurado — el sitio se sigue publicando en: {{target}}. Puedes cambiarlo más tarde en Ajustes (las claves secretas, si las hay, deben volver a introducirse allí).",
+      "install": "Instalar",
+      "steps": {
+        "config": "Guardando la configuración…",
+        "content": "Cargando el contenido…",
+        "target": "Guardando el destino de publicación…",
+        "testTarget": "Probando el destino de publicación…"
+      },
+      "doneTitle": "¡Todo listo!",
+      "doneBody": "La configuración se ha guardado en este navegador. Para ahorrar este paso a otros editores, descarga config.js y reemplaza el de la carpeta admin de tu alojamiento.",
+      "downloadConfig": "Descargar config.js",
+      "open": "Abrir el admin",
+      "footer": "El contenido se queda en tu repositorio o en este navegador; los tokens de acceso nunca salen de este navegador."
+    },
+    "data": {
+      "title": "1. ¿Dónde guardas tus datos?",
+      "intro": "Tus entradas, páginas, usuarios y ajustes — los datos propios del admin. Es independiente de dónde se aloja el sitio público (siguiente paso).",
+      "localNote": "Nada que configurar: el contenido se guarda en este navegador. Expórtalo desde Ajustes para hacer una copia de seguridad o moverlo más tarde.",
+      "options": {
+        "sqlite-file": {
+          "title": "SQLite",
+          "hint": "Una base de datos SQLite guardada en el alojamiento que elijas en el siguiente paso (Flexweg, tu servidor, S3, Git…). Sin cuentas de usuario — o el servicio SQLite de Flexweg, con cuentas, si alojas en Flexweg."
+        },
+        "flexweg-sqlite": {
+          "title": "SQLite (servicio Flexweg)",
+          "hint": "Una base de datos SQLite gestionada por el servicio de Flexweg, con cuentas de usuario integradas. Necesita una cuenta de Flexweg, esté donde esté alojado el sitio."
+        },
+        "firebase": {
+          "title": "Firebase",
+          "hint": "Firestore + Firebase Auth en tu proyecto de Google. Tiempo real, plan Spark gratuito."
+        },
+        "markdown-git": {
+          "title": "Archivos Markdown en Git",
+          "hint": "Entradas como archivos .md en un repositorio GitHub / GitLab (o un clon local). Cada editor usa su propio token; cada cambio es un commit."
+        },
+        "local": {
+          "title": "Este navegador",
+          "hint": "Un solo usuario, sin inicio de sesión, nada que configurar. Ideal para un admin que se ejecuta en tu ordenador."
+        }
+      }
+    },
+    "hosting": {
+      "title": "2. ¿Dónde se publica el sitio?",
+      "intro": "Dónde se sube el sitio estático generado (HTML, CSS, imágenes) cada vez que publicas. Puedes cambiarlo más tarde en Ajustes.",
+      "existing": "Este repositorio de contenido ya publica en el destino de abajo. Mantenlo o elige otro."
+    },
+    "install": {
+      "title": "3. Instalación",
+      "intro": "Revisa el resumen y luego instala.",
+      "data": "Datos",
+      "hosting": "Hosting",
+      "saveTarget": "Guardando el destino de publicación…",
+      "noteConfigJs": "La configuración del admin (config.js) se sube junto al admin en Flexweg cuando es posible; si no, se te ofrecerá descargarla.",
+      "noteLocalConfig": "La configuración se guarda en este navegador; se te ofrecerá config.js para ponerlo en la carpeta del admin y que otros editores se salten esta configuración."
+    },
+    "sqliteFile": {
+      "security": "Sin cuentas de usuario: cualquiera que pueda abrir este admin puede editar el contenido. Protege la carpeta del admin desde tu alojamiento (p. ej. una contraseña en /admin) — y también el archivo de base de datos si se sirve públicamente.",
+      "intro": "Dónde se guarda el archivo de base de datos. Este admin lo lee y lo guarda a través de los mismos conectores que el alojamiento.",
+      "path": "Ruta del archivo de base de datos",
+      "pathHint": "Se crea al guardar por primera vez si aún no existe. Con un repositorio Git, cada guardado es un commit — mejor usa un repositorio o una rama que no lance un build del sitio.",
+      "existing": "base de datos existente",
+      "new": "nueva base de datos",
+      "dataNote": "Nada que configurar aquí: la base de datos se guardará en el alojamiento que elijas en el siguiente paso.",
+      "heading": "Base de datos SQLite",
+      "flexwegService": "Usar el servicio SQLite de Flexweg",
+      "flexwegServiceHint": "La base de datos la gestiona Flexweg e incluye cuentas de usuario integradas (correo + contraseña). Si no, es un simple archivo en este alojamiento, sin cuentas.",
+      "summaryFile": "Archivo {{path}} en este alojamiento",
+      "summaryService": "Servicio SQLite de Flexweg ({{path}})"
+    },
+    "adminHosting": {
+      "deploying": "Copiando el admin al sitio…",
+      "label": "Alojar también el admin en este sitio",
+      "hint": "El admin se copia en {{url}} con su config.js (sin secretos dentro) — así cada editor puede abrirlo allí. Cada editor sigue iniciando sesión con su propio acceso.",
+      "folder": "Carpeta del admin",
+      "alreadyHere": "Este admin ya se ejecuta desde este sitio: su config.js se actualizará en su lugar.",
+      "doneBody": "El admin ya está en tu sitio. En GitHub Pages, activa primero Pages para el repositorio si aún no lo has hecho (Settings → Pages) y luego ábrelo:",
+      "open": "Abrir el admin en línea",
+      "continueHere": "Continuar en este admin"
+    }
+  },
+  "flexweg": {
+    "actions": {
+      "upload": "Subiendo archivo",
+      "delete": "Eliminando archivo",
+      "rename": "Renombrando archivo",
+      "get": "Leyendo archivo",
+      "list": "Listando archivos",
+      "createFolder": "Creando carpeta",
+      "renameFolder": "Renombrando carpeta",
+      "deleteFolder": "Eliminando carpeta",
+      "storageLimits": "Leyendo límites de almacenamiento",
+      "commit": "Publicando cambios"
+    },
+    "errors": {
+      "configMissing": "El destino de publicación no está configurado. Configúralo en Ajustes antes de publicar.",
+      "network": "{{action}}: error de red o CORS bloqueado. Comprueba tu conexión.",
+      "auth": "{{action}}: falló la autenticación. Revisa las credenciales del destino de publicación en Ajustes.",
+      "notFound": "{{action}}: no se encontró en el destino de publicación.",
+      "tooLarge": "{{action}}: archivo demasiado grande para el destino de publicación.",
+      "rateLimited": "{{action}}: demasiadas peticiones, vuelve a intentarlo en un momento.",
+      "serverError": "{{action}}: error del servidor del destino de publicación ({{status}}). Inténtalo de nuevo.",
+      "generic": "{{action}} falló ({{status}}){{detail}}.",
+      "unsupported": "{{action}}: no compatible con el destino de publicación «{{connector}}».",
+      "unknownConnector": "Destino de publicación desconocido «{{connector}}». Revisa Ajustes → Destino de publicación.",
+      "folderAccess": "Sin acceso a la carpeta local. Abre Ajustes → Destino de publicación y pulsa «Reconectar carpeta»."
+    }
+  },
+  "publish": {
+    "log": {
+      "rendering": "Generando página…",
+      "uploading": "Subiendo {{path}}…",
+      "deleting": "Eliminando {{path}}…",
+      "regenerating": "Regenerando listados…",
+      "skipped": "Omitido {{path}} (sin cambios)",
+      "done": "Publicado en {{url}}",
+      "failed": "Falló: {{error}}"
+    }
+  },
+  "docstore": {
+    "errors": {
+      "notConnected": "No conectado al repositorio de contenido. Vuelve a iniciar sesión con tu token de acceso.",
+      "conflict": "Otra persona modificó este elemento mientras tanto. Ahora se muestra su versión: vuelve a aplicar tu cambio.",
+      "sqliteUnsupported": "El destino «{{connector}}» no puede guardar un archivo de base de datos."
+    }
+  },
+  "connectors": {
+    "target": "Destino de publicación",
+    "settingsTitle": "Destino de publicación",
+    "settingsHelp": "Dónde se sube el sitio renderizado al publicar. Las credenciales se guardan con tu backend de contenido (o en este navegador para los repositorios Git de contenido) y todos los admins pueden leerlas.",
+    "saved": "Destino de publicación guardado. Ejecuta Regenerar → Todo para publicar el sitio completo en el nuevo destino.",
+    "test": "Probar la conexión",
+    "testOk": "Conexión OK",
+    "testFailed": "Error de conexión",
+    "names": {
+      "flexweg": "Flexweg",
+      "git-pages": "Repositorio Git (GitHub Pages, Cloudflare Pages, GitLab Pages…)",
+      "s3": "Bucket compatible con S3 (AWS S3, Cloudflare R2, Backblaze B2, OVH…)",
+      "php-bridge": "Tu propio servidor (bridge PHP)",
+      "browser-mirror": "Descargar como ZIP",
+      "local-folder": "Carpeta local en este ordenador"
+    },
+    "hints": {
+      "flexweg": "Subida a través de la API Files de Flexweg.",
+      "git-pages": "Cada publicación es un commit en el repositorio; el alojamiento reconstruye el sitio a partir de él.",
+      "s3": "Requiere una regla CORS en el bucket que permita el origen de este admin, y alojamiento web (o una CDN) para servir los archivos index.html.",
+      "php-bridge": "Sube external/bridges/php/flexweg-bridge.php a tu servidor, define su clave de API y luego introduce su URL aquí.",
+      "browser-mirror": "El sitio se guarda en este navegador; descarga el ZIP y súbelo a mano donde quieras.",
+      "local-folder": "Escribe el sitio directamente en una carpeta (Chrome / Edge). Sírvelo en local o súbelo con tus propias herramientas."
+    },
+    "fields": {
+      "flexweg": {
+        "apiKey": "Clave de API",
+        "siteUrl": "URL del sitio",
+        "apiBaseUrl": "URL base de la API"
+      },
+      "git-pages": {
+        "host": "Alojamiento",
+        "provider": "Proveedor Git",
+        "owner": "Propietario (usuario u organización)",
+        "repo": "Repositorio",
+        "project": "Ruta del proyecto",
+        "branch": "Rama",
+        "dir": "Carpeta en el repositorio",
+        "token": "Token de acceso",
+        "siteUrl": "URL pública del sitio",
+        "apiBaseUrl": "URL de la API (solo autoalojado)"
+      },
+      "s3": {
+        "endpoint": "Endpoint",
+        "region": "Región",
+        "bucket": "Bucket",
+        "prefix": "Prefijo de claves (opcional)",
+        "accessKeyId": "ID de clave de acceso",
+        "secretAccessKey": "Clave de acceso secreta",
+        "siteUrl": "URL pública del sitio",
+        "forcePathStyle": "URLs de tipo ruta (MinIO, R2, la mayoría de compatibles)",
+        "publicRead": "Hacer públicos los archivos subidos (ACL public-read) — para buckets que no son públicos mediante una política (OVHcloud, Scaleway…). Déjalo desactivado en buckets de AWS con «bucket owner enforced»."
+      },
+      "php-bridge": {
+        "apiBaseUrl": "URL del bridge",
+        "apiKey": "Clave de API del bridge",
+        "siteUrl": "URL pública del sitio"
+      },
+      "browser-mirror": {
+        "siteUrl": "URL pública del sitio (opcional)"
+      },
+      "local-folder": {
+        "siteUrl": "URL en la que se sirve la carpeta (opcional)"
+      }
+    },
+    "help": {
+      "flexweg": {
+        "apiKey": "Se genera desde tu cuenta de Flexweg → API."
+      },
+      "git-pages": {
+        "host": "Cloudflare Pages: conecta el proyecto a este repositorio sin comando de build y con la carpeta de salida de abajo. Funciona con repositorios privados.",
+        "dir": "Déjalo vacío para la raíz del repositorio. GitHub Pages: \"\" o \"docs\". GitLab Pages: \"public\".",
+        "token": "Token fine-grained sobre este repositorio con Contents: read & write (GitHub) — añade Pages: read & write para que el CMS pueda activar GitHub Pages — o un token con el scope api (GitLab). Déjalo vacío para usar el token de acceso de cada editor cuando el contenido está en el mismo proveedor.",
+        "siteUrl": "p. ej. https://user.github.io/repo — una URL con subcarpeta sirve, los enlaces se ajustan automáticamente."
+      },
+      "s3": {
+        "endpoint": "Déjalo vacío para AWS (se deduce de la región). R2: https://<account-id>.r2.cloudflarestorage.com",
+        "siteUrl": "La URL de sitio web del bucket o tu dominio de CDN."
+      },
+      "php-bridge": {
+        "apiBaseUrl": "La URL completa de flexweg-bridge.php en tu servidor (HTTPS)."
+      },
+      "browser-mirror": {
+        "siteUrl": "Donde subirás el ZIP — se usa para las URLs absolutas (sitemaps, RSS, medios)."
+      },
+      "local-folder": {
+        "siteUrl": "p. ej. http://localhost:8080 cuando un servidor web local sirve la carpeta."
+      }
+    },
+    "options": {
+      "github-pages": "GitHub Pages",
+      "cloudflare-pages": "Cloudflare Pages (conectado al repositorio)",
+      "gitlab-pages": "GitLab Pages",
+      "other": "Otro (Netlify, Vercel, git pull en el servidor…)",
+      "github": "GitHub",
+      "gitlab": "GitLab"
+    },
+    "folder": {
+      "choose": "Elegir carpeta…",
+      "change": "Cambiar de carpeta…",
+      "reconnect": "Volver a conectar la carpeta",
+      "unsupported": "Este navegador no puede escribir en carpetas locales. Usa Chrome o Edge."
+    },
+    "mirror": {
+      "download": "Descargar el sitio (ZIP)",
+      "count": "{{count}} archivos en este navegador"
+    },
+    "adminHosting": {
+      "title": "Admin en este sitio",
+      "help": "Copia este admin en el destino de publicación (primer despliegue, o actualización tras una nueva versión). Su config.js no contiene secretos.",
+      "deploy": "Desplegar / actualizar el admin",
+      "deployed": "Admin desplegado ({{count}} archivos) — {{url}}"
+    },
+    "pages": {
+      "enabled": "GitHub Pages activado para este repositorio — el sitio estará en línea en un minuto aproximadamente.",
+      "enableHint": "Publicación completada. Para poner el sitio en línea, activa GitHub Pages para {{repo}}: Settings → Pages → Deploy from a branch → {{branch}} / {{folder}}. (O da al token el permiso \"Pages: read and write\" y el CMS lo hará por ti.)"
+    },
+    "siteUrl": {
+      "mismatch": "La URL pública del sitio (Ajustes → Sitio) es {{site}}, pero este destino sirve el sitio en {{target}}. Los enlaces, el CSS y los sitemaps siguen la URL del sitio: serán incorrectos en este alojamiento.",
+      "use": "Usar {{url}} para el sitio",
+      "updated": "URL del sitio actualizada. Ejecuta Regenerar → Todo para volver a publicar las páginas con los nuevos enlaces."
+    }
+  },
+  "gitAccess": {
+    "heading": "Conectar con el repositorio de contenido",
+    "tokenIntro": "El contenido se guarda en el repositorio {{provider}} {{repo}}. Inicia sesión con tu propio token de acceso personal — tus permisos en el repositorio deciden tu rol (escritura = editor, admin / maintainer = admin).",
+    "token": "Token de acceso personal",
+    "tokenHelpGithub": "Token fine-grained, con acceso solo a este repositorio, permiso Contents: lectura y escritura.",
+    "tokenHelpGitlab": "Token con el api scope, rol Developer o superior en este proyecto.",
+    "createToken": "Crear un token",
+    "connect": "Conectar",
+    "tokenStorage": "El token se guarda solo en este navegador. Al cerrar sesión se olvida.",
+    "failed": "Este token no puede escribir en el repositorio (no válido, caducado o de solo lectura). Comprueba sus permisos.",
+    "folderIntro": "El contenido se guarda en una carpeta de este ordenador (normalmente un clon git que sincronizas con tu propio cliente git). Concede acceso a este navegador — los navegadores vuelven a pedirlo tras cada recarga.",
+    "openFolder": "Abrir la carpeta de contenido"
+  },
+  "hosting": {
+    "flexweg": {
+      "title": "Flexweg",
+      "short": "Hosting Flexweg",
+      "hint": "Sube a través de la Flexweg Files API. Clave API de tu cuenta Flexweg."
+    },
+    "github-pages": {
+      "title": "GitHub Pages",
+      "short": "Gratis, desde un repositorio GitHub",
+      "hint": "Cada publicación es un commit en el repositorio; GitHub Pages lo sirve. Settings → Pages → Deploy from a branch. Repositorios públicos en el plan gratuito."
+    },
+    "cloudflare-pages": {
+      "title": "Cloudflare Pages",
+      "short": "Gratis, admite repositorios privados",
+      "hint": "El CMS hace commit del sitio en un repositorio GitHub / GitLab; conecta un proyecto de Cloudflare Pages a él (sin comando de build, carpeta de salida = la carpeta de abajo)."
+    },
+    "gitlab-pages": {
+      "title": "GitLab Pages",
+      "short": "Gratis, desde un repositorio GitLab",
+      "hint": "Cada publicación es un commit; el CMS añade un .gitlab-ci.yml mínimo que publica la carpeta public/."
+    },
+    "git-other": {
+      "title": "Netlify, Vercel…",
+      "short": "Cualquier host que despliegue un repositorio",
+      "hint": "El CMS hace commit del sitio en un repositorio Git; conecta tu host (Netlify, Vercel, un servidor que ejecuta git pull…) a ese repositorio."
+    },
+    "s3": {
+      "title": "S3 / R2 / B2…",
+      "short": "Bucket de almacenamiento de objetos",
+      "hint": "AWS S3, Cloudflare R2, Backblaze B2, OVH, Scaleway, MinIO… Requiere una regla CORS en el bucket y alojamiento web o un CDN delante."
+    },
+    "own-server": {
+      "title": "Tu propio servidor (FTP / SFTP)",
+      "short": "Hosting compartido, VPS…",
+      "hint": "Los navegadores no hablan FTP ni SFTP: sube una vez el puente PHP (external/bridges/php/flexweg-bridge.php) con tu cliente FTP, define su clave API y luego introduce su URL aquí. Funciona en cualquier host PHP."
+    },
+    "local-folder": {
+      "title": "Carpeta local",
+      "short": "En este ordenador",
+      "hint": "Escribe el sitio en una carpeta de este ordenador (Chrome / Edge). Sírvelo localmente o súbelo con tus propias herramientas."
+    },
+    "zip": {
+      "title": "Descargar como ZIP",
+      "short": "Súbelo a mano",
+      "hint": "El sitio se guarda en este navegador; descarga un ZIP desde Ajustes y súbelo donde quieras (Netlify Drop, cliente FTP…)."
+    }
+  },
+  "sqliteAccess": {
+    "heading": "Conectarse a la base de datos",
+    "intro": "Este admin guarda su contenido en {{path}}. Introduce las credenciales de acceso para este navegador.",
+    "storage": "Las credenciales solo se guardan en este navegador. Al cerrar sesión se olvidan."
+  }
+}

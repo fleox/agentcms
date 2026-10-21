@@ -1,0 +1,331 @@
+import type { FieldValue, Timestamp } from "firebase/firestore";
+
+// Anything Firestore returns as a date is a Timestamp; anything we *write* as
+// "now" is the serverTimestamp() sentinel (a FieldValue). Read sites use
+// Timestamp; write payloads use this union so callers can hand off either.
+export type FirestoreTime = Timestamp | FieldValue;
+
+export type AdminLocale = "en" | "fr" | "de" | "es" | "nl" | "pt" | "ko";
+export type UserRole = "admin" | "editor";
+
+export interface UserPreferences {
+  adminLocale: AdminLocale;
+}
+
+// Public-side social network identifiers. Curated list — extending
+// requires updating SocialIcons (the shared SVG renderer) and the
+// admin profile form's socials section.
+export type SocialNetwork =
+  | "twitter"
+  | "linkedin"
+  | "instagram"
+  | "mastodon"
+  | "bluesky"
+  | "github"
+  | "website";
+
+export const SOCIAL_NETWORKS: readonly SocialNetwork[] = [
+  "twitter",
+  "linkedin",
+  "instagram",
+  "mastodon",
+  "bluesky",
+  "github",
+  "website",
+] as const;
+
+// One social profile entry as stored in the user record. URL is
+// free-form; visible toggles whether the public-side templates
+// surface the link. URL with visible:false is a "remembered" entry
+// the user can flip back on without re-typing.
+export interface SocialEntry {
+  url: string;
+  visible: boolean;
+}
+
+export interface UserRecord {
+  id: string;
+  email: string;
+  // Legacy free-form display name. Kept for back-compat with records
+  // created before firstName/lastName landed; new profiles set the
+  // split fields and derive the display name from them.
+  displayName?: string;
+  // Author profile fields — surfaced on public-site templates
+  // (AuthorBio sidebar, single-post author strip, author archive page).
+  // All optional: a fresh user can publish posts before filling them in.
+  firstName?: string;
+  lastName?: string;
+  // Job / role title shown publicly in author cards under the name —
+  // e.g. "Journaliste", "Senior Editor". Replaces the legacy
+  // public-side display of email (which is now admin-only).
+  title?: string;
+  bio?: string;
+  // Reference to a media entry used as the author's profile picture.
+  // Resolved through the same media pipeline as post hero images
+  // (multi-variant, falls back gracefully through pickFormat).
+  avatarMediaId?: string;
+  // Social profiles, keyed by SocialNetwork. Missing key = network
+  // not configured. Stored URL but hidden = `visible: false` (kept
+  // so the user can re-enable without re-entering the URL).
+  socials?: Partial<Record<SocialNetwork, SocialEntry>>;
+  role: UserRole;
+  disabled: boolean;
+  preferences?: UserPreferences;
+  createdAt?: Timestamp;
+  createdBy?: string;
+}
+
+export type PostType = "post" | "page";
+export type PostStatus = "draft" | "online";
+
+export interface SeoMeta {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+}
+
+export interface Post {
+  id: string;
+  type: PostType;
+  title: string;
+  slug: string;
+  contentMarkdown: string;
+  excerpt?: string;
+  heroMediaId?: string;
+  authorId: string;
+  // Tags + at most one category. The category is denormalized into
+  // `primaryTermId` because it determines the URL and we want to read it
+  // without fetching the term document just to know that.
+  termIds: string[];
+  primaryTermId?: string;
+  status: PostStatus;
+  seo?: SeoMeta;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
+  publishedAt?: Timestamp;
+  // The Flexweg path the post is currently live at. Lets the publisher
+  // delete the old file when the slug or category changes.
+  lastPublishedPath?: string;
+  // Paths that *should* have been deleted on a previous publish but
+  // weren't (e.g. transient API failure). The publisher retries cleaning
+  // them on every subsequent publish, so a one-off API hiccup doesn't
+  // leave permanent orphans on the public site. Cleared once the cleanup
+  // succeeds.
+  previousPublishedPaths?: string[];
+  // Hash of the rendered HTML — skip re-upload when nothing changed.
+  lastPublishedHash?: string;
+  // Original public URL on the source system, when imported from
+  // an external CMS. Set by flexweg-import when consuming WordPress
+  // exports (`<link>` element) or markdown frontmatter that includes
+  // a legacy URL. Preserved as opaque metadata so a future redirect
+  // generator can consume it; not read by the publisher itself.
+  legacyUrl?: string;
+  // Optional per-locale extra fields populated by plugins (e.g.
+  // flexweg-multilang). Opaque to the core — the plugin defines its
+  // own shape per locale. Keyed by BCP-47-ish language tag ("fr",
+  // "es-MX", …). Backends serialize this as a JSON column (SQLite)
+  // or a Firestore Map. Reading code that doesn't care about
+  // translations simply ignores the field.
+  translations?: Record<string, unknown>;
+  // Optional per-locale tracking of the path each translation is
+  // currently published at. Used by plugins that publish to multiple
+  // paths from a single post (e.g. multilang) for cleanup bookkeeping
+  // when slugs or enabled locales change. Keyed by the same language
+  // tag as `translations`.
+  lastPublishedPathsByLocale?: Record<string, string>;
+}
+
+export type TermType = "category" | "tag";
+
+export interface Term {
+  id: string;
+  type: TermType;
+  name: string;
+  slug: string;
+  description?: string;
+  parentId?: string;
+  // Per-archive SEO overrides — surfaced as <title> +
+  // <meta name="description"> on the category archive page. Falls
+  // back to the term's `name` / `description` when unset. Edited
+  // through the SEO modal on the Categories & Tags page.
+  seo?: SeoMeta;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
+  lastPublishedPath?: string;
+  // Optional per-locale extra fields populated by plugins (e.g.
+  // flexweg-multilang stores `{ slug, name, description, seo }`
+  // per language here). Same opacity contract as `Post.translations`:
+  // the core sees an opaque map and never reads its inner shape.
+  translations?: Record<string, unknown>;
+}
+
+// One pre-rendered variant of an uploaded image. Each Media doc owns N
+// variants (thumbnail, medium, large, …) — every variant lives at a stable
+// public URL on Flexweg.
+export interface MediaVariant {
+  url: string;
+  width: number;
+  height: number;
+  bytes: number;
+}
+
+export interface Media {
+  id: string;
+  // Original uploaded filename, kept for display (e.g. "Photo Été.JPG").
+  name: string;
+  // Output content-type after processing (e.g. "image/webp").
+  contentType: string;
+  // Sum of every variant's size in bytes.
+  size: number;
+  // Folder path on Flexweg holding all the variants of this asset, e.g.
+  // "media/2026/05/photo-ete-a3f7b2". Deleting the asset = deleting this
+  // folder via the Files API. Always normalized + suffixed for uniqueness.
+  storageBase?: string;
+  // Map of format name (matching the active theme's imageFormats keys plus
+  // ADMIN_FORMATS keys) to the concrete uploaded variant.
+  formats?: Record<string, MediaVariant>;
+  // Default format name used when a caller doesn't specify one (e.g.
+  // "medium"). Falls back to the first available format if missing.
+  defaultFormat?: string;
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Legacy fields, kept for backward compatibility with media uploaded
+  // before the multi-variant pipeline. Reads anywhere in the codebase
+  // should fall back to these when `formats` is missing.
+  // ──────────────────────────────────────────────────────────────────────
+  storagePath?: string;
+  url?: string;
+
+  alt?: string;
+  caption?: string;
+  uploadedAt: number;
+  uploadedBy: string;
+}
+
+// Per-format processing rules. `cover` crops to fill the box; `contain`
+// fits inside without cropping (and preserves the aspect ratio of the
+// source — output dimensions are bounded by width/height but may be
+// smaller on the short axis).
+export type ImageFit = "cover" | "contain";
+
+export interface ImageFormat {
+  width: number;
+  height: number;
+  fit?: ImageFit;
+  // Per-format quality override on the same 0..100 scale as the global
+  // `ImageFormatConfig.quality`. Used when a single variant needs a
+  // different fidelity than the rest — e.g. the `admin-original` variant
+  // bumps to 90 because it's a source for future re-crops, not a display
+  // surface. Falls back to the global quality when omitted.
+  quality?: number;
+}
+
+// Output configuration for the image-processing pipeline. Declared by a
+// theme (so each theme can ship its own size catalog) and merged with
+// ADMIN_FORMATS at upload time so the media library always has its own
+// thumbnails regardless of theme.
+export interface ImageFormatConfig {
+  inputFormats: string[];
+  outputFormat: "webp" | "jpeg" | "png";
+  // Quality on a 0..100 scale; mapped internally to the canvas API's 0..1.
+  quality: number;
+  formats: Record<string, ImageFormat>;
+  defaultFormat: string;
+}
+
+export interface MenuItem {
+  id: string;
+  label: string;
+  // Either an internal ref (post / term / page) or an absolute URL.
+  ref?: { kind: "post" | "term" | "home"; id?: string };
+  externalUrl?: string;
+  children?: MenuItem[];
+  // Per-language label overrides. Keyed by BCP-47-ish language tag
+  // ("fr", "es-MX"). Surfaced by the runtime menu-loader: it reads
+  // `document.documentElement.lang` and prefers
+  // `translations[lang].label` over `label` when present. Missing /
+  // empty entries fall back to the primary `label`.
+  //
+  // Edited inline in MenusPage when the multilang plugin is enabled.
+  // The core menu resolver projects this map into
+  // `ResolvedMenuItem.labels` for the public-side loader.
+  translations?: Record<string, { label?: string }>;
+}
+
+export interface SiteSettings {
+  title: string;
+  description: string;
+  // BCP-47 language tag for the public site, injected as <html lang="...">.
+  // Independent of the admin UI locale.
+  language: string;
+  // Public base URL of the site, e.g. "https://example.flexweg.com".
+  baseUrl: string;
+  activeThemeId: string;
+  enabledPlugins: Record<string, boolean>;
+  homeMode: "latest-posts" | "static-page";
+  homePageId?: string;
+  postsPerPage: number;
+  menus: {
+    header: MenuItem[];
+    footer: MenuItem[];
+  };
+  // Per-plugin configuration blobs, keyed by plugin id. Plugins are free
+  // to define their own shape; the registry only enforces that values are
+  // JSON-serializable so Firestore can store them. Stored alongside the
+  // global site settings so a single subscription keeps everything live.
+  pluginConfigs?: Record<string, unknown>;
+  // Per-theme configuration blobs, keyed by theme id. Mirrors
+  // pluginConfigs — each theme's settings page (declared via
+  // ThemeManifest.settings) reads/writes its own slot. Survives theme
+  // switches so re-activating a previously-configured theme keeps its
+  // settings intact.
+  themeConfigs?: Record<string, unknown>;
+  // Editor-only typography preferences. Drive how the post body looks
+  // *inside the admin's WYSIWYG canvas* — completely decoupled from
+  // the public theme's typography. A writer can pick a comfortable
+  // serif at 18px while the public site keeps its own styling.
+  editorStyle?: EditorStyle;
+  // How the admin loads posts / pages.
+  //
+  //   • "global"    — single Firestore subscription on the entire posts
+  //                   collection (single-field orderBy(createdAt), covered
+  //                   by Firestore's automatic single-field index). Lists
+  //                   are filtered, paginated and searched in memory.
+  //                   Best for sites under ~5 000 entries; works with the
+  //                   free Firestore plan with NO admin index setup.
+  //   • "paginated" — cursor-based per-page subscriptions
+  //                   (subscribeToPostsPaginated). Requires composite
+  //                   indexes on (type, createdAt) and (type, status,
+  //                   createdAt). Recommended for very large sites.
+  //
+  // Default is "global" — matches the safer / setup-free path.
+  paginationMode?: "global" | "paginated";
+  // Search-engine indexing gate (WordPress "Discourage search engines
+  // from indexing this site"). When true, every published HTML page
+  // gets a `<meta name="robots" content="noindex,nofollow">` and the
+  // robots.txt is forced to `User-agent: *\nDisallow: /`, overriding
+  // any user-supplied robots content. Default false — sites are
+  // indexable unless the admin opts out.
+  discourageIndexing?: boolean;
+}
+
+export type PaginationMode = "global" | "paginated";
+export const DEFAULT_PAGINATION_MODE: PaginationMode = "global";
+
+// Site-wide editor typography. Each field is optional so the user can
+// override only what they care about; missing values fall back to the
+// admin's default styling (matching the values that previously came
+// from index.css).
+export interface EditorStyle {
+  // Preset id from EDITOR_FONTS. Empty / undefined → system font.
+  fontFamily?: string;
+  // CSS length values (`16px`, `1rem`, …). Validation is a "looks like
+  // a length" regex on the input side; the renderer accepts whatever
+  // the user typed.
+  bodySize?: string;
+  h1Size?: string;
+  h2Size?: string;
+  h3Size?: string;
+}
+
+export type AdminTheme = "dark" | "light";

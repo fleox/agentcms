@@ -1,0 +1,7 @@
+{
+  "id": "marketplace-core",
+  "name": "Marketplace Core",
+  "version": "1.7.0",
+  "apiVersion": "1.3.0",
+  "entry": "bundle.js"
+}

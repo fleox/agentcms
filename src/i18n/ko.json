@@ -1,0 +1,1056 @@
+{
+  "common": {
+    "save": "저장",
+    "saving": "저장 중…",
+    "saved": "저장됨",
+    "cancel": "취소",
+    "delete": "삭제",
+    "deleting": "삭제 중…",
+    "edit": "편집",
+    "create": "만들기",
+    "search": "검색",
+    "loading": "불러오는 중…",
+    "yes": "예",
+    "no": "아니요",
+    "confirm": "확인",
+    "back": "뒤로",
+    "next": "다음",
+    "previous": "이전",
+    "close": "닫기",
+    "all": "전체",
+    "none": "없음",
+    "actions": "작업",
+    "name": "이름",
+    "slug": "슬러그",
+    "description": "설명",
+    "status": "상태",
+    "createdAt": "생성됨",
+    "updatedAt": "업데이트됨",
+    "publishedAt": "게시됨",
+    "language": "언어",
+    "darkMode": "다크 모드",
+    "lightMode": "라이트 모드",
+    "signOut": "로그아웃",
+    "administrator": "관리자",
+    "editor": "편집자",
+    "appName": "Flexweg CMS"
+  },
+  "auth": {
+    "signIn": "로그인",
+    "signingIn": "로그인 중…",
+    "email": "이메일",
+    "password": "비밀번호",
+    "emailPlaceholder": "you@company.com",
+    "passwordPlaceholder": "••••••••",
+    "forgotPassword": "비밀번호를 잊으셨나요?",
+    "resetEmailSent": "{{email}} 주소로 비밀번호 재설정 이메일을 보냈습니다.",
+    "enterEmailFirst": "위에 이메일을 먼저 입력한 다음 재설정을 클릭하세요.",
+    "emailPasswordRequired": "이메일과 비밀번호를 모두 입력해 주세요.",
+    "signInSubtitle": "업무용 이메일과 비밀번호를 사용하세요.",
+    "footer": "계정 요청은 관리자를 통해 처리됩니다.",
+    "errors": {
+      "invalidEmail": "유효하지 않은 이메일 주소입니다.",
+      "invalidCredentials": "이메일 또는 비밀번호가 올바르지 않습니다.",
+      "tooManyRequests": "시도 횟수가 너무 많습니다. 나중에 다시 시도하거나 비밀번호를 재설정하세요.",
+      "userDisabled": "이 계정은 비활성화되었습니다.",
+      "networkFailed": "네트워크 오류입니다. 연결 상태를 확인하세요.",
+      "generic": "인증에 실패했습니다."
+    }
+  },
+  "nav": {
+    "openMenu": "메뉴 열기",
+    "closeMenu": "메뉴 닫기",
+    "dashboard": "대시보드",
+    "posts": "게시물",
+    "pages": "페이지",
+    "taxonomies": "카테고리 및 태그",
+    "media": "미디어",
+    "themes": "테마",
+    "themeSettings": "테마 설정",
+    "plugins": "플러그인",
+    "menus": "메뉴",
+    "users": "사용자",
+    "settings": "설정"
+  },
+  "dashboard": {
+    "title": "대시보드",
+    "welcome": "{{email}}님, 다시 오신 것을 환영합니다.",
+    "stats": {
+      "totalPosts": "게시물",
+      "totalPages": "페이지",
+      "online": "온라인",
+      "drafts": "초안"
+    }
+  },
+  "posts": {
+    "title": "게시물",
+    "newPost": "새 게시물",
+    "noPosts": "아직 게시물이 없습니다. 첫 게시물을 만들어 시작하세요.",
+    "noPostsInFilter": "현재 필터와 일치하는 게시물이 없습니다.",
+    "search": {
+      "placeholder": "게시물 검색…",
+      "clear": "검색 지우기",
+      "noResults": "검색과 일치하는 게시물이 없습니다."
+    },
+    "pagination": {
+      "previous": "이전",
+      "next": "다음",
+      "showing": "{{total}}개 중 {{from}}–{{to}} 표시",
+      "pageOf": "{{total}}페이지 중 {{page}}페이지"
+    },
+    "bulk": {
+      "selectedCount_one": "{{count}}개 선택됨",
+      "selectedCount_other": "{{count}}개 선택됨",
+      "selectPage_one": "이 페이지에서 {{count}}개 선택",
+      "selectPage_other": "이 페이지의 {{count}}개 모두 선택",
+      "deselectPage": "페이지 선택 해제",
+      "allOnPageSelected_one": "이 페이지에서 {{count}}개가 선택되었습니다.",
+      "allOnPageSelected_other": "이 페이지의 {{count}}개가 모두 선택되었습니다.",
+      "selectAllMatching_one": "일치하는 게시물 선택",
+      "selectAllMatching_other": "일치하는 {{count}}개 게시물 모두 선택",
+      "allMatchingSelected_one": "일치하는 게시물이 선택되었습니다.",
+      "allMatchingSelected_other": "일치하는 {{count}}개 게시물이 모두 선택되었습니다.",
+      "selectOne": "\"{{title}}\" 선택",
+      "publish": "게시 ({{count}})",
+      "publishing": "게시 중…",
+      "publishedCount": "{{ok}}개 게시됨, {{failed}}개 실패.",
+      "unpublish": "게시 취소 ({{count}})",
+      "unpublishing": "게시 취소 중…",
+      "unpublishedCount": "{{ok}}개 게시 취소됨, {{failed}}개 실패.",
+      "delete": "삭제",
+      "deleting": "삭제 중…",
+      "deletedCount": "{{ok}}개 삭제됨, {{failed}}개 실패.",
+      "confirmDelete_one": "게시물 {{count}}개를 삭제하시겠습니까? Flexweg에서 게시 취소되며 되돌릴 수 없습니다.",
+      "confirmDelete_other": "게시물 {{count}}개를 삭제하시겠습니까? Flexweg에서 게시 취소되며 되돌릴 수 없습니다.",
+      "noDraftSelected": "선택된 초안 게시물이 없습니다.",
+      "noOnlineSelected": "선택된 온라인 게시물이 없습니다.",
+      "clear": "선택 해제"
+    },
+    "filters": {
+      "all": "전체",
+      "draft": "초안",
+      "online": "온라인"
+    },
+    "fields": {
+      "title": "제목",
+      "slug": "슬러그",
+      "excerpt": "발췌문",
+      "content": "본문",
+      "category": "카테고리",
+      "tags": "태그",
+      "heroImage": "대표 이미지",
+      "seoTitle": "SEO 제목",
+      "seoDescription": "SEO 설명",
+      "createdAt": "작성일",
+      "updatedAt": "마지막 업데이트",
+      "publishedAt": "게시일"
+    },
+    "edit": {
+      "newTitle": "새 게시물",
+      "editTitle": "게시물 편집",
+      "saved": "저장되었습니다.",
+      "savedAndRepublished": "저장 및 재게시되었습니다.",
+      "saveFailed": "저장에 실패했습니다.",
+      "saveAndRepublish": "저장 및 재게시",
+      "draftSaved": "초안이 저장되었습니다.",
+      "slugCollision": {
+        "post": "이 URL은 이미 게시물에서 사용 중입니다: \"{{label}}\".",
+        "page": "이 URL은 이미 페이지에서 사용 중입니다: \"{{label}}\".",
+        "category": "이 URL은 이미 카테고리에서 사용 중입니다: \"{{label}}\"."
+      },
+      "publish": "게시",
+      "unpublish": "게시 취소",
+      "publishing": "게시 중…",
+      "unpublishing": "게시 취소 중…",
+      "titlePlaceholder": "제목 추가",
+      "permalink": "고유 링크",
+      "slugFormatHint": "소문자 ASCII와 하이픈만 사용할 수 있습니다.",
+      "slugAutoSuffixed": "\"{{base}}\"이(가) 이미 {{owner}}에서 사용 중이므로 접미사를 추가했습니다.",
+      "slugAutoSuffixedOwner": {
+        "post": "게시물: \"{{label}}\"",
+        "page": "페이지: \"{{label}}\"",
+        "category": "카테고리: \"{{label}}\""
+      },
+      "saveBlocked": {
+        "titleRequired": "저장하기 전에 제목을 추가하세요.",
+        "slugRequired": "저장하려면 제목과 URL 슬러그가 필요합니다.",
+        "slugInvalid": "슬러그 형식이 잘못되었습니다 (소문자 ASCII + 하이픈).",
+        "slugCollision": "저장하기 전에 URL 충돌을 해결하세요."
+      },
+      "viewPublished": "보기",
+      "confirmDelete": "이 항목을 삭제하시겠습니까?",
+      "inspector": {
+        "document": "문서",
+        "block": "블록",
+        "blockEmpty": "옵션을 보려면 편집기에서 블록을 선택하세요.",
+        "publishing": "게시",
+        "permalink": "고유 링크",
+        "categories": "카테고리 및 태그",
+        "featured": "대표 이미지",
+        "seo": "SEO",
+        "excerpt": "발췌문",
+        "dates": "날짜"
+      },
+      "blocks": {
+        "addBlock": "블록 추가",
+        "transform": "변환",
+        "moveUp": "위로 이동",
+        "moveDown": "아래로 이동",
+        "duplicate": "복제",
+        "remove": "블록 삭제",
+        "paragraph": "단락",
+        "heading2": "제목 2",
+        "heading3": "제목 3",
+        "bulletList": "글머리 기호 목록",
+        "orderedList": "번호 매기기 목록",
+        "blockquote": "인용",
+        "codeBlock": "코드",
+        "image": "이미지",
+        "horizontalRule": "구분선",
+        "categories": {
+          "text": "텍스트",
+          "media": "미디어",
+          "layout": "레이아웃",
+          "embed": "임베드",
+          "advanced": "고급"
+        },
+        "noSettings": "이 블록에는 설정이 없습니다.",
+        "noSelection": "옵션을 보려면 편집기에서 블록을 선택하세요.",
+        "slash": {
+          "noResults": "일치하는 블록이 없습니다."
+        }
+      }
+    },
+    "status": {
+      "draft": "초안",
+      "online": "온라인"
+    },
+    "preview": {
+      "title": "미리보기",
+      "rendering": "미리보기 렌더링 중…",
+      "error": "미리보기 실패: {{error}}",
+      "viewports": {
+        "mobile": "모바일",
+        "tablet": "태블릿",
+        "desktop": "데스크탑"
+      }
+    }
+  },
+  "pages": {
+    "title": "페이지",
+    "newPage": "새 페이지",
+    "noPages": "아직 페이지가 없습니다.",
+    "homeBadge": "홈",
+    "homeBadgeTooltip": "사이트 홈 페이지로 사용됨"
+  },
+  "taxonomies": {
+    "title": "카테고리 및 태그",
+    "categories": "카테고리",
+    "tags": "태그",
+    "newCategory": "새 카테고리",
+    "newTag": "새 태그",
+    "noCategories": "아직 카테고리가 없습니다.",
+    "noTags": "아직 태그가 없습니다.",
+    "slugCollision": "이 슬러그는 이미 \"{{label}}\"에서 사용 중입니다.",
+    "seo": {
+      "button": "SEO",
+      "buttonTitle": "SEO 메타 태그 편집",
+      "title": "SEO 메타 태그",
+      "subtitle": "\"{{name}}\" 아카이브 페이지의 사용자 지정 제목과 설명입니다.",
+      "metaTitle": "메타 제목",
+      "metaTitleHint": "페이지 <title>로 사용됩니다. 기본값: 용어 이름.",
+      "metaDescription": "메타 설명",
+      "metaDescriptionHint": "페이지 메타 설명으로 사용됩니다. 기본값: 용어 설명."
+    }
+  },
+  "media": {
+    "title": "미디어 라이브러리",
+    "upload": "업로드",
+    "uploading": "업로드 중…",
+    "finalizing": "마무리 중…",
+    "uploadFailed": "업로드 실패",
+    "retry": "재시도",
+    "noMedia": "아직 미디어가 없습니다.",
+    "alt": "대체 텍스트",
+    "caption": "캡션",
+    "filename": "파일명",
+    "size": "크기",
+    "type": "유형"
+  },
+  "themes": {
+    "title": "테마",
+    "active": "활성",
+    "activate": "활성화",
+    "installExternal": "테마 설치",
+    "uninstallDisabledTitle": "이 테마를 제거하기 전에 다른 테마로 전환하세요.",
+    "syncAssets": "테마 자산 동기화",
+    "regenerateSite": "사이트 재생성",
+    "regenerating": "재생성 중…",
+    "regenerate": {
+      "button": "재생성",
+      "running": "실행 중…",
+      "groupBuiltins": "사이트",
+      "groupPlugins": "플러그인",
+      "home": "홈 페이지만",
+      "homeHelp": "index.html만 재생성합니다 — 가장 빠른 옵션입니다.",
+      "allHtml": "모든 HTML 페이지",
+      "allHtmlHelp": "모든 게시물, 페이지, 아카이브, 목록 + menu / posts / authors JSON 스냅샷.",
+      "repair": "URL 복구",
+      "repairHelp": "온라인 상태의 모든 게시물에 대해 정규 경로를 다시 계산하고 잘못된 URL에 업로드된 파일을 옮깁니다. 용어 동기화 전에 실행된 import 이후 유용합니다.",
+      "assets": "테마 자산",
+      "assetsHelp": "활성 테마의 CSS와 부속 스크립트를 /theme-assets/에 업로드합니다.",
+      "everything": "전체",
+      "everythingHelp": "테마 자산 + 모든 HTML + 모든 플러그인 출력. 가장 느린 옵션입니다.",
+      "noPluginTargets": "플러그인 재생성 대상 없음 — 재생성을 지원하는 플러그인을 활성화하세요."
+    },
+    "confirmSwitch": {
+      "title": "{{theme}}(으)로 전환하시겠습니까?",
+      "body": "테마 전환 시 새 디자인이 모든 곳에 적용되도록 테마 자산을 다시 업로드하고 게시된 모든 페이지를 재생성해야 합니다. 잠시 시간이 걸릴 수 있습니다.",
+      "confirm": "전환 및 재생성",
+      "cancel": "취소"
+    }
+  },
+  "plugins": {
+    "title": "플러그인",
+    "enabled": "활성화됨",
+    "disabled": "비활성화됨",
+    "enable": "활성화",
+    "disable": "비활성화",
+    "configure": "설정",
+    "author": "제작자",
+    "learnMore": "자세히 보기",
+    "mustUseBadge": "필수",
+    "installExternal": "플러그인 설치",
+    "tabs": {
+      "regular": "플러그인",
+      "mustUse": "필수 플러그인"
+    }
+  },
+  "externalInstall": {
+    "titlePlugin": "플러그인 설치",
+    "titleTheme": "테마 설치",
+    "labelPlugin": "플러그인",
+    "labelTheme": "테마",
+    "intro": "{{label}} 번들이 들어 있는 ZIP 파일을 드롭하세요 (ZIP 루트에 manifest.json + bundle.js). 해당 {{label}}이(가) Flexweg 사이트에 업로드되고 새로고침 후 등록됩니다. 같은 manifest id의 ZIP을 다시 업로드하면 기존 항목이 그 자리에서 업그레이드됩니다 — 제거할 필요가 없습니다.",
+    "zipField": "번들 ZIP 파일",
+    "install": "설치",
+    "installing": "설치 중…",
+    "installSuccess": "{{name}} 설치됨 ({{count}}개 파일 업로드). 새로고침 중…",
+    "upgradeSuccess": "{{name}} v{{previousVersion}}에서 v{{newVersion}}(으)로 업그레이드됨 ({{count}}개 파일 업로드). 새로고침 중…",
+    "installedTitle": "이미 설치됨",
+    "bundledDefaultsTitle": "내장 기본 항목 사용 가능",
+    "bundledDefaultsHint": "현재 {{count}}개의 내장 플러그인/테마가 제거된 상태입니다. 복원하면 이 관리자 버전에 함께 배포된 항목을 되살릴 수 있습니다.",
+    "bundledDefaultsRestore": "복원",
+    "bundledDefaultsRestored": "플러그인 {{plugins}}개, 테마 {{themes}}개가 복원되었습니다. 새로고침 중…",
+    "uninstall": "제거",
+    "uninstallSuccess": "{{id}} 제거됨. 새로고침 중…",
+    "confirmUninstall": "{{id}}을(를) 제거하시겠습니까? 파일이 Flexweg에서 삭제됩니다.",
+    "errors": {
+      "no-manifest": "ZIP 루트에 manifest.json이 없습니다.",
+      "invalid-manifest": "manifest.json이 유효하지 않습니다 (필수 필드 누락 또는 유효하지 않은 JSON).",
+      "incompatible-api": "번들이 호환되지 않는 런타임 API 버전으로 빌드되었습니다.",
+      "no-bundle": "ZIP에 manifest에 선언된 진입 파일이 없습니다.",
+      "fetch-manifest": "Flexweg에서 현재 external.json을 읽을 수 없습니다.",
+      "upload-failed": "업로드 실패 — Flexweg API 키와 연결 상태를 확인하세요."
+    }
+  },
+  "externalLoader": {
+    "someFailed": "{{count}}개의 외부 번들 로드에 실패했습니다. 브라우저 콘솔을 확인하세요."
+  },
+  "menus": {
+    "title": "메뉴",
+    "header": "헤더 메뉴",
+    "footer": "푸터 메뉴",
+    "label": "레이블",
+    "saveAndPublish": "저장 및 생성",
+    "discard": "변경 취소",
+    "saved": "메뉴가 저장되어 게시되었습니다.",
+    "saveFailed": "메뉴를 저장할 수 없습니다.",
+    "unsavedChanges": "저장되지 않은 변경 사항이 있습니다."
+  },
+  "settings": {
+    "title": "설정",
+    "tabs": {
+      "general": "일반"
+    },
+    "site": {
+      "title": "사이트",
+      "siteTitle": "사이트 제목",
+      "siteDescription": "사이트 설명",
+      "siteLanguage": "사이트 언어",
+      "siteLanguageHelp": "게시되는 모든 페이지의 <html lang=\"…\">에 삽입되는 BCP-47 태그 (예: en, fr-CA)입니다. 접두사는 지원되는 번역 로케일과 비교되어 사이트맵 / RSS 라벨 및 테마에 포함된 문자열에 사용됩니다. 지원되지 않는 로케일은 영어로 대체됩니다.",
+      "siteLanguageResolved": "번역에 사용될 언어: {{label}}",
+      "baseUrl": "공개 사이트 URL",
+      "postsPerPage": "페이지당 게시물 수",
+      "homeMode": "홈 콘텐츠",
+      "homeLatest": "최신 게시물",
+      "homeStatic": "정적 페이지",
+      "homePage": "홈 페이지",
+      "discourageIndexing": "검색 엔진이 이 사이트를 색인하지 않도록 요청",
+      "discourageIndexingHelp": "활성화하면 게시되는 모든 페이지에 noindex/nofollow 메타 태그가 추가되고 robots.txt가 모든 크롤러를 차단합니다. WordPress의 동작과 같으며 — 스테이징 사이트나 출시 전 검토에 유용합니다. 이 지시를 따르는 검색 엔진은 사이트를 색인하지 않습니다.",
+      "discourageRegenerateHint": "색인 설정이 저장되었습니다. 테마에서 '모두 재생성'을 클릭하면 게시된 모든 페이지와 robots.txt에 변경 사항이 적용됩니다."
+    },
+    "flexweg": {
+      "title": "Flexweg API",
+      "apiKey": "API 키",
+      "apiKeyHelp": "Flexweg 계정 → API에서 생성됩니다.",
+      "siteUrl": "사이트 URL",
+      "siteUrlHelp": "끝에 슬래시가 없는 Flexweg 사이트의 공개 URL.",
+      "apiBaseUrl": "API 기본 URL",
+      "storageHelpFirebase": "Firestore (config/flexweg)에 저장됩니다. 로그인한 팀원 누구나 읽을 수 있고, 관리자만 쓸 수 있습니다.",
+      "storageHelpSqlite": "로컬 SQLite의 config 테이블에 저장됩니다. 로그인한 팀원 누구나 읽을 수 있고, 관리자만 쓸 수 있습니다."
+    },
+    "backend": {
+      "title": "데이터 백엔드",
+      "active": "활성 백엔드:",
+      "switchButton": "백엔드 전환…",
+      "confirmTitle": "현재의 모든 데이터가 사라집니다.",
+      "confirmBody": "전환하면 브라우저 내 구성이 지워지고 설정 양식이 다시 로드됩니다. 새 백엔드는 비어 있는 상태로 시작하며 — 이전 백엔드의 데이터는 그대로 남아 있지만 (Firestore 또는 Flexweg의 .sqlite 파일에) 다시 전환할 때까지 CMS가 그 데이터를 읽지 않습니다.",
+      "confirmYes": "예, 백엔드를 전환합니다",
+      "downloadBackup": ".sqlite 파일 백업 다운로드",
+      "downloadBackupHelp": "백엔드 전환 전에 수행하세요.",
+      "markdownGit": "Markdown — {{source}}",
+      "localFolder": "로컬 폴더",
+      "localBrowser": "이 브라우저 (로컬, 단일 사용자)",
+      "sqliteFile": "SQLite 파일 — {{location}}"
+    },
+    "performance": {
+      "title": "성능",
+      "help": "관리자가 게시물과 페이지를 로드하는 방식입니다. 기본 모드는 무료 Firestore 플랜에서 추가 설정 없이 동작합니다. 페이지네이션 모드는 매우 큰 사이트용이며 한 번의 인덱스 생성이 필요합니다.",
+      "mode": "로딩 모드",
+      "modeGlobal": "표준 (설정 불필요)",
+      "modePaginated": "서버 측 페이지네이션 (Firestore 인덱스 필요)",
+      "globalHelp": "전체 게시물 컬렉션을 하나의 실시간 구독으로 로드합니다. 정렬, 필터링, 검색을 메모리에서 수행합니다. 게시물 약 5,000개 미만 사이트에 권장됩니다.",
+      "paginatedHelp": "커서 기반 페이지네이션 구독으로 한 번에 한 페이지씩 가져옵니다. Firestore 복합 인덱스가 필요합니다 — README 참조. 매우 큰 사이트에 권장됩니다.",
+      "savedReload": "저장되었습니다. 새 모드를 적용하려면 관리자를 다시 로드하세요."
+    },
+    "editor": {
+      "title": "편집기",
+      "help": "게시물 / 페이지 편집기 내부의 타이포그래피. 공개 테마와는 별개입니다.",
+      "fontFamily": "글꼴",
+      "bodySize": "본문 크기",
+      "h1Size": "H1 크기",
+      "h2Size": "H2 크기",
+      "h3Size": "H3 크기",
+      "sizeHelp": "CSS 길이 (예: 16px, 1rem). 비워두면 기본값이 적용됩니다.",
+      "reset": "기본값으로 재설정"
+    },
+    "profile": {
+      "title": "프로필",
+      "adminLocale": "관리자 언어",
+      "adminLocaleHelp": "관리자 인터페이스에서 사용되는 언어입니다. 프로필에 저장됩니다.",
+      "firstName": "이름",
+      "lastName": "성",
+      "headline": "직함",
+      "headlinePlaceholder": "예: 기자, 편집장…",
+      "headlineHelp": "이름 아래의 작성자 카드와 아카이브 페이지에 공개적으로 표시됩니다.",
+      "bio": "소개",
+      "bioPlaceholder": "작성자 페이지와 기사 하단에 표시되는 짧은 단락입니다.",
+      "bioHelp": "공개 사이트의 작성자 사이드바와 작성자 아카이브 페이지에 표시됩니다.",
+      "socials": "소셜 프로필",
+      "socialsHelp": "공개 사이트에 노출할 프로필의 URL을 입력하고, 표시할 항목에 \"표시\"를 체크하세요. URL이 비어 있으면 무시됩니다.",
+      "socialsShow": "표시",
+      "socialsShowHelp": "공개 사이트에서 이 네트워크의 표시 여부를 전환합니다.",
+      "avatar": "프로필 사진",
+      "avatarHelp": "미디어 라이브러리에서 이미지를 선택하세요. 정사각형 이미지가 가장 잘 표시됩니다.",
+      "pickAvatar": "미디어에서 선택",
+      "changeAvatar": "사진 변경",
+      "removeAvatar": "삭제",
+      "save": "프로필 저장"
+    },
+    "transfer": {
+      "title": "콘텐츠 이동 또는 백업",
+      "help": "모든 것 (게시물, 페이지, 카테고리, 미디어 메타데이터, 프로필, 설정)을 하나의 JSON 파일로 내보냅니다. Markdown 또는 로컬 백엔드에서는 ID를 유지한 채 이 파일을 가져올 수 있습니다 — Firebase나 SQLite에서 마이그레이션하는 방법입니다. 미디어 파일과 비밀 키는 포함되지 않습니다.",
+      "export": "콘텐츠 내보내기 (JSON)",
+      "import": "콘텐츠 가져오기…",
+      "modeMerge": "병합 (같은 ID 덮어쓰기)",
+      "modeReplace": "가져온 컬렉션 교체",
+      "replaceConfirm": "교체 모드는 가져오기 전에 파일에 포함된 컬렉션의 기존 항목을 모두 삭제합니다. 계속하시겠습니까?",
+      "invalidFile": "이 파일은 Flexweg CMS 콘텐츠 내보내기 파일이 아닙니다.",
+      "imported": "게시물/페이지 {{posts}}개, 용어 {{terms}}개, 미디어 {{media}}개를 가져왔습니다. 재생성 → 전체를 실행해 게시하세요."
+    }
+  },
+  "users": {
+    "title": "사용자",
+    "noUsers": "아직 사용자가 없습니다.",
+    "role": "역할",
+    "disabled": "비활성화됨",
+    "editProfileTitle": "프로필 편집 — {{email}}",
+    "profileSaved": "프로필이 저장되었습니다.",
+    "descriptionFirebase": "팀을 관리하세요. 새 계정은 Firebase Console에서 만들어지며, 첫 로그인 시 여기에 동기화됩니다.",
+    "descriptionSqlite": "팀을 관리하세요. 아래의 +사용자 추가 버튼으로 계정을 직접 만들 수 있습니다.",
+    "addUser": "사용자 추가",
+    "addUserSuccess": "{{email}}을(를) 추가했습니다.",
+    "removeConfirmFirebase": "{{email}}의 사용자 기록을 삭제하시겠습니까? CMS에서 프로필과 역할이 제거됩니다. 로그인 권한도 회수하려면 Firebase Console에서 계정도 삭제하세요.",
+    "removeConfirmSqlite": "{{email}}을(를) 영구적으로 삭제하시겠습니까? 로그인 권한이 회수되고 프로필과 역할도 제거됩니다. 이 작업은 되돌릴 수 없습니다.",
+    "empty": {
+      "title": "아직 팀원이 없습니다",
+      "descriptionFirebase": "Firebase Console에서 첫 계정을 만든 다음, 이곳에 한 번 로그인하여 프로필을 등록하세요.",
+      "descriptionSqlite": "위의 +사용자 추가를 눌러 첫 팀원을 초대하세요."
+    },
+    "help": {
+      "title": "새 팀원을 추가하는 방법",
+      "bootstrapLine": "부트스트랩 관리자 (항상 전체 권한)는 다음과 같습니다:",
+      "firebase": {
+        "step1": "Firebase Console → Authentication → Add user를 여세요.",
+        "step2": "이메일과 비밀번호를 설정해 새 팀원에게 전달하세요.",
+        "step3": "여기에 한 번 로그인하도록 요청하세요 — 프로필이 위 목록에 나타나며 역할과 세부 정보를 편집할 수 있습니다."
+      },
+      "sqlite": {
+        "step1": "위의 +사용자 추가 버튼을 누르세요.",
+        "step2": "이메일과 임시 비밀번호 (8자 이상)를 입력하세요.",
+        "step3": "자격 증명을 안전하게 공유하세요 — 로그인 후 프로필에서 비밀번호를 변경할 수 있습니다."
+      },
+      "git": {
+        "step1": "해당 사용자를 콘텐츠 저장소의 협업자로 추가하세요 (쓰기 권한 = 편집자, admin / maintainer = 관리자).",
+        "step2": "해당 사용자가 GitHub / GitLab에서 자신의 개인 액세스 토큰을 생성합니다.",
+        "step3": "관리자 화면을 열고 그 토큰으로 로그인하면 — 프로필이 여기에 자동으로 생성됩니다."
+      }
+    },
+    "addUserModal": {
+      "title": "새 팀원 추가",
+      "intro": "Flexweg SQLite Auth 데이터베이스에 계정을 직접 만듭니다. 새 사용자는 기본적으로 editor 역할을 갖습니다. 관리자 권한이 필요하면 아래 목록에서 승격하세요.",
+      "submit": "사용자 만들기",
+      "submitting": "만드는 중…"
+    },
+    "actions": {
+      "editProfile": "프로필 편집",
+      "promote": "관리자로 승격",
+      "demote": "편집자로 강등",
+      "disable": "비활성화",
+      "enable": "활성화",
+      "delete": "기록 삭제"
+    },
+    "descriptionGit": "팀원은 콘텐츠 저장소에 쓰기 권한이 있는 사람들입니다. 처음 로그인한 후 여기에 표시되며, 역할은 저장소 권한을 따릅니다.",
+    "descriptionLocal": "이 관리자는 단일 사용자 모드로 실행됩니다: 콘텐츠는 이 브라우저에 저장되며 계정이 없습니다.",
+    "descriptionSqliteFile": "이 백엔드에는 사용자 계정이 없습니다: 관리자를 열 수 있는 사람은 누구나 편집할 수 있습니다. 호스팅 수준에서 관리자 폴더를 보호하세요. 아래 작성자 프로필은 참고용입니다."
+  },
+  "firestoreSetup": {
+    "title": "Firestore 설정 필요",
+    "intro": "게시물 및 페이지 목록 페이지는 효율적인 쿼리를 위해 몇 개의 Firestore 복합 인덱스가 필요합니다. 수동으로 생성해야 합니다 — Firebase는 인덱스 생성을 프로젝트 관리자에게만 허용합니다.",
+    "checking": "Firestore 인덱스 확인 중…",
+    "missingCount_one": "{{count}}개의 인덱스가 누락되었습니다:",
+    "missingCount_other": "{{count}}개의 인덱스가 누락되었습니다:",
+    "openConsole": "생성하려면 Firebase Console 열기",
+    "noUrl": "자동 제안 URL을 추출할 수 없습니다 — gcloud 명령은 README를 참조하세요.",
+    "howItWorks": "작동 방식",
+    "step1": "각 누락된 인덱스의 링크를 클릭하세요 — Firebase Console이 정의가 미리 채워진 상태로 열립니다.",
+    "step2": "'Create'를 클릭하고 인덱스가 빌드될 때까지 1~5분 기다리세요 (콘솔에서 상태 확인).",
+    "step3": "여기로 돌아와 재시도를 클릭하세요. 두 쿼리가 모두 성공하면 관리자가 로드됩니다.",
+    "retry": "재시도",
+    "retrying": "재시도 중…",
+    "buildHint": "인덱스 생성 후 빌드까지 몇 분이 걸릴 수 있습니다.",
+    "allReady": "모든 인덱스가 준비되었습니다.",
+    "unexpectedTitle": "Firestore에 도달할 수 없음",
+    "unexpectedHint": "네트워크 연결과 Firestore 규칙을 확인하세요. 인덱스를 방금 생성했다면 빌드가 끝날 때까지 기다린 후 재시도하세요."
+  },
+  "errors": {
+    "appError": "애플리케이션 오류",
+    "loadAccountFailed": "계정을 불러올 수 없습니다",
+    "loadAccountHint": "문제가 지속되면 로그아웃한 뒤 다시 시도하세요.",
+    "accountDisabled": "계정 비활성화됨",
+    "accountDisabledMessage": "이 CMS에 대한 접근 권한이 비활성화되었습니다. 관리자에게 문의하세요.",
+    "firebaseNotConfigured": "Firebase가 설정되지 않았습니다",
+    "firebaseEnvMissing": "다음 환경 변수가 누락되었습니다:\n{{vars}}\n\n.env.example을 .env로 복사하고 Firebase 프로젝트 자격 증명을 입력한 후 개발 서버를 재시작하세요.",
+    "adminEmailNotConfigured": "관리자 이메일이 설정되지 않았습니다",
+    "adminEmailMessage": ".env에 VITE_ADMIN_EMAIL이 누락되었습니다. 부트스트랩 관리자의 이메일로 설정하세요.",
+    "consoleHint": "브라우저 콘솔과 .env 설정을 확인하세요. 설정 방법은 README를 참조하세요."
+  },
+  "identity": {
+    "brandTitle": "Flexweg CMS",
+    "brandSubtitle": "정적 퍼블리셔",
+    "login": {
+      "heading": "로그인",
+      "intro": "관리자가 공유한 이메일과 비밀번호를 사용하세요.",
+      "submit": "로그인",
+      "submitting": "로그인 중…"
+    },
+    "fields": {
+      "name": "표시 이름 (선택)",
+      "namePlaceholder": "홍길동",
+      "email": "이메일",
+      "password": "비밀번호",
+      "passwordHint": "최소 8자 이상."
+    },
+    "footer": "새 계정은 관리자가 사용자 페이지에서 만듭니다.",
+    "errors": {
+      "invalidEmail": "유효한 이메일 주소를 입력하세요.",
+      "missingPassword": "비밀번호는 필수입니다.",
+      "passwordTooShort": "비밀번호는 최소 8자 이상이어야 합니다."
+    }
+  },
+  "setup": {
+    "title": "Flexweg CMS에 오신 것을 환영합니다",
+    "subtitle": "최초 설정",
+    "intro": "Firebase 자격 증명, 부트스트랩 관리자 계정, Flexweg API 키를 입력하세요. 값은 검증된 후 프로젝트에 저장되며(Firestore + Flexweg의 config.js 파일) 관리자가 일반 로그인 흐름으로 다시 로드됩니다. 한 번만 수행하면 됩니다.",
+    "introFirebase": "1단계 — Firebase. Firebase 프로젝트 자격 증명과 부트스트랩 관리자 계정을 입력하세요. 로그인하고 이메일을 확인하며 Firestore 규칙이 이 관리자를 인식하는지 확인한 후 Flexweg 단계로 넘어갑니다.",
+    "introFlexweg": "2단계 — Flexweg. Flexweg API 키와 사이트 URL을 입력하세요. API를 테스트하고 Firestore에 구성을 저장하며 사이트에 config.js를 업로드하고 테마 자산을 동기화합니다.",
+    "continueToFlexweg": "Firebase 확인 후 계속",
+    "stepper": {
+      "terms": "약관",
+      "backend": "백엔드",
+      "firebase": "Firebase",
+      "flexweg": "Flexweg",
+      "sqlite": "SQLite",
+      "docstore": "콘텐츠 및 게시",
+      "data": "데이터",
+      "hosting": "호스팅",
+      "install": "설치"
+    },
+    "backend": {
+      "title": "데이터 백엔드 선택",
+      "intro": "CMS가 게시물, 페이지, 사용자, 설정을 어디에 저장할지 선택하세요. 나중에 설정에서 변경할 수 있습니다 (데이터는 마이그레이션되지 않습니다).",
+      "sqliteTitle": "Flexweg SQLite (권장)",
+      "sqliteHint": "모든 데이터가 Flexweg 사이트에 SQLite 파일로 저장됩니다. 외부 서비스 없음. 인증은 Flexweg SQLite API가 제공합니다.",
+      "firebaseTitle": "Firebase",
+      "firebaseHint": "Firestore + Auth를 위해 Firebase 프로젝트를 사용합니다. Spark 플랜 무료. onSnapshot을 통한 실시간 업데이트.",
+      "continue": "계속",
+      "markdownGitTitle": "Git 저장소의 Markdown 파일",
+      "markdownGitHint": "게시물을 GitHub / GitLab (또는 로컬 클론)의 .md 파일로 관리합니다. 각 편집자는 자신의 액세스 토큰으로 로그인하며, 모든 변경은 하나의 커밋이 됩니다. 데이터베이스가 필요 없고, 여러 편집자와 여러 컴퓨터에서 사용할 수 있습니다.",
+      "localTitle": "이 브라우저만",
+      "localHint": "단일 사용자, 로그인 없음, 설정할 것도 없습니다. 콘텐츠는 이 브라우저에 남습니다 (설정에서 내보내기 가능). 내 컴퓨터에서 실행하는 관리자에 가장 적합합니다."
+    },
+    "sqlite": {
+      "heading": "Flexweg 사이트 연결",
+      "intro": "Flexweg 마스터 API 키를 한 번만 사용해 SQLite 데이터베이스용으로 범위가 한정된 토큰을 생성합니다. 설치 후에는 마스터 키가 폐기되고 이 SQLite 파일 하나로 범위가 한정된 토큰만 저장됩니다.",
+      "apiKeyHint": "Flexweg 마스터 API 키. 설치에만 사용되며 — 이후에는 저장되지 않습니다.",
+      "detectedFromUrl": "URL에서 감지됨",
+      "advanced": "고급 설정 (사이트 URL, SQLite 경로…)",
+      "pathHint": "SQLite 파일이 Flexweg 사이트에 위치할 경로입니다. 폴더는 자동으로 생성됩니다.",
+      "adminHeading": "관리자 계정",
+      "adminIntro": "첫 사용자를 만드세요 — 이 계정은 자동으로 관리자 권한을 갖게 됩니다. 이후 멤버는 로그인한 후 사용자 페이지에서 온보딩합니다.",
+      "passwordHint": "최소 8자 이상.",
+      "submit": "SQLite 데이터베이스 설치"
+    },
+    "terms": {
+      "title": "이용 약관",
+      "intro": "Flexweg CMS를 사용하기 전에 아래 약관을 읽고 동의해 주세요. 빠르게 읽을 수 있도록 평이한 언어로 작성되었습니다.",
+      "section1": {
+        "title": "1. 무료 서비스",
+        "body": "Flexweg CMS는 Flexweg가 무료로 제공합니다. Flexweg 호스팅과 함께 무제한으로 사용할 수 있으며 — Flexweg는 CMS 자체의 사용에 대해 결코 청구하지 않습니다. Flexweg 호스팅 요금제와 Firebase 요금제의 일반 요금은 각각 해당 계정에 적용됩니다."
+      },
+      "section2": {
+        "title": "2. \"있는 그대로\" 제공, 무보증",
+        "body": "CMS는 있는 그대로 제공됩니다. 안정적으로 유지하고 시간이 지남에 따라 개선하기 위해 노력하지만, 버그, 결함 또는 중단이 없음을 보장할 수는 없습니다. 직접 작성하지 않은 도구를 사용할 때와 동일한 주의를 기울여 사용하세요: 중요한 콘텐츠는 백업을 보관하세요."
+      },
+      "section3": {
+        "title": "3. 귀하의 콘텐츠, 귀하의 책임",
+        "body": "귀하는 CMS를 통해 게시하는 콘텐츠 — 텍스트, 이미지, 비디오, 양식, 코드 임베드 및 기타 미디어 — 에 대해 단독 책임을 집니다. 귀하의 관할권(및 대상으로 하는 관할권)에서 적용되는 법률, 저작권, 초상권 및 인격권, 개인정보 보호 규칙, 그리고 사용하는 모든 제3자 서비스의 약관(임베드된 폰트, 비디오 등)을 준수해야 합니다. Flexweg는 CMS 사용자가 게시한 콘텐츠에 대해 책임지지 않습니다."
+      },
+      "section4": {
+        "title": "4. 귀하의 Firebase 계정, 귀하의 보안",
+        "body": "CMS는 데이터를 귀하의 Firebase 프로젝트에 저장합니다. 해당 프로젝트의 보안은 귀하의 책임입니다: 부트스트랩 관리자 계정에 강력한 비밀번호를 선택하고, 문서에 따라 Firestore 보안 규칙을 설정하고, 필요할 때 API 키를 교체하고, 누가 접근할 수 있는지 검토하세요. Flexweg는 어떠한 경우에도 귀하의 Firebase 계정의 잘못된 구성이나 침해로 인한 무단 접근, 데이터 유출, 해킹 또는 손실에 대해 책임지지 않습니다."
+      },
+      "section5": {
+        "title": "5. 책임의 제한",
+        "body": "Flexweg는 CMS의 사용, 오용 또는 사용 불가로 인한 수익 손실, 데이터 손실, 비즈니스 기회 손실 또는 직간접적인 손해에 대해 책임지지 않습니다. 적용 법률이 Flexweg에 일정 책임을 부과하는 경우, 그 책임은 지난 12개월 동안 CMS에 대해 Flexweg에 실제로 지불된 금액으로 제한됩니다 — CMS가 무료이므로 0입니다."
+      },
+      "section6": {
+        "title": "6. 귀하의 데이터는 귀하의 것",
+        "body": "CMS로 만든 콘텐츠는 귀하의 Firebase 프로젝트(텍스트, 설정, 미디어 메타데이터)와 귀하의 Flexweg 호스팅(게시된 HTML, 이미지, 테마 에셋)에 저장됩니다. CMS 자체는 귀하의 콘텐츠를 어떤 제3자 서비스로도 전송하지 않습니다. 활성화하기로 선택한 플러그인이나 테마는 자체 동작을 가질 수 있습니다 — 활성화하기 전에 무엇을 하는지 확인하세요."
+      },
+      "section7": {
+        "title": "7. 공정한 사용",
+        "body": "CMS를 불법, 사기 또는 유해한 활동에 사용하거나 Flexweg의 일반 이용 약관에 위배되는 방식으로 사용하면 Flexweg 호스팅 액세스가 정지될 수 있습니다. 또한 시간이 지남에 따라 이러한 CMS 약관을 업데이트할 수 있으며, 중요한 변경 사항은 관리자 또는 이메일을 통해 전달됩니다."
+      },
+      "accept": "이용 약관을 읽고 동의합니다.",
+      "continue": "구성으로 계속",
+      "back": "뒤로"
+    },
+    "sections": {
+      "firebase": "Firebase",
+      "admin": "부트스트랩 관리자",
+      "flexweg": "Flexweg API"
+    },
+    "help": {
+      "firebase": "이 값은 Firebase 콘솔 → 프로젝트 설정 → 일반 → 내 앱 → SDK 설정 및 구성에서 찾을 수 있습니다.",
+      "admin": "Firebase Authentication의 기존 사용자를 사용하세요. 이 이메일로 로그인하는 사람은 관리자로 처리되며 사용자 레코드 확인을 우회합니다. 사용자가 없으면 Firebase 콘솔 → Authentication에서 만드세요.",
+      "flexweg": "Flexweg 계정 → API에서 영구 API 키를 생성하세요. 사이트 URL은 Flexweg 사이트의 공개 주소입니다(예: https://your-site.flexweg.com).",
+      "flexwegApiKeyHint": "Flexweg 계정 설정에서 API 키를 받으세요.",
+      "flexwegApiKeyLink": "계정 설정 열기"
+    },
+    "fields": {
+      "apiKey": "API 키",
+      "authDomain": "인증 도메인",
+      "projectId": "프로젝트 ID",
+      "storageBucket": "스토리지 버킷",
+      "messagingSenderId": "메시징 발신자 ID",
+      "appId": "앱 ID",
+      "adminEmail": "이메일",
+      "adminPassword": "비밀번호",
+      "flexwegApiKey": "API 키",
+      "flexwegSiteUrl": "사이트 URL",
+      "flexwegApiBaseUrl": "API 기본 URL",
+      "sqlitePath": "SQLite 경로"
+    },
+    "submit": "저장하고 계속",
+    "submitting": "설정 중…",
+    "success": "설정 완료!",
+    "reloadingHint": "잠시 후 관리자 페이지가 새로고침됩니다. 잠시만 기다려 주세요.",
+    "footer": "이 값은 프로젝트(Firestore + Flexweg)에 저장됩니다. 다른 곳으로 전송되지 않습니다.",
+    "steps": {
+      "signInFirebase": "Firebase에 로그인 중…",
+      "testFlexweg": "Flexweg API 테스트 중…",
+      "writeFirestore": "구성 저장 중…",
+      "uploadConfig": "config.js를 Flexweg에 업로드 중…",
+      "syncThemes": "테마 에셋을 Flexweg에 동기화하는 중…",
+      "sqliteInstall": "범위가 한정된 SQLite 토큰 생성 중…",
+      "sqliteRegisterAdmin": "관리자 계정 등록 중…",
+      "sqliteSchema": "SQLite 스키마 초기화 중…"
+    },
+    "stepsDone": {
+      "sqliteInstall": "범위가 한정된 SQLite 토큰이 발급되었습니다",
+      "sqliteRegisterAdmin": "관리자가 등록되고 로그인되었습니다",
+      "sqliteSchema": "SQLite 스키마가 준비되었습니다"
+    },
+    "errors": {
+      "missingFields": "모든 필드를 입력해 주세요.",
+      "rootDeploymentTitle": "관리자는 사이트 루트가 아닌 하위 폴더에 있어야 합니다.",
+      "rootDeploymentHint": "관리자 파일(index.html, config.js, runtime/, …)을 Flexweg의 하위 폴더로 이동하세요 — 예를 들어 /admin/ 또는 보안을 위한 무작위 이름인 /erf34f654GH3/ 등으로. 그런 다음 해당 하위 폴더 URL에서 관리자를 다시 로드하고 설정을 다시 실행하세요.",
+      "firebaseAuthGeneric": "Firebase 로그인에 실패했습니다.",
+      "firebaseAuthInvalidCredential": "Firebase가 이메일과 비밀번호 조합을 거부했습니다.",
+      "firebaseAuthInvalidCredentialHint": "최신 Firebase 프로젝트는 이메일 열거 방지가 기본으로 켜져 있어, 비밀번호가 틀렸을 때, 사용자가 존재하지 않을 때, 또는 사용자가 다른 제공업체로 로그인할 때 모두 같은 오류를 반환합니다. 확인 사항:\n• 비밀번호를 다시 입력하세요 — 오타를 배제하기 위해 비밀번호 관리자에서 복사/붙여넣기하세요. 최소 길이는 6자입니다.\n• Firebase 콘솔 → Authentication → Users를 열어 이메일이 존재하는지 확인하세요. 'Providers' 열을 확인하세요: 'Email/Password'가 없고 Google(또는 다른 제공업체)만 표시되면, 행 메뉴(⋮ → 비밀번호 재설정)에서 비밀번호를 설정하거나 재설정하세요.\n• 이메일 철자가 Firebase에 저장된 값과 정확히 일치하는지 확인하세요.",
+      "firebaseAuthUserNotFound": "이 이메일을 사용하는 Firebase 사용자가 없습니다. 먼저 Firebase 콘솔 → Authentication → Users에서 만드세요.",
+      "firebaseAuthInvalidEmail": "관리자 이메일이 유효한 주소가 아닙니다.",
+      "firebaseInvalidApiKey": "Firebase API 키가 잘못되었습니다. Firebase 콘솔에서 값을 다시 확인하세요.",
+      "firebaseNetwork": "Firebase 로그인 중 네트워크 오류가 발생했습니다. 연결을 확인하세요.",
+      "firebaseTooManyRequests": "로그인 시도가 너무 많습니다. 잠시 후 다시 시도하거나 Firebase 콘솔에서 비밀번호를 재설정하세요.",
+      "firebaseOperationNotAllowed": "이 Firebase 프로젝트에서는 이메일/비밀번호 로그인이 활성화되어 있지 않습니다. Firebase 콘솔 → Authentication → Sign-in method를 열어 Email/Password 제공업체를 활성화하세요.",
+      "firebaseUserDisabled": "이 Firebase 사용자 계정은 비활성화되어 있습니다. Firebase 콘솔 → Authentication → Users에서 다시 활성화하세요.",
+      "wrongAdminEmail": "로그인한 Firebase 계정이 입력한 관리자 이메일과 일치하지 않습니다. 다시 시도하세요.",
+      "rulesNotPinnedTitle": "Firestore 규칙이 아직 부트스트랩 관리자로 인식하지 못합니다.",
+      "rulesNotPinnedHint": "Firebase 콘솔 → Firestore → 규칙을 열고 `bootstrapAdminEmail()`의 값을 다음으로 교체하세요: {{email}} — 그런 다음 게시를 클릭하세요. README의 규칙 템플릿에는 자리표시자 `you@example.com`이 있으며, 실제 관리자 이메일로 교체해야 합니다. 업데이트된 규칙을 게시한 후 여기에서 제출을 다시 클릭하세요.",
+      "flexwegAuth": "Flexweg API 키가 거부되었습니다. Flexweg 계정 → API에서 값을 확인하세요.",
+      "flexwegNetwork": "Flexweg에 연결하는 중 네트워크 오류가 발생했습니다. API 기본 URL과 연결을 확인하세요.",
+      "flexwegHttp": "Flexweg API 오류 ({{status}}): {{detail}}",
+      "firestoreRulesTitle": "Firestore가 구성 쓰기를 거부했습니다.",
+      "firestoreRulesHint": "Firebase 콘솔 → Firestore → 규칙을 열고 부트스트랩 관리자 이메일이 '{{email}}'로 설정되어 있는지 확인하세요. README에 복사해서 붙여 넣을 수 있는 규칙 템플릿이 있습니다.",
+      "firestoreOther": "Firestore 쓰기 실패",
+      "uploadFailed": "config.js를 Flexweg에 업로드할 수 없습니다",
+      "generic": "문제가 발생했습니다."
+    },
+    "docstore": {
+      "contentTitle": "콘텐츠 저장소",
+      "contentIntro": "게시물, 페이지, 설정이 Markdown + JSON 파일로 저장되는 곳입니다. 빈 저장소도 괜찮습니다 — CMS가 파일을 생성합니다.",
+      "provider": "저장소",
+      "localClone": "로컬 폴더 (git 클론)",
+      "localCloneHint": "클론한 폴더를 선택하세요. 평소 사용하는 git 클라이언트로 동기화하세요 — CMS는 파일을 읽고 쓸 뿐 git을 실행하지 않습니다.",
+      "contentDir": "저장소 내 콘텐츠 폴더",
+      "privateRepo": "비공개 저장소를 사용하세요: 초안이 그곳에 저장됩니다.",
+      "folderRequired": "먼저 콘텐츠 폴더를 선택하세요.",
+      "checking": "저장소 접근 권한 확인 중…",
+      "publishIntro": "생성된 사이트가 게시되는 곳입니다. 나중에 설정에서 변경할 수 있습니다.",
+      "existingSite": "이 저장소는 이미 설정되어 있습니다 — 사이트는 계속 다음 위치에 게시됩니다: {{target}}. 나중에 설정에서 변경할 수 있습니다 (비밀 키가 있다면 그곳에서 다시 입력해야 합니다).",
+      "install": "설치",
+      "steps": {
+        "config": "구성 저장 중…",
+        "content": "콘텐츠 불러오는 중…",
+        "target": "게시 대상 저장 중…",
+        "testTarget": "게시 대상 테스트 중…"
+      },
+      "doneTitle": "모두 준비되었습니다!",
+      "doneBody": "구성이 이 브라우저에 저장되었습니다. 다른 편집자가 이 설정을 반복하지 않도록 config.js를 다운로드해 호스팅의 관리자 폴더에 있는 파일을 교체하세요.",
+      "downloadConfig": "config.js 다운로드",
+      "open": "관리자 열기",
+      "footer": "콘텐츠는 저장소 또는 이 브라우저에 남으며, 액세스 토큰은 절대 이 브라우저 밖으로 나가지 않습니다."
+    },
+    "data": {
+      "title": "1. 데이터를 어디에 저장하시겠어요?",
+      "intro": "게시물, 페이지, 사용자, 설정 — 관리자 자체의 데이터입니다. 공개 사이트를 호스팅하는 위치(다음 단계)와는 별개입니다.",
+      "localNote": "설정할 것이 없습니다: 콘텐츠는 이 브라우저에 저장됩니다. 백업하거나 나중에 옮기려면 설정에서 내보내세요.",
+      "options": {
+        "sqlite-file": {
+          "title": "SQLite",
+          "hint": "다음 단계에서 선택하는 호스팅(Flexweg, 자체 서버, S3, Git…)에 저장되는 SQLite 데이터베이스입니다. 사용자 계정이 없습니다 — Flexweg에서 호스팅한다면 계정이 포함된 Flexweg의 SQLite 서비스를 사용할 수도 있습니다."
+        },
+        "flexweg-sqlite": {
+          "title": "SQLite (Flexweg 서비스)",
+          "hint": "Flexweg 서비스가 운영하는 SQLite 데이터베이스로, 사용자 계정이 내장되어 있습니다. 사이트를 어디에서 호스팅하든 Flexweg 계정이 필요합니다."
+        },
+        "firebase": {
+          "title": "Firebase",
+          "hint": "Google 프로젝트의 Firestore + Firebase Auth. 실시간, 무료 Spark 요금제."
+        },
+        "markdown-git": {
+          "title": "Git의 Markdown 파일",
+          "hint": "게시물을 GitHub / GitLab 저장소(또는 로컬 클론)의 .md 파일로 저장합니다. 각 편집자는 자신의 토큰을 사용하며, 모든 변경은 커밋이 됩니다."
+        },
+        "local": {
+          "title": "이 브라우저",
+          "hint": "단일 사용자, 로그인 없음, 설정할 것 없음. 컴퓨터에서 실행하는 관리자에 적합합니다."
+        }
+      }
+    },
+    "hosting": {
+      "title": "2. 사이트를 어디에 게시하시겠어요?",
+      "intro": "게시할 때마다 생성된 정적 사이트(HTML, CSS, 이미지)가 업로드되는 곳입니다. 나중에 설정에서 변경할 수 있습니다.",
+      "existing": "이 콘텐츠 저장소는 이미 아래 대상에 게시하고 있습니다. 그대로 유지하거나 다른 대상을 선택하세요."
+    },
+    "install": {
+      "title": "3. 설치",
+      "intro": "요약을 확인한 후 설치하세요.",
+      "data": "데이터",
+      "hosting": "호스팅",
+      "saveTarget": "게시 대상 저장 중…",
+      "noteConfigJs": "관리자 구성(config.js)은 가능하면 Flexweg의 관리자 옆에 업로드됩니다. 그렇지 않으면 다운로드하도록 안내됩니다.",
+      "noteLocalConfig": "구성은 이 브라우저에 저장됩니다. 다른 편집자가 이 설정을 건너뛸 수 있도록 관리자 폴더에 넣을 config.js가 제공됩니다."
+    },
+    "sqliteFile": {
+      "security": "사용자 계정이 없습니다: 이 관리자를 열 수 있는 사람은 누구나 콘텐츠를 편집할 수 있습니다. 호스팅 수준에서 관리자 폴더를 보호하세요(예: /admin에 비밀번호 설정) — 데이터베이스 파일이 공개적으로 제공된다면 그 파일도 보호하세요.",
+      "intro": "데이터베이스 파일이 저장되는 위치입니다. 이 관리자는 호스팅과 동일한 커넥터를 통해 파일을 읽고 저장합니다.",
+      "path": "데이터베이스 파일 경로",
+      "pathHint": "아직 없으면 처음 저장할 때 생성됩니다. Git 저장소를 사용하면 저장할 때마다 커밋이 생성되므로 — 사이트 빌드를 트리거하지 않는 저장소나 브랜치를 사용하세요.",
+      "existing": "기존 데이터베이스",
+      "new": "새 데이터베이스",
+      "dataNote": "여기서는 설정할 것이 없습니다: 데이터베이스는 다음 단계에서 선택하는 호스팅에 저장됩니다.",
+      "heading": "SQLite 데이터베이스",
+      "flexwegService": "Flexweg의 SQLite 서비스 사용",
+      "flexwegServiceHint": "데이터베이스는 Flexweg가 운영하며 사용자 계정(이메일 + 비밀번호)이 내장되어 있습니다. 그렇지 않으면 계정 없이 이 호스팅에 저장되는 일반 파일입니다.",
+      "summaryFile": "이 호스팅의 파일 {{path}}",
+      "summaryService": "Flexweg SQLite 서비스 ({{path}})"
+    },
+    "adminHosting": {
+      "deploying": "관리자를 사이트에 복사하는 중…",
+      "label": "이 사이트에 관리자도 호스팅",
+      "hint": "관리자가 config.js(비밀 정보 없음)와 함께 {{url}}에 복사되며, 모든 편집자가 그곳에서 열 수 있습니다. 각 편집자는 여전히 자신의 액세스로 로그인합니다.",
+      "folder": "관리자 폴더",
+      "alreadyHere": "이 관리자는 이미 이 사이트에서 실행 중입니다. config.js가 그 자리에서 업데이트됩니다.",
+      "doneBody": "관리자가 이제 사이트에 있습니다. GitHub Pages를 사용한다면 아직 활성화하지 않은 경우 먼저 저장소의 Pages를 활성화한 다음(Settings → Pages) 여세요:",
+      "open": "온라인 관리자 열기",
+      "continueHere": "이 관리자에서 계속하기"
+    }
+  },
+  "flexweg": {
+    "actions": {
+      "upload": "파일 업로드",
+      "delete": "파일 삭제",
+      "rename": "파일 이름 변경",
+      "get": "파일 읽기",
+      "list": "파일 목록 조회",
+      "createFolder": "폴더 생성",
+      "renameFolder": "폴더 이름 변경",
+      "deleteFolder": "폴더 삭제",
+      "storageLimits": "저장 용량 한도 조회",
+      "commit": "변경 사항 게시 중"
+    },
+    "errors": {
+      "configMissing": "게시 대상이 설정되지 않았습니다. 게시하기 전에 설정에서 구성하세요.",
+      "network": "{{action}}: 네트워크 오류 또는 CORS가 차단되었습니다. 연결 상태를 확인하세요.",
+      "auth": "{{action}}: 인증에 실패했습니다. 설정에서 게시 대상 자격 증명을 확인하세요.",
+      "notFound": "{{action}}: 게시 대상에서 찾을 수 없습니다.",
+      "tooLarge": "{{action}}: 게시 대상에 비해 파일이 너무 큽니다.",
+      "rateLimited": "{{action}}: 요청이 너무 많습니다. 잠시 후 다시 시도하세요.",
+      "serverError": "{{action}}: 게시 대상 서버 오류({{status}}). 다시 시도하세요.",
+      "generic": "{{action}} 실패 ({{status}}){{detail}}.",
+      "unsupported": "{{action}}: \"{{connector}}\" 게시 대상에서 지원되지 않습니다.",
+      "unknownConnector": "알 수 없는 게시 대상 \"{{connector}}\". 설정 → 게시 대상을 확인하세요.",
+      "folderAccess": "로컬 폴더에 접근할 수 없습니다. 설정 → 게시 대상에서 “폴더 다시 연결”을 클릭하세요."
+    }
+  },
+  "publish": {
+    "log": {
+      "rendering": "페이지 렌더링 중…",
+      "uploading": "{{path}} 업로드 중…",
+      "deleting": "{{path}} 삭제 중…",
+      "regenerating": "목록 재생성 중…",
+      "skipped": "{{path}} 건너뜀 (변경 없음)",
+      "done": "{{url}}에 게시됨",
+      "failed": "실패: {{error}}"
+    }
+  },
+  "docstore": {
+    "errors": {
+      "notConnected": "콘텐츠 저장소에 연결되어 있지 않습니다. 액세스 토큰으로 다시 로그인하세요.",
+      "conflict": "그 사이 다른 사람이 이 항목을 변경했습니다. 이제 그 버전이 표시됩니다 — 변경 사항을 다시 적용하세요.",
+      "sqliteUnsupported": "\"{{connector}}\" 대상에는 데이터베이스 파일을 저장할 수 없습니다."
+    }
+  },
+  "connectors": {
+    "target": "게시 대상",
+    "settingsTitle": "게시 대상",
+    "settingsHelp": "게시할 때 렌더링된 사이트가 업로드되는 곳입니다. 자격 증명은 콘텐츠 백엔드에 저장되며 (Git 콘텐츠 저장소의 경우 이 브라우저에 보관) 모든 관리자가 읽을 수 있습니다.",
+    "saved": "게시 대상이 저장되었습니다. 재생성 → 전체를 실행해 사이트 전체를 새 대상에 게시하세요.",
+    "test": "연결 테스트",
+    "testOk": "연결 정상",
+    "testFailed": "연결 실패",
+    "names": {
+      "flexweg": "Flexweg",
+      "git-pages": "Git 저장소 (GitHub Pages, Cloudflare Pages, GitLab Pages…)",
+      "s3": "S3 호환 버킷 (AWS S3, Cloudflare R2, Backblaze B2, OVH…)",
+      "php-bridge": "자체 서버 (PHP 브리지)",
+      "browser-mirror": "ZIP으로 다운로드",
+      "local-folder": "이 컴퓨터의 로컬 폴더"
+    },
+    "hints": {
+      "flexweg": "Flexweg Files API를 통해 업로드합니다.",
+      "git-pages": "게시할 때마다 저장소에 커밋 하나가 생성되며, 호스트가 이를 바탕으로 사이트를 다시 빌드합니다.",
+      "s3": "버킷에 이 관리자의 오리진을 허용하는 CORS 규칙이 필요하며, index.html 파일을 제공하려면 웹사이트 호스팅 (또는 CDN)이 필요합니다.",
+      "php-bridge": "external/bridges/php/flexweg-bridge.php를 서버에 업로드하고 API 키를 설정한 다음 여기에 URL을 입력하세요.",
+      "browser-mirror": "사이트는 이 브라우저에 보관됩니다. ZIP을 다운로드해 원하는 곳에 직접 업로드하세요.",
+      "local-folder": "사이트를 폴더에 바로 기록합니다 (Chrome / Edge). 로컬에서 제공하거나 자신의 도구로 푸시하세요."
+    },
+    "fields": {
+      "flexweg": {
+        "apiKey": "API 키",
+        "siteUrl": "사이트 URL",
+        "apiBaseUrl": "API 기본 URL"
+      },
+      "git-pages": {
+        "host": "호스팅",
+        "provider": "Git 제공자",
+        "owner": "소유자 (사용자 또는 조직)",
+        "repo": "저장소",
+        "project": "프로젝트 경로",
+        "branch": "브랜치",
+        "dir": "저장소 내 폴더",
+        "token": "액세스 토큰",
+        "siteUrl": "공개 사이트 URL",
+        "apiBaseUrl": "API URL (자체 호스팅 전용)"
+      },
+      "s3": {
+        "endpoint": "엔드포인트",
+        "region": "리전",
+        "bucket": "버킷",
+        "prefix": "키 접두사 (선택 사항)",
+        "accessKeyId": "액세스 키 ID",
+        "secretAccessKey": "비밀 액세스 키",
+        "siteUrl": "공개 사이트 URL",
+        "forcePathStyle": "경로 스타일 URL (MinIO, R2, 대부분의 호환 서비스)",
+        "publicRead": "업로드한 파일을 공개로 설정(ACL public-read) — 버킷 정책으로 공개되지 않은 버킷용(OVHcloud, Scaleway 등). ‘bucket owner enforced’를 사용하는 AWS 버킷에서는 꺼 두세요."
+      },
+      "php-bridge": {
+        "apiBaseUrl": "브리지 URL",
+        "apiKey": "브리지 API 키",
+        "siteUrl": "공개 사이트 URL"
+      },
+      "browser-mirror": {
+        "siteUrl": "공개 사이트 URL (선택 사항)"
+      },
+      "local-folder": {
+        "siteUrl": "폴더가 제공되는 URL (선택 사항)"
+      }
+    },
+    "help": {
+      "flexweg": {
+        "apiKey": "Flexweg 계정 → API에서 생성합니다."
+      },
+      "git-pages": {
+        "host": "Cloudflare Pages: 빌드 명령 없이 아래 출력 폴더로 프로젝트를 이 저장소에 연결하세요. 비공개 저장소에서도 작동합니다.",
+        "dir": "저장소 루트를 사용하려면 비워 두세요. GitHub Pages: \"\" 또는 \"docs\". GitLab Pages: \"public\".",
+        "token": "이 저장소에 대해 Contents: read & write 권한이 있는 세분화된(fine-grained) 토큰(GitHub) — CMS가 GitHub Pages를 활성화하도록 하려면 Pages: read & write를 추가하세요 — 또는 api 스코프가 있는 토큰(GitLab). 콘텐츠가 같은 제공자에 있다면 비워 두어 각 편집자의 액세스 토큰을 사용하세요.",
+        "siteUrl": "예: https://user.github.io/repo — 하위 폴더 URL도 괜찮으며, 링크는 자동으로 조정됩니다."
+      },
+      "s3": {
+        "endpoint": "AWS는 비워 두세요 (리전에서 자동 구성됨). R2: https://<account-id>.r2.cloudflarestorage.com",
+        "siteUrl": "버킷 웹사이트 URL 또는 CDN 도메인."
+      },
+      "php-bridge": {
+        "apiBaseUrl": "서버에 있는 flexweg-bridge.php의 전체 URL (HTTPS)."
+      },
+      "browser-mirror": {
+        "siteUrl": "ZIP을 업로드할 위치 — 절대 URL (사이트맵, RSS, 미디어)에 사용됩니다."
+      },
+      "local-folder": {
+        "siteUrl": "예: 로컬 웹 서버가 폴더를 제공하는 경우 http://localhost:8080."
+      }
+    },
+    "options": {
+      "github-pages": "GitHub Pages",
+      "cloudflare-pages": "Cloudflare Pages (저장소에 연결됨)",
+      "gitlab-pages": "GitLab Pages",
+      "other": "기타 (Netlify, Vercel, 서버 git pull…)",
+      "github": "GitHub",
+      "gitlab": "GitLab"
+    },
+    "folder": {
+      "choose": "폴더 선택…",
+      "change": "폴더 변경…",
+      "reconnect": "폴더 다시 연결",
+      "unsupported": "이 브라우저는 로컬 폴더에 쓸 수 없습니다. Chrome 또는 Edge를 사용하세요."
+    },
+    "mirror": {
+      "download": "사이트 다운로드 (ZIP)",
+      "count": "이 브라우저에 있는 파일 {{count}}개"
+    },
+    "adminHosting": {
+      "title": "이 사이트의 관리자",
+      "help": "이 관리자를 게시 대상에 복사합니다(최초 배포 또는 새 버전 이후 업데이트). config.js에는 비밀 정보가 없습니다.",
+      "deploy": "관리자 배포 / 업데이트",
+      "deployed": "관리자 배포 완료 ({{count}}개 파일) — {{url}}"
+    },
+    "pages": {
+      "enabled": "이 저장소에 GitHub Pages가 활성화되었습니다 — 약 1분 후 사이트가 온라인 상태가 됩니다.",
+      "enableHint": "게시에 성공했습니다. 사이트를 온라인으로 만들려면 {{repo}}에 대해 GitHub Pages를 활성화하세요: Settings → Pages → Deploy from a branch → {{branch}} / {{folder}}. (또는 토큰에 \"Pages: read and write\" 권한을 부여하면 CMS가 대신 처리합니다.)"
+    },
+    "siteUrl": {
+      "mismatch": "사이트 공개 URL(설정 → 사이트)은 {{site}}이지만, 이 대상은 사이트를 {{target}}에서 제공합니다. 링크, CSS, 사이트맵은 사이트 URL을 따르므로 이 호스팅에서는 잘못됩니다.",
+      "use": "사이트에 {{url}} 사용",
+      "updated": "사이트 URL을 업데이트했습니다. 재생성 → 전체를 실행해 새 링크로 페이지를 다시 게시하세요."
+    }
+  },
+  "gitAccess": {
+    "heading": "콘텐츠 저장소에 연결",
+    "tokenIntro": "콘텐츠는 {{provider}} 저장소 {{repo}}에 저장됩니다. 자신의 개인 액세스 토큰으로 로그인하세요 — 저장소 권한에 따라 역할이 결정됩니다 (쓰기 권한 = 편집자, admin / maintainer = 관리자).",
+    "token": "개인 액세스 토큰",
+    "tokenHelpGithub": "이 저장소에만 접근 가능한 fine-grained 토큰, Contents 권한: 읽기 및 쓰기.",
+    "tokenHelpGitlab": "api scope가 있는 토큰, 이 프로젝트에서 Developer 이상의 역할.",
+    "createToken": "토큰 만들기",
+    "connect": "연결",
+    "tokenStorage": "토큰은 이 브라우저에만 보관됩니다. 로그아웃하면 삭제됩니다.",
+    "failed": "이 토큰으로는 저장소에 쓸 수 없습니다 (유효하지 않음, 만료됨 또는 읽기 전용). 권한을 확인하세요.",
+    "folderIntro": "콘텐츠는 이 컴퓨터의 폴더에 저장됩니다 (보통 자신의 git 클라이언트로 동기화하는 git 클론). 이 브라우저에 접근 권한을 허용하세요 — 브라우저는 새로고침할 때마다 다시 묻습니다.",
+    "openFolder": "콘텐츠 폴더 열기"
+  },
+  "hosting": {
+    "flexweg": {
+      "title": "Flexweg",
+      "short": "Flexweg 호스팅",
+      "hint": "Flexweg Files API를 통해 업로드합니다. Flexweg 계정의 API 키를 사용하세요."
+    },
+    "github-pages": {
+      "title": "GitHub Pages",
+      "short": "무료, GitHub 저장소에서",
+      "hint": "게시할 때마다 저장소에 커밋 하나가 생성되고 GitHub Pages가 이를 제공합니다. Settings → Pages → Deploy from a branch. 무료 요금제는 공개 저장소만 가능합니다."
+    },
+    "cloudflare-pages": {
+      "title": "Cloudflare Pages",
+      "short": "무료, 비공개 저장소 가능",
+      "hint": "CMS가 사이트를 GitHub / GitLab 저장소에 커밋합니다. 여기에 Cloudflare Pages 프로젝트를 연결하세요(빌드 명령 없음, 출력 폴더 = 아래 폴더)."
+    },
+    "gitlab-pages": {
+      "title": "GitLab Pages",
+      "short": "무료, GitLab 저장소에서",
+      "hint": "게시할 때마다 커밋 하나가 생성됩니다. CMS가 public/ 폴더를 게시하는 최소한의 .gitlab-ci.yml을 추가합니다."
+    },
+    "git-other": {
+      "title": "Netlify, Vercel…",
+      "short": "저장소를 배포하는 모든 호스트",
+      "hint": "CMS가 사이트를 Git 저장소에 커밋합니다. 호스트(Netlify, Vercel, git pull을 실행하는 서버…)를 해당 저장소에 연결하세요."
+    },
+    "s3": {
+      "title": "S3 / R2 / B2…",
+      "short": "오브젝트 스토리지 버킷",
+      "hint": "AWS S3, Cloudflare R2, Backblaze B2, OVH, Scaleway, MinIO… 버킷에 CORS 규칙과 웹사이트 호스팅 또는 앞단의 CDN이 필요합니다."
+    },
+    "own-server": {
+      "title": "자체 서버 (FTP / SFTP)",
+      "short": "공유 호스팅, VPS…",
+      "hint": "브라우저는 FTP나 SFTP를 사용할 수 없습니다: FTP 클라이언트로 PHP 브리지(external/bridges/php/flexweg-bridge.php)를 한 번 업로드하고 API 키를 설정한 다음, 여기에 해당 URL을 입력하세요. 모든 PHP 호스트에서 작동합니다."
+    },
+    "local-folder": {
+      "title": "로컬 폴더",
+      "short": "이 컴퓨터에",
+      "hint": "사이트를 이 컴퓨터의 폴더에 씁니다(Chrome / Edge). 로컬에서 제공하거나 자체 도구로 푸시하세요."
+    },
+    "zip": {
+      "title": "ZIP으로 다운로드",
+      "short": "직접 업로드",
+      "hint": "사이트는 이 브라우저에 보관됩니다. 설정에서 ZIP을 다운로드해 원하는 곳(Netlify Drop, FTP 클라이언트…)에 업로드하세요."
+    }
+  },
+  "sqliteAccess": {
+    "heading": "데이터베이스에 연결",
+    "intro": "이 관리자는 콘텐츠를 {{path}}에 저장합니다. 이 브라우저의 액세스 자격 증명을 입력하세요.",
+    "storage": "자격 증명은 이 브라우저에만 보관됩니다. 로그아웃하면 삭제됩니다."
+  }
+}

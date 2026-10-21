@@ -1,0 +1,1056 @@
+{
+  "common": {
+    "save": "Opslaan",
+    "saving": "Opslaan…",
+    "saved": "Opgeslagen",
+    "cancel": "Annuleren",
+    "delete": "Verwijderen",
+    "deleting": "Verwijderen…",
+    "edit": "Bewerken",
+    "create": "Aanmaken",
+    "search": "Zoeken",
+    "loading": "Laden…",
+    "yes": "Ja",
+    "no": "Nee",
+    "confirm": "Bevestigen",
+    "back": "Terug",
+    "next": "Volgende",
+    "previous": "Vorige",
+    "close": "Sluiten",
+    "all": "Alle",
+    "none": "Geen",
+    "actions": "Acties",
+    "name": "Naam",
+    "slug": "Slug",
+    "description": "Beschrijving",
+    "status": "Status",
+    "createdAt": "Aangemaakt",
+    "updatedAt": "Bijgewerkt",
+    "publishedAt": "Gepubliceerd",
+    "language": "Taal",
+    "darkMode": "Donkere modus",
+    "lightMode": "Lichte modus",
+    "signOut": "Uitloggen",
+    "administrator": "Beheerder",
+    "editor": "Redacteur",
+    "appName": "Flexweg CMS"
+  },
+  "auth": {
+    "signIn": "Inloggen",
+    "signingIn": "Inloggen…",
+    "email": "E-mail",
+    "password": "Wachtwoord",
+    "emailPlaceholder": "u@bedrijf.com",
+    "passwordPlaceholder": "••••••••",
+    "forgotPassword": "Wachtwoord vergeten?",
+    "resetEmailSent": "E-mail om wachtwoord opnieuw in te stellen verzonden naar {{email}}.",
+    "enterEmailFirst": "Voer eerst uw e-mail hierboven in en klik dan op resetten.",
+    "emailPasswordRequired": "E-mail en wachtwoord zijn vereist.",
+    "signInSubtitle": "Gebruik uw werk-e-mail en wachtwoord.",
+    "footer": "Accountaanvragen verlopen via uw beheerder.",
+    "errors": {
+      "invalidEmail": "Ongeldig e-mailadres.",
+      "invalidCredentials": "Ongeldig e-mailadres of wachtwoord.",
+      "tooManyRequests": "Te veel pogingen. Probeer later opnieuw of stel uw wachtwoord opnieuw in.",
+      "userDisabled": "Dit account is uitgeschakeld.",
+      "networkFailed": "Netwerkfout. Controleer uw verbinding.",
+      "generic": "Authenticatie mislukt."
+    }
+  },
+  "nav": {
+    "openMenu": "Menu openen",
+    "closeMenu": "Menu sluiten",
+    "dashboard": "Dashboard",
+    "posts": "Berichten",
+    "pages": "Pagina's",
+    "taxonomies": "Categorieën & Tags",
+    "media": "Media",
+    "themes": "Thema's",
+    "themeSettings": "Thema-instellingen",
+    "plugins": "Plugins",
+    "menus": "Menu's",
+    "users": "Gebruikers",
+    "settings": "Instellingen"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welkom terug, {{email}}.",
+    "stats": {
+      "totalPosts": "Berichten",
+      "totalPages": "Pagina's",
+      "online": "Online",
+      "drafts": "Concepten"
+    }
+  },
+  "posts": {
+    "title": "Berichten",
+    "newPost": "Nieuw bericht",
+    "noPosts": "Nog geen berichten. Maak uw eerste bericht om te beginnen.",
+    "noPostsInFilter": "Geen berichten passen bij het huidige filter.",
+    "search": {
+      "placeholder": "Berichten zoeken…",
+      "clear": "Zoekopdracht wissen",
+      "noResults": "Geen berichten komen overeen met uw zoekopdracht."
+    },
+    "pagination": {
+      "previous": "Vorige",
+      "next": "Volgende",
+      "showing": "{{from}}–{{to}} van {{total}} weergegeven",
+      "pageOf": "Pagina {{page}} van {{total}}"
+    },
+    "bulk": {
+      "selectedCount_one": "{{count}} geselecteerd",
+      "selectedCount_other": "{{count}} geselecteerd",
+      "selectPage_one": "{{count}} op deze pagina selecteren",
+      "selectPage_other": "Alle {{count}} op deze pagina selecteren",
+      "deselectPage": "Pagina deselecteren",
+      "allOnPageSelected_one": "{{count}} op deze pagina geselecteerd.",
+      "allOnPageSelected_other": "Alle {{count}} op deze pagina geselecteerd.",
+      "selectAllMatching_one": "Het overeenkomende bericht selecteren",
+      "selectAllMatching_other": "Alle {{count}} overeenkomende berichten selecteren",
+      "allMatchingSelected_one": "Het overeenkomende bericht is geselecteerd.",
+      "allMatchingSelected_other": "Alle {{count}} overeenkomende berichten zijn geselecteerd.",
+      "selectOne": "\"{{title}}\" selecteren",
+      "publish": "Publiceren ({{count}})",
+      "publishing": "Publiceren…",
+      "publishedCount": "{{ok}} gepubliceerd, {{failed}} mislukt.",
+      "unpublish": "Depubliceren ({{count}})",
+      "unpublishing": "Depubliceren…",
+      "unpublishedCount": "{{ok}} gedepubliceerd, {{failed}} mislukt.",
+      "delete": "Verwijderen",
+      "deleting": "Verwijderen…",
+      "deletedCount": "{{ok}} verwijderd, {{failed}} mislukt.",
+      "confirmDelete_one": "{{count}} bericht verwijderen? Dit depubliceert van Flexweg en kan niet ongedaan worden gemaakt.",
+      "confirmDelete_other": "{{count}} berichten verwijderen? Dit depubliceert van Flexweg en kan niet ongedaan worden gemaakt.",
+      "noDraftSelected": "Geen conceptberichten geselecteerd.",
+      "noOnlineSelected": "Geen online berichten geselecteerd.",
+      "clear": "Selectie wissen"
+    },
+    "filters": {
+      "all": "Alle",
+      "draft": "Concept",
+      "online": "Online"
+    },
+    "fields": {
+      "title": "Titel",
+      "slug": "Slug",
+      "excerpt": "Samenvatting",
+      "content": "Inhoud",
+      "category": "Categorie",
+      "tags": "Tags",
+      "heroImage": "Uitgelichte afbeelding",
+      "seoTitle": "SEO-titel",
+      "seoDescription": "SEO-beschrijving",
+      "createdAt": "Aangemaakt op",
+      "updatedAt": "Laatst bijgewerkt",
+      "publishedAt": "Gepubliceerd op"
+    },
+    "edit": {
+      "newTitle": "Nieuw bericht",
+      "editTitle": "Bericht bewerken",
+      "saved": "Opgeslagen.",
+      "savedAndRepublished": "Opgeslagen en opnieuw gepubliceerd.",
+      "saveFailed": "Opslaan mislukt.",
+      "saveAndRepublish": "Opslaan en opnieuw publiceren",
+      "draftSaved": "Concept opgeslagen.",
+      "slugCollision": {
+        "post": "Deze URL wordt al gebruikt door bericht: \"{{label}}\".",
+        "page": "Deze URL wordt al gebruikt door pagina: \"{{label}}\".",
+        "category": "Deze URL wordt al gebruikt door categorie: \"{{label}}\"."
+      },
+      "publish": "Publiceren",
+      "unpublish": "Depubliceren",
+      "publishing": "Publiceren…",
+      "unpublishing": "Depubliceren…",
+      "titlePlaceholder": "Titel toevoegen",
+      "permalink": "Permalink",
+      "slugFormatHint": "Alleen kleine letters, ASCII, gescheiden door streepjes.",
+      "slugAutoSuffixed": "Suffix toegevoegd omdat \"{{base}}\" al wordt gebruikt door {{owner}}.",
+      "slugAutoSuffixedOwner": {
+        "post": "bericht: \"{{label}}\"",
+        "page": "pagina: \"{{label}}\"",
+        "category": "categorie: \"{{label}}\""
+      },
+      "saveBlocked": {
+        "titleRequired": "Voeg een titel toe voordat u opslaat.",
+        "slugRequired": "Een titel en URL-slug zijn vereist om op te slaan.",
+        "slugInvalid": "Ongeldig slug-formaat (ASCII in kleine letters + streepjes).",
+        "slugCollision": "Los het URL-conflict op voordat u opslaat."
+      },
+      "viewPublished": "Bekijken",
+      "confirmDelete": "Dit item verwijderen?",
+      "inspector": {
+        "document": "Document",
+        "block": "Blok",
+        "blockEmpty": "Selecteer een blok in de editor om de opties te zien.",
+        "publishing": "Publicatie",
+        "permalink": "Permalink",
+        "categories": "Categorieën & tags",
+        "featured": "Uitgelichte afbeelding",
+        "seo": "SEO",
+        "excerpt": "Samenvatting",
+        "dates": "Datums"
+      },
+      "blocks": {
+        "addBlock": "Blok toevoegen",
+        "transform": "Omzetten naar",
+        "moveUp": "Omhoog verplaatsen",
+        "moveDown": "Omlaag verplaatsen",
+        "duplicate": "Dupliceren",
+        "remove": "Blok verwijderen",
+        "paragraph": "Paragraaf",
+        "heading2": "Kop 2",
+        "heading3": "Kop 3",
+        "bulletList": "Opsomming",
+        "orderedList": "Genummerde lijst",
+        "blockquote": "Citaat",
+        "codeBlock": "Code",
+        "image": "Afbeelding",
+        "horizontalRule": "Scheiding",
+        "categories": {
+          "text": "Tekst",
+          "media": "Media",
+          "layout": "Lay-out",
+          "embed": "Insluitingen",
+          "advanced": "Geavanceerd"
+        },
+        "noSettings": "Dit blok heeft geen instellingen.",
+        "noSelection": "Selecteer een blok in de editor om de opties te zien.",
+        "slash": {
+          "noResults": "Geen overeenkomend blok."
+        }
+      }
+    },
+    "status": {
+      "draft": "Concept",
+      "online": "Online"
+    },
+    "preview": {
+      "title": "Voorbeeld",
+      "rendering": "Voorbeeld renderen…",
+      "error": "Voorbeeld mislukt: {{error}}",
+      "viewports": {
+        "mobile": "Mobiel",
+        "tablet": "Tablet",
+        "desktop": "Desktop"
+      }
+    }
+  },
+  "pages": {
+    "title": "Pagina's",
+    "newPage": "Nieuwe pagina",
+    "noPages": "Nog geen pagina's.",
+    "homeBadge": "Startpagina",
+    "homeBadgeTooltip": "Wordt gebruikt als startpagina van de site"
+  },
+  "taxonomies": {
+    "title": "Categorieën & Tags",
+    "categories": "Categorieën",
+    "tags": "Tags",
+    "newCategory": "Nieuwe categorie",
+    "newTag": "Nieuwe tag",
+    "noCategories": "Nog geen categorieën.",
+    "noTags": "Nog geen tags.",
+    "slugCollision": "Deze slug wordt al gebruikt door \"{{label}}\".",
+    "seo": {
+      "button": "SEO",
+      "buttonTitle": "SEO-metatags bewerken",
+      "title": "SEO-metatags",
+      "subtitle": "Aangepaste titel en beschrijving voor de archiefpagina van \"{{name}}\".",
+      "metaTitle": "Metatitel",
+      "metaTitleHint": "Gebruikt als <title> van de pagina. Standaard: de naam van de term.",
+      "metaDescription": "Metabeschrijving",
+      "metaDescriptionHint": "Gebruikt als metabeschrijving van de pagina. Standaard: de beschrijving van de term."
+    }
+  },
+  "media": {
+    "title": "Mediabibliotheek",
+    "upload": "Uploaden",
+    "uploading": "Uploaden…",
+    "finalizing": "Afronden…",
+    "uploadFailed": "Upload mislukt",
+    "retry": "Opnieuw proberen",
+    "noMedia": "Nog geen media.",
+    "alt": "Alt-tekst",
+    "caption": "Bijschrift",
+    "filename": "Bestandsnaam",
+    "size": "Grootte",
+    "type": "Type"
+  },
+  "themes": {
+    "title": "Thema's",
+    "active": "Actief",
+    "activate": "Activeren",
+    "installExternal": "Thema installeren",
+    "uninstallDisabledTitle": "Schakel naar een ander thema voordat u dit deïnstalleert.",
+    "syncAssets": "Thema-bestanden synchroniseren",
+    "regenerateSite": "Site opnieuw genereren",
+    "regenerating": "Opnieuw genereren…",
+    "regenerate": {
+      "button": "Opnieuw genereren",
+      "running": "Bezig…",
+      "groupBuiltins": "Site",
+      "groupPlugins": "Plugins",
+      "home": "Alleen homepage",
+      "homeHelp": "Genereert alleen index.html opnieuw — snelste optie.",
+      "allHtml": "Alle HTML-pagina's",
+      "allHtmlHelp": "Elke post, pagina, archief en lijst — plus menu / posts / authors JSON-snapshots.",
+      "repair": "URL's herstellen",
+      "repairHelp": "Berekent de canonieke URL van elke online post opnieuw en verplaatst bestanden die op de verkeerde URL terechtkwamen. Handig na een import die liep voordat de termen gesynchroniseerd waren.",
+      "assets": "Thema-bestanden",
+      "assetsHelp": "Uploadt CSS + bijbehorende scripts van het actieve thema naar /theme-assets/.",
+      "everything": "Alles",
+      "everythingHelp": "Thema-bestanden + alle HTML + elke plugin-uitvoer. Langzaamste optie.",
+      "noPluginTargets": "Geen plugin-regeneraties — activeer een plugin die regenereren ondersteunt."
+    },
+    "confirmSwitch": {
+      "title": "Overschakelen naar {{theme}}?",
+      "body": "Wisselen van thema vereist het opnieuw uploaden van de thema-bestanden en het regenereren van elke gepubliceerde pagina zodat het nieuwe uiterlijk overal doorwerkt. Dit kan even duren.",
+      "confirm": "Overschakelen en regenereren",
+      "cancel": "Annuleren"
+    }
+  },
+  "plugins": {
+    "title": "Plugins",
+    "enabled": "Ingeschakeld",
+    "disabled": "Uitgeschakeld",
+    "enable": "Inschakelen",
+    "disable": "Uitschakelen",
+    "configure": "Configureren",
+    "author": "auteur",
+    "learnMore": "Meer info",
+    "mustUseBadge": "Verplicht",
+    "installExternal": "Plugin installeren",
+    "tabs": {
+      "regular": "Plugins",
+      "mustUse": "Verplichte plugins"
+    }
+  },
+  "externalInstall": {
+    "titlePlugin": "Een plugin installeren",
+    "titleTheme": "Een thema installeren",
+    "labelPlugin": "plugin",
+    "labelTheme": "thema",
+    "intro": "Sleep een ZIP-bestand met een {{label}}-bundle (manifest.json + bundle.js in de root van de ZIP) hierheen. De {{label}} wordt naar uw Flexweg-site geüpload en na een herlaad geregistreerd. Een ZIP met dezelfde manifest-id opnieuw uploaden werkt het bestaande item ter plaatse bij — geen deïnstallatie nodig.",
+    "zipField": "Bundle-ZIP-bestand",
+    "install": "Installeren",
+    "installing": "Bezig met installeren…",
+    "installSuccess": "{{name}} geïnstalleerd ({{count}} bestanden geüpload). Herladen…",
+    "upgradeSuccess": "{{name}} bijgewerkt van v{{previousVersion}} naar v{{newVersion}} ({{count}} bestanden geüpload). Herladen…",
+    "installedTitle": "Al geïnstalleerd",
+    "bundledDefaultsTitle": "Meegeleverde standaards beschikbaar",
+    "bundledDefaultsHint": "{{count}} meegeleverde plugin/thema is momenteel gedeïnstalleerd. Herstel ze om terug te krijgen wat met deze admin-versie werd meegeleverd.",
+    "bundledDefaultsRestore": "Herstellen",
+    "bundledDefaultsRestored": "{{plugins}} plugin(s) en {{themes}} thema('s) hersteld. Herladen…",
+    "uninstall": "Deïnstalleren",
+    "uninstallSuccess": "{{id}} gedeïnstalleerd. Herladen…",
+    "confirmUninstall": "{{id}} deïnstalleren? Bestanden worden verwijderd van Flexweg.",
+    "errors": {
+      "no-manifest": "ZIP mist manifest.json in de root.",
+      "invalid-manifest": "manifest.json is ongeldig (verplichte velden ontbreken of het is geen geldig JSON).",
+      "incompatible-api": "De bundle is gebouwd tegen een incompatibele runtime-API-versie.",
+      "no-bundle": "De ZIP bevat niet het in het manifest opgegeven entry-bestand.",
+      "fetch-manifest": "Kon de huidige external.json op Flexweg niet lezen.",
+      "upload-failed": "Upload mislukt — controleer uw Flexweg-API-sleutel en uw verbinding."
+    }
+  },
+  "externalLoader": {
+    "someFailed": "{{count}} externe bundle(s) konden niet worden geladen. Bekijk de browserconsole."
+  },
+  "menus": {
+    "title": "Menu's",
+    "header": "Hoofdmenu",
+    "footer": "Voettekstmenu",
+    "label": "Label",
+    "saveAndPublish": "Opslaan & genereren",
+    "discard": "Negeren",
+    "saved": "Menu's opgeslagen en gepubliceerd.",
+    "saveFailed": "Kon menu's niet opslaan.",
+    "unsavedChanges": "U heeft niet-opgeslagen wijzigingen."
+  },
+  "settings": {
+    "title": "Instellingen",
+    "tabs": {
+      "general": "Algemeen"
+    },
+    "site": {
+      "title": "Site",
+      "siteTitle": "Sitetitel",
+      "siteDescription": "Sitebeschrijving",
+      "siteLanguage": "Sitetaal",
+      "siteLanguageHelp": "BCP-47-tag (bv. en, fr-CA) die op elke gepubliceerde pagina in <html lang=\"…\"> wordt geplaatst. Het voorvoegsel wordt vergeleken met de ondersteunde vertaallocales voor sitemap-/RSS-labels en in het thema ingebakken teksten; niet-ondersteunde locales vallen terug op Engels.",
+      "siteLanguageResolved": "Vertalingen gebruiken: {{label}}",
+      "baseUrl": "Publieke site-URL",
+      "postsPerPage": "Berichten per pagina",
+      "homeMode": "Inhoud startpagina",
+      "homeLatest": "Laatste berichten",
+      "homeStatic": "Statische pagina",
+      "homePage": "Startpagina",
+      "discourageIndexing": "Zoekmachines ontmoedigen deze site te indexeren",
+      "discourageIndexingHelp": "Indien ingeschakeld krijgt elke gepubliceerde pagina een noindex/nofollow-metatag en blokkeert robots.txt alle crawlers. Volgt het gedrag van WordPress — handig voor stagingsites of controles vóór de lancering. Zoekmachines die de instructie respecteren, indexeren de site niet.",
+      "discourageRegenerateHint": "Indexeringsinstelling opgeslagen. Klik in Thema's op 'Alles opnieuw genereren' om de wijziging toe te passen op alle gepubliceerde pagina's en robots.txt."
+    },
+    "flexweg": {
+      "title": "Flexweg-API",
+      "apiKey": "API-sleutel",
+      "apiKeyHelp": "Aangemaakt vanuit uw Flexweg-account → API.",
+      "siteUrl": "Site-URL",
+      "siteUrlHelp": "Publieke URL van uw Flexweg-site zonder slash op het einde.",
+      "apiBaseUrl": "API-basis-URL",
+      "storageHelpFirebase": "Opgeslagen in Firestore (config/flexweg). Te lezen door elk ingelogd teamlid, alleen door beheerders te schrijven.",
+      "storageHelpSqlite": "Opgeslagen in de lokale SQLite-tabel config. Te lezen door elk ingelogd teamlid, alleen door beheerders te schrijven."
+    },
+    "backend": {
+      "title": "Data-backend",
+      "active": "Actief backend:",
+      "switchButton": "Backend wisselen…",
+      "confirmTitle": "Alle huidige data gaat verloren.",
+      "confirmBody": "Wisselen wist de configuratie in de browser en herlaadt het instelformulier. Het nieuwe backend start leeg — de data van het vorige backend blijft staan (in Firestore of als .sqlite-bestand op Flexweg), maar het CMS leest het pas weer wanneer u terug wisselt.",
+      "confirmYes": "Ja, backend wisselen",
+      "downloadBackup": "Download een back-up van het .sqlite-bestand",
+      "downloadBackupHelp": "doe dit voordat u van backend wisselt.",
+      "markdownGit": "Markdown — {{source}}",
+      "localFolder": "lokale map",
+      "localBrowser": "Deze browser (lokaal, één gebruiker)",
+      "sqliteFile": "SQLite-bestand — {{location}}"
+    },
+    "performance": {
+      "title": "Prestaties",
+      "help": "Hoe de admin berichten en pagina's laadt. De standaardmodus werkt op het gratis Firestore-plan zonder setup; de gepagineerde modus is voor zeer grote sites en vereist eenmalige index-setup.",
+      "mode": "Laadmodus",
+      "modeGlobal": "Standaard (geen setup nodig)",
+      "modePaginated": "Server-side gepagineerd (Firestore-indexen vereist)",
+      "globalHelp": "Laadt de hele berichten-collectie in één live abonnement. Sorteren, filteren en zoeken gebeurt in het geheugen. Aanbevolen voor sites met minder dan ~5 000 berichten.",
+      "paginatedHelp": "Cursor-gepagineerde abonnementen, één pagina per keer. Vereist Firestore-composite-indexen — zie README. Aanbevolen voor zeer grote sites.",
+      "savedReload": "Opgeslagen. Herlaad de admin om de nieuwe modus toe te passen."
+    },
+    "editor": {
+      "title": "Editor",
+      "help": "Typografie binnen de bericht-/pagina-editor. Onafhankelijk van het publieke thema.",
+      "fontFamily": "Lettertypefamilie",
+      "bodySize": "Tekstgrootte",
+      "h1Size": "H1-grootte",
+      "h2Size": "H2-grootte",
+      "h3Size": "H3-grootte",
+      "sizeHelp": "CSS-lengte, bijv. 16px of 1rem. Laat leeg voor standaard.",
+      "reset": "Terugzetten naar standaard"
+    },
+    "profile": {
+      "title": "Profiel",
+      "adminLocale": "Admin-taal",
+      "adminLocaleHelp": "Taal die wordt gebruikt door de adminschermen. Opgeslagen in uw profiel.",
+      "firstName": "Voornaam",
+      "lastName": "Achternaam",
+      "headline": "Titel",
+      "headlinePlaceholder": "bv. Journalist, Hoofdredacteur…",
+      "headlineHelp": "Wordt openbaar onder uw naam getoond in auteurkaarten en op uw archiefpagina.",
+      "bio": "Biografie",
+      "bioPlaceholder": "Een korte alinea die op uw auteurspagina en onder uw artikelen verschijnt.",
+      "bioHelp": "Zichtbaar op de publieke site in de auteur-zijbalk en op de auteursarchiefpagina.",
+      "socials": "Sociale profielen",
+      "socialsHelp": "Voeg de URL's toe van de profielen die u op de publieke site wilt tonen en vink \"Tonen\" aan voor de zichtbare. Lege URL's worden genegeerd.",
+      "socialsShow": "Tonen",
+      "socialsShowHelp": "Schakelt de zichtbaarheid van dit netwerk op de publieke site om.",
+      "avatar": "Profielfoto",
+      "avatarHelp": "Kies een afbeelding uit uw mediabibliotheek. Vierkante afbeeldingen werken het best.",
+      "pickAvatar": "Kies uit media",
+      "changeAvatar": "Foto wijzigen",
+      "removeAvatar": "Verwijderen",
+      "save": "Profiel opslaan"
+    },
+    "transfer": {
+      "title": "Content verplaatsen of back-uppen",
+      "help": "Exporteer alles (posts, pagina's, categorieën, metadata van media, profielen, instellingen) als één JSON-bestand. Op een Markdown- of lokaal backend kunt u zo'n bestand importeren met behoud van de id's — zo migreert u vanaf Firebase of SQLite. Mediabestanden en geheime sleutels worden niet meegenomen.",
+      "export": "Content exporteren (JSON)",
+      "import": "Content importeren…",
+      "modeMerge": "Samenvoegen (zelfde id's overschrijven)",
+      "modeReplace": "Geïmporteerde collecties vervangen",
+      "replaceConfirm": "De modus Vervangen verwijdert vóór het importeren alle bestaande items van de collecties die in het bestand staan. Doorgaan?",
+      "invalidFile": "Dit bestand is geen contentexport van Flexweg CMS.",
+      "imported": "{{posts}} posts/pagina's, {{terms}} termen en {{media}} media geïmporteerd. Voer Opnieuw genereren → Alles uit om ze te publiceren."
+    }
+  },
+  "users": {
+    "title": "Gebruikers",
+    "noUsers": "Nog geen gebruikers.",
+    "role": "Rol",
+    "disabled": "Uitgeschakeld",
+    "editProfileTitle": "Profiel bewerken — {{email}}",
+    "profileSaved": "Profiel opgeslagen.",
+    "descriptionFirebase": "Beheer uw team. Nieuwe accounts worden aangemaakt in de Firebase Console en hier gespiegeld bij de eerste keer inloggen.",
+    "descriptionSqlite": "Beheer uw team. Gebruik de knop +Gebruiker toevoegen hieronder om accounts direct aan te maken.",
+    "addUser": "Gebruiker toevoegen",
+    "addUserSuccess": "{{email}} toegevoegd.",
+    "removeConfirmFirebase": "Het record van {{email}} verwijderen? Hiermee verwijdert u hun profiel en rol uit het CMS. Om hun login-toegang in te trekken, verwijdert u het account ook in de Firebase Console.",
+    "removeConfirmSqlite": "{{email}} definitief verwijderen? Dit trekt hun login-toegang in EN verwijdert hun profiel en rol. Dit kan niet ongedaan worden gemaakt.",
+    "empty": {
+      "title": "Nog geen teamleden",
+      "descriptionFirebase": "Maak het eerste account aan in de Firebase Console en log hier daarna één keer in om het profiel te registreren.",
+      "descriptionSqlite": "Klik op +Gebruiker toevoegen hierboven om het eerste teamlid uit te nodigen."
+    },
+    "help": {
+      "title": "Hoe u een nieuw teamlid toevoegt",
+      "bootstrapLine": "De bootstrap-admin (altijd volledige toegang) is:",
+      "firebase": {
+        "step1": "Open de Firebase Console → Authentication → Add user.",
+        "step2": "Stel een e-mail en wachtwoord in en stuur ze naar het nieuwe teamlid.",
+        "step3": "Vraag hen om hier één keer in te loggen — hun profiel verschijnt in de lijst hierboven en u kunt hun rol en gegevens bewerken."
+      },
+      "sqlite": {
+        "step1": "Klik op de knop +Gebruiker toevoegen hierboven.",
+        "step2": "Voer hun e-mail en een tijdelijk wachtwoord (8+ tekens) in.",
+        "step3": "Deel de inloggegevens veilig — ze kunnen het wachtwoord vanuit hun profiel wijzigen zodra ze zijn ingelogd."
+      },
+      "git": {
+        "step1": "Voeg de persoon toe als collaborator van de content-repository (schrijftoegang = redacteur, admin / maintainer = admin).",
+        "step2": "Diegene maakt een eigen persoonlijk toegangstoken aan op GitHub / GitLab.",
+        "step3": "Diegene opent de admin en logt in met dat token — het profiel wordt hier automatisch aangemaakt."
+      }
+    },
+    "addUserModal": {
+      "title": "Een nieuw teamlid toevoegen",
+      "intro": "Maakt het account direct aan in de Flexweg SQLite Auth-database. De nieuwe gebruiker krijgt standaard de rol editor; promoveer hem of haar via de lijst hieronder als adminrechten nodig zijn.",
+      "submit": "Gebruiker aanmaken",
+      "submitting": "Aanmaken…"
+    },
+    "actions": {
+      "editProfile": "Profiel bewerken",
+      "promote": "Promoveren tot beheerder",
+      "demote": "Degraderen tot redacteur",
+      "disable": "Uitschakelen",
+      "enable": "Inschakelen",
+      "delete": "Record verwijderen"
+    },
+    "descriptionGit": "Teamleden zijn de personen met schrijftoegang tot de content-repository. Ze verschijnen hier na hun eerste login; hun rol volgt hun rechten op de repository.",
+    "descriptionLocal": "Deze admin draait in modus voor één gebruiker: content wordt in deze browser opgeslagen en er zijn geen accounts.",
+    "descriptionSqliteFile": "Geen gebruikersaccounts met dit backend: iedereen die de admin kan openen, kan bewerken. Beveilig de admin-map op het niveau van uw hosting. De auteursprofielen hieronder zijn ter informatie."
+  },
+  "firestoreSetup": {
+    "title": "Firestore-setup vereist",
+    "intro": "De berichten- en pagina-overzichtspagina's hebben enkele Firestore composite indexes nodig om efficiënt te queryen. Die moeten handmatig worden aangemaakt — Firebase reserveert het aanmaken van indexes voor projectbeheerders.",
+    "checking": "Uw Firestore-indexes controleren…",
+    "missingCount_one": "{{count}} index ontbreekt:",
+    "missingCount_other": "{{count}} indexes ontbreken:",
+    "openConsole": "Firebase Console openen om aan te maken",
+    "noUrl": "Auto-suggestie-URL niet extraheerbaar — zie README voor het gcloud-commando.",
+    "howItWorks": "Hoe het werkt",
+    "step1": "Klik op de link voor elke ontbrekende index — Firebase Console opent met de definitie vooraf ingevuld.",
+    "step2": "Klik op \"Create\" en wacht 1–5 minuten tot de index is opgebouwd (status in de console).",
+    "step3": "Kom terug en klik op Opnieuw proberen. Zodra beide queries slagen, laadt de admin.",
+    "retry": "Opnieuw proberen",
+    "retrying": "Opnieuw proberen…",
+    "buildHint": "Het opbouwen van een index kan na aanmaak een paar minuten duren.",
+    "allReady": "Alle indexes klaar.",
+    "unexpectedTitle": "Firestore niet bereikbaar",
+    "unexpectedHint": "Controleer uw verbinding en Firestore-regels. Als u net de indexes hebt aangemaakt, wacht tot ze klaar zijn en probeer opnieuw."
+  },
+  "errors": {
+    "appError": "Toepassingsfout",
+    "loadAccountFailed": "Kon uw account niet laden",
+    "loadAccountHint": "Als het probleem aanhoudt, log uit en probeer opnieuw.",
+    "accountDisabled": "Account uitgeschakeld",
+    "accountDisabledMessage": "Uw toegang tot deze CMS is uitgeschakeld. Neem contact op met uw beheerder.",
+    "firebaseNotConfigured": "Firebase is niet geconfigureerd",
+    "firebaseEnvMissing": "De volgende omgevingsvariabelen ontbreken:\n{{vars}}\n\nKopieer .env.example naar .env, vul uw Firebase-projectgegevens in en herstart de dev-server.",
+    "adminEmailNotConfigured": "Admin-e-mail is niet geconfigureerd",
+    "adminEmailMessage": "VITE_ADMIN_EMAIL ontbreekt in .env. Stel deze in op het e-mailadres van de bootstrap-beheerder.",
+    "consoleHint": "Controleer de browserconsole en uw .env-configuratie. Zie de README voor instellingsinstructies."
+  },
+  "identity": {
+    "brandTitle": "Flexweg CMS",
+    "brandSubtitle": "Statische publisher",
+    "login": {
+      "heading": "Inloggen",
+      "intro": "Gebruik het e-mailadres en wachtwoord die uw beheerder met u heeft gedeeld.",
+      "submit": "Inloggen",
+      "submitting": "Inloggen…"
+    },
+    "fields": {
+      "name": "Weergavenaam (optioneel)",
+      "namePlaceholder": "Jan Jansen",
+      "email": "E-mail",
+      "password": "Wachtwoord",
+      "passwordHint": "Minimaal 8 tekens."
+    },
+    "footer": "Nieuwe accounts worden door een beheerder aangemaakt vanaf de Gebruikers-pagina.",
+    "errors": {
+      "invalidEmail": "Voer een geldig e-mailadres in.",
+      "missingPassword": "Wachtwoord is vereist.",
+      "passwordTooShort": "Het wachtwoord moet minimaal 8 tekens lang zijn."
+    }
+  },
+  "setup": {
+    "title": "Welkom bij Flexweg CMS",
+    "subtitle": "Eerste configuratie",
+    "intro": "Vul uw Firebase-gegevens in, het bootstrap-beheerderaccount en uw Flexweg-API-sleutel. De waarden worden gevalideerd, opgeslagen in uw project (Firestore + een config.js-bestand op Flexweg) en de admin laadt opnieuw met het normale aanmeldproces. U doet dit slechts één keer.",
+    "introFirebase": "Stap 1 — Firebase. Vul uw Firebase-projectgegevens en het bootstrap-beheerdersaccount in. We melden u aan, verifiëren het e-mailadres en controleren of uw Firestore-regels deze admin herkennen voordat we doorgaan naar de Flexweg-stap.",
+    "introFlexweg": "Stap 2 — Flexweg. Vul uw Flexweg-API-sleutel en site-URL in. We testen de API, slaan de configuratie op in Firestore, uploaden config.js naar uw site en synchroniseren de thema-assets.",
+    "continueToFlexweg": "Firebase valideren en doorgaan",
+    "stepper": {
+      "terms": "Voorwaarden",
+      "backend": "Backend",
+      "firebase": "Firebase",
+      "flexweg": "Flexweg",
+      "sqlite": "SQLite",
+      "docstore": "Content & publicatie",
+      "data": "Gegevens",
+      "hosting": "Hosting",
+      "install": "Installatie"
+    },
+    "backend": {
+      "title": "Kies een data-backend",
+      "intro": "Kies waar het CMS uw berichten, pagina's, gebruikers en instellingen opslaat. U kunt later wisselen via Instellingen (data wordt niet gemigreerd).",
+      "sqliteTitle": "Flexweg SQLite (aanbevolen)",
+      "sqliteHint": "Alle data blijft op uw Flexweg-site als SQLite-bestand. Geen externe dienst. Auth wordt geleverd door de Flexweg SQLite-API.",
+      "firebaseTitle": "Firebase",
+      "firebaseHint": "Gebruik een Firebase-project voor Firestore + Auth. Gratis met het Spark-plan. Realtime updates via onSnapshot.",
+      "continue": "Doorgaan",
+      "markdownGitTitle": "Markdown-bestanden in een Git-repository",
+      "markdownGitHint": "Posts als .md-bestanden op GitHub / GitLab (of een lokale clone). Elke redacteur logt in met een eigen toegangstoken; elke wijziging is een commit. Geen database, werkt met meerdere redacteuren en computers.",
+      "localTitle": "Alleen deze browser",
+      "localHint": "Eén gebruiker, geen login, niets in te stellen. Content blijft in deze browser (exporteer via Instellingen). Ideaal voor een admin die op uw eigen computer draait."
+    },
+    "sqlite": {
+      "heading": "Verbind uw Flexweg-site",
+      "intro": "We gebruiken uw Flexweg-master-API-sleutel ÉÉN KEER om een beperkt token aan te maken voor de SQLite-database. Na de installatie wordt de master-sleutel weggegooid en wordt alleen het beperkte token (begrensd tot dit ene SQLite-bestand) opgeslagen.",
+      "apiKeyHint": "Master Flexweg-API-sleutel. Alleen gebruikt om te installeren — daarna nooit opgeslagen.",
+      "detectedFromUrl": "Gedetecteerd uit URL",
+      "advanced": "Geavanceerde instellingen (Site-URL, SQLite-pad…)",
+      "pathHint": "Waar het SQLite-bestand op uw Flexweg-site staat. Mappen worden automatisch aangemaakt.",
+      "adminHeading": "Beheerdersaccount",
+      "adminIntro": "Maak de eerste gebruiker aan — dit account krijgt automatisch adminrechten. Volgende leden worden vanaf de Gebruikers-pagina onboarded zodra u bent ingelogd.",
+      "passwordHint": "Minimaal 8 tekens.",
+      "submit": "SQLite-database installeren"
+    },
+    "terms": {
+      "title": "Gebruiksvoorwaarden",
+      "intro": "Lees en accepteer de onderstaande voorwaarden voordat u Flexweg CMS gebruikt. Ze zijn in eenvoudige taal geschreven zodat ze snel te lezen zijn.",
+      "section1": {
+        "title": "1. Gratis dienst",
+        "body": "Flexweg CMS wordt door Flexweg gratis aangeboden. U kunt het zonder beperking gebruiken met uw Flexweg-hosting — Flexweg zal u het gebruik van het CMS zelf nooit in rekening brengen. De gebruikelijke kosten van uw Flexweg-hostingplan en uw Firebase-plan blijven van toepassing op de respectieve accounts."
+      },
+      "section2": {
+        "title": "2. Geleverd „as-is“, zonder garantie",
+        "body": "Het CMS wordt as-is geleverd. We werken eraan om het stabiel te houden en in de loop van de tijd te verbeteren, maar we kunnen niet garanderen dat het vrij is van bugs, defecten of onderbrekingen. Gebruik het met dezelfde voorzichtigheid als bij elke tool die u niet zelf heeft geschreven: bewaar back-ups van belangrijke content."
+      },
+      "section3": {
+        "title": "3. Uw content, uw verantwoordelijkheid",
+        "body": "U bent als enige verantwoordelijk voor de content die u via het CMS publiceert — tekst, afbeeldingen, video's, formulieren, code-embeds en alle andere media. U moet de toepasselijke wetgeving in uw rechtsgebied (en in de rechtsgebieden waarop u zich richt) naleven, evenals auteursrechten, beeld- en persoonlijkheidsrechten, regels voor de bescherming van persoonsgegevens en de voorwaarden van eventuele derde-diensten die u gebruikt (ingebedde fonts, video's, enz.). Flexweg is niet verantwoordelijk voor content die door gebruikers van het CMS wordt gepubliceerd."
+      },
+      "section4": {
+        "title": "4. Uw Firebase-account, uw beveiliging",
+        "body": "Het CMS slaat zijn data op in uw eigen Firebase-project. U bent verantwoordelijk voor de beveiliging van dat project: kies een sterk wachtwoord voor het bootstrap-beheerderaccount, stel de Firestore-beveiligingsregels in zoals gedocumenteerd, rouleer uw API-sleutels wanneer nodig en controleer wie toegang heeft. Flexweg kan in geen geval verantwoordelijk worden gehouden voor ongeautoriseerde toegang, datalekken, hacks of verlies als gevolg van verkeerde configuratie of compromittering van uw Firebase-account."
+      },
+      "section5": {
+        "title": "5. Beperking van aansprakelijkheid",
+        "body": "Flexweg kan niet aansprakelijk worden gesteld voor enige inkomstenderving, dataverlies, gemiste zakelijke kansen of enige directe of indirecte schade voortvloeiend uit het gebruik, misbruik of de onbeschikbaarheid van het CMS. Wanneer de toepasselijke wet Flexweg verplicht enige aansprakelijkheid op zich te nemen, is deze beperkt tot het bedrag dat in de afgelopen 12 maanden daadwerkelijk aan Flexweg voor het CMS is betaald — dat is nul, aangezien het CMS gratis is."
+      },
+      "section6": {
+        "title": "6. Uw data blijft van u",
+        "body": "Content die u met het CMS aanmaakt wordt opgeslagen in uw eigen Firebase-project (tekst, instellingen, media-metadata) en op uw eigen Flexweg-hosting (gepubliceerde HTML, afbeeldingen, theme-assets). Het CMS zelf stuurt uw content niet door naar enige derde-dienst. Plugins of themes die u activeert kunnen hun eigen gedrag hebben — controleer wat ze doen voordat u ze activeert."
+      },
+      "section7": {
+        "title": "7. Eerlijk gebruik",
+        "body": "Gebruik van het CMS voor onwettige, frauduleuze of schadelijke activiteiten, of op een manier die in strijd is met de algemene voorwaarden van Flexweg, kan leiden tot opschorting van uw toegang tot Flexweg-hosting. We kunnen deze CMS-voorwaarden in de loop van de tijd ook bijwerken; significante wijzigingen worden gecommuniceerd via de admin of per e-mail."
+      },
+      "accept": "Ik heb de Gebruiksvoorwaarden gelezen en ga ermee akkoord.",
+      "continue": "Door naar configuratie",
+      "back": "Terug"
+    },
+    "sections": {
+      "firebase": "Firebase",
+      "admin": "Bootstrap-beheerder",
+      "flexweg": "Flexweg-API"
+    },
+    "help": {
+      "firebase": "Vind deze waarden in Firebase Console → Projectinstellingen → Algemeen → Uw apps → SDK-installatie en configuratie.",
+      "admin": "Gebruik een bestaande gebruiker uit Firebase Authentication. Iedereen die aanmeldt met dit e-mailadres wordt als beheerder behandeld en omzeilt de gebruikersrecord-controle. Maak de gebruiker via Firebase Console → Authentication als deze nog niet bestaat.",
+      "flexweg": "Genereer een permanente API-sleutel in uw Flexweg-account → API. De site-URL is het publieke adres van uw Flexweg-site (bijv. https://uw-site.flexweg.com).",
+      "flexwegApiKeyHint": "Haal uw API-sleutel op uit uw Flexweg-accountinstellingen.",
+      "flexwegApiKeyLink": "Accountinstellingen openen"
+    },
+    "fields": {
+      "apiKey": "API-sleutel",
+      "authDomain": "Auth-domein",
+      "projectId": "Project-ID",
+      "storageBucket": "Storage-bucket",
+      "messagingSenderId": "Messaging-afzender-ID",
+      "appId": "App-ID",
+      "adminEmail": "E-mail",
+      "adminPassword": "Wachtwoord",
+      "flexwegApiKey": "API-sleutel",
+      "flexwegSiteUrl": "Site-URL",
+      "flexwegApiBaseUrl": "API-basis-URL",
+      "sqlitePath": "SQLite-pad"
+    },
+    "submit": "Opslaan en doorgaan",
+    "submitting": "Bezig met instellen…",
+    "success": "Configuratie voltooid!",
+    "reloadingHint": "De admin wordt zo herladen — even geduld.",
+    "footer": "Deze waarden worden opgeslagen in uw project (Firestore + Flexweg). Ze worden nergens anders heen gestuurd.",
+    "steps": {
+      "signInFirebase": "Aanmelden bij Firebase…",
+      "testFlexweg": "Flexweg-API testen…",
+      "writeFirestore": "Configuratie opslaan…",
+      "uploadConfig": "config.js uploaden naar Flexweg…",
+      "syncThemes": "Theme-assets synchroniseren naar Flexweg…",
+      "sqliteInstall": "Beperkt SQLite-token aanmaken…",
+      "sqliteRegisterAdmin": "Admin-account registreren…",
+      "sqliteSchema": "SQLite-schema initialiseren…"
+    },
+    "stepsDone": {
+      "sqliteInstall": "Beperkt SQLite-token uitgegeven",
+      "sqliteRegisterAdmin": "Admin geregistreerd en ingelogd",
+      "sqliteSchema": "SQLite-schema klaar"
+    },
+    "errors": {
+      "missingFields": "Vul alle velden in.",
+      "rootDeploymentTitle": "De admin moet in een submap staan, niet in de hoofdmap van de site.",
+      "rootDeploymentHint": "Verplaats de admin-bestanden (index.html, config.js, runtime/, …) naar een submap op Flexweg — bijvoorbeeld /admin/ of een willekeurige naam zoals /erf34f654GH3/ voor extra onopvallendheid. Herlaad de admin vervolgens vanuit de URL van de submap en voer de configuratie opnieuw uit.",
+      "firebaseAuthGeneric": "Aanmelden bij Firebase mislukt.",
+      "firebaseAuthInvalidCredential": "Firebase heeft de combinatie van e-mailadres en wachtwoord geweigerd.",
+      "firebaseAuthInvalidCredentialHint": "Moderne Firebase-projecten activeren standaard bescherming tegen e-mailopsomming, waardoor dezelfde fout wordt teruggegeven of het wachtwoord nu fout is, de gebruiker niet bestaat, of de gebruiker zich met een andere provider aanmeldt. Te controleren:\n• Voer het wachtwoord opnieuw in — kopieer/plak vanuit een wachtwoordbeheerder om typfouten uit te sluiten. Minimale lengte is 6 tekens.\n• Open Firebase Console → Authentication → Users en bevestig dat het e-mailadres bestaat. Controleer de kolom 'Providers': als deze alleen Google (of een andere provider) toont en niet 'Email/Password', stel het wachtwoord in of reset het via het rijmenu (⋮ → Wachtwoord resetten).\n• Controleer of de spelling van het e-mailadres exact overeenkomt met wat in Firebase staat opgeslagen.",
+      "firebaseAuthUserNotFound": "Geen Firebase-gebruiker met dit e-mailadres. Maak er eerst een aan in Firebase Console → Authentication → Users.",
+      "firebaseAuthInvalidEmail": "Het admin-e-mailadres is geen geldig e-mailadres.",
+      "firebaseInvalidApiKey": "De Firebase-API-sleutel is ongeldig. Controleer de waarde in Firebase Console.",
+      "firebaseNetwork": "Netwerkfout bij aanmelden bij Firebase. Controleer uw verbinding.",
+      "firebaseTooManyRequests": "Te veel aanmeldpogingen. Probeer het later opnieuw of reset het wachtwoord via Firebase Console.",
+      "firebaseOperationNotAllowed": "Inloggen met e-mail/wachtwoord is niet ingeschakeld op dit Firebase-project. Open Firebase Console → Authentication → Sign-in method en schakel de provider Email/Password in.",
+      "firebaseUserDisabled": "Dit Firebase-gebruikersaccount is uitgeschakeld. Schakel het opnieuw in via Firebase Console → Authentication → Users.",
+      "wrongAdminEmail": "Het Firebase-account waarmee u bent aangemeld komt niet overeen met het ingevoerde admin-e-mailadres. Probeer het opnieuw.",
+      "rulesNotPinnedTitle": "De Firestore-regels herkennen u nog niet als bootstrap-admin.",
+      "rulesNotPinnedHint": "Open Firebase Console → Firestore → Rules en vervang de waarde van `bootstrapAdminEmail()` door: {{email}} — klik daarna op Publiceren. De regelsjabloon in de README bevat een placeholder `you@example.com` die vervangen moet worden door uw echte admin-e-mailadres. Klik na het publiceren van de nieuwe regels hier opnieuw op Verzenden.",
+      "flexwegAuth": "Flexweg-API-sleutel geweigerd. Controleer de waarde in uw Flexweg-account → API.",
+      "flexwegNetwork": "Netwerkfout bij contact met Flexweg. Controleer de API-basis-URL en uw verbinding.",
+      "flexwegHttp": "Flexweg-API-fout ({{status}}): {{detail}}",
+      "firestoreRulesTitle": "Firestore weigerde het schrijven van de configuratie.",
+      "firestoreRulesHint": "Open Firebase Console → Firestore → Regels en zorg dat het bootstrap-admin-e-mailadres is ingesteld op '{{email}}'. De README bevat een kant-en-klare regelsjabloon.",
+      "firestoreOther": "Schrijven naar Firestore mislukt",
+      "uploadFailed": "Kon config.js niet uploaden naar Flexweg",
+      "generic": "Er is iets misgegaan."
+    },
+    "docstore": {
+      "contentTitle": "Content-repository",
+      "contentIntro": "Waar uw posts, pagina's en instellingen worden opgeslagen als Markdown- + JSON-bestanden. Een lege repository is prima — het CMS maakt de bestanden aan.",
+      "provider": "Repository",
+      "localClone": "Lokale map (git-clone)",
+      "localCloneHint": "Kies de map van uw clone. Synchroniseer die met uw gebruikelijke git-client — het CMS leest en schrijft bestanden, het voert geen git uit.",
+      "contentDir": "Contentmap in de repository",
+      "privateRepo": "Gebruik een privé-repository: concepten worden daarin opgeslagen.",
+      "folderRequired": "Kies eerst de contentmap.",
+      "checking": "Toegang tot de repository controleren…",
+      "publishIntro": "Waar de gegenereerde site wordt gepubliceerd. U kunt dit later wijzigen in Instellingen.",
+      "existingSite": "Deze repository is al ingesteld — de site blijft publiceren naar: {{target}}. U kunt dit later wijzigen in Instellingen (eventuele geheime sleutels moeten daar opnieuw worden ingevoerd).",
+      "install": "Installeren",
+      "steps": {
+        "config": "Configuratie opslaan…",
+        "content": "Content laden…",
+        "target": "Publicatiedoel opslaan…",
+        "testTarget": "Publicatiedoel testen…"
+      },
+      "doneTitle": "Alles klaar!",
+      "doneBody": "De configuratie is opgeslagen in deze browser. Om andere redacteuren deze stap te besparen, downloadt u config.js en vervangt u het bestand in de admin-map van uw hosting.",
+      "downloadConfig": "config.js downloaden",
+      "open": "Admin openen",
+      "footer": "Content blijft in uw repository of in deze browser; toegangstokens verlaten deze browser nooit."
+    },
+    "data": {
+      "title": "1. Waar slaat u uw gegevens op?",
+      "intro": "Uw posts, pagina's, gebruikers en instellingen — de eigen gegevens van de admin. Dit staat los van waar de publieke site wordt gehost (volgende stap).",
+      "localNote": "Niets te configureren: content wordt in deze browser opgeslagen. Exporteer die via Instellingen om een back-up te maken of later te verhuizen.",
+      "options": {
+        "sqlite-file": {
+          "title": "SQLite",
+          "hint": "Een SQLite-database die wordt opgeslagen op de hosting die u in de volgende stap kiest (Flexweg, uw server, S3, Git…). Zonder gebruikersaccounts — of de SQLite-dienst van Flexweg, met accounts, als u op Flexweg host."
+        },
+        "flexweg-sqlite": {
+          "title": "SQLite (Flexweg-dienst)",
+          "hint": "Een SQLite-database die door de dienst van Flexweg wordt beheerd, met ingebouwde gebruikersaccounts. Vereist een Flexweg-account, ongeacht waar de site wordt gehost."
+        },
+        "firebase": {
+          "title": "Firebase",
+          "hint": "Firestore + Firebase Auth in uw Google-project. Realtime, gratis Spark-abonnement."
+        },
+        "markdown-git": {
+          "title": "Markdown-bestanden in Git",
+          "hint": "Posts als .md-bestanden in een GitHub- / GitLab-repository (of een lokale clone). Elke redacteur gebruikt een eigen token; elke wijziging is een commit."
+        },
+        "local": {
+          "title": "Deze browser",
+          "hint": "Eén gebruiker, geen login, niets in te stellen. Ideaal voor een admin die op uw computer draait."
+        }
+      }
+    },
+    "hosting": {
+      "title": "2. Waar wordt de site gepubliceerd?",
+      "intro": "Waar de gegenereerde statische site (HTML, CSS, afbeeldingen) bij elke publicatie naartoe wordt geüpload. U kunt dit later wijzigen in Instellingen.",
+      "existing": "Deze content-repository publiceert al naar het onderstaande doel. Behoud het of kies een ander."
+    },
+    "install": {
+      "title": "3. Installatie",
+      "intro": "Controleer het overzicht en installeer daarna.",
+      "data": "Gegevens",
+      "hosting": "Hosting",
+      "saveTarget": "Publicatiedoel opslaan…",
+      "noteConfigJs": "De admin-configuratie (config.js) wordt indien mogelijk naast de admin op Flexweg geüpload; anders wordt u aangeboden haar te downloaden.",
+      "noteLocalConfig": "De configuratie wordt in deze browser opgeslagen; u krijgt config.js aangeboden om in de admin-map te plaatsen, zodat andere redacteuren deze installatie kunnen overslaan."
+    },
+    "sqliteFile": {
+      "security": "Geen gebruikersaccounts: iedereen die deze admin kan openen, kan de content bewerken. Beveilig de admin-map op het niveau van uw hosting (bijv. een wachtwoord op /admin) — en ook het databasebestand als het publiek wordt aangeboden.",
+      "intro": "Waar het databasebestand wordt opgeslagen. Deze admin leest en bewaart het via dezelfde connectoren als de hosting.",
+      "path": "Pad van het databasebestand",
+      "pathHint": "Wordt bij de eerste keer opslaan aangemaakt als het nog niet bestaat. Bij een Git-repository is elke keer opslaan een commit — kies bij voorkeur een repository of branch die geen build van de site start.",
+      "existing": "bestaande database",
+      "new": "nieuwe database",
+      "dataNote": "Hier valt niets te configureren: de database wordt opgeslagen op de hosting die u in de volgende stap kiest.",
+      "heading": "SQLite-database",
+      "flexwegService": "De SQLite-dienst van Flexweg gebruiken",
+      "flexwegServiceHint": "De database wordt door Flexweg beheerd en heeft ingebouwde gebruikersaccounts (e-mail + wachtwoord). Anders is het een gewoon bestand op deze hosting, zonder accounts.",
+      "summaryFile": "Bestand {{path}} op deze hosting",
+      "summaryService": "SQLite-dienst van Flexweg ({{path}})"
+    },
+    "adminHosting": {
+      "deploying": "De admin wordt naar de site gekopieerd…",
+      "label": "De admin ook op deze site hosten",
+      "hint": "De admin wordt met zijn config.js (zonder geheimen) naar {{url}} gekopieerd — elke redacteur kan hem daar dan openen. Elke redacteur logt nog steeds in met de eigen toegang.",
+      "folder": "Admin-map",
+      "alreadyHere": "Deze admin draait al vanaf deze site: de config.js wordt ter plekke bijgewerkt.",
+      "doneBody": "De admin staat nu op uw site. Schakel bij GitHub Pages eerst Pages in voor de repository als dat nog niet is gebeurd (Settings → Pages) en open hem daarna:",
+      "open": "Online admin openen",
+      "continueHere": "Doorgaan in deze admin"
+    }
+  },
+  "flexweg": {
+    "actions": {
+      "upload": "Bestand uploaden",
+      "delete": "Bestand verwijderen",
+      "rename": "Bestand hernoemen",
+      "get": "Bestand lezen",
+      "list": "Bestanden lijsten",
+      "createFolder": "Map aanmaken",
+      "renameFolder": "Map hernoemen",
+      "deleteFolder": "Map verwijderen",
+      "storageLimits": "Opslaglimieten ophalen",
+      "commit": "Wijzigingen publiceren"
+    },
+    "errors": {
+      "configMissing": "Het publicatiedoel is niet ingesteld. Stel het in via Instellingen voordat je publiceert.",
+      "network": "{{action}}: netwerkfout of CORS geblokkeerd. Controleer uw verbinding.",
+      "auth": "{{action}}: authenticatie mislukt. Controleer de gegevens van het publicatiedoel in Instellingen.",
+      "notFound": "{{action}}: niet gevonden op het publicatiedoel.",
+      "tooLarge": "{{action}}: bestand te groot voor het publicatiedoel.",
+      "rateLimited": "{{action}}: te veel verzoeken, probeer het zo opnieuw.",
+      "serverError": "{{action}}: serverfout van het publicatiedoel ({{status}}). Probeer het opnieuw.",
+      "generic": "{{action}} mislukt ({{status}}){{detail}}.",
+      "unsupported": "{{action}}: niet ondersteund door publicatiedoel \"{{connector}}\".",
+      "unknownConnector": "Onbekend publicatiedoel \"{{connector}}\". Controleer Instellingen → Publicatiedoel.",
+      "folderAccess": "Geen toegang tot de lokale map. Open Instellingen → Publicatiedoel en klik op ‘Map opnieuw verbinden’."
+    }
+  },
+  "publish": {
+    "log": {
+      "rendering": "Pagina renderen…",
+      "uploading": "{{path}} uploaden…",
+      "deleting": "{{path}} verwijderen…",
+      "regenerating": "Lijsten opnieuw genereren…",
+      "skipped": "{{path}} overgeslagen (geen wijzigingen)",
+      "done": "Gepubliceerd op {{url}}",
+      "failed": "Mislukt: {{error}}"
+    }
+  },
+  "docstore": {
+    "errors": {
+      "notConnected": "Niet verbonden met de contentrepository. Meld je opnieuw aan met je toegangstoken.",
+      "conflict": "Iemand anders heeft dit item intussen gewijzigd. Die versie wordt nu getoond — pas je wijziging opnieuw toe.",
+      "sqliteUnsupported": "Het doel ‘{{connector}}’ kan geen databasebestand opslaan."
+    }
+  },
+  "connectors": {
+    "target": "Publicatiedoel",
+    "settingsTitle": "Publicatiedoel",
+    "settingsHelp": "Waar de gerenderde site naartoe wordt geüpload bij publiceren. Inloggegevens worden opgeslagen bij uw content-backend (of in deze browser bij Git-content-repository's) en zijn leesbaar voor alle admins.",
+    "saved": "Publicatiedoel opgeslagen. Voer Opnieuw genereren → Alles uit om de hele site naar het nieuwe doel te publiceren.",
+    "test": "Verbinding testen",
+    "testOk": "Verbinding OK",
+    "testFailed": "Verbinding mislukt",
+    "names": {
+      "flexweg": "Flexweg",
+      "git-pages": "Git-repository (GitHub Pages, Cloudflare Pages, GitLab Pages…)",
+      "s3": "S3-compatibele bucket (AWS S3, Cloudflare R2, Backblaze B2, OVH…)",
+      "php-bridge": "Uw eigen server (PHP-bridge)",
+      "browser-mirror": "Downloaden als ZIP",
+      "local-folder": "Lokale map op deze computer"
+    },
+    "hints": {
+      "flexweg": "Upload via de Flexweg Files API.",
+      "git-pages": "Elke publicatie is één commit in de repository; de host bouwt de site daaruit opnieuw op.",
+      "s3": "Vereist een CORS-regel op de bucket die de origin van deze admin toestaat, en websitehosting (of een CDN) om index.html-bestanden te serveren.",
+      "php-bridge": "Upload external/bridges/php/flexweg-bridge.php naar uw server, stel de API-sleutel in en vul hier de URL in.",
+      "browser-mirror": "De site wordt in deze browser bewaard; download het ZIP en upload het handmatig waar u maar wilt.",
+      "local-folder": "Schrijft de site rechtstreeks naar een map (Chrome / Edge). Serveer hem lokaal of push hem met uw eigen tools."
+    },
+    "fields": {
+      "flexweg": {
+        "apiKey": "API-sleutel",
+        "siteUrl": "Site-URL",
+        "apiBaseUrl": "Basis-URL van de API"
+      },
+      "git-pages": {
+        "host": "Hosting",
+        "provider": "Git-provider",
+        "owner": "Eigenaar (gebruiker of organisatie)",
+        "repo": "Repository",
+        "project": "Projectpad",
+        "branch": "Branch",
+        "dir": "Map in de repository",
+        "token": "Toegangstoken",
+        "siteUrl": "Publieke site-URL",
+        "apiBaseUrl": "API-URL (alleen self-hosted)"
+      },
+      "s3": {
+        "endpoint": "Endpoint",
+        "region": "Regio",
+        "bucket": "Bucket",
+        "prefix": "Sleutelvoorvoegsel (optioneel)",
+        "accessKeyId": "Access key-ID",
+        "secretAccessKey": "Geheime toegangssleutel",
+        "siteUrl": "Publieke site-URL",
+        "forcePathStyle": "Padgebaseerde URL's (MinIO, R2, de meeste compatibele diensten)",
+        "publicRead": "Geüploade bestanden openbaar maken (ACL public-read) — voor buckets die niet via een bucketbeleid openbaar zijn (OVHcloud, Scaleway…). Laat uit bij AWS-buckets met ‘bucket owner enforced’."
+      },
+      "php-bridge": {
+        "apiBaseUrl": "Bridge-URL",
+        "apiKey": "API-sleutel van de bridge",
+        "siteUrl": "Publieke site-URL"
+      },
+      "browser-mirror": {
+        "siteUrl": "Publieke site-URL (optioneel)"
+      },
+      "local-folder": {
+        "siteUrl": "URL waarop de map wordt geserveerd (optioneel)"
+      }
+    },
+    "help": {
+      "flexweg": {
+        "apiKey": "Aangemaakt vanuit uw Flexweg-account → API."
+      },
+      "git-pages": {
+        "host": "Cloudflare Pages: koppel het project aan deze repository zonder build-commando en met de uitvoermap hieronder. Werkt met privé-repository's.",
+        "dir": "Leeg laten voor de root van de repository. GitHub Pages: \"\" of \"docs\". GitLab Pages: \"public\".",
+        "token": "Fine-grained token op deze repository met Contents: read & write (GitHub) — voeg Pages: read & write toe zodat het CMS GitHub Pages kan inschakelen — of een token met de scope api (GitLab). Leeg laten om het eigen toegangstoken van elke redacteur te gebruiken wanneer de content bij dezelfde provider staat.",
+        "siteUrl": "bv. https://user.github.io/repo — een URL met submap is prima, links worden automatisch aangepast."
+      },
+      "s3": {
+        "endpoint": "Leeg laten voor AWS (afgeleid van de regio). R2: https://<account-id>.r2.cloudflarestorage.com",
+        "siteUrl": "De website-URL van de bucket of uw CDN-domein."
+      },
+      "php-bridge": {
+        "apiBaseUrl": "De volledige URL van flexweg-bridge.php op uw server (HTTPS)."
+      },
+      "browser-mirror": {
+        "siteUrl": "Waar u het ZIP gaat uploaden — gebruikt voor absolute URL's (sitemaps, RSS, media)."
+      },
+      "local-folder": {
+        "siteUrl": "bv. http://localhost:8080 wanneer een lokale webserver de map serveert."
+      }
+    },
+    "options": {
+      "github-pages": "GitHub Pages",
+      "cloudflare-pages": "Cloudflare Pages (gekoppeld aan de repository)",
+      "gitlab-pages": "GitLab Pages",
+      "other": "Anders (Netlify, Vercel, git pull op de server…)",
+      "github": "GitHub",
+      "gitlab": "GitLab"
+    },
+    "folder": {
+      "choose": "Map kiezen…",
+      "change": "Andere map…",
+      "reconnect": "Map opnieuw koppelen",
+      "unsupported": "Deze browser kan niet naar lokale mappen schrijven. Gebruik Chrome of Edge."
+    },
+    "mirror": {
+      "download": "Site downloaden (ZIP)",
+      "count": "{{count}} bestanden in deze browser"
+    },
+    "adminHosting": {
+      "title": "Admin op deze site",
+      "help": "Kopieer deze admin naar het publicatiedoel (eerste uitrol, of bijwerken na een nieuwe versie). De config.js bevat geen geheimen.",
+      "deploy": "Admin uitrollen / bijwerken",
+      "deployed": "Admin uitgerold ({{count}} bestanden) — {{url}}"
+    },
+    "pages": {
+      "enabled": "GitHub Pages ingeschakeld voor deze repository — de site staat over ongeveer een minuut online.",
+      "enableHint": "Publiceren gelukt. Schakel GitHub Pages in voor {{repo}} om de site online te zetten: Settings → Pages → Deploy from a branch → {{branch}} / {{folder}}. (Of geef het token de machtiging \"Pages: read and write\" en het CMS doet het voor u.)"
+    },
+    "siteUrl": {
+      "mismatch": "De openbare URL van de site (Instellingen → Site) is {{site}}, maar dit doel serveert de site op {{target}}. Links, CSS en sitemaps volgen de site-URL — ze kloppen niet op deze hosting.",
+      "use": "{{url}} gebruiken voor de site",
+      "updated": "Site-URL bijgewerkt. Voer Opnieuw genereren → Alles uit om de pagina's met de nieuwe links opnieuw te publiceren."
+    }
+  },
+  "gitAccess": {
+    "heading": "Verbinden met de content-repository",
+    "tokenIntro": "De content staat in de {{provider}}-repository {{repo}}. Log in met uw eigen persoonlijke toegangstoken — uw rechten op de repository bepalen uw rol (schrijftoegang = redacteur, admin / maintainer = admin).",
+    "token": "Persoonlijk toegangstoken",
+    "tokenHelpGithub": "Fine-grained token, alleen toegang tot deze repository, recht Contents: lezen en schrijven.",
+    "tokenHelpGitlab": "Token met de api scope, rol Developer of hoger op dit project.",
+    "createToken": "Token aanmaken",
+    "connect": "Verbinden",
+    "tokenStorage": "Het token wordt alleen in deze browser bewaard. Uitloggen wist het.",
+    "failed": "Met dit token kan niet naar de repository worden geschreven (ongeldig, verlopen of alleen-lezen). Controleer de rechten.",
+    "folderIntro": "De content staat in een map op deze computer (meestal een git-clone die u synchroniseert met uw eigen git-client). Geef deze browser toegang — browsers vragen het na elke herlaadbeurt opnieuw.",
+    "openFolder": "Contentmap openen"
+  },
+  "hosting": {
+    "flexweg": {
+      "title": "Flexweg",
+      "short": "Flexweg-hosting",
+      "hint": "Uploadt via de Flexweg Files API. API-sleutel uit uw Flexweg-account."
+    },
+    "github-pages": {
+      "title": "GitHub Pages",
+      "short": "Gratis, vanuit een GitHub-repository",
+      "hint": "Elke publicatie is één commit naar de repository; GitHub Pages serveert die. Settings → Pages → Deploy from a branch. Publieke repositories bij het gratis abonnement."
+    },
+    "cloudflare-pages": {
+      "title": "Cloudflare Pages",
+      "short": "Gratis, privé-repositories mogelijk",
+      "hint": "Het CMS commit de site naar een GitHub- / GitLab-repository; koppel er een Cloudflare Pages-project aan (geen build-commando, uitvoermap = de map hieronder)."
+    },
+    "gitlab-pages": {
+      "title": "GitLab Pages",
+      "short": "Gratis, vanuit een GitLab-repository",
+      "hint": "Elke publicatie is één commit; het CMS voegt een minimale .gitlab-ci.yml toe die de map public/ publiceert."
+    },
+    "git-other": {
+      "title": "Netlify, Vercel…",
+      "short": "Elke host die een repository deployt",
+      "hint": "Het CMS commit de site naar een Git-repository; koppel uw host (Netlify, Vercel, een server die git pull uitvoert…) aan die repository."
+    },
+    "s3": {
+      "title": "S3 / R2 / B2…",
+      "short": "Object-storage-bucket",
+      "hint": "AWS S3, Cloudflare R2, Backblaze B2, OVH, Scaleway, MinIO… Vereist een CORS-regel op de bucket en website-hosting of een CDN ervoor."
+    },
+    "own-server": {
+      "title": "Uw eigen server (FTP / SFTP)",
+      "short": "Gedeelde hosting, VPS…",
+      "hint": "Browsers spreken geen FTP of SFTP: upload de PHP-bridge (external/bridges/php/flexweg-bridge.php) eenmalig met uw FTP-client, stel de API-sleutel ervan in en vul hier daarna de URL in. Werkt op elke PHP-host."
+    },
+    "local-folder": {
+      "title": "Lokale map",
+      "short": "Op deze computer",
+      "hint": "Schrijft de site naar een map op deze computer (Chrome / Edge). Serveer hem lokaal of push hem met uw eigen tools."
+    },
+    "zip": {
+      "title": "Downloaden als ZIP",
+      "short": "Handmatig uploaden",
+      "hint": "De site wordt in deze browser bewaard; download een ZIP via Instellingen en upload die waar u maar wilt (Netlify Drop, FTP-client…)."
+    }
+  },
+  "sqliteAccess": {
+    "heading": "Verbinding maken met de database",
+    "intro": "Deze admin slaat zijn content op in {{path}}. Voer de toegangsgegevens voor deze browser in.",
+    "storage": "De toegangsgegevens worden alleen in deze browser bewaard. Afmelden wist ze."
+  }
+}

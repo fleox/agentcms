@@ -1,0 +1,226 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light dark;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-surface-50 text-surface-900 antialiased font-sans dark:bg-surface-950 dark:text-surface-100;
+    font-feature-settings: "cv11", "ss01", "ss03";
+  }
+
+  *:focus-visible {
+    @apply outline-none ring-2 ring-blue-500/60 ring-offset-2 ring-offset-white rounded dark:ring-offset-surface-950;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition-colors disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-primary {
+    @apply btn bg-surface-900 text-white hover:bg-surface-800 active:bg-surface-700 dark:bg-surface-100 dark:text-surface-900 dark:hover:bg-white;
+  }
+
+  .btn-secondary {
+    @apply btn bg-white text-surface-700 ring-1 ring-inset ring-surface-200 hover:bg-surface-50 dark:bg-surface-800 dark:text-surface-200 dark:ring-surface-700 dark:hover:bg-surface-700;
+  }
+
+  .btn-ghost {
+    @apply btn text-surface-600 hover:bg-surface-100 hover:text-surface-900 dark:text-surface-300 dark:hover:bg-surface-800 dark:hover:text-surface-50;
+  }
+
+  .btn-danger {
+    @apply btn bg-red-600 text-white hover:bg-red-500 active:bg-red-700;
+  }
+
+  .input {
+    @apply w-full rounded-lg border-0 bg-white px-3 py-2 text-sm text-surface-900 ring-1 ring-inset ring-surface-200 placeholder:text-surface-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 transition dark:bg-surface-800 dark:text-surface-100 dark:ring-surface-700 dark:placeholder:text-surface-500 dark:focus:ring-blue-400;
+  }
+
+  .label {
+    @apply block text-xs font-medium text-surface-600 mb-1.5 dark:text-surface-300;
+  }
+
+  .card {
+    @apply rounded-xl bg-white shadow-card ring-1 ring-surface-200/60 dark:bg-surface-900 dark:ring-surface-700/60;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  .badge-draft {
+    @apply chip bg-surface-100 text-surface-700 dark:bg-surface-800 dark:text-surface-200;
+  }
+
+  .badge-online {
+    @apply chip bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300;
+  }
+}
+
+/* TipTap content styles, scoped to .prose-editor. Font family and
+   text/heading sizes intentionally NOT set here — they come from the
+   inline <style data-cms-editor-style> block injected by
+   useEditorStyleInjection so the user's Settings → Editor preferences
+   take effect without !important fights. Only marges, weights and
+   colors live here. */
+.prose-editor {
+  @apply text-surface-900 dark:text-surface-100;
+}
+.prose-editor:focus-visible {
+  @apply ring-2 ring-blue-500/60;
+}
+.prose-editor > * + * {
+  @apply mt-2;
+}
+.prose-editor h1 {
+  @apply font-semibold mt-4;
+}
+.prose-editor h2 {
+  @apply font-semibold mt-3;
+}
+.prose-editor h3 {
+  @apply font-semibold mt-2.5;
+}
+.prose-editor p {
+  @apply leading-relaxed;
+}
+.prose-editor ul {
+  @apply list-disc pl-6;
+}
+.prose-editor ol {
+  @apply list-decimal pl-6;
+}
+.prose-editor li > p {
+  @apply my-0;
+}
+.prose-editor strong {
+  @apply font-semibold;
+}
+.prose-editor em {
+  @apply italic;
+}
+.prose-editor s {
+  @apply line-through;
+}
+.prose-editor a {
+  @apply text-blue-600 underline underline-offset-2 dark:text-blue-400;
+}
+.prose-editor blockquote {
+  @apply border-l-2 border-surface-300 pl-3 italic text-surface-600 dark:border-surface-600 dark:text-surface-300;
+}
+.prose-editor code {
+  @apply rounded bg-surface-100 text-surface-800 px-1 py-0.5 text-[0.85em] font-mono dark:bg-surface-800 dark:text-surface-100;
+}
+.prose-editor pre {
+  @apply bg-surface-900 text-surface-100 rounded-md p-3 overflow-x-auto text-xs font-mono dark:bg-surface-950;
+}
+.prose-editor pre code {
+  @apply bg-transparent text-inherit p-0 text-[1em];
+}
+.prose-editor img {
+  @apply max-w-full rounded-md my-3;
+}
+.prose-editor p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  @apply text-surface-400 dark:text-surface-500 float-left h-0 pointer-events-none;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(203 213 225);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(148 163 184);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgb(51 65 85);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgb(71 85 105);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+
+/* Floating-blobs background — used by the first-run SetupForm to match
+   the visual identity of flexweg.com's home page. Three large
+   colour-blurred circles drift across the viewport behind the card.
+   `pointer-events: none` so they never intercept input. */
+.flexweg-blobs {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(80px);
+  /* 0.35 in light mode keeps the form card highly readable; the dark
+     mode rule below bumps to 0.5 to match flexweg.com's home density. */
+  opacity: 0.35;
+}
+.dark .flexweg-blobs {
+  opacity: 0.5;
+}
+.flexweg-blob {
+  position: absolute;
+  border-radius: 50%;
+  animation: flexweg-blob-move 25s infinite alternate ease-in-out;
+}
+.flexweg-blob-1 {
+  width: 600px;
+  height: 600px;
+  background: #1d4ed8;
+  top: -150px;
+  left: -150px;
+}
+.flexweg-blob-2 {
+  width: 500px;
+  height: 500px;
+  background: #6366f1;
+  bottom: -100px;
+  right: -100px;
+  animation-duration: 35s;
+  animation-delay: -5s;
+}
+.flexweg-blob-3 {
+  width: 400px;
+  height: 400px;
+  background: #9333ea;
+  top: 30%;
+  left: 20%;
+  animation-duration: 20s;
+}
+@keyframes flexweg-blob-move {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(150px, 150px) scale(1.1);
+  }
+}
