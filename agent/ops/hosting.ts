@@ -1,0 +1,97 @@
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { join, relative } from "node:path";
+import { ADMIN_MANIFEST, missingIndexReferences, type AdminManifest } from "../../src/services/adminDeploy";
+import { buildConfigJsSource, type FlexwegRuntimeConfig } from "../../src/lib/runtimeConfig";
+import { createFilesApiConnector } from "../../src/services/storage/connectors/flexweg";
+import { instantiateStorageConnector } from "../../src/services/storage/registry";
+import type { PublishTarget } from "../../src/services/storage/target";
+import type { BatchOp, StorageConnector } from "../../src/services/storage/types";
+import { CliError } from "../output";
+import { distRoot } from "../paths";
+import { cleanFolder } from "./plan";
+
+// Writes to a site's hosting straight through its connector, from files
+// on disk (the admin build, theme assets). One batch = one commit on git
+// hosts, so a whole admin update triggers a single Pages build.
+
+export function hostingConnector(target: PublishTarget): StorageConnector {
+  if (target.connectorId === "flexweg") {
+    // The admin's Flexweg connector reads its key from the data store;
+    // here the credentials come from the CLI's own store.
+    const s = target.settings as { apiKey?: string; siteUrl?: string; apiBaseUrl?: string };
+    return createFilesApiConnector("flexweg", async () => ({
+      apiKey: s.apiKey ?? "",
+      siteUrl: s.siteUrl ?? "",
+      apiBaseUrl: s.apiBaseUrl || "https://www.flexweg.com/api/v1",
+    }));
+  }
+  return instantiateStorageConnector(target.connectorId, target.settings);
+}
+
+const putOp = (path: string, bytes: Uint8Array): BatchOp => ({
+  type: "put",
+  path,
+  content: Buffer.from(bytes).toString("base64"),
+  encoding: "base64",
+});
+
+export function readLocalAdminManifest(): AdminManifest {
+  const file = join(distRoot(), "admin", ADMIN_MANIFEST);
+  try {
+    return JSON.parse(readFileSync(file, "utf8")) as AdminManifest;
+  } catch {
+    throw new CliError("admin-missing", `No admin build at ${file}.`, "Run `npm run build` in a clone, or use the npm package.");
+  }
+}
+
+// The admin's files + its manifest + a config.js for this site, under
+// `<folder>/`. index.html comes last for hosts that apply ops one by one.
+export function adminOps(folder: string, runtime: FlexwegRuntimeConfig): { ops: BatchOp[]; manifest: AdminManifest } {
+  const dir = cleanFolder(folder);
+  const root = join(distRoot(), "admin");
+  const manifest = readLocalAdminManifest();
+  const index = readFileSync(join(root, "index.html"));
+  const missing = missingIndexReferences(index.toString("utf8"), manifest.files);
+  if (missing.length) {
+    throw new CliError("admin-inconsistent", `dist/admin/index.html references files missing from the build: ${missing.join(", ")}.`, "Rebuild (`npm run build`).");
+  }
+  const files = [...manifest.files.filter((f) => f !== "index.html"), "index.html"];
+  const ops = files.map((f) => putOp(`${dir}/${f}`, readFileSync(join(root, f))));
+  ops.push({ type: "put", path: `${dir}/${ADMIN_MANIFEST}`, content: JSON.stringify(manifest, null, 2) + "\n" });
+  ops.push({ type: "put", path: `${dir}/config.js`, content: buildConfigJsSource(runtime) });
+  return { ops, manifest };
+}
+
+// Every theme's CSS + runtime loaders, as built (dist/theme-assets/).
+export function themeAssetOps(): BatchOp[] {
+  const root = join(distRoot(), "theme-assets");
+  const walk = (dir: string): string[] =>
+    readdirSync(dir).flatMap((name) => {
+      const abs = join(dir, name);
+      return statSync(abs).isDirectory() ? walk(abs) : [abs];
+    });
+  return walk(root)
+    .filter((abs) => !abs.endsWith(".DS_Store"))
+    .sort()
+    .map((abs) => putOp(`theme-assets/${relative(root, abs).split("\\").join("/")}`, readFileSync(abs)));
+}
+
+export async function applyOps(
+  connector: StorageConnector,
+  ops: BatchOp[],
+  onProgress?: (done: number, total: number) => void,
+): Promise<void> {
+  if (connector.commitBatch) {
+    onProgress?.(0, ops.length);
+    await connector.commitBatch(ops);
+    onProgress?.(ops.length, ops.length);
+    return;
+  }
+  let done = 0;
+  for (const op of ops) {
+    if (op.type === "put") await connector.put(op);
+    else if (op.type === "delete") await connector.delete(op.path);
+    else if (connector.deletePrefix) await connector.deletePrefix(op.path);
+    onProgress?.(++done, ops.length);
+  }
+}

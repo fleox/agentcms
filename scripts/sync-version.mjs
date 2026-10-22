@@ -2,6 +2,7 @@
 // Claude Code plugin manifest, each skill's metadata.version and every
 // pinned `agentcms@x.y.z` command in the skills. Run by the npm "version"
 // lifecycle (`npm version patch|minor|major`), so a release bumps them all.
+// Raw GitHub links to the repo are pinned to the release tag the same way.
 
 import { readdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join, resolve, dirname } from "node:path";
@@ -22,7 +23,10 @@ for (const name of readdirSync(skillsDir)) {
   if (!existsSync(join(dir, "SKILL.md"))) continue;
   for (const file of walk(dir)) {
     const before = readFileSync(file, "utf8");
-    let after = before.replace(/agentcms@\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?/g, `agentcms@${version}`);
+    let after = before
+      .replace(/agentcms@\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?/g, `agentcms@${version}`)
+      // Raw files of the repo pinned to the release tag.
+      .replace(/(raw\.githubusercontent\.com\/fleox\/agentcms\/)v\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?\//g, `$1v${version}/`);
     if (file.endsWith("SKILL.md")) {
       after = after.replace(/^(\s+version:\s*)["']?[^"'\n]+["']?$/m, `$1"${version}"`);
     }

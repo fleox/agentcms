@@ -76,6 +76,13 @@ export function connectorSettingsWithSecrets(cfg: SqliteFileConfig): Record<stri
 // ─── sql.js ──────────────────────────────────────────────────────────────
 
 let sqlPromise: Promise<SqlJsStatic> | null = null;
+let nodeWasmBinary: Uint8Array | null = null;
+
+// Node only (the agentcms CLI): the WASM bytes to use instead of letting
+// sql.js resolve its file next to itself, which a bundle can't do.
+export function setSqlJsWasmBinary(bytes: Uint8Array): void {
+  nodeWasmBinary = bytes;
+}
 
 // Lazy: the ~1 MB WASM only loads for this backend.
 function loadSql(): Promise<SqlJsStatic> {
@@ -83,7 +90,8 @@ function loadSql(): Promise<SqlJsStatic> {
     sqlPromise = (async () => {
       const { default: initSqlJs } = await import("sql.js");
       const isBrowser = typeof window !== "undefined" && typeof document !== "undefined";
-      if (!isBrowser) return initSqlJs(); // Node (tests): loads the WASM from node_modules.
+      // Node: tests load the WASM from node_modules, the CLI passes its bytes.
+      if (!isBrowser) return initSqlJs(nodeWasmBinary ? { wasmBinary: nodeWasmBinary.slice().buffer as ArrayBuffer } : undefined);
       const { default: wasmUrl } = await import("sql.js/dist/sql-wasm.wasm?url");
       return initSqlJs({ locateFile: () => wasmUrl });
     })().catch((err) => {

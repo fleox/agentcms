@@ -78,6 +78,9 @@ for (const name of skills) {
       else if (m[1] !== `@${version}`) fail(r, `pins agentcms${m[1]} instead of @${version}`);
       if (m[2] && !commands.has(m[2])) fail(r, `calls unknown command "${m[2]}" (have: ${[...commands].join(", ")})`);
     }
+    for (const m of text.matchAll(/raw\.githubusercontent\.com\/fleox\/agentcms\/([^/\s]+)\//g)) {
+      if (m[1] !== `v${version}`) fail(r, `raw link pinned to ${m[1]} instead of v${version}`);
+    }
     const prose = text.replace(/```[\s\S]*?```/g, "").replace(/`[^`\n]*`/g, "");
     prose.split("\n").forEach((line, i) => {
       if (ACCENTED.test(line) || FRENCH.test(line)) fail(`${r}:${i + 1}`, `not English: ${line.trim().slice(0, 80)}`);

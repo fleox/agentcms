@@ -38,7 +38,18 @@ describe("agentcms cli", () => {
     const body = JSON.parse(io.stdout[0]);
     expect(body.ok).toBe(true);
     expect(body.data.version).toBe("0.1.0");
-    expect(body.data.commands.map((c: { name: string }) => c.name)).toEqual(["help", "version", "serve"]);
+    expect(body.data.commands.map((c: { name: string }) => c.name)).toEqual([
+      "help",
+      "version",
+      "status",
+      "options",
+      "credentials",
+      "site",
+      "install",
+      "deploy-admin",
+      "doctor",
+      "serve",
+    ]);
   });
 
   it("reports versions", async () => {

@@ -1,0 +1,68 @@
+import { fromAwsProfile, fromEnv, fromGh, promptHidden } from "../credentialSources";
+import { CREDENTIAL_TYPES, listCredentials, parseAccount, removeCredential, setCredential } from "../credentials";
+import { CliError, printResult } from "../output";
+import { listSites } from "../sites";
+import type { Command } from "./types";
+
+// Values are never printed — not even masked.
+
+export const credentialsCommand: Command = {
+  name: "credentials",
+  summary:
+    "Store, list or remove access tokens / keys per account (<type>:<name>). `set` reads the secret from --from-env, --from-gh, --from-aws-profile or a hidden prompt the USER types in.",
+  usage: "credentials <set|list|remove|types> [<type>:<name>] [--from-env VAR[,VAR]] [--from-gh] [--from-aws-profile <name>]",
+  options: [
+    { name: "from-env", type: "string", description: "Read the value(s) from these environment variables (comma-separated, in field order)." },
+    { name: "from-gh", type: "boolean", description: "github: take the token of the signed-in GitHub CLI (gh auth token)." },
+    { name: "from-aws-profile", type: "string", description: "s3: import the key pair of this aws CLI profile." },
+  ],
+  async run({ io, options, positionals }) {
+    const [action = "list", account] = positionals;
+    if (action === "types") {
+      printResult(io, CREDENTIAL_TYPES, () =>
+        Object.entries(CREDENTIAL_TYPES)
+          .map(([type, c]) => `${type}: ${c.label} (${c.fields.join(", ")})\n  ${c.howTo}`)
+          .join("\n"),
+      );
+      return;
+    }
+    if (action === "list") {
+      const { sites } = listSites();
+      const list = listCredentials().map((c) => ({
+        ...c,
+        usedBy: sites.filter((s) => s.credentials.data === c.account || s.credentials.hosting === c.account).map((s) => s.alias),
+      }));
+      printResult(io, list, () =>
+        list.length
+          ? list.map((c) => `${c.account}  (${c.fields.join(", ")})${c.usedBy.length ? `  used by ${c.usedBy.join(", ")}` : ""}`).join("\n")
+          : "No stored credentials.",
+      );
+      return;
+    }
+    if (!account) throw new CliError("usage", `credentials ${action} needs an account, e.g. github:my-login.`, undefined, 2);
+    const { type } = parseAccount(account);
+    if (action === "remove") {
+      const removed = removeCredential(account);
+      printResult(io, { account, removed }, () => (removed ? `Removed ${account}.` : `${account} was not stored.`));
+      return;
+    }
+    if (action !== "set") throw new CliError("usage", `Unknown action "${action}".`, "Use set, list, remove or types.", 2);
+
+    const spec = CREDENTIAL_TYPES[type];
+    let values: Record<string, string>;
+    if (typeof options["from-env"] === "string") values = fromEnv(options["from-env"].split(",").map((s) => s.trim()), spec.fields);
+    else if (options["from-gh"]) {
+      if (type !== "github") throw new CliError("usage", "--from-gh only applies to github accounts.", undefined, 2);
+      values = fromGh();
+    } else if (typeof options["from-aws-profile"] === "string") {
+      if (type !== "s3") throw new CliError("usage", "--from-aws-profile only applies to s3 accounts.", undefined, 2);
+      values = fromAwsProfile(options["from-aws-profile"]);
+    } else {
+      io.err(`${spec.label} for ${account}. ${spec.howTo}`);
+      values = {};
+      for (const field of spec.fields) values[field] = await promptHidden(`${field}: `);
+    }
+    const saved = setCredential(account, values);
+    printResult(io, { account, type, fields: Object.keys(saved.values) }, () => `Stored ${account} (${Object.keys(saved.values).join(", ")}).`);
+  },
+};

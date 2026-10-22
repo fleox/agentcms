@@ -24,6 +24,19 @@ The fastest way: let your coding agent install the site for you. It asks where t
 - **Any other agent** (Codex, Cursor, Windsurf…): ask it to follow [AGENTS.md](AGENTS.md).
 - **Without an agent**: `npx -y agentcms serve` (Node.js 20+) starts the admin on your computer — open the printed URL and follow the setup wizard.
 
+The same `agentcms` CLI works by hand (`npx -y agentcms help`):
+
+| Command | What it does |
+|---|---|
+| `status` | This tool vs the latest release, and every registered site's admin version |
+| `options` | Data backends, hostings and the install plan format |
+| `credentials set <type>:<name>` | Stores a token / key per account (hidden prompt, `--from-gh`, `--from-aws-profile`, `--from-env`) |
+| `install --plan plan.json` | Installs a site (content store, publish target, theme assets, admin) — `--dry-run` checks only |
+| `site list \| add \| use \| rename \| forget` | The sites this computer manages |
+| `doctor --site <alias>` | Health check with a fix for each problem |
+| `deploy-admin --site <alias>` | Updates the hosted admin to this release (prints the plan; `--yes` applies) |
+| `serve` | Runs the admin locally for the setup wizard |
+
 ## How it works
 
 ```

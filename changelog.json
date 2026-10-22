@@ -6,9 +6,11 @@
       "date": "2026-10-21",
       "breaking": false,
       "changes": [
-        "First release as the agentcms npm package and Claude Code plugin.",
-        "agentcms serve runs the admin on your computer to start the setup wizard without cloning the repo.",
-        "Pluggable data backends (SQLite file, Markdown in git, Firebase, Flexweg SQLite, this browser) and publish targets (GitHub, GitLab and Cloudflare Pages, S3-compatible buckets, Flexweg, own server via PHP bridge, local folder, ZIP)."
+        "First release as the agentcms npm package and Claude Code plugin (skills agentcms-install and agentcms-manage).",
+        "agentcms install --plan: installs a site from a JSON plan (SQLite file or Markdown in GitHub/GitLab, on GitHub/GitLab/Cloudflare Pages, S3-compatible buckets, Flexweg or an own PHP server) — content store, publish target, theme assets and the admin in one go.",
+        "Several sites per computer: site list/show/use/rename/forget/add, credentials stored per account (never per site, never in the chat).",
+        "agentcms status / doctor / deploy-admin: version overview, health checks with fixes, and confirmed admin updates (downgrades refused).",
+        "agentcms serve runs the admin on your computer for the setup wizard (Firebase, this browser, local folder, ZIP)."
       ],
       "actions": []
     }

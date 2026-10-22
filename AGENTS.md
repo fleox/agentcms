@@ -6,8 +6,8 @@ Instructions for AI agents (Claude Code, Codex, Cursor, Windsurf, …) working w
 
 Do not clone or build this repo for that. Use the agent skills and the `agentcms` CLI:
 
-- **Claude Code**: `/plugin marketplace add fleox/agentcms`, then `/plugin install agentcms@agentcms`, then follow the `agentcms-install` skill.
-- **Other agents**: read and follow [plugin/skills/agentcms-install/SKILL.md](plugin/skills/agentcms-install/SKILL.md). Every command it uses is `npx -y agentcms@<version> <command> --json` (Node.js 20+), which downloads the matching release from npm.
+- **Claude Code**: `/plugin marketplace add fleox/agentcms`, then `/plugin install agentcms@agentcms`; the `agentcms-install` skill sets up a new site, `agentcms-manage` checks / repairs / updates existing ones.
+- **Other agents**: read and follow [plugin/skills/agentcms-install/SKILL.md](plugin/skills/agentcms-install/SKILL.md) (new site) or [plugin/skills/agentcms-manage/SKILL.md](plugin/skills/agentcms-manage/SKILL.md) (existing sites). Every command it uses is `npx -y agentcms@<version> <command> --json` (Node.js 20+), which downloads the matching release from npm.
 - Talk to the user in their language. Never ask for secrets (tokens, passwords, secret keys) in the chat — the user types them into the admin or into a command they run themselves.
 
 ## If you are developing this repository

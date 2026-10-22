@@ -83,12 +83,25 @@ export function resolveGitPagesToken(settings: GitPagesSettings): string {
 // commit the connector tries it through the API (needs the token's
 // "Pages: read and write" permission); without that permission it tells
 // the user where to click. Checked once per repo per session.
-const pagesChecked = new Set<string>();
+const pagesChecks = new Map<string, Promise<void>>();
 
-async function ensureGithubPages(settings: GitPagesSettings, token: string, dir: string): Promise<void> {
+// The check started by the last commit to owner/repo, if any — the CLI
+// awaits it so its result includes the outcome (the admin doesn't wait).
+export function githubPagesCheck(owner: string, repo: string): Promise<void> | null {
+  return pagesChecks.get(`${owner}/${repo}`) ?? null;
+}
+
+function ensureGithubPages(settings: GitPagesSettings, token: string, dir: string): Promise<void> {
   const key = `${settings.owner}/${settings.repo}`;
-  if (pagesChecked.has(key)) return;
-  pagesChecked.add(key);
+  let check = pagesChecks.get(key);
+  if (!check) {
+    check = enableGithubPages(settings, token, dir, key);
+    pagesChecks.set(key, check);
+  }
+  return check;
+}
+
+async function enableGithubPages(settings: GitPagesSettings, token: string, dir: string, key: string): Promise<void> {
   const api = (settings.apiBaseUrl || "https://api.github.com").replace(/\/+$/, "");
   const url = `${api}/repos/${encodeURIComponent(settings.owner ?? "")}/${encodeURIComponent(settings.repo ?? "")}/pages`;
   const headers = { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" };

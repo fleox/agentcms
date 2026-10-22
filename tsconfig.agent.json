@@ -1,9 +1,11 @@
 {
-  // The agentcms CLI runs on Node: Node types, no DOM. Checked by
-  // `npm run typecheck` alongside the browser code in src/.
+  // The agentcms CLI runs on Node. It reuses src/ modules (connectors,
+  // git, document stores) written for the browser, so DOM + Vite types
+  // stay available for them. Checked by `npm run typecheck`.
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["ES2022"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "resolveJsonModule": true,
@@ -18,7 +20,10 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node", "vitest/globals"]
+    "types": ["node", "vite/client", "vitest/globals"],
+    "paths": {
+      "@flexweg/cms-runtime": ["./src/core/flexwegRuntime.ts"]
+    }
   },
   "include": ["agent"]
 }
