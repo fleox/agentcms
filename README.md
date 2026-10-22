@@ -11,6 +11,19 @@ On publish, the active theme renders posts with `react-dom/server.renderToStatic
 
 No Node.js, PHP, or database runs on the public site — only the static HTML/CSS/JS the admin pushes there.
 
+## Install with an AI agent
+
+The fastest way: let your coding agent install the site for you. It asks where to store the content, then where to host the site, and walks you through every key or token.
+
+- **Claude Code**
+  ```
+  /plugin marketplace add fleox/agentcms
+  /plugin install agentcms@agentcms
+  ```
+  then ask: *"Install a new AgentCMS site"*.
+- **Any other agent** (Codex, Cursor, Windsurf…): ask it to follow [AGENTS.md](AGENTS.md).
+- **Without an agent**: `npx -y agentcms serve` (Node.js 20+) starts the admin on your computer — open the printed URL and follow the setup wizard.
+
 ## How it works
 
 ```

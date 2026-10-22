@@ -39,6 +39,6 @@ export default defineConfig({
     // jsdom on a per-file basis (// @vitest-environment jsdom) when needed.
     environment: "node",
     globals: true,
-    include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+    include: ["src/**/*.test.ts", "src/**/*.test.tsx", "agent/**/*.test.ts"],
   },
 });

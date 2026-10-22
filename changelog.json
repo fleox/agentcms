@@ -1,0 +1,16 @@
+{
+  "$comment": "Newest first. Read by agents (agentcms status) to tell users what changed and what to run. `breaking`: an older admin, skill or site setup stops working without action. `actions`: steps a hosted site needs after updating — deploy-admin, regenerate-all, sync-theme-assets. Keep every entry in English.",
+  "versions": [
+    {
+      "version": "0.1.0",
+      "date": "2026-10-21",
+      "breaking": false,
+      "changes": [
+        "First release as the agentcms npm package and Claude Code plugin.",
+        "agentcms serve runs the admin on your computer to start the setup wizard without cloning the repo.",
+        "Pluggable data backends (SQLite file, Markdown in git, Firebase, Flexweg SQLite, this browser) and publish targets (GitHub, GitLab and Cloudflare Pages, S3-compatible buckets, Flexweg, own server via PHP bridge, local folder, ZIP)."
+      ],
+      "actions": []
+    }
+  ]
+}
