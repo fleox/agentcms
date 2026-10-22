@@ -9,8 +9,8 @@ import { parseArgs } from "node:util";
 import { existsSync, readFileSync, mkdirSync, writeFileSync, chmodSync, renameSync, statSync, openSync, writeSync, closeSync, unlinkSync, createReadStream } from "node:fs";
 import { join, resolve, dirname, sep, extname, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
-import { spawnSync, execFileSync } from "node:child_process";
 import { homedir } from "node:os";
+import { spawnSync, execFileSync } from "node:child_process";
 import { createServer } from "node:http";
 class CliError extends Error {
   constructor(code, message, hint, exitCode = 1) {
@@ -54,102 +54,38 @@ function readVersionInfo() {
   }
   return JSON.parse(readFileSync(file2, "utf8"));
 }
-function fromEnv(names, fields) {
-  if (names.length !== fields.length) {
-    throw new CliError("usage", `--from-env needs ${fields.length} variable name(s) (${fields.join(", ")}), comma-separated.`, void 0, 2);
+class MemoryStorage {
+  data = /* @__PURE__ */ new Map();
+  get length() {
+    return this.data.size;
   }
-  return Object.fromEntries(
-    fields.map((field, i) => {
-      const value = process.env[names[i]];
-      if (!value) throw new CliError("env-missing", `Environment variable ${names[i]} is empty or not set.`);
-      return [field, value];
-    })
-  );
-}
-function fromGh(host) {
-  try {
-    const args = ["auth", "token", ...host ? ["--hostname", host] : []];
-    const token = execFileSync("gh", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
-    if (!token) throw new Error("empty");
-    return { token };
-  } catch {
-    throw new CliError(
-      "gh-unavailable",
-      "Could not read a token from the GitHub CLI.",
-      "Install gh and run `gh auth login`, or create a fine-grained token and use `credentials set` without --from-gh."
-    );
+  key(index) {
+    return [...this.data.keys()][index] ?? null;
+  }
+  getItem(key) {
+    return this.data.get(key) ?? null;
+  }
+  setItem(key, value) {
+    this.data.set(key, String(value));
+  }
+  removeItem(key) {
+    this.data.delete(key);
+  }
+  clear() {
+    this.data.clear();
   }
 }
-function parseIni(text) {
-  const out = {};
-  let section = null;
-  for (const raw of text.split(/\r?\n/)) {
-    const line = raw.trim();
-    if (!line || line.startsWith("#") || line.startsWith(";")) continue;
-    const s = /^\[([^\]]+)\]$/.exec(line);
-    if (s) {
-      section = out[s[1].trim()] = {};
-      continue;
-    }
-    const kv = /^([^=]+?)\s*=\s*(.*)$/.exec(line);
-    if (kv && section) section[kv[1].trim()] = kv[2].trim();
+let installed = false;
+function installBrowserEnv() {
+  if (installed) return;
+  installed = true;
+  const g = globalThis;
+  for (const name of ["localStorage", "sessionStorage"]) {
+    Object.defineProperty(globalThis, name, { value: new MemoryStorage(), configurable: true, writable: true });
   }
-  return out;
-}
-function fromAwsProfile(profile) {
-  const file2 = process.env.AWS_SHARED_CREDENTIALS_FILE || join(homedir(), ".aws", "credentials");
-  if (!existsSync(file2)) throw new CliError("aws-missing", `No aws credentials file at ${file2}.`, "Run `aws configure` first.");
-  const section = parseIni(readFileSync(file2, "utf8"))[profile];
-  if (!section?.aws_access_key_id || !section.aws_secret_access_key) {
-    throw new CliError("aws-profile-missing", `Profile "${profile}" has no access key pair in ${file2}.`);
+  if (typeof g.window === "undefined") {
+    Object.defineProperty(globalThis, "window", { value: globalThis, configurable: true, writable: true });
   }
-  return { accessKeyId: section.aws_access_key_id, secretAccessKey: section.aws_secret_access_key };
-}
-async function promptHidden(question) {
-  const stdin = process.stdin;
-  if (!stdin.isTTY) {
-    throw new CliError(
-      "needs-terminal",
-      "No terminal to type the secret in.",
-      "Ask the user to run this command themselves in their terminal (in Claude Code: prefix it with `!`), or pass --from-env / --from-gh / --from-aws-profile."
-    );
-  }
-  process.stderr.write(question);
-  stdin.setRawMode(true);
-  stdin.resume();
-  stdin.setEncoding("utf8");
-  return new Promise((resolve2, reject) => {
-    let value = "";
-    const done = (err) => {
-      stdin.setRawMode(false);
-      stdin.pause();
-      stdin.off("data", onData);
-      process.stderr.write("\n");
-      if (err) reject(err);
-      else resolve2(value);
-    };
-    const onData = (chunk) => {
-      for (const ch of chunk) {
-        if (ch === "\r" || ch === "\n") return done();
-        if (ch === "") return done(new CliError("cancelled", "Cancelled."));
-        if (ch === "" || ch === "\b") value = value.slice(0, -1);
-        else value += ch;
-      }
-    };
-    stdin.on("data", onData);
-  });
-}
-function copyToClipboard(text) {
-  const candidates = process.platform === "darwin" ? [["pbcopy", []]] : process.platform === "win32" ? [["clip", []]] : [
-    ["wl-copy", []],
-    ["xclip", ["-selection", "clipboard"]],
-    ["xsel", ["--clipboard", "--input"]]
-  ];
-  for (const [cmd, args] of candidates) {
-    const res = spawnSync(cmd, args, { input: text, stdio: ["pipe", "ignore", "ignore"] });
-    if (res.status === 0) return cmd;
-  }
-  throw new CliError("no-clipboard", "No clipboard tool found (pbcopy, clip, wl-copy, xclip or xsel).", "Install one, or read the value from ~/.agentcms/credentials.json yourself.");
 }
 function homeDir() {
   return resolve(process.env.AGENTCMS_HOME || join(homedir(), ".agentcms"));
@@ -272,81 +208,6 @@ function listCredentials() {
     fields: Object.keys(c.values),
     updatedAt: c.updatedAt
   }));
-}
-const MAGIC = new TextEncoder().encode("ACMSENC1");
-const HEADER = MAGIC.length + 4 + 16 + 12;
-const PBKDF2_ITERATIONS = 6e5;
-class SqlitePassphraseError extends Error {
-  constructor(reason) {
-    super(reason === "missing" ? "This database is encrypted: enter its passphrase." : "Wrong passphrase for this database.");
-    this.reason = reason;
-    this.name = "SqlitePassphraseError";
-  }
-}
-function isEncryptedDatabase(bytes) {
-  return !!bytes && bytes.length >= HEADER && MAGIC.every((b, i) => bytes[i] === b);
-}
-const keyCache = /* @__PURE__ */ new Map();
-function hex(bytes) {
-  return [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
-}
-function deriveKey(passphrase, salt, iterations) {
-  const id = `${iterations}:${hex(salt)}:${passphrase}`;
-  let key = keyCache.get(id);
-  if (!key) {
-    key = (async () => {
-      const material = await crypto.subtle.importKey("raw", new TextEncoder().encode(passphrase.normalize("NFC")), "PBKDF2", false, ["deriveKey"]);
-      return crypto.subtle.deriveKey(
-        { name: "PBKDF2", hash: "SHA-256", salt, iterations },
-        material,
-        { name: "AES-GCM", length: 256 },
-        false,
-        ["encrypt", "decrypt"]
-      );
-    })();
-    key.catch(() => keyCache.delete(id));
-    keyCache.set(id, key);
-  }
-  return key;
-}
-function encryptionParams(bytes) {
-  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-  return {
-    iterations: view.getUint32(MAGIC.length),
-    salt: bytes.slice(MAGIC.length + 4, MAGIC.length + 20)
-  };
-}
-async function encryptDatabase(plain, passphrase, params) {
-  if (!passphrase) throw new SqlitePassphraseError("missing");
-  const salt = params?.salt ?? crypto.getRandomValues(new Uint8Array(16));
-  const iterations = params?.iterations ?? PBKDF2_ITERATIONS;
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const key = await deriveKey(passphrase, salt, iterations);
-  const cipher = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, plain));
-  const out = new Uint8Array(HEADER + cipher.length);
-  out.set(MAGIC, 0);
-  new DataView(out.buffer).setUint32(MAGIC.length, iterations);
-  out.set(salt, MAGIC.length + 4);
-  out.set(iv, MAGIC.length + 20);
-  out.set(cipher, HEADER);
-  return out;
-}
-async function decryptDatabase(bytes, passphrase) {
-  if (!passphrase) throw new SqlitePassphraseError("missing");
-  const { salt, iterations } = encryptionParams(bytes);
-  const iv = bytes.slice(MAGIC.length + 20, HEADER);
-  const key = await deriveKey(passphrase, salt, iterations);
-  try {
-    return new Uint8Array(await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, bytes.slice(HEADER)));
-  } catch {
-    throw new SqlitePassphraseError("wrong");
-  }
-}
-function generatePassphrase() {
-  const alphabet = "abcdefghjkmnpqrstuvwxyz23456789";
-  const pick = crypto.getRandomValues(new Uint8Array(30));
-  const chars = [...pick].map((b) => alphabet[b % alphabet.length]);
-  return Array.from({ length: 6 }, (_, i) => chars.slice(i * 5, i * 5 + 5).join("")).join("-");
 }
 const ALIAS_RE = /^[a-z0-9][a-z0-9-]{0,62}$/;
 function file() {
@@ -475,6 +336,251 @@ function isAlive(pid) {
     return err.code === "EPERM";
   }
 }
+const compactDataCommand = {
+  name: "compact-data",
+  summary: "Shrink the git history of a SQLite site's data branch (e.g. agentcms-data) to one commit with the current database. GitHub only. Prints the plan unless --yes.",
+  usage: "compact-data [--site <alias>] [--yes]",
+  options: [
+    { name: "site", type: "string", description: "Site alias." },
+    { name: "yes", type: "boolean", description: "Apply — only after the user confirmed." }
+  ],
+  async run({ io, options }) {
+    const site = resolveSite(options.site);
+    const runtime = site.runtime;
+    if (runtime.backend !== "sqlite-file" || runtime.sqlite.connectorId !== "git-pages") {
+      throw new CliError("not-applicable", `${site.alias} doesn't keep a SQLite database in git — nothing to compact.`);
+    }
+    const s = runtime.sqlite.settings;
+    if (s.provider !== "github") throw new CliError("unsupported", "Compaction is only implemented for GitHub repositories.");
+    const account = site.credentials.data ?? site.credentials.hosting;
+    if (!account) throw new CliError("credential-required", `No credential recorded for the data of ${site.alias}.`);
+    const token = requireCredential(account).values.token;
+    installBrowserEnv();
+    const { createRemoteGitTransport, joinRepoPath } = await import("./chunks/index-CrvEoyi0.mjs").then((n) => n.g);
+    const transport = createRemoteGitTransport({
+      provider: "github",
+      owner: s.owner ?? "",
+      repo: s.repo ?? "",
+      branch: s.branch ?? "",
+      token,
+      apiBaseUrl: s.apiBaseUrl
+    });
+    const tree = await transport.listTree();
+    if (!tree.headSha) throw new CliError("empty", "The data branch doesn't exist yet.");
+    const dbPath = joinRepoPath(s.dir ?? "", runtime.sqlite.path);
+    const foreign = tree.entries.filter((e) => e.path !== dbPath && e.path !== ".gitkeep");
+    if (foreign.length) {
+      throw new CliError(
+        "shared-branch",
+        `Branch ${s.branch} also holds ${foreign.length} other file(s) (${foreign.slice(0, 3).map((e) => e.path).join(", ")}…) — compaction would drop their history too.`,
+        "Only a dedicated data branch can be compacted."
+      );
+    }
+    const api = (s.apiBaseUrl || "https://api.github.com").replace(/\/+$/, "");
+    const res = await fetch(`${api}/repos/${s.owner}/${s.repo}/commits?sha=${encodeURIComponent(s.branch ?? "")}&per_page=1`, {
+      headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" }
+    });
+    const last = /[?&]page=(\d+)>; rel="last"/.exec(res.headers.get("link") ?? "");
+    const commits = res.ok ? last ? Number(last[1]) : 1 : null;
+    const size = tree.entries.find((e) => e.path === dbPath)?.size ?? null;
+    const plan = { site: site.alias, repo: `${s.owner}/${s.repo}`, branch: s.branch, commits, databaseBytes: size, files: tree.entries.map((e) => e.path) };
+    if (!options.yes) {
+      printResult(
+        io,
+        { needsConfirmation: true, ...plan },
+        () => `${site.alias}: ${plan.repo}@${plan.branch} has ${commits ?? "?"} commit(s); compaction keeps 1 (database ${size ?? "?"} bytes). Nothing was changed. Re-run with --yes once the user agrees.`
+      );
+      return;
+    }
+    if (commits !== null && commits <= 1) {
+      printResult(io, { ...plan, compacted: false }, () => "Already a single commit.");
+      return;
+    }
+    const unlock = lockSite(site.alias);
+    try {
+      const files = [];
+      for (const entry of tree.entries) {
+        files.push({ path: entry.path, content: Buffer.from(await transport.readBytes(entry)).toString("base64"), encoding: "base64" });
+      }
+      await transport.resetBranch(files, { message: "Compact data history — AgentCMS", expectedHeadSha: tree.headSha });
+      printResult(io, { ...plan, compacted: true }, () => `${site.alias}: ${plan.branch} compacted from ${commits ?? "?"} commits to 1.`);
+    } finally {
+      unlock();
+    }
+  }
+};
+function fromEnv(names, fields) {
+  if (names.length !== fields.length) {
+    throw new CliError("usage", `--from-env needs ${fields.length} variable name(s) (${fields.join(", ")}), comma-separated.`, void 0, 2);
+  }
+  return Object.fromEntries(
+    fields.map((field, i) => {
+      const value = process.env[names[i]];
+      if (!value) throw new CliError("env-missing", `Environment variable ${names[i]} is empty or not set.`);
+      return [field, value];
+    })
+  );
+}
+function fromGh(host) {
+  try {
+    const args = ["auth", "token", ...host ? ["--hostname", host] : []];
+    const token = execFileSync("gh", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+    if (!token) throw new Error("empty");
+    return { token };
+  } catch {
+    throw new CliError(
+      "gh-unavailable",
+      "Could not read a token from the GitHub CLI.",
+      "Install gh and run `gh auth login`, or create a fine-grained token and use `credentials set` without --from-gh."
+    );
+  }
+}
+function parseIni(text) {
+  const out = {};
+  let section = null;
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line || line.startsWith("#") || line.startsWith(";")) continue;
+    const s = /^\[([^\]]+)\]$/.exec(line);
+    if (s) {
+      section = out[s[1].trim()] = {};
+      continue;
+    }
+    const kv = /^([^=]+?)\s*=\s*(.*)$/.exec(line);
+    if (kv && section) section[kv[1].trim()] = kv[2].trim();
+  }
+  return out;
+}
+function fromAwsProfile(profile) {
+  const file2 = process.env.AWS_SHARED_CREDENTIALS_FILE || join(homedir(), ".aws", "credentials");
+  if (!existsSync(file2)) throw new CliError("aws-missing", `No aws credentials file at ${file2}.`, "Run `aws configure` first.");
+  const section = parseIni(readFileSync(file2, "utf8"))[profile];
+  if (!section?.aws_access_key_id || !section.aws_secret_access_key) {
+    throw new CliError("aws-profile-missing", `Profile "${profile}" has no access key pair in ${file2}.`);
+  }
+  return { accessKeyId: section.aws_access_key_id, secretAccessKey: section.aws_secret_access_key };
+}
+async function promptHidden(question) {
+  const stdin = process.stdin;
+  if (!stdin.isTTY) {
+    throw new CliError(
+      "needs-terminal",
+      "No terminal to type the secret in.",
+      "Ask the user to run this command themselves in their terminal (in Claude Code: prefix it with `!`), or pass --from-env / --from-gh / --from-aws-profile."
+    );
+  }
+  process.stderr.write(question);
+  stdin.setRawMode(true);
+  stdin.resume();
+  stdin.setEncoding("utf8");
+  return new Promise((resolve2, reject) => {
+    let value = "";
+    const done = (err) => {
+      stdin.setRawMode(false);
+      stdin.pause();
+      stdin.off("data", onData);
+      process.stderr.write("\n");
+      if (err) reject(err);
+      else resolve2(value);
+    };
+    const onData = (chunk) => {
+      for (const ch of chunk) {
+        if (ch === "\r" || ch === "\n") return done();
+        if (ch === "") return done(new CliError("cancelled", "Cancelled."));
+        if (ch === "" || ch === "\b") value = value.slice(0, -1);
+        else value += ch;
+      }
+    };
+    stdin.on("data", onData);
+  });
+}
+function copyToClipboard(text) {
+  const candidates = process.platform === "darwin" ? [["pbcopy", []]] : process.platform === "win32" ? [["clip", []]] : [
+    ["wl-copy", []],
+    ["xclip", ["-selection", "clipboard"]],
+    ["xsel", ["--clipboard", "--input"]]
+  ];
+  for (const [cmd, args] of candidates) {
+    const res = spawnSync(cmd, args, { input: text, stdio: ["pipe", "ignore", "ignore"] });
+    if (res.status === 0) return cmd;
+  }
+  throw new CliError("no-clipboard", "No clipboard tool found (pbcopy, clip, wl-copy, xclip or xsel).", "Install one, or read the value from ~/.agentcms/credentials.json yourself.");
+}
+const MAGIC = new TextEncoder().encode("ACMSENC1");
+const HEADER = MAGIC.length + 4 + 16 + 12;
+const PBKDF2_ITERATIONS = 6e5;
+class SqlitePassphraseError extends Error {
+  constructor(reason) {
+    super(reason === "missing" ? "This database is encrypted: enter its passphrase." : "Wrong passphrase for this database.");
+    this.reason = reason;
+    this.name = "SqlitePassphraseError";
+  }
+}
+function isEncryptedDatabase(bytes) {
+  return !!bytes && bytes.length >= HEADER && MAGIC.every((b, i) => bytes[i] === b);
+}
+const keyCache = /* @__PURE__ */ new Map();
+function hex(bytes) {
+  return [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+function deriveKey(passphrase, salt, iterations) {
+  const id = `${iterations}:${hex(salt)}:${passphrase}`;
+  let key = keyCache.get(id);
+  if (!key) {
+    key = (async () => {
+      const material = await crypto.subtle.importKey("raw", new TextEncoder().encode(passphrase.normalize("NFC")), "PBKDF2", false, ["deriveKey"]);
+      return crypto.subtle.deriveKey(
+        { name: "PBKDF2", hash: "SHA-256", salt, iterations },
+        material,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["encrypt", "decrypt"]
+      );
+    })();
+    key.catch(() => keyCache.delete(id));
+    keyCache.set(id, key);
+  }
+  return key;
+}
+function encryptionParams(bytes) {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  return {
+    iterations: view.getUint32(MAGIC.length),
+    salt: bytes.slice(MAGIC.length + 4, MAGIC.length + 20)
+  };
+}
+async function encryptDatabase(plain, passphrase, params) {
+  if (!passphrase) throw new SqlitePassphraseError("missing");
+  const salt = params?.salt ?? crypto.getRandomValues(new Uint8Array(16));
+  const iterations = params?.iterations ?? PBKDF2_ITERATIONS;
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await deriveKey(passphrase, salt, iterations);
+  const cipher = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, plain));
+  const out = new Uint8Array(HEADER + cipher.length);
+  out.set(MAGIC, 0);
+  new DataView(out.buffer).setUint32(MAGIC.length, iterations);
+  out.set(salt, MAGIC.length + 4);
+  out.set(iv, MAGIC.length + 20);
+  out.set(cipher, HEADER);
+  return out;
+}
+async function decryptDatabase(bytes, passphrase) {
+  if (!passphrase) throw new SqlitePassphraseError("missing");
+  const { salt, iterations } = encryptionParams(bytes);
+  const iv = bytes.slice(MAGIC.length + 20, HEADER);
+  const key = await deriveKey(passphrase, salt, iterations);
+  try {
+    return new Uint8Array(await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, bytes.slice(HEADER)));
+  } catch {
+    throw new SqlitePassphraseError("wrong");
+  }
+}
+function generatePassphrase() {
+  const alphabet = "abcdefghjkmnpqrstuvwxyz23456789";
+  const pick = crypto.getRandomValues(new Uint8Array(30));
+  const chars = [...pick].map((b) => alphabet[b % alphabet.length]);
+  return Array.from({ length: 6 }, (_, i) => chars.slice(i * 5, i * 5 + 5).join("")).join("-");
+}
 const credentialsCommand = {
   name: "credentials",
   summary: "Store, list, copy or remove access tokens / keys per account (<type>:<name>). `set` reads the secret from --from-env, --from-gh, --from-aws-profile, --generate (passphrases) or a hidden prompt the USER types in; `copy` puts it on the clipboard without printing it.",
@@ -547,39 +653,6 @@ const credentialsCommand = {
     printResult(io, { account, type, fields: Object.keys(saved.values) }, () => `Stored ${account} (${Object.keys(saved.values).join(", ")}).`);
   }
 };
-class MemoryStorage {
-  data = /* @__PURE__ */ new Map();
-  get length() {
-    return this.data.size;
-  }
-  key(index) {
-    return [...this.data.keys()][index] ?? null;
-  }
-  getItem(key) {
-    return this.data.get(key) ?? null;
-  }
-  setItem(key, value) {
-    this.data.set(key, String(value));
-  }
-  removeItem(key) {
-    this.data.delete(key);
-  }
-  clear() {
-    this.data.clear();
-  }
-}
-let installed = false;
-function installBrowserEnv() {
-  if (installed) return;
-  installed = true;
-  const g = globalThis;
-  for (const name of ["localStorage", "sessionStorage"]) {
-    Object.defineProperty(globalThis, name, { value: new MemoryStorage(), configurable: true, writable: true });
-  }
-  if (typeof g.window === "undefined") {
-    Object.defineProperty(globalThis, "window", { value: globalThis, configurable: true, writable: true });
-  }
-}
 function parse(v) {
   const m = /^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?/.exec(v.trim());
   if (!m) throw new Error(`Invalid version: ${v}`);
@@ -670,8 +743,8 @@ const deployAdminCommand = {
     const sites = options.all ? listSites().sites.filter((s) => s.adminFolder) : [resolveSite(options.site)];
     if (sites.length === 0) throw new CliError("no-sites", "No registered site has a hosted admin.");
     installBrowserEnv();
-    const { adminOps, applyOps, hostingConnector, themeAssetOps } = await import("./chunks/hosting-Dx0eiJCs.mjs");
-    const { collectToasts, settleHosting } = await import("./chunks/install-DZ-q1i9l.mjs");
+    const { adminOps, applyOps, hostingConnector, themeAssetOps } = await import("./chunks/hosting-D_uj-Mt1.mjs");
+    const { collectToasts, settleHosting } = await import("./chunks/install-DkCCcKAO.mjs");
     const plans = [];
     for (const site of sites) {
       const adminUrl = adminUrlOf(site);
@@ -865,7 +938,7 @@ async function runDoctor(site, opts = {}) {
       add({ id: "hosting-access", status: "skip", message: "No hosting credential to test." });
     } else {
       installBrowserEnv();
-      const { testStorageConnection } = await import("./chunks/registry-BU0AVXwQ.mjs").then((n) => n.K);
+      const { testStorageConnection } = await import("./chunks/registry-lkfb_E9O.mjs").then((n) => n.H);
       const res = await testStorageConnection(site.hosting.connectorId, { ...site.hosting.settings, ...hostingCred.values });
       add(
         res.ok ? { id: "hosting-access", status: "ok", message: `Hosting writable: ${res.detail}.` } : { id: "hosting-access", status: "fail", message: `Hosting access failed: ${res.detail}.`, fix: "Check the credential's permissions / expiry, then `agentcms credentials set` it again." }
@@ -924,12 +997,12 @@ const installCommand = {
   async run({ io, options }) {
     if (typeof options.plan !== "string") throw new CliError("usage", "install needs --plan <file|->.", "Run `agentcms options` for the format.", 2);
     installBrowserEnv();
-    const { resolvePlan } = await import("./chunks/plan-BhnegERT.mjs").then((n) => n.p);
+    const { resolvePlan } = await import("./chunks/plan-EYKegfhp.mjs").then((n) => n.p);
     const plan = resolvePlan(readPlan(options.plan));
     if (getSite(plan.alias)) {
       throw new CliError("site-exists", `A site named "${plan.alias}" is already registered.`, "Use another alias, or `agentcms site forget` it first.");
     }
-    const { checkPlan, runInstall } = await import("./chunks/install-DZ-q1i9l.mjs");
+    const { checkPlan, runInstall } = await import("./chunks/install-DkCCcKAO.mjs");
     io.err("Checking access…");
     const checks = await checkPlan(plan);
     const stored = checks.data.storedTarget;
@@ -1400,7 +1473,7 @@ const siteCommand = {
         if (getSite(a)) throw new CliError("site-exists", `A site named "${a}" already exists.`, "Pick another alias or `site forget` it first.");
         if (typeof options["admin-url"] !== "string") throw new CliError("usage", "site add needs --admin-url.", void 0, 2);
         installBrowserEnv();
-        const { siteFromAdminUrl } = await import("./chunks/siteAdd-BwXYV4vC.mjs");
+        const { siteFromAdminUrl } = await import("./chunks/siteAdd-BqcYt8nu.mjs");
         const site = await siteFromAdminUrl({
           alias: a,
           adminUrl: options["admin-url"],
@@ -1558,6 +1631,7 @@ const COMMANDS = [
   installCommand,
   deployAdminCommand,
   doctorCommand,
+  compactDataCommand,
   serveCommand
 ];
 function findCommand(name) {

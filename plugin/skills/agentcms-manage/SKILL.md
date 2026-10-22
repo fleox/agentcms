@@ -79,4 +79,14 @@ Add `--deep` to also test write access (writes then deletes a probe file on file
    Add `--theme-assets` when the changes list the `sync-theme-assets` action. `--all` plans / updates every hosted site (list them all to the user first).
 3. Relay `pendingActions` (e.g. `regenerate-all`: in the admin, Regenerate -> Everything) and run `doctor` again.
 
+## SQLite sites: encryption and history
+
+- **Not encrypted yet** (`doctor` -> `database-exposure` fail, or the user asks): in the admin, Settings -> Data backend -> **Encrypt the database**. The admin generates a passphrase; the user saves it in their password manager, ticks the confirmation and applies. Other browsers then ask for it once. Store it for the CLI too: `! npx -y agentcms@0.1.0 credentials set passphrase:<alias>`.
+- **Change the passphrase** (leaked, editor left): same place, **Change the passphrase**. Old git commits still hold versions encrypted with the old one - compact the history afterwards (below).
+- **Data branch history** (database kept in git, e.g. `agentcms-data`): every save adds a full copy of the encrypted file. When the repository grows, or after a passphrase change:
+  ```bash
+  npx -y agentcms@0.1.0 compact-data --site <alias> --json
+  ```
+  shows the commit count; after the user agrees, re-run with `--yes` to keep one commit. GitHub only; branches holding anything else than the database are refused.
+
 Downgrades are refused (`--allow-downgrade` only on the user's explicit request), and an admin is never replaced by one that can't read the site's data format.

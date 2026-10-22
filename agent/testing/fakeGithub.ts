@@ -99,6 +99,13 @@ export function createFakeGithub(opts: { login: string; token: string }): FakeGi
     if (rest === "" && method === "GET") {
       return json({ full_name: full, default_branch: repo.defaultBranch, private: repo.private, permissions: { admin: true, push: true } });
     }
+    if (rest === "/commits" && method === "GET") {
+      const branch = url.searchParams.get("sha") ?? repo.defaultBranch ?? "main";
+      let count = 0;
+      for (let c = repo.refs.get(branch); c; c = commits.get(c)!.parents[0]) count++;
+      const link = count > 1 ? `<${url.origin}${url.pathname}?sha=${branch}&per_page=1&page=${count}>; rel="last"` : "";
+      return new Response("[]", { headers: { "content-type": "application/json", ...(link ? { link } : {}) } });
+    }
     if (rest === "/pages") {
       if (method === "GET") return repo.pages ? json({ status: "built", source: { branch: "main", path: "/" } }) : json({ message: "Not Found" }, 404);
       if (method === "POST") {
@@ -123,7 +130,7 @@ export function createFakeGithub(opts: { login: string; token: string }): FakeGi
     if (r && method === "PATCH") {
       const branch = decodeURIComponent(r[1]);
       const current = repo.refs.get(branch);
-      if (!commits.get(body.sha)?.parents.includes(current ?? "")) return json({ message: "Update is not a fast forward" }, 422);
+      if (!body.force && !commits.get(body.sha)?.parents.includes(current ?? "")) return json({ message: "Update is not a fast forward" }, 422);
       repo.refs.set(branch, body.sha);
       return json({ object: { sha: body.sha } });
     }

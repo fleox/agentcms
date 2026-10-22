@@ -158,5 +158,34 @@ describe("sqlite-file doc store", () => {
       await store.write([{ op: "set", collection: "posts", doc: post("P2", "After") }]);
       expect(isEncryptedDatabase(await mirror.getBytes!(cfg.path))).toBe(true);
     }, 20_000);
+
+    it("turns encryption on, then changes the passphrase (rekey)", async () => {
+      const plain = createSqliteFileDocStore(cfg);
+      await plain.write([{ op: "set", collection: "posts", doc: post("P1", "Kept") }]);
+      expect(plain.isEncrypted()).toBe(false);
+      await expect(plain.rekey("short")).rejects.toThrow(/12 characters/);
+
+      await plain.rekey("first passphrase 123");
+      expect(plain.isEncrypted()).toBe(true);
+      const first = (await mirror.getBytes!(cfg.path))!;
+      expect(isEncryptedDatabase(first)).toBe(true);
+      // Later saves keep working with the new key.
+      await plain.write([{ op: "set", collection: "posts", doc: post("P2", "After") }]);
+
+      await plain.rekey("second passphrase 456");
+      const second = (await mirror.getBytes!(cfg.path))!;
+      // Fresh salt → a different key.
+      expect(Buffer.from(second.slice(12, 28)).equals(Buffer.from(first.slice(12, 28)))).toBe(false);
+
+      saveSqlitePassphrase("first passphrase 123");
+      const stale = createSqliteFileDocStore(cfg);
+      expect(await stale.identity()).toBeNull();
+      expect(stale.passphraseProblem()).toBe("wrong");
+
+      saveSqlitePassphrase("second passphrase 456");
+      const fresh = createSqliteFileDocStore(cfg);
+      await fresh.ready();
+      expect(fresh.list("posts").map((p) => p.title).sort()).toEqual(["After", "Kept"]);
+    }, 30_000);
   });
 });

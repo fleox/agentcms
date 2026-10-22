@@ -468,6 +468,19 @@
       "replaceConfirm": "El modo Reemplazar elimina todos los elementos existentes de las colecciones presentes en el archivo antes de importar. ¿Continuar?",
       "invalidFile": "Este archivo no es una exportación de contenido de Flexweg CMS.",
       "imported": "Se han importado {{posts}} entradas/páginas, {{terms}} términos y {{media}} medios. Ejecuta Regenerar → Todo para publicarlos."
+    },
+    "encryption": {
+      "title": "Cifrado de la base:",
+      "on": "activado",
+      "off": "desactivado",
+      "onHelp": "El archivo de la base es ilegible sin la frase de contraseña. Cambiarla vuelve a guardar el archivo con una nueva clave; los demás navegadores pedirán la nueva frase.",
+      "offHelp": "Cualquiera que pueda descargar el archivo de la base puede leerlo (un hosting estático lo sirve como cualquier página). Cífralo con una frase de contraseña.",
+      "enable": "Cifrar la base…",
+      "change": "Cambiar la frase de contraseña…",
+      "savedConfirm": "He guardado esta frase en mi gestor de contraseñas — sin ella no se puede abrir el contenido.",
+      "enableConfirm": "Cifrar ahora",
+      "changeConfirm": "Cambiar la frase",
+      "done": "Base guardada de nuevo con la nueva frase de contraseña."
     }
   },
   "users": {

@@ -468,6 +468,19 @@
       "replaceConfirm": "O modo Substituir elimina todos os itens existentes das coleções presentes no ficheiro antes de importar. Continuar?",
       "invalidFile": "Este ficheiro não é uma exportação de conteúdo do Flexweg CMS.",
       "imported": "Importados {{posts}} posts/páginas, {{terms}} termos e {{media}} multimédia. Execute Regenerar → Tudo para os publicar."
+    },
+    "encryption": {
+      "title": "Cifra da base de dados:",
+      "on": "ativa",
+      "off": "inativa",
+      "onHelp": "O ficheiro da base de dados é ilegível sem a frase-passe. Alterá-la volta a guardar o ficheiro com uma nova chave; os outros navegadores vão pedir a nova frase.",
+      "offHelp": "Quem conseguir descarregar o ficheiro da base de dados pode lê-lo (um alojamento estático serve-o como qualquer página). Cifre-o com uma frase-passe.",
+      "enable": "Cifrar a base de dados…",
+      "change": "Alterar a frase-passe…",
+      "savedConfirm": "Guardei esta frase-passe no meu gestor de palavras-passe — sem ela o conteúdo não pode ser aberto.",
+      "enableConfirm": "Cifrar agora",
+      "changeConfirm": "Alterar a frase",
+      "done": "Base de dados guardada com a nova frase-passe."
     }
   },
   "users": {

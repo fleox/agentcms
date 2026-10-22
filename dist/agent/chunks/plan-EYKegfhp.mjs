@@ -4,7 +4,8 @@ import { dirname as __acmsDirname } from "node:path";
 const require2 = __acmsRequire(import.meta.url);
 const __filename = __acmsPath(import.meta.url);
 const __dirname = __acmsDirname(__filename);
-import { I as resolveGitPagesToken, y as createRemoteGitTransport, B as splitSecrets, J as missingFields } from "./registry-BU0AVXwQ.mjs";
+import { F as resolveGitPagesToken, y as splitSecrets, G as missingFields } from "./registry-lkfb_E9O.mjs";
+import { c as createRemoteGitTransport } from "./index-CrvEoyi0.mjs";
 import { v as validateAlias, c as findDataBackend, a as parseAccount, r as requireCredential, e as getCredential, C as CliError, h as findHosting } from "../agentcms.mjs";
 const gitHost = (host) => (connectorId, s) => connectorId === "git-pages" && (s.host ?? "github-pages") === host;
 const HOSTING_OPTIONS = [

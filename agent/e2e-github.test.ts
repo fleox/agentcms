@@ -135,5 +135,20 @@ describe("install markdown-git + GitHub Pages (fake GitHub)", () => {
     const doctor = await run(["doctor", "--site", "notes"]);
     const byId = Object.fromEntries((doctor.body.data.checks as { id: string; status: string }[]).map((c) => [c.id, c.status]));
     expect(byId).toMatchObject({ "database-exposure": "ok", "github-pages": "ok", admin: "ok", "config-js": "ok" });
+
+    // Compaction: the data branch shrinks to one commit, the site branch is untouched.
+    const siteCommits = gh.commits("me/notes", "main").length;
+    expect(gh.commits("me/notes", "agentcms-data").length).toBeGreaterThan(1);
+    const planned = await run(["compact-data", "--site", "notes"]);
+    expect(planned.body.data).toMatchObject({ needsConfirmation: true, branch: "agentcms-data" });
+    expect(planned.body.data.commits).toBeGreaterThan(1);
+    const before = gh.files("me/notes", "agentcms-data").get("data/site.sqlite");
+    expect((await run(["compact-data", "--site", "notes", "--yes"])).body.data.compacted).toBe(true);
+    expect(gh.commits("me/notes", "agentcms-data")).toHaveLength(1);
+    expect(gh.files("me/notes", "agentcms-data").get("data/site.sqlite")).toBe(before);
+    expect(gh.commits("me/notes", "main")).toHaveLength(siteCommits);
+
+    // The site's own branch can never be compacted.
+    expect((await run(["compact-data", "--site", "blog"])).body.error?.code).toBe("not-applicable");
   }, 60_000);
 });
