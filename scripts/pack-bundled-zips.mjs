@@ -64,6 +64,8 @@ function findSourceReadme(kind, id) {
 //   - theme.css (themes only — copied next to bundle.js by the
 //     externals build)
 //   - README.md (optional — plain documentation)
+const ZIP_DATE = new Date("2026-01-01T00:00:00Z");
+
 async function packEntry(kind, id, builtDir, outDir) {
   const manifestPath = resolve(builtDir, "manifest.json");
   const bundlePath = resolve(builtDir, "bundle.js");
@@ -75,19 +77,21 @@ async function packEntry(kind, id, builtDir, outDir) {
   }
 
   const zip = new JSZip();
-  zip.file("manifest.json", readFileSync(manifestPath));
-  zip.file("bundle.js", readFileSync(bundlePath));
+  // Fixed entry dates keep the ZIPs byte-identical between builds.
+  const opts = { date: ZIP_DATE };
+  zip.file("manifest.json", readFileSync(manifestPath), opts);
+  zip.file("bundle.js", readFileSync(bundlePath), opts);
 
   if (kind === "themes") {
     const cssPath = resolve(builtDir, "theme.css");
     if (existsSync(cssPath)) {
-      zip.file("theme.css", readFileSync(cssPath));
+      zip.file("theme.css", readFileSync(cssPath), opts);
     }
   }
 
   const readmePath = findSourceReadme(kind, id);
   if (readmePath) {
-    zip.file("README.md", readFileSync(readmePath));
+    zip.file("README.md", readFileSync(readmePath), opts);
   }
 
   mkdirSync(outDir, { recursive: true });

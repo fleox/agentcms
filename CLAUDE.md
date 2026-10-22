@@ -20,12 +20,24 @@ npm run typecheck    # tsc --noEmit (runs automatically before `build`)
 npm test             # Vitest, single run
 npm run test:watch   # Vitest, watch mode
 npx vitest run src/core/slug.test.ts    # Run a single test file
-npm run build        # Vite build → dist/admin/, then compiles each theme's SCSS into dist/theme-assets/<id>.css
+npm run build        # Vite build → dist/admin/, theme CSS → dist/theme-assets/, bundled externals, agentcms CLI → dist/agent/, dist/version.json
+npm run check:skills # Agent skills vs CLI commands / versions / English (CI runs it after build)
+node dist/agent/agentcms.mjs help   # The agentcms CLI from a clone (published to npm as `agentcms`)
 ```
 
 `.env` is **optional**: the admin can also be configured at runtime through the in-app first-run **SetupForm** (see "Runtime config & first-run setup" below). If the developer has `VITE_FIREBASE_*` + `VITE_ADMIN_EMAIL` filled in `.env`, Vite bakes them into the bundle and the SetupForm never shows. If `.env` is empty (typical for a fresh `dist/admin/` dropped on Flexweg by a non-developer), the admin renders the SetupForm on first load and writes a populated `/admin/config.js` to Flexweg on success.
 
 `npm install` requires `--legacy-peer-deps` because `react-i18next` declares an optional peer on TypeScript 5 while this project pins TypeScript 6 (matches the `kanban` sibling project). The peer is optional, the install is safe.
+
+## Agent distribution (npm package, CLI, skills)
+
+The repo is also the npm package **`agentcms`** and a Claude Code marketplace — nothing else is hosted. Read [AGENTS.md](AGENTS.md) (maintenance rules) and [docs/releasing.md](docs/releasing.md) before touching any of it.
+
+- `agent/` — the `agentcms` CLI (Node ≥ 20, own `tsconfig.agent.json`, no DOM types), bundled by `vite.agent.config.ts` into the single dependency-free file `dist/agent/agentcms.mjs` (the package `bin`). Every command supports `--json` → exactly one `{ ok, data }` / `{ ok: false, error: { code, message, hint } }` object on stdout, logs on stderr, exit code 2 for usage errors. Register new commands in `agent/commands/index.ts`.
+- `plugin/` — the Claude Code plugin listed by `.claude-plugin/marketplace.json`; skills in `plugin/skills/<name>/SKILL.md`, **100% English**, portable frontmatter only (`name`, `description`, `license`, `compatibility`, `metadata`, `allowed-tools`), `metadata.version` = package version. Skills call the CLI pinned: `npx -y agentcms@<version> <command> --json`.
+- `package.json` `version` is the only version to edit; `npm version` runs `scripts/sync-version.mjs` (plugin.json, skill metadata, pinned commands). `agentcms.minSkillsVersion` / `agentcms.dataSchema` in package.json + the version from `src/core/flexwegRuntime.ts` end up in `dist/version.json` (`scripts/write-version.mjs`). User-visible changes go into `changelog.json`.
+- **The build is reproducible** (no timestamps in `admin-files.json`, fixed ZIP entry dates) because CI rebuilds and rejects a committed `dist/` that differs. Keep new build steps deterministic.
+- All runtime deps are `devDependencies` on purpose: the published package ships prebuilt files only, so `npx agentcms` installs nothing else.
 
 ## Runtime config & first-run setup
 

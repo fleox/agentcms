@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - run: npm test
+      # Includes typecheck (prebuild), the admin, theme assets, bundled
+      # externals, the agentcms CLI and dist/version.json.
+      - run: npm run build
+      - name: Committed dist/ matches the sources
+        run: |
+          if ! git diff --quiet -- dist || [ -n "$(git ls-files --others --exclude-standard dist)" ]; then
+            git status --short dist
+            echo "::error::dist/ is out of date — run \`npm run build\` and commit dist/."
+            exit 1
+          fi
+      - run: npm run check:skills
+      - name: CLI smoke test
+        run: |
+          node dist/agent/agentcms.mjs version --json
+          node dist/agent/agentcms.mjs help --json > /dev/null
+      - run: npm pack --dry-run

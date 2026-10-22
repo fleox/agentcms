@@ -17,7 +17,6 @@ const MANIFEST = "admin-files.json";
 
 interface AdminManifest {
   version: string;
-  builtAt: string;
   files: string[];
 }
 

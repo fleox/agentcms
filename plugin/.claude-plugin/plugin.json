@@ -1,0 +1,16 @@
+{
+  "name": "agentcms",
+  "version": "0.1.0",
+  "description": "Skills to install AgentCMS sites, then manage their content, themes and plugins.",
+  "author": {
+    "name": "fleox"
+  },
+  "homepage": "https://github.com/fleox/agentcms",
+  "repository": "https://github.com/fleox/agentcms",
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "keywords": [
+    "cms",
+    "static-site",
+    "installer"
+  ]
+}

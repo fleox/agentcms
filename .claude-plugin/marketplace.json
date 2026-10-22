@@ -1,0 +1,14 @@
+{
+  "name": "agentcms",
+  "owner": { "name": "fleox" },
+  "description": "AgentCMS — install and manage static sites (data backend + hosting) from Claude Code.",
+  "plugins": [
+    {
+      "name": "agentcms",
+      "source": "./plugin",
+      "description": "Skills to install AgentCMS sites, then manage their content, themes and plugins.",
+      "category": "productivity",
+      "tags": ["cms", "static-site", "github-pages", "s3", "firebase"]
+    }
+  ]
+}
