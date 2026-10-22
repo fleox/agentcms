@@ -1,8 +1,16 @@
 #!/usr/bin/env node
+import { createRequire as __acmsRequire } from "node:module";
+import { fileURLToPath as __acmsPath } from "node:url";
+import { dirname as __acmsDirname } from "node:path";
+const require2 = __acmsRequire(import.meta.url);
+const __filename = __acmsPath(import.meta.url);
+const __dirname = __acmsDirname(__filename);
 import { parseArgs } from "node:util";
-import { existsSync, readFileSync, statSync, createReadStream } from "node:fs";
+import { existsSync, readFileSync, mkdirSync, writeFileSync, chmodSync, renameSync, statSync, openSync, writeSync, closeSync, unlinkSync, createReadStream } from "node:fs";
 import { join, resolve, dirname, sep, extname, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
+import { execFileSync } from "node:child_process";
+import { homedir } from "node:os";
 import { createServer } from "node:http";
 class CliError extends Error {
   constructor(code, message, hint, exitCode = 1) {
@@ -40,12 +48,1056 @@ function distRoot() {
   return bundled ? resolve(here, "..") : resolve(here, "..", "dist");
 }
 function readVersionInfo() {
-  const file = join(distRoot(), "version.json");
-  if (!existsSync(file)) {
-    throw new Error(`${file} is missing — run \`npm run build\` first.`);
+  const file2 = join(distRoot(), "version.json");
+  if (!existsSync(file2)) {
+    throw new Error(`${file2} is missing — run \`npm run build\` first.`);
   }
-  return JSON.parse(readFileSync(file, "utf8"));
+  return JSON.parse(readFileSync(file2, "utf8"));
 }
+function fromEnv(names, fields) {
+  if (names.length !== fields.length) {
+    throw new CliError("usage", `--from-env needs ${fields.length} variable name(s) (${fields.join(", ")}), comma-separated.`, void 0, 2);
+  }
+  return Object.fromEntries(
+    fields.map((field, i) => {
+      const value = process.env[names[i]];
+      if (!value) throw new CliError("env-missing", `Environment variable ${names[i]} is empty or not set.`);
+      return [field, value];
+    })
+  );
+}
+function fromGh(host) {
+  try {
+    const args = ["auth", "token", ...host ? ["--hostname", host] : []];
+    const token = execFileSync("gh", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+    if (!token) throw new Error("empty");
+    return { token };
+  } catch {
+    throw new CliError(
+      "gh-unavailable",
+      "Could not read a token from the GitHub CLI.",
+      "Install gh and run `gh auth login`, or create a fine-grained token and use `credentials set` without --from-gh."
+    );
+  }
+}
+function parseIni(text) {
+  const out = {};
+  let section = null;
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line || line.startsWith("#") || line.startsWith(";")) continue;
+    const s = /^\[([^\]]+)\]$/.exec(line);
+    if (s) {
+      section = out[s[1].trim()] = {};
+      continue;
+    }
+    const kv = /^([^=]+?)\s*=\s*(.*)$/.exec(line);
+    if (kv && section) section[kv[1].trim()] = kv[2].trim();
+  }
+  return out;
+}
+function fromAwsProfile(profile) {
+  const file2 = process.env.AWS_SHARED_CREDENTIALS_FILE || join(homedir(), ".aws", "credentials");
+  if (!existsSync(file2)) throw new CliError("aws-missing", `No aws credentials file at ${file2}.`, "Run `aws configure` first.");
+  const section = parseIni(readFileSync(file2, "utf8"))[profile];
+  if (!section?.aws_access_key_id || !section.aws_secret_access_key) {
+    throw new CliError("aws-profile-missing", `Profile "${profile}" has no access key pair in ${file2}.`);
+  }
+  return { accessKeyId: section.aws_access_key_id, secretAccessKey: section.aws_secret_access_key };
+}
+async function promptHidden(question) {
+  const stdin = process.stdin;
+  if (!stdin.isTTY) {
+    throw new CliError(
+      "needs-terminal",
+      "No terminal to type the secret in.",
+      "Ask the user to run this command themselves in their terminal (in Claude Code: prefix it with `!`), or pass --from-env / --from-gh / --from-aws-profile."
+    );
+  }
+  process.stderr.write(question);
+  stdin.setRawMode(true);
+  stdin.resume();
+  stdin.setEncoding("utf8");
+  return new Promise((resolve2, reject) => {
+    let value = "";
+    const done = (err) => {
+      stdin.setRawMode(false);
+      stdin.pause();
+      stdin.off("data", onData);
+      process.stderr.write("\n");
+      if (err) reject(err);
+      else resolve2(value);
+    };
+    const onData = (chunk) => {
+      for (const ch of chunk) {
+        if (ch === "\r" || ch === "\n") return done();
+        if (ch === "") return done(new CliError("cancelled", "Cancelled."));
+        if (ch === "" || ch === "\b") value = value.slice(0, -1);
+        else value += ch;
+      }
+    };
+    stdin.on("data", onData);
+  });
+}
+function homeDir() {
+  return resolve(process.env.AGENTCMS_HOME || join(homedir(), ".agentcms"));
+}
+function homePath(...parts) {
+  return join(homeDir(), ...parts);
+}
+function readJsonFile(file2, fallback) {
+  if (!existsSync(file2)) return fallback;
+  return JSON.parse(readFileSync(file2, "utf8"));
+}
+function writeJsonFile(file2, value, mode = 420) {
+  mkdirSync(dirname(file2), { recursive: true, mode: 448 });
+  const tmp = `${file2}.${process.pid}.tmp`;
+  writeFileSync(tmp, JSON.stringify(value, null, 2) + "\n", { mode });
+  chmodSync(tmp, mode);
+  renameSync(tmp, file2);
+}
+function isWorldReadable(file2) {
+  if (process.platform === "win32" || !existsSync(file2)) return false;
+  return (statSync(file2).mode & 63) !== 0;
+}
+const CREDENTIAL_TYPES = {
+  github: {
+    fields: ["token"],
+    label: "GitHub personal access token",
+    howTo: "https://github.com/settings/personal-access-tokens/new — fine-grained, 'Only select repositories' (content + site repos), Repository permissions: Contents Read and write, Pages Read and write (optional, lets the site be published automatically), Metadata Read-only."
+  },
+  gitlab: {
+    fields: ["token"],
+    label: "GitLab access token",
+    howTo: "GitLab project → Settings → Access tokens (or user Preferences → Access tokens): scope `api`, role Developer or higher."
+  },
+  s3: {
+    fields: ["accessKeyId", "secretAccessKey"],
+    label: "S3 access key pair",
+    howTo: "AWS IAM user with s3:GetObject/PutObject/DeleteObject/ListBucket on the bucket, or OVHcloud Public Cloud → Object Storage → S3 users. Import an existing aws CLI profile with --from-aws-profile."
+  },
+  flexweg: {
+    fields: ["apiKey"],
+    label: "Flexweg API key",
+    howTo: "Flexweg dashboard → your site → API keys."
+  },
+  "php-bridge": {
+    fields: ["apiKey"],
+    label: "PHP bridge key",
+    howTo: "The FLEXWEG_BRIDGE_KEY value from flexweg-bridge.config.php on your server."
+  }
+};
+const ACCOUNT_RE = /^([a-z0-9-]+):([A-Za-z0-9._@-]{1,100})$/;
+function file$1() {
+  return homePath("credentials.json");
+}
+function load$1() {
+  return readJsonFile(file$1(), { version: 1, accounts: {} });
+}
+function save$1(data) {
+  writeJsonFile(file$1(), data, 384);
+}
+function parseAccount(account) {
+  const m = ACCOUNT_RE.exec(account);
+  if (!m || !CREDENTIAL_TYPES[m[1]]) {
+    throw new CliError(
+      "invalid-account",
+      `Invalid account "${account}".`,
+      `Use <type>:<name> with type one of ${Object.keys(CREDENTIAL_TYPES).join(", ")} — e.g. github:my-login.`,
+      2
+    );
+  }
+  return { type: m[1], name: m[2] };
+}
+function setCredential(account, values) {
+  const { type } = parseAccount(account);
+  const missing = CREDENTIAL_TYPES[type].fields.filter((f) => !values[f]?.trim());
+  if (missing.length) throw new CliError("missing-fields", `Missing ${missing.join(", ")} for ${account}.`);
+  const data = load$1();
+  const entry = {
+    type,
+    values: Object.fromEntries(CREDENTIAL_TYPES[type].fields.map((f) => [f, values[f].trim()])),
+    updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+  };
+  data.accounts[account] = entry;
+  save$1(data);
+  return entry;
+}
+function removeCredential(account) {
+  const data = load$1();
+  if (!data.accounts[account]) return false;
+  delete data.accounts[account];
+  save$1(data);
+  return true;
+}
+function getCredential(account) {
+  parseAccount(account);
+  const path = file$1();
+  if (isWorldReadable(path)) chmodSync(path, 384);
+  return load$1().accounts[account] ?? null;
+}
+function requireCredential(account) {
+  const cred = getCredential(account);
+  if (!cred) {
+    const { type } = parseAccount(account);
+    throw new CliError(
+      "credential-missing",
+      `No stored credential for ${account}.`,
+      `Ask the user to run \`agentcms credentials set ${account}\` in their own terminal (input is hidden). ${CREDENTIAL_TYPES[type].howTo}`
+    );
+  }
+  return cred;
+}
+function listCredentials() {
+  return Object.entries(load$1().accounts).map(([account, c]) => ({
+    account,
+    type: c.type,
+    fields: Object.keys(c.values),
+    updatedAt: c.updatedAt
+  }));
+}
+const ALIAS_RE = /^[a-z0-9][a-z0-9-]{0,62}$/;
+function file() {
+  return homePath("sites.json");
+}
+function load() {
+  return readJsonFile(file(), { version: 1, default: null, sites: {} });
+}
+function save(data) {
+  writeJsonFile(file(), data);
+}
+function validateAlias(alias) {
+  if (!ALIAS_RE.test(alias)) {
+    throw new CliError("invalid-alias", `Invalid site alias "${alias}".`, "Lower-case letters, digits and dashes, e.g. my-blog.", 2);
+  }
+  return alias;
+}
+function listSites() {
+  const data = load();
+  return { default: data.default, sites: Object.values(data.sites).sort((a, b) => a.alias.localeCompare(b.alias)) };
+}
+function getSite(alias) {
+  return load().sites[alias] ?? null;
+}
+function putSite(site) {
+  const data = load();
+  data.sites[site.alias] = { ...site, updatedAt: (/* @__PURE__ */ new Date()).toISOString() };
+  save(data);
+}
+function removeSite(alias) {
+  const data = load();
+  if (!data.sites[alias]) return false;
+  delete data.sites[alias];
+  if (data.default === alias) data.default = null;
+  save(data);
+  return true;
+}
+function renameSite(from, to) {
+  validateAlias(to);
+  const data = load();
+  const site = data.sites[from];
+  if (!site) throw siteNotFound(from, data);
+  if (data.sites[to]) throw new CliError("site-exists", `A site named "${to}" already exists.`);
+  delete data.sites[from];
+  data.sites[to] = { ...site, alias: to, updatedAt: (/* @__PURE__ */ new Date()).toISOString() };
+  if (data.default === from) data.default = to;
+  save(data);
+}
+function setDefaultSite(alias) {
+  const data = load();
+  if (!data.sites[alias]) throw siteNotFound(alias, data);
+  data.default = alias;
+  save(data);
+}
+function findProjectSite(cwd = process.cwd()) {
+  let dir = resolve(cwd);
+  for (; ; ) {
+    const candidate = join(dir, "agentcms.json");
+    if (existsSync(candidate)) {
+      const alias = JSON.parse(readFileSync(candidate, "utf8")).site;
+      if (typeof alias === "string" && alias) return { alias, file: candidate };
+    }
+    const parent = dirname(dir);
+    if (parent === dir) return null;
+    dir = parent;
+  }
+}
+function siteNotFound(alias, data) {
+  const known = Object.keys(data.sites);
+  return new CliError(
+    "site-not-found",
+    `No site named "${alias}".`,
+    known.length ? `Known sites: ${known.join(", ")}.` : "No site registered yet — run `agentcms install` or `agentcms site add`."
+  );
+}
+function resolveSite(explicit) {
+  const data = load();
+  const chosen = explicit || findProjectSite()?.alias;
+  if (chosen) {
+    const site = data.sites[chosen];
+    if (!site) throw siteNotFound(chosen, data);
+    return site;
+  }
+  const all = Object.values(data.sites);
+  if (all.length === 1) return all[0];
+  if (all.length === 0) throw siteNotFound("(none)", data);
+  if (data.default && data.sites[data.default]) return data.sites[data.default];
+  throw new CliError(
+    "site-required",
+    `Several sites are registered: ${all.map((s) => s.alias).join(", ")}.`,
+    "Ask the user which one, then pass --site <alias>.",
+    2
+  );
+}
+function lockSite(alias) {
+  const dir = homePath("locks");
+  mkdirSync(dir, { recursive: true, mode: 448 });
+  const path = join(dir, `${alias}.lock`);
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const fd = openSync(path, "wx");
+      writeSync(fd, String(process.pid));
+      closeSync(fd);
+      return () => {
+        try {
+          unlinkSync(path);
+        } catch {
+        }
+      };
+    } catch (err) {
+      if (err.code !== "EEXIST") throw err;
+      const pid = Number(readFileSync(path, "utf8"));
+      if (pid && isAlive(pid)) {
+        throw new CliError("site-busy", `Another agentcms process (pid ${pid}) is working on "${alias}".`, "Wait for it to finish.");
+      }
+      unlinkSync(path);
+    }
+  }
+  throw new CliError("site-busy", `Could not lock "${alias}".`);
+}
+function isAlive(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (err) {
+    return err.code === "EPERM";
+  }
+}
+const credentialsCommand = {
+  name: "credentials",
+  summary: "Store, list or remove access tokens / keys per account (<type>:<name>). `set` reads the secret from --from-env, --from-gh, --from-aws-profile or a hidden prompt the USER types in.",
+  usage: "credentials <set|list|remove|types> [<type>:<name>] [--from-env VAR[,VAR]] [--from-gh] [--from-aws-profile <name>]",
+  options: [
+    { name: "from-env", type: "string", description: "Read the value(s) from these environment variables (comma-separated, in field order)." },
+    { name: "from-gh", type: "boolean", description: "github: take the token of the signed-in GitHub CLI (gh auth token)." },
+    { name: "from-aws-profile", type: "string", description: "s3: import the key pair of this aws CLI profile." }
+  ],
+  async run({ io, options, positionals }) {
+    const [action = "list", account] = positionals;
+    if (action === "types") {
+      printResult(
+        io,
+        CREDENTIAL_TYPES,
+        () => Object.entries(CREDENTIAL_TYPES).map(([type2, c]) => `${type2}: ${c.label} (${c.fields.join(", ")})
+  ${c.howTo}`).join("\n")
+      );
+      return;
+    }
+    if (action === "list") {
+      const { sites } = listSites();
+      const list = listCredentials().map((c) => ({
+        ...c,
+        usedBy: sites.filter((s) => s.credentials.data === c.account || s.credentials.hosting === c.account).map((s) => s.alias)
+      }));
+      printResult(
+        io,
+        list,
+        () => list.length ? list.map((c) => `${c.account}  (${c.fields.join(", ")})${c.usedBy.length ? `  used by ${c.usedBy.join(", ")}` : ""}`).join("\n") : "No stored credentials."
+      );
+      return;
+    }
+    if (!account) throw new CliError("usage", `credentials ${action} needs an account, e.g. github:my-login.`, void 0, 2);
+    const { type } = parseAccount(account);
+    if (action === "remove") {
+      const removed = removeCredential(account);
+      printResult(io, { account, removed }, () => removed ? `Removed ${account}.` : `${account} was not stored.`);
+      return;
+    }
+    if (action !== "set") throw new CliError("usage", `Unknown action "${action}".`, "Use set, list, remove or types.", 2);
+    const spec = CREDENTIAL_TYPES[type];
+    let values;
+    if (typeof options["from-env"] === "string") values = fromEnv(options["from-env"].split(",").map((s) => s.trim()), spec.fields);
+    else if (options["from-gh"]) {
+      if (type !== "github") throw new CliError("usage", "--from-gh only applies to github accounts.", void 0, 2);
+      values = fromGh();
+    } else if (typeof options["from-aws-profile"] === "string") {
+      if (type !== "s3") throw new CliError("usage", "--from-aws-profile only applies to s3 accounts.", void 0, 2);
+      values = fromAwsProfile(options["from-aws-profile"]);
+    } else {
+      io.err(`${spec.label} for ${account}. ${spec.howTo}`);
+      values = {};
+      for (const field of spec.fields) values[field] = await promptHidden(`${field}: `);
+    }
+    const saved = setCredential(account, values);
+    printResult(io, { account, type, fields: Object.keys(saved.values) }, () => `Stored ${account} (${Object.keys(saved.values).join(", ")}).`);
+  }
+};
+class MemoryStorage {
+  data = /* @__PURE__ */ new Map();
+  get length() {
+    return this.data.size;
+  }
+  key(index) {
+    return [...this.data.keys()][index] ?? null;
+  }
+  getItem(key) {
+    return this.data.get(key) ?? null;
+  }
+  setItem(key, value) {
+    this.data.set(key, String(value));
+  }
+  removeItem(key) {
+    this.data.delete(key);
+  }
+  clear() {
+    this.data.clear();
+  }
+}
+let installed = false;
+function installBrowserEnv() {
+  if (installed) return;
+  installed = true;
+  const g = globalThis;
+  for (const name of ["localStorage", "sessionStorage"]) {
+    Object.defineProperty(globalThis, name, { value: new MemoryStorage(), configurable: true, writable: true });
+  }
+  if (typeof g.window === "undefined") {
+    Object.defineProperty(globalThis, "window", { value: globalThis, configurable: true, writable: true });
+  }
+}
+function parse(v) {
+  const m = /^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?/.exec(v.trim());
+  if (!m) throw new Error(`Invalid version: ${v}`);
+  return [Number(m[1]), Number(m[2]), Number(m[3]), m[4] ?? ""];
+}
+function compareVersions(a, b) {
+  const pa = parse(a);
+  const pb = parse(b);
+  for (let i = 0; i < 3; i++) {
+    if (pa[i] !== pb[i]) return pa[i] < pb[i] ? -1 : 1;
+  }
+  if (pa[3] === pb[3]) return 0;
+  if (!pa[3]) return 1;
+  if (!pb[3]) return -1;
+  return pa[3] < pb[3] ? -1 : 1;
+}
+async function fetchText(url, fetchImpl = fetch) {
+  try {
+    const u = new URL(url);
+    u.searchParams.set("agentcms", String(Date.now()));
+    const res = await fetchImpl(u.href, { cache: "no-store", redirect: "follow", signal: AbortSignal.timeout(15e3) });
+    const text = await res.text();
+    return { ok: res.ok, status: res.status, contentType: res.headers.get("content-type") ?? "", text };
+  } catch (err) {
+    return { ok: false, status: 0, contentType: "", text: "", error: err.message };
+  }
+}
+function adminUrlOf(site) {
+  return site.adminFolder ? `${site.siteUrl.replace(/\/+$/, "")}/${site.adminFolder}/` : null;
+}
+function parseConfigJs(source) {
+  const m = /window\.__FLEXWEG_CONFIG__\s*=\s*([\s\S]*?);?\s*$/.exec(source.trim());
+  if (!m) throw new Error("config.js does not set window.__FLEXWEG_CONFIG__");
+  const value = JSON.parse(m[1].trim().replace(/;$/, ""));
+  return value && typeof value === "object" ? value : null;
+}
+function findSecretKeys(value, path = "") {
+  if (!value || typeof value !== "object") return [];
+  return Object.entries(value).flatMap(([k, v]) => {
+    const here = path ? `${path}.${k}` : k;
+    if (/^(token|apiKey|secretAccessKey|accessToken|password|sqliteToken)$/.test(k) && typeof v === "string" && v) {
+      if (k === "apiKey" && path === "firebase") return [];
+      return [here];
+    }
+    return findSecretKeys(v, here);
+  });
+}
+async function fetchHostedAdmin(adminUrl, fetchImpl = fetch) {
+  const res = await fetchText(`${adminUrl}admin-files.json`, fetchImpl);
+  if (!res.ok) return { version: null, dataSchema: null, files: [], error: res.error ?? `HTTP ${res.status}` };
+  try {
+    const m = JSON.parse(res.text);
+    return { version: m.version ?? null, dataSchema: m.dataSchema ?? null, files: m.files ?? [] };
+  } catch {
+    return { version: null, dataSchema: null, files: [], error: "admin-files.json is not valid JSON" };
+  }
+}
+function readChangelog() {
+  try {
+    const data = JSON.parse(readFileSync(join(distRoot(), "..", "changelog.json"), "utf8"));
+    return data.versions ?? [];
+  } catch {
+    return [];
+  }
+}
+function changesBetween(entries, from, to) {
+  const list = entries.filter((e) => compareVersions(e.version, from) > 0 && compareVersions(e.version, to) <= 0);
+  return {
+    versions: list.map((e) => e.version),
+    breaking: list.some((e) => e.breaking),
+    changes: list.flatMap((e) => e.changes.map((c) => `${e.version}: ${c}`)),
+    actions: [...new Set(list.flatMap((e) => e.actions))]
+  };
+}
+const deployAdminCommand = {
+  name: "deploy-admin",
+  summary: "Update a site's hosted admin (and optionally its theme assets) to this release. Prints the plan unless --yes is given; refuses downgrades below the stored data format.",
+  usage: "deploy-admin [--site <alias> | --all] [--theme-assets] [--yes] [--allow-downgrade]",
+  options: [
+    { name: "site", type: "string", description: "Site alias." },
+    { name: "all", type: "boolean", description: "Every registered site with a hosted admin (each listed separately)." },
+    { name: "theme-assets", type: "boolean", description: "Also upload theme CSS / loaders (changelog action sync-theme-assets)." },
+    { name: "yes", type: "boolean", description: "Apply — only after the user confirmed the plan." },
+    { name: "allow-downgrade", type: "boolean", description: "Allow installing an older admin than the hosted one." }
+  ],
+  async run({ io, options }) {
+    const info = readVersionInfo();
+    const sites = options.all ? listSites().sites.filter((s) => s.adminFolder) : [resolveSite(options.site)];
+    if (sites.length === 0) throw new CliError("no-sites", "No registered site has a hosted admin.");
+    installBrowserEnv();
+    const { adminOps, applyOps, hostingConnector, themeAssetOps } = await import("./chunks/hosting-WLUvaATj.mjs");
+    const { collectToasts, settleHosting } = await import("./chunks/install-Bfw2KxV3.mjs");
+    const plans = [];
+    for (const site of sites) {
+      const adminUrl = adminUrlOf(site);
+      if (!adminUrl) throw new CliError("not-hosted", `${site.alias} has no hosted admin.`);
+      if (!site.hosting.connectorId) throw new CliError("hosting-unknown", `The hosting of ${site.alias} is unknown.`, "Re-register it with `agentcms site add … --hosting-credential`.");
+      if (!site.credentials.hosting) throw new CliError("credential-required", `No hosting credential recorded for ${site.alias}.`, "Re-register the site with --hosting-credential.");
+      const hosted = await fetchHostedAdmin(adminUrl);
+      const plan = {
+        alias: site.alias,
+        adminUrl,
+        from: hosted.version,
+        to: info.version,
+        files: adminOps(site.adminFolder, site.runtime).ops.length + (options["theme-assets"] ? themeAssetOps().length : 0),
+        themeAssets: !!options["theme-assets"],
+        changes: hosted.version ? changesBetween(readChangelog(), hosted.version, info.version) : null
+      };
+      if (hosted.dataSchema !== null && hosted.dataSchema > info.dataSchema) {
+        plan.refused = `the hosted admin stores data format ${hosted.dataSchema}, this release only knows ${info.dataSchema} — update agentcms instead`;
+      } else if (hosted.version && compareVersions(hosted.version, info.version) > 0 && !options["allow-downgrade"]) {
+        plan.refused = `the hosted admin (${hosted.version}) is newer than this release — update agentcms, or pass --allow-downgrade`;
+      }
+      plans.push(plan);
+    }
+    if (!options.yes) {
+      printResult(
+        io,
+        { needsConfirmation: true, plans },
+        () => [
+          ...plans.map(
+            (p) => p.refused ? `${p.alias}: refused — ${p.refused}` : `${p.alias}: admin ${p.from ?? "(none)"} → ${p.to}, ${p.files} files${p.changes?.breaking ? " — BREAKING changes" : ""}`
+          ),
+          "Nothing was changed. Re-run with --yes once the user agrees."
+        ].join("\n")
+      );
+      return;
+    }
+    const results = [];
+    for (const [i, site] of sites.entries()) {
+      const plan = plans[i];
+      if (plan.refused) {
+        results.push({ alias: site.alias, deployed: false, reason: plan.refused });
+        continue;
+      }
+      const unlock = lockSite(site.alias);
+      const toasts = collectToasts();
+      try {
+        const cred = requireCredential(site.credentials.hosting);
+        const target = { connectorId: site.hosting.connectorId, settings: { ...site.hosting.settings, ...cred.values } };
+        const { ops } = adminOps(site.adminFolder, site.runtime);
+        if (options["theme-assets"]) ops.unshift(...themeAssetOps());
+        io.err(`• ${site.alias}: uploading ${ops.length} files…`);
+        await applyOps(hostingConnector(target), ops);
+        await settleHosting(target);
+        putSite({ ...site, adminVersion: info.version });
+        const pending = (plan.changes?.actions ?? []).filter((a) => a !== "deploy-admin" && !(a === "sync-theme-assets" && plan.themeAssets));
+        results.push({ alias: site.alias, deployed: true, from: plan.from, to: info.version, files: ops.length, pendingActions: pending, notices: toasts.notices });
+      } catch (err) {
+        results.push({ alias: site.alias, deployed: false, reason: err.message });
+      } finally {
+        toasts.stop();
+        unlock();
+      }
+    }
+    printResult(
+      io,
+      { results },
+      () => results.map((r) => r.deployed ? `${r.alias}: admin ${r.from ?? "(none)"} → ${r.to}` : `${r.alias}: not deployed — ${r.reason}`).join("\n")
+    );
+    if (results.some((r) => !r.deployed)) return 1;
+  }
+};
+async function runDoctor(site, opts = {}) {
+  const f = opts.fetchImpl ?? fetch;
+  const checks = [];
+  const add = (c) => checks.push(c);
+  const info = readVersionInfo();
+  const siteUrl = site.siteUrl.replace(/\/+$/, "");
+  add(
+    siteUrl.startsWith("https://") || /^http:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?(\/|$)/.test(siteUrl) ? { id: "https", status: "ok", message: siteUrl.startsWith("https://") ? "Site served over HTTPS." : "Local site (a secure context for browsers)." } : {
+      id: "https",
+      status: "warn",
+      message: `${siteUrl} is plain HTTP.`,
+      fix: "Use the host's HTTPS URL (S3: the bucket's https endpoint) — the admin can't sign requests on http pages."
+    }
+  );
+  const home = await fetchText(`${siteUrl}/`, f);
+  add(
+    home.ok ? { id: "site", status: "ok", message: `Home page reachable (${home.status}).` } : home.status === 404 ? { id: "site", status: "warn", message: "No home page yet (404).", fix: "Publish a post or run Regenerate → Everything in the admin." } : { id: "site", status: "fail", message: `Site not reachable: ${home.error ?? `HTTP ${home.status}`}.`, fix: "Check siteUrl, DNS, and that the host serves the bucket / repo (GitHub Pages enabled, S3 website hosting on)." }
+  );
+  const css = await fetchText(`${siteUrl}/theme-assets/default.css`, f);
+  add(
+    css.ok && css.contentType.includes("text/css") ? { id: "theme-assets", status: "ok", message: "Theme stylesheet served as text/css." } : {
+      id: "theme-assets",
+      status: "fail",
+      message: css.ok ? `theme-assets/default.css has type "${css.contentType}".` : `theme-assets/default.css missing (${css.error ?? css.status}).`,
+      fix: `\`agentcms deploy-admin --site ${site.alias} --theme-assets --yes\` (after confirming with the user), or Themes → Sync theme assets in the admin.`
+    }
+  );
+  const adminUrl = adminUrlOf(site);
+  if (!adminUrl) {
+    add({ id: "admin", status: "skip", message: "Admin not hosted on this site." });
+  } else {
+    const index = await fetchText(adminUrl, f);
+    if (!index.ok || !index.contentType.includes("text/html")) {
+      add({
+        id: "admin",
+        status: "fail",
+        message: `Admin page ${adminUrl} not served (${index.error ?? `HTTP ${index.status}`}${index.ok ? `, type ${index.contentType}` : ""}).`,
+        fix: `\`agentcms deploy-admin --site ${site.alias}\`; on GitHub Pages wait a minute after a commit.`
+      });
+    } else {
+      add({ id: "admin", status: "ok", message: `Admin page served at ${adminUrl}.` });
+      const hosted = await fetchHostedAdmin(adminUrl, f);
+      const refs = [...index.text.matchAll(/(?:src|href)="\.\/([^"?#]+)"/g)].map((m) => m[1]);
+      const missing = refs.filter((r) => r !== "config.js" && !hosted.files.includes(r));
+      const script = refs.find((r) => r.startsWith("assets/") && r.endsWith(".js"));
+      const bundle = script ? await fetchText(`${adminUrl}${script}`, f) : null;
+      if (!hosted.version || missing.length || bundle && (!bundle.ok || !/javascript/.test(bundle.contentType))) {
+        add({
+          id: "admin-files",
+          status: "fail",
+          message: !hosted.version ? "admin-files.json missing — the admin was copied by hand or is incomplete." : missing.length ? `index.html references files of another build: ${missing.join(", ")}.` : `Admin bundle ${script} ${bundle.ok ? `served as "${bundle.contentType}" (must be JavaScript)` : `missing (${bundle.status})`}.`,
+          fix: `\`agentcms deploy-admin --site ${site.alias}\` re-uploads a consistent build with the right content types.`
+        });
+      } else {
+        add({ id: "admin-files", status: "ok", message: `Admin ${hosted.version}: files consistent, bundle served as JavaScript.` });
+        add(
+          compareVersions(hosted.version, info.version) >= 0 ? { id: "admin-version", status: "ok", message: `Admin ${hosted.version} is up to date.` } : { id: "admin-version", status: "warn", message: `Admin ${hosted.version} is older than ${info.version}.`, fix: `Offer \`agentcms deploy-admin --site ${site.alias}\`.` }
+        );
+      }
+      const cfg = await fetchText(`${adminUrl}config.js`, f);
+      try {
+        if (!cfg.ok) throw new Error(cfg.error ?? `HTTP ${cfg.status}`);
+        const runtime = parseConfigJs(cfg.text);
+        const secrets = findSecretKeys(runtime);
+        if (secrets.length) {
+          add({ id: "config-js", status: "fail", message: `config.js publishes secrets: ${secrets.join(", ")}.`, fix: "Revoke those keys now, then redeploy the admin (config.js is regenerated without secrets)." });
+        } else if (!runtime || runtime.backend !== site.runtime.backend) {
+          add({ id: "config-js", status: "fail", message: `config.js backend is ${String(runtime?.backend ?? "empty")}, expected ${site.runtime.backend}.`, fix: `\`agentcms deploy-admin --site ${site.alias}\`.` });
+        } else {
+          add({ id: "config-js", status: "ok", message: `config.js: ${site.runtime.backend}, no secrets.` });
+        }
+      } catch (err) {
+        add({ id: "config-js", status: "fail", message: `config.js unreadable: ${err.message}.`, fix: `\`agentcms deploy-admin --site ${site.alias}\`.` });
+      }
+    }
+  }
+  for (const [role, account] of Object.entries(site.credentials)) {
+    if (!account) continue;
+    add(
+      getCredential(account) ? { id: `credential-${role}`, status: "ok", message: `${role} credential ${account} stored.` } : { id: `credential-${role}`, status: "warn", message: `${role} credential ${account} is not stored on this computer.`, fix: `Ask the user to run \`agentcms credentials set ${account}\`.` }
+    );
+  }
+  const s = site.hosting.settings;
+  const hostingCred = site.credentials.hosting ? getCredential(site.credentials.hosting) : null;
+  if (site.hosting.connectorId === "git-pages" && s.provider === "github" && (s.host ?? "github-pages") === "github-pages" && hostingCred) {
+    const api = String(s.apiBaseUrl || "https://api.github.com").replace(/\/+$/, "");
+    try {
+      const res = await f(`${api}/repos/${s.owner}/${s.repo}/pages`, {
+        headers: { Authorization: `Bearer ${hostingCred.values.token}`, Accept: "application/vnd.github+json" },
+        signal: AbortSignal.timeout(15e3)
+      });
+      if (res.ok) add({ id: "github-pages", status: "ok", message: `GitHub Pages enabled for ${s.owner}/${s.repo}.` });
+      else if (res.status === 404)
+        add({
+          id: "github-pages",
+          status: "fail",
+          message: `GitHub Pages is not enabled for ${s.owner}/${s.repo}.`,
+          fix: `https://github.com/${s.owner}/${s.repo}/settings/pages → Source: Deploy from a branch → ${String(s.branch ?? "main")} / root. (Free plans need a public repo.)`
+        });
+      else add({ id: "github-pages", status: "warn", message: `Could not read the Pages settings (HTTP ${res.status}) — the token may lack the Pages permission.` });
+    } catch (err) {
+      add({ id: "github-pages", status: "warn", message: `Could not reach the GitHub API: ${err.message}.` });
+    }
+  }
+  if (opts.deep) {
+    if (!hostingCred) {
+      add({ id: "hosting-access", status: "skip", message: "No hosting credential to test." });
+    } else {
+      installBrowserEnv();
+      const { testStorageConnection } = await import("./chunks/registry-C6BuhuyI.mjs").then((n) => n.A);
+      const res = await testStorageConnection(site.hosting.connectorId, { ...site.hosting.settings, ...hostingCred.values });
+      add(
+        res.ok ? { id: "hosting-access", status: "ok", message: `Hosting writable: ${res.detail}.` } : { id: "hosting-access", status: "fail", message: `Hosting access failed: ${res.detail}.`, fix: "Check the credential's permissions / expiry, then `agentcms credentials set` it again." }
+      );
+    }
+  }
+  return checks;
+}
+const doctorCommand = {
+  name: "doctor",
+  summary: "Health check of a site: HTTPS, home page, theme assets, hosted admin (consistent build, JavaScript content type, version), config.js without secrets, stored credentials, GitHub Pages. --deep also tests write access.",
+  usage: "doctor [--site <alias>] [--deep]",
+  options: [
+    { name: "site", type: "string", description: "Site alias." },
+    { name: "deep", type: "boolean", description: "Also test write access to the hosting (writes and deletes a probe file on file hosts)." }
+  ],
+  async run({ io, options }) {
+    const site = resolveSite(options.site);
+    const checks = await runDoctor(site, { deep: !!options.deep });
+    const failed = checks.filter((c) => c.status === "fail").length;
+    const warned = checks.filter((c) => c.status === "warn").length;
+    printResult(
+      io,
+      { site: site.alias, healthy: failed === 0, failed, warned, checks },
+      () => [
+        `${site.alias} — ${failed ? `${failed} problem(s)` : "healthy"}${warned ? `, ${warned} warning(s)` : ""}`,
+        ...checks.map((c) => `  [${c.status}] ${c.id}: ${c.message}${c.fix ? `
+         fix: ${c.fix}` : ""}`)
+      ].join("\n")
+    );
+    if (failed) return 1;
+  }
+};
+function readPlan(source) {
+  const text = source === "-" ? readFileSync(0, "utf8") : readFileSync(source, "utf8");
+  try {
+    return JSON.parse(text);
+  } catch (err) {
+    throw new CliError("invalid-plan", `The plan is not valid JSON: ${err.message}`, void 0, 2);
+  }
+}
+const SECRET_FIELDS = {
+  s3: "access key + secret key",
+  flexweg: "API key",
+  "php-bridge": "bridge key"
+};
+const installCommand = {
+  name: "install",
+  summary: "Install a site from a JSON plan (see `options`): checks access, creates the content store, saves the publish target, uploads theme assets and the admin, registers the site. --dry-run only checks.",
+  usage: "install --plan <file|-> [--dry-run] [--overwrite-target]",
+  options: [
+    { name: "plan", type: "string", description: "Plan file path, or - for stdin." },
+    { name: "dry-run", type: "boolean", description: "Validate the plan and test access without writing anything." },
+    { name: "overwrite-target", type: "boolean", description: "Replace the publish target already stored in existing content." }
+  ],
+  async run({ io, options }) {
+    if (typeof options.plan !== "string") throw new CliError("usage", "install needs --plan <file|->.", "Run `agentcms options` for the format.", 2);
+    installBrowserEnv();
+    const { resolvePlan } = await import("./chunks/plan-BkCcoZHp.mjs");
+    const plan = resolvePlan(readPlan(options.plan));
+    if (getSite(plan.alias)) {
+      throw new CliError("site-exists", `A site named "${plan.alias}" is already registered.`, "Use another alias, or `agentcms site forget` it first.");
+    }
+    const { checkPlan, runInstall } = await import("./chunks/install-Bfw2KxV3.mjs");
+    io.err("Checking access…");
+    const checks = await checkPlan(plan);
+    const stored = checks.data.storedTarget;
+    const conflict = !!stored && (stored.connectorId !== plan.target.connectorId || String(stored.settings.siteUrl ?? "").replace(/\/+$/, "") !== plan.siteUrl);
+    const summary = {
+      alias: plan.alias,
+      data: plan.backend,
+      hosting: plan.hostingType,
+      siteUrl: plan.siteUrl,
+      adminUrl: adminUrlOf({ siteUrl: plan.siteUrl, adminFolder: plan.adminFolder }),
+      credentials: plan.credentials,
+      checks
+    };
+    if (!checks.hosting.ok || !checks.data.ok) {
+      throw new CliError(
+        "check-failed",
+        [!checks.data.ok && `Data: ${checks.data.detail}`, !checks.hosting.ok && `Hosting: ${checks.hosting.detail}`].filter(Boolean).join(" — "),
+        "Fix the access (token permissions, repo / bucket names, URL) and retry."
+      );
+    }
+    if (conflict && !options["overwrite-target"]) {
+      throw new CliError(
+        "content-exists",
+        `This content is already set up to publish to ${stored.connectorId} (${String(stored.settings.siteUrl ?? "?")}).`,
+        "Ask the user: keep that site (register it with `agentcms site add`) or pass --overwrite-target to publish elsewhere."
+      );
+    }
+    if (options["dry-run"]) {
+      printResult(
+        io,
+        { ...summary, dryRun: true, existingContent: checks.data.existing },
+        () => `Plan OK for ${plan.alias}: ${plan.backend} → ${plan.hostingType} (${plan.siteUrl}). Nothing was written.`
+      );
+      return;
+    }
+    const unlock = lockSite(plan.alias);
+    try {
+      const outcome = await runInstall(plan, (label) => io.err(`• ${label}`));
+      const now = (/* @__PURE__ */ new Date()).toISOString();
+      putSite({
+        alias: plan.alias,
+        siteUrl: plan.siteUrl,
+        adminFolder: plan.adminFolder,
+        runtime: plan.runtime,
+        hosting: plan.publicTarget,
+        credentials: plan.credentials,
+        adminVersion: outcome.adminVersion ?? void 0,
+        installedAt: now,
+        updatedAt: now
+      });
+      const nextSteps = [];
+      if (summary.adminUrl) nextSteps.push(`Open the admin: ${summary.adminUrl}`);
+      else nextSteps.push("The admin was not copied to the hosting: run `agentcms serve` to use it locally.");
+      if (plan.backend === "markdown-git") {
+        nextSteps.push("Each browser asks once for the editor's own git token (Contents read/write on the content repository).");
+      } else {
+        nextSteps.push("Each new browser asks once for the hosting keys (they stay in that browser). No login: protect the admin folder at the hosting level.");
+      }
+      if (plan.backend === "markdown-git" && SECRET_FIELDS[plan.target.connectorId]) {
+        nextSteps.push(`Publishing from a browser needs the hosting ${SECRET_FIELDS[plan.target.connectorId]} once: admin → Settings → Publish target.`);
+      }
+      if (plan.target.connectorId === "git-pages") nextSteps.push("Pages hosts take about a minute to serve new commits.");
+      nextSteps.push(`Check everything with \`agentcms doctor --site ${plan.alias}\`.`);
+      printResult(
+        io,
+        { ...summary, installed: true, files: outcome.files, adminVersion: outcome.adminVersion, notices: outcome.notices, nextSteps },
+        () => [`Installed ${plan.alias}.`, ...outcome.notices.map((n) => `${n.level}: ${n.message}`), ...nextSteps.map((s) => `- ${s}`)].join("\n")
+      );
+    } finally {
+      unlock();
+    }
+  }
+};
+const DATA_BACKENDS = [
+  {
+    id: "sqlite-file",
+    summary: "One SQLite file stored on the site's own hosting.",
+    goodFor: "One owner, simplest setup, no other account.",
+    cli: true,
+    fields: [{ key: "path", required: true, description: "File path on the hosting.", example: "data/site.sqlite" }],
+    credentialTypes: [],
+    notes: [
+      "No login screen: protecting /admin is the owner's job (host-level password, obscure folder name).",
+      "Uses the hosting's credential; not available with the ZIP / local folder targets."
+    ]
+  },
+  {
+    id: "markdown-git",
+    summary: "Posts as Markdown files in a GitHub or GitLab repository; every change is a commit.",
+    goodFor: "Several editors or computers, full history.",
+    cli: true,
+    fields: [
+      { key: "git.provider", required: true, description: "github | gitlab", example: "github" },
+      { key: "git.owner", required: false, description: "GitHub user or organisation (github).", example: "my-login" },
+      { key: "git.repo", required: false, description: "GitHub repository name (github).", example: "my-site-content" },
+      { key: "git.project", required: false, description: "GitLab project path (gitlab).", example: "group/my-site-content" },
+      { key: "git.branch", required: false, description: "Branch.", default: "main" },
+      { key: "git.contentDir", required: false, description: 'Folder inside the repo ("" = root).', default: "" },
+      { key: "git.apiBaseUrl", required: false, description: "Self-hosted GitHub Enterprise / GitLab API URL." }
+    ],
+    credentialTypes: ["github", "gitlab"],
+    notes: ["Each editor signs in to the admin with their own token; repository permission = role."]
+  },
+  {
+    id: "firebase",
+    summary: "Firestore + Firebase Auth.",
+    goodFor: "Real-time multi-editor with email/password logins.",
+    cli: false,
+    fields: [],
+    credentialTypes: [],
+    notes: ["Not scriptable yet: run `agentcms serve` and use the setup wizard."]
+  },
+  {
+    id: "local",
+    summary: "Data kept in one browser (IndexedDB).",
+    goodFor: "Trying it out on one computer.",
+    cli: false,
+    fields: [],
+    credentialTypes: [],
+    notes: ["Browser-only by nature: run `agentcms serve` and use the setup wizard."]
+  }
+];
+const SITE_URL = {
+  key: "siteUrl",
+  required: true,
+  description: "Public URL the site is served at.",
+  example: "https://my-login.github.io/my-site"
+};
+const gitFields = (provider) => [
+  ...provider === "github" ? [
+    { key: "owner", required: true, description: "GitHub user or organisation.", example: "my-login" },
+    { key: "repo", required: true, description: "Repository holding the published site.", example: "my-site" }
+  ] : [{ key: "project", required: true, description: "GitLab project path.", example: "group/my-site" }],
+  { key: "branch", required: false, description: "Branch the host publishes.", default: "main" },
+  { key: "dir", required: false, description: "Repo folder holding the site.", default: provider === "gitlab" ? "public" : "" },
+  { key: "apiBaseUrl", required: false, description: "Self-hosted API URL." },
+  SITE_URL
+];
+const HOSTINGS = [
+  {
+    id: "github-pages",
+    connectorId: "git-pages",
+    summary: "GitHub Pages — free hosting from a GitHub repository.",
+    cli: true,
+    fields: gitFields("github"),
+    credentialTypes: ["github"],
+    notes: [
+      "siteUrl is https://<owner>.github.io/<repo> (or https://<owner>.github.io for a <owner>.github.io repo).",
+      "GitHub Pages is enabled automatically when the token has the Pages permission; otherwise Settings → Pages → Deploy from a branch → main / root.",
+      "Free plans need a public repository for Pages."
+    ]
+  },
+  {
+    id: "cloudflare-pages",
+    connectorId: "git-pages",
+    summary: "Cloudflare Pages connected to a GitHub repository.",
+    cli: true,
+    fields: gitFields("github"),
+    credentialTypes: ["github"],
+    notes: ["Connect the repo once in the Cloudflare dashboard (Workers & Pages → Create → Pages → Connect to Git), no build command, output directory = repo root."]
+  },
+  {
+    id: "gitlab-pages",
+    connectorId: "git-pages",
+    summary: "GitLab Pages.",
+    cli: true,
+    fields: gitFields("gitlab"),
+    credentialTypes: ["gitlab"],
+    notes: ["A minimal .gitlab-ci.yml is committed with the first publish."]
+  },
+  {
+    id: "git-other",
+    connectorId: "git-pages",
+    summary: "Any host that deploys a GitHub repository (Netlify, Vercel…).",
+    cli: true,
+    fields: gitFields("github"),
+    credentialTypes: ["github"],
+    notes: []
+  },
+  {
+    id: "s3",
+    connectorId: "s3",
+    summary: "S3-compatible bucket (AWS, OVHcloud, Scaleway, Cloudflare R2, MinIO…).",
+    cli: true,
+    fields: [
+      { key: "endpoint", required: false, description: "S3 API endpoint (empty = AWS).", example: "https://s3.eu-west-par.io.cloud.ovh.net" },
+      { key: "region", required: true, description: "Region.", example: "eu-west-par" },
+      { key: "bucket", required: true, description: "Bucket name.", example: "my-site" },
+      { key: "prefix", required: false, description: "Key prefix inside the bucket.", default: "" },
+      { key: "publicRead", required: false, description: "Send the public-read ACL (OVHcloud / Scaleway buckets without a bucket policy).", default: false },
+      { key: "forcePathStyle", required: false, description: "Path-style URLs (default: off on AWS, on elsewhere)." },
+      SITE_URL
+    ],
+    credentialTypes: ["s3"],
+    notes: [
+      "The bucket needs CORS allowing GET/PUT/DELETE/HEAD from the admin's origin(s) and static website hosting with index.html.",
+      "Host the admin on the bucket's HTTPS endpoint — signing requests needs a secure context."
+    ]
+  },
+  {
+    id: "flexweg",
+    connectorId: "flexweg",
+    summary: "Flexweg static hosting.",
+    cli: true,
+    fields: [SITE_URL, { key: "apiBaseUrl", required: false, description: "Flexweg API URL.", default: "https://www.flexweg.com/api/v1" }],
+    credentialTypes: ["flexweg"],
+    notes: []
+  },
+  {
+    id: "own-server",
+    connectorId: "php-bridge",
+    summary: "Your own PHP server, through the bridge script in external/bridges/php/.",
+    cli: true,
+    fields: [
+      { key: "apiBaseUrl", required: true, description: "URL of flexweg-bridge.php.", example: "https://example.com/cms-bridge/flexweg-bridge.php" },
+      SITE_URL
+    ],
+    credentialTypes: ["php-bridge"],
+    notes: []
+  },
+  {
+    id: "local-folder",
+    connectorId: "local-folder",
+    summary: "A folder on this computer (browser File System Access).",
+    cli: false,
+    fields: [],
+    credentialTypes: [],
+    notes: ["Browser-only: use `agentcms serve` and the setup wizard."]
+  },
+  {
+    id: "zip",
+    connectorId: "browser-mirror",
+    summary: "ZIP download to upload by hand.",
+    cli: false,
+    fields: [],
+    credentialTypes: [],
+    notes: ["Browser-only: use `agentcms serve` and the setup wizard."]
+  }
+];
+function findHosting(id) {
+  return HOSTINGS.find((h) => h.id === id);
+}
+function findDataBackend(id) {
+  return DATA_BACKENDS.find((d) => d.id === id);
+}
+const PLAN_EXAMPLE = {
+  alias: "my-blog",
+  data: { backend: "markdown-git", git: { provider: "github", owner: "my-login", repo: "my-blog-content", branch: "main" }, credential: "github:my-login" },
+  hosting: { type: "github-pages", settings: { owner: "my-login", repo: "my-blog", siteUrl: "https://my-login.github.io/my-blog" } },
+  admin: { folder: "admin" }
+};
+const optionsCommand = {
+  name: "options",
+  summary: "List data backends, hostings, credential types and the install plan format — ask the user about data first, then hosting.",
+  usage: "options",
+  options: [],
+  async run({ io }) {
+    const data = {
+      order: ["data", "hosting"],
+      dataBackends: DATA_BACKENDS,
+      hostings: HOSTINGS,
+      credentialTypes: CREDENTIAL_TYPES,
+      planExample: PLAN_EXAMPLE,
+      planNotes: [
+        "Secrets never go in the plan: store them first with `agentcms credentials set <type>:<name>` and reference the account id.",
+        "hosting.credential may be omitted for git hostings on the same provider as markdown-git content (the content token is reused).",
+        "admin: false skips copying the admin onto the hosting.",
+        "Entries with cli: false need the setup wizard: `agentcms serve`."
+      ]
+    };
+    printResult(
+      io,
+      data,
+      () => [
+        "1. Where is the content stored?",
+        ...DATA_BACKENDS.map((d) => `   ${d.id.padEnd(14)} ${d.summary}${d.cli ? "" : "  (wizard only)"}`),
+        "",
+        "2. Where is the site hosted?",
+        ...HOSTINGS.map((h) => `   ${h.id.padEnd(17)} ${h.summary}${h.cli ? "" : "  (wizard only)"}`),
+        "",
+        "Plan example (agentcms install --plan plan.json):",
+        JSON.stringify(PLAN_EXAMPLE, null, 2)
+      ].join("\n")
+    );
+  }
+};
 const MIME = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
@@ -74,9 +1126,9 @@ function resolveRequestPath(root, url) {
     return null;
   }
   if (pathname.endsWith("/")) pathname += "index.html";
-  const file = normalize(join(root, pathname));
-  if (file !== root && !file.startsWith(root.endsWith(sep) ? root : root + sep)) return null;
-  return file;
+  const file2 = normalize(join(root, pathname));
+  if (file2 !== root && !file2.startsWith(root.endsWith(sep) ? root : root + sep)) return null;
+  return file2;
 }
 function startAdminServer(root, host, port) {
   const server = createServer((req, res) => {
@@ -84,19 +1136,19 @@ function startAdminServer(root, host, port) {
       res.writeHead(405).end();
       return;
     }
-    const file = resolveRequestPath(root, req.url ?? "/");
-    if (!file || !existsSync(file) || !statSync(file).isFile()) {
+    const file2 = resolveRequestPath(root, req.url ?? "/");
+    if (!file2 || !existsSync(file2) || !statSync(file2).isFile()) {
       res.writeHead(404, { "content-type": "text/plain; charset=utf-8" }).end("Not found");
       return;
     }
-    const rel = "/" + file.slice(root.length).split(sep).filter(Boolean).join("/");
+    const rel = "/" + file2.slice(root.length).split(sep).filter(Boolean).join("/");
     res.writeHead(200, {
-      "content-type": MIME[extname(file).toLowerCase()] ?? "application/octet-stream",
+      "content-type": MIME[extname(file2).toLowerCase()] ?? "application/octet-stream",
       "cache-control": NO_CACHE.has(rel) ? "no-store" : "no-cache",
       "x-content-type-options": "nosniff"
     });
     if (req.method === "HEAD") res.end();
-    else createReadStream(file).pipe(res);
+    else createReadStream(file2).pipe(res);
   });
   return new Promise((resolve2, reject) => {
     server.once("error", reject);
@@ -143,22 +1195,84 @@ Press Ctrl+C to stop.`);
     });
   }
 };
-function parse(v) {
-  const m = /^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?/.exec(v.trim());
-  if (!m) throw new Error(`Invalid version: ${v}`);
-  return [Number(m[1]), Number(m[2]), Number(m[3]), m[4] ?? ""];
-}
-function compareVersions(a, b) {
-  const pa = parse(a);
-  const pb = parse(b);
-  for (let i = 0; i < 3; i++) {
-    if (pa[i] !== pb[i]) return pa[i] < pb[i] ? -1 : 1;
+const siteCommand = {
+  name: "site",
+  summary: "Manage the registry of sites this computer drives: list, show, use <alias> (default), rename <from> <to>, forget <alias> (local only — nothing is deleted online), add <alias> --admin-url <url> (register an existing site).",
+  usage: "site <list|show|use|rename|forget|add> [args] [--site <alias>] [--admin-url <url>] [--site-url <url>] [--data-credential <account>] [--hosting-credential <account>]",
+  options: [
+    { name: "site", type: "string", description: "Site alias (show)." },
+    { name: "admin-url", type: "string", description: "add: URL of the hosted admin, e.g. https://example.com/admin/." },
+    { name: "site-url", type: "string", description: "add: public site URL when it isn't the admin's parent folder." },
+    { name: "data-credential", type: "string", description: "add: account of the content repo token (Markdown in git)." },
+    { name: "hosting-credential", type: "string", description: "add: account used to write to the hosting." }
+  ],
+  async run({ io, options, positionals }) {
+    const [action = "list", a, b] = positionals;
+    switch (action) {
+      case "list": {
+        const { default: def, sites } = listSites();
+        const rows = sites.map((s) => ({
+          alias: s.alias,
+          default: s.alias === def,
+          siteUrl: s.siteUrl,
+          adminUrl: adminUrlOf(s),
+          backend: s.runtime.backend,
+          hosting: s.hosting.connectorId || null,
+          adminVersion: s.adminVersion ?? null
+        }));
+        printResult(
+          io,
+          { default: def, sites: rows },
+          () => rows.length ? rows.map((r) => `${r.default ? "*" : " "} ${r.alias.padEnd(20)} ${r.siteUrl}  [${r.backend} → ${r.hosting ?? "?"}]`).join("\n") : "No site registered. Install one with `agentcms install` or register one with `agentcms site add`."
+        );
+        return;
+      }
+      case "show": {
+        const site = resolveSite(a ?? options.site);
+        printResult(io, { ...site, adminUrl: adminUrlOf(site) }, () => JSON.stringify(site, null, 2));
+        return;
+      }
+      case "use": {
+        if (!a) throw new CliError("usage", "site use needs an alias.", void 0, 2);
+        setDefaultSite(a);
+        printResult(io, { default: a }, () => `Default site: ${a}`);
+        return;
+      }
+      case "rename": {
+        if (!a || !b) throw new CliError("usage", "site rename needs <from> <to>.", void 0, 2);
+        renameSite(a, b);
+        printResult(io, { from: a, to: b }, () => `Renamed ${a} → ${b}`);
+        return;
+      }
+      case "forget": {
+        if (!a) throw new CliError("usage", "site forget needs an alias.", void 0, 2);
+        const removed = removeSite(a);
+        printResult(io, { alias: a, removed }, () => removed ? `Forgot ${a} (nothing was deleted online).` : `${a} was not registered.`);
+        return;
+      }
+      case "add": {
+        if (!a) throw new CliError("usage", "site add needs an alias.", void 0, 2);
+        validateAlias(a);
+        if (getSite(a)) throw new CliError("site-exists", `A site named "${a}" already exists.`, "Pick another alias or `site forget` it first.");
+        if (typeof options["admin-url"] !== "string") throw new CliError("usage", "site add needs --admin-url.", void 0, 2);
+        installBrowserEnv();
+        const { siteFromAdminUrl } = await import("./chunks/siteAdd-C6aAf3Hs.mjs");
+        const site = await siteFromAdminUrl({
+          alias: a,
+          adminUrl: options["admin-url"],
+          siteUrl: options["site-url"],
+          dataCredential: options["data-credential"],
+          hostingCredential: options["hosting-credential"]
+        });
+        putSite(site);
+        printResult(io, site, () => `Registered ${a}: ${site.siteUrl} [${site.runtime.backend} → ${site.hosting.connectorId || "unknown hosting"}]`);
+        return;
+      }
+      default:
+        throw new CliError("usage", `Unknown action "${action}".`, "Use list, show, use, rename, forget or add.", 2);
+    }
   }
-  if (pa[3] === pb[3]) return 0;
-  if (!pa[3]) return 1;
-  if (!pb[3]) return -1;
-  return pa[3] < pb[3] ? -1 : 1;
-}
+};
 const REGISTRY_URL = "https://registry.npmjs.org/agentcms/latest";
 async function fetchLatestVersion(fetchImpl = fetch) {
   try {
@@ -192,6 +1306,63 @@ const versionCommand = {
       }
       return lines.join("\n");
     });
+  }
+};
+async function siteStatus(site, version, dataSchema) {
+  const adminUrl = adminUrlOf(site);
+  const base = { alias: site.alias, siteUrl: site.siteUrl, adminUrl };
+  if (!adminUrl) return { ...base, adminVersion: null, state: "not-hosted" };
+  const hosted = await fetchHostedAdmin(adminUrl);
+  if (!hosted.version) return { ...base, adminVersion: null, state: "unreachable", error: hosted.error };
+  if (hosted.version !== site.adminVersion) putSite({ ...site, adminVersion: hosted.version });
+  const cmp = compareVersions(hosted.version, version);
+  if (cmp === 0) return { ...base, adminVersion: hosted.version, state: "current" };
+  if (cmp > 0) return { ...base, adminVersion: hosted.version, state: "newer" };
+  return {
+    ...base,
+    adminVersion: hosted.version,
+    state: "update",
+    update: changesBetween(readChangelog(), hosted.version, version),
+    blockedByDataSchema: hosted.dataSchema !== null && hosted.dataSchema > dataSchema
+  };
+}
+const statusCommand = {
+  name: "status",
+  summary: "Versions overview — run it first. Compares this tool and its skills with the latest release, and every registered site's hosted admin with this release (what changed, what to run).",
+  usage: "status [--site <alias>]",
+  options: [{ name: "site", type: "string", description: "Only this site (default: every registered site)." }],
+  async run({ io, options }) {
+    const info = readVersionInfo();
+    const sites = typeof options.site === "string" ? [resolveSite(options.site)] : listSites().sites;
+    const [latest, statuses] = await Promise.all([
+      fetchLatestVersion(),
+      Promise.all(sites.map((s) => siteStatus(s, info.version, info.dataSchema)))
+    ]);
+    const toolUpdate = latest && compareVersions(latest, info.version) > 0 ? changesBetween(readChangelog(), info.version, latest) : null;
+    const data = {
+      tool: { version: info.version, latest, updateAvailable: latest ? compareVersions(latest, info.version) > 0 : null },
+      // Release notes of the newer tool are only known once it's installed;
+      // `changes` is filled when this package already ships them.
+      toolUpdate,
+      sites: statuses,
+      advice: [
+        ...latest && compareVersions(latest, info.version) > 0 ? [`agentcms ${latest} is available (this is ${info.version}): offer to update the skills first (Claude Code: /plugin marketplace update agentcms, then /reload-plugins).`] : [],
+        ...statuses.filter((s) => s.state === "update").map(
+          (s) => s.blockedByDataSchema ? `${s.alias}: hosted admin ${s.adminVersion} stores data in a newer format than this tool — update the tool, never downgrade.` : `${s.alias}: admin ${s.adminVersion} → ${info.version} available${s.update?.breaking ? " (BREAKING — read the changes)" : ""}: offer \`agentcms deploy-admin --site ${s.alias}\`.`
+        ),
+        ...statuses.filter((s) => s.state === "newer").map((s) => `${s.alias}: hosted admin ${s.adminVersion} is newer than this tool — update the tool before deploying.`),
+        ...statuses.filter((s) => s.state === "unreachable").map((s) => `${s.alias}: admin not reachable (${s.error}) — run \`agentcms doctor --site ${s.alias}\`.`)
+      ]
+    };
+    printResult(
+      io,
+      data,
+      () => [
+        `agentcms ${info.version}${data.tool.updateAvailable ? ` — ${latest} available` : latest ? " (latest)" : ""}`,
+        ...statuses.map((s) => `  ${s.alias.padEnd(20)} admin ${s.adminVersion ?? "-"}  ${s.state}${s.error ? ` (${s.error})` : ""}`),
+        ...data.advice.length ? ["", ...data.advice.map((a) => `- ${a}`)] : []
+      ].join("\n")
+    );
   }
 };
 const helpCommand = {
@@ -232,7 +1403,18 @@ const helpCommand = {
 const GLOBAL_OPTIONS = [
   { name: "json", type: "boolean", description: "Print one JSON object on stdout: { ok, data } or { ok: false, error }." }
 ];
-const COMMANDS = [helpCommand, versionCommand, serveCommand];
+const COMMANDS = [
+  helpCommand,
+  versionCommand,
+  statusCommand,
+  optionsCommand,
+  credentialsCommand,
+  siteCommand,
+  installCommand,
+  deployAdminCommand,
+  doctorCommand,
+  serveCommand
+];
 function findCommand(name) {
   return COMMANDS.find((c) => c.name === name);
 }
@@ -286,3 +1468,15 @@ if (major < 20) {
 main(process.argv.slice(2)).then((code) => {
   process.exitCode = code;
 });
+export {
+  CliError as C,
+  findDataBackend as a,
+  fetchText as b,
+  parseConfigJs as c,
+  distRoot as d,
+  fetchHostedAdmin as e,
+  findHosting as f,
+  parseAccount as p,
+  requireCredential as r,
+  validateAlias as v
+};

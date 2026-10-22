@@ -24,9 +24,11 @@ function walk(dir, out) {
 }
 
 const files = walk(adminDir, []).filter((f) => !SKIP.has(f)).sort();
-const { version } = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
+const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
+// version + dataSchema let agents tell what a hosted admin runs (and
+// refuse a downgrade below the stored data format).
 writeFileSync(
   join(adminDir, MANIFEST),
-  JSON.stringify({ version, files }, null, 2) + "\n",
+  JSON.stringify({ version: pkg.version, dataSchema: pkg.agentcms.dataSchema, files }, null, 2) + "\n",
 );
 console.log(`[admin-manifest] ${files.length} files listed in dist/admin/${MANIFEST}`);

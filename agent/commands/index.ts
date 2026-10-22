@@ -1,6 +1,13 @@
 import { printResult } from "../output";
 import { readVersionInfo } from "../paths";
+import { credentialsCommand } from "./credentials";
+import { deployAdminCommand } from "./deployAdmin";
+import { doctorCommand } from "./doctor";
+import { installCommand } from "./install";
+import { optionsCommand } from "./options";
 import { serveCommand } from "./serve";
+import { siteCommand } from "./site";
+import { statusCommand } from "./status";
 import type { Command } from "./types";
 import { versionCommand } from "./version";
 
@@ -46,7 +53,18 @@ export const GLOBAL_OPTIONS = [
   { name: "json", type: "boolean" as const, description: "Print one JSON object on stdout: { ok, data } or { ok: false, error }." },
 ];
 
-export const COMMANDS: Command[] = [helpCommand, versionCommand, serveCommand];
+export const COMMANDS: Command[] = [
+  helpCommand,
+  versionCommand,
+  statusCommand,
+  optionsCommand,
+  credentialsCommand,
+  siteCommand,
+  installCommand,
+  deployAdminCommand,
+  doctorCommand,
+  serveCommand,
+];
 
 export function findCommand(name: string): Command | undefined {
   return COMMANDS.find((c) => c.name === name);

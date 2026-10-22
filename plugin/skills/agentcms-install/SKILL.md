@@ -1,6 +1,6 @@
 ---
 name: agentcms-install
-description: Install a new AgentCMS site (static CMS) for the user - pick where content is stored (SQLite file, Markdown in GitHub/GitLab, Firebase, this browser), then where the site is hosted (GitHub/GitLab/Cloudflare Pages, S3/OVH bucket, Flexweg, own server, local folder, ZIP), and get the admin running. Use when the user wants to create, set up or install an AgentCMS / Flexweg CMS site.
+description: Install a new AgentCMS site (static CMS) for the user - ask where content is stored (SQLite file, Markdown in GitHub/GitLab, Firebase, this browser), then where the site is hosted (GitHub/GitLab/Cloudflare Pages, S3 or OVH bucket, Flexweg, own PHP server), help create or import the needed tokens and keys, and install everything with the agentcms CLI. Use when the user wants to create, set up or install an AgentCMS / Flexweg CMS site.
 license: PolyForm-Noncommercial-1.0.0
 metadata:
   version: "0.1.0"
@@ -9,54 +9,100 @@ metadata:
 
 # Install an AgentCMS site
 
-AgentCMS is a static CMS: an admin web app (React, runs in the browser) stores content in a **data backend** and publishes plain HTML to a **hosting** target. Nothing runs on the server. This skill takes the user from nothing to a working admin.
+AgentCMS is a static CMS: an admin web app (runs in the browser) keeps content in a **data backend** and publishes plain HTML to a **hosting** target. Nothing runs on the server. The `agentcms` CLI installs a site end to end and keeps a registry of every site this computer manages.
 
 **Language:** talk to the user in their language. Keep commands, file contents and these instructions in English.
 
-## Step 0 - Check versions (always first)
+Every command below is `npx -y agentcms@0.1.0 <command> --json` (Node.js 20+). Output is one JSON object: `{"ok":true,"data":...}` or `{"ok":false,"error":{"code","message","hint"}}` - when `ok` is false, read `hint` and act on it. If npx can't fetch the package (404 / offline), clone `https://github.com/fleox/agentcms` and use `node agentcms/dist/agent/agentcms.mjs` the same way.
 
-Run:
+## Step 0 - Versions and existing sites
 
 ```bash
-npx -y agentcms@0.1.0 version --check --json
+npx -y agentcms@0.1.0 status --json
 ```
 
-- `data.updateAvailable: true` -> tell the user a newer AgentCMS exists (`data.latest`) and offer to update these skills first: in Claude Code run `/plugin marketplace update agentcms` then `/reload-plugins`. Continue with the current version if they decline.
-- The command fails with a 404 / network error -> the package isn't reachable. Fall back to a clone: `git clone --depth 1 https://github.com/fleox/agentcms` and use `node agentcms/dist/agent/agentcms.mjs` in place of `npx -y agentcms@0.1.0` below.
+- `data.tool.updateAvailable: true` -> a newer AgentCMS exists. Offer to update these skills first (Claude Code: `/plugin marketplace update agentcms`, then `/reload-plugins`), then continue.
+- `data.sites` lists sites already registered on this computer. If the user actually wants to change one of them, switch to the `agentcms-manage` skill.
 
 ## Step 1 - Ask where the content is stored
 
-Ask this first, hosting comes after. Explain each option in one sentence:
+Ask this first; hosting comes after. Run `npx -y agentcms@0.1.0 options --json` and present `data.dataBackends` in one sentence each:
 
-| Choice | Good for | Needs |
-|---|---|---|
-| **SQLite file** on the hosting | One owner, simplest, no account anywhere else | Nothing extra. No login: protecting `/admin` is the owner's job (host-level password, obscure folder) |
-| **Markdown in a Git repo** (GitHub / GitLab) | Several editors / computers, history of every change | A repo + a personal access token per editor |
-| **Firebase** (Firestore + Auth) | Real-time multi-editor with real logins | A Firebase project (free tier is fine) |
-| **This browser** | Trying it out, single user on one computer | Nothing; data stays in this browser only |
+- **SQLite file** on the hosting - one owner, simplest, no other account. No login screen: protecting `/admin` is the owner's job.
+- **Markdown in a Git repo** (GitHub / GitLab) - several editors or computers, full history; each editor uses their own token.
+- **Firebase** - real-time, email/password logins. Wizard only (see "Wizard fallback").
+- **This browser** - quick try on one computer. Wizard only.
 
 ## Step 2 - Ask where the site is hosted
 
-Offer only targets that fit the data choice (no ZIP with SQLite): GitHub Pages, GitLab Pages, Cloudflare Pages, Netlify / other git host, S3-compatible bucket (AWS, OVH, R2...), Flexweg, own server (PHP bridge), local folder, ZIP download. Pre-select the obvious one (Markdown on GitHub -> GitHub Pages).
+Present the entries of `data.hostings` with `cli: true` that fit the data choice. Pre-select the obvious one (Markdown on GitHub -> GitHub Pages). Then open the matching guide and follow it - it says what to create, what the user must click, and what you can automate with tools already installed (`gh`, `aws`, `glab`, `wrangler`):
 
-## Step 3 - Run the setup wizard
+| Hosting | Guide |
+|---|---|
+| GitHub Pages / Cloudflare Pages / other git host | [references/github.md](references/github.md) (+ [references/cloudflare.md](references/cloudflare.md)) |
+| GitLab Pages | [references/gitlab.md](references/gitlab.md) |
+| S3-compatible bucket (AWS, OVHcloud, Scaleway, R2...) | [references/s3.md](references/s3.md) |
+| Flexweg | [references/flexweg.md](references/flexweg.md) |
+| Own PHP server | [references/own-server.md](references/own-server.md) |
 
-Start the admin on this computer **in the background** (it keeps running):
+Markdown content on GitHub/GitLab also needs the content repository: [references/github.md](references/github.md) / [references/gitlab.md](references/gitlab.md).
+
+## Step 3 - Credentials (never through the chat)
+
+Secrets are stored per **account** (`github:<login>`, `s3:<name>`, `flexweg:<name>`, `php-bridge:<name>`, `gitlab:<name>`), not per site - check `npx -y agentcms@0.1.0 credentials list --json` first and reuse an account that is already there.
+
+To add one, use the first option that applies:
+
+1. Import from a tool the user is signed in to: `npx -y agentcms@0.1.0 credentials set github:<login> --from-gh --json`, `npx -y agentcms@0.1.0 credentials set s3:<name> --from-aws-profile <profile> --json`.
+2. Otherwise ask the user to run it **themselves** - in Claude Code they type `! npx -y agentcms@0.1.0 credentials set <account>` - and type the secret at the hidden prompt.
+3. Or an environment variable the user set: `--from-env VAR` (`--from-env KEY_ID,SECRET` for S3).
+
+Rules: never ask for a token, password or secret key in the chat; never print one; never put one in a plan file, `config.js`, a repo or a commit. When you create a key with a CLI, send it straight into `credentials set` (environment variable or pipe), or copy it to the clipboard (`pbcopy` / `xclip` / `clip`) - never display it.
+
+## Step 4 - Write the plan, dry-run it
+
+Write `agentcms-plan.json` (no secrets - only account ids), following `data.planExample` from `options`:
+
+```json
+{
+  "alias": "my-blog",
+  "data": { "backend": "markdown-git", "git": { "provider": "github", "owner": "my-login", "repo": "my-blog-content", "branch": "main" }, "credential": "github:my-login" },
+  "hosting": { "type": "github-pages", "settings": { "owner": "my-login", "repo": "my-blog", "siteUrl": "https://my-login.github.io/my-blog" } },
+  "admin": { "folder": "admin" }
+}
+```
+
+- `alias`: short name for this site (lower-case, dashes). Ask the user if they manage several sites.
+- SQLite: `"data": { "backend": "sqlite-file", "path": "data/site.sqlite" }` - the file lives on the hosting.
+- `hosting.credential` can be omitted when the hosting is on the same git provider as the content.
+- Keep `"admin": { "folder": "admin" }` so the admin is reachable at `<site URL>/admin/` from any computer.
+
+Then:
+
+```bash
+npx -y agentcms@0.1.0 install --plan agentcms-plan.json --dry-run --json
+```
+
+Fix whatever `error.hint` says (token permissions, repo or bucket names, URL). Error `content-exists` means the content repo already publishes somewhere else: ask the user whether to keep that site (register it with `agentcms-manage`) or publish elsewhere (`--overwrite-target`).
+
+## Step 5 - Install, check, hand over
+
+Show the user a one-line summary (data -> hosting -> site URL) and ask for a go. Then:
+
+```bash
+npx -y agentcms@0.1.0 install --plan agentcms-plan.json --json
+npx -y agentcms@0.1.0 doctor --site <alias> --json
+```
+
+- Relay `data.notices` (for example "GitHub Pages enabled" or how to enable it) and `data.nextSteps`.
+- For every doctor check with `status: "fail"`, propose its `fix`. Pages hosts need about a minute before the admin URL answers - re-run doctor after waiting.
+- Give the user the site URL and the admin URL, and remind them each new browser asks once for its access token or hosting keys (they are stored per browser, never online).
+- The plan file holds no secrets; offer to delete it or keep it for reference.
+
+## Wizard fallback (Firebase, this browser, local folder, ZIP)
 
 ```bash
 npx -y agentcms@0.1.0 serve --json
 ```
 
-It prints `{"ok":true,"data":{"url":"http://localhost:4173/"}}`. Ask the user to open that URL and follow the wizard with the choices from steps 1 and 2. On the last step, keep **"Host the admin on this site"** checked: the wizard copies the admin to `<site URL>/admin/` so it works from anywhere afterwards.
-
-While they fill the forms, help them find each value (repository owner/name, token permissions, bucket endpoint and region, site public URL). If they already use a provider CLI on this machine (`gh`, `aws`, `wrangler`, `firebase`), offer to create the repository / bucket / project for them and give them the exact values to paste.
-
-## Secrets - non-negotiable
-
-- Never ask the user to paste a token, password or secret key into the chat, and never print one. They type secrets directly into the wizard (or into a command they run themselves).
-- If you create a key with a CLI, copy it to the clipboard (`pbcopy` / `xclip` / `clip`) instead of displaying it, and tell the user where to paste it.
-- Tokens never go into `config.js`, a repo or a file you commit.
-
-## Step 4 - Finish
-
-When the wizard shows the done card: stop the background `serve` process, give the user the public site URL and the hosted admin URL, and remind them that each new browser asks for its access token once (tokens are stored per browser).
+Run it in the background; it prints `data.url` (http://localhost:4173/). The user opens it and follows the setup wizard with the choices from steps 1 and 2 - keep "Host the admin on this site" checked. Help them find each value; secrets go into the wizard, not the chat. Stop the process when the wizard shows its done card, then register the site: `npx -y agentcms@0.1.0 site add <alias> --admin-url <admin URL> --json` (see `agentcms-manage`).

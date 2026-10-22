@@ -13,10 +13,12 @@ import type { PublishTarget } from "./storage/target";
 // so publishing it next to the admin is safe.
 
 export const DEFAULT_ADMIN_FOLDER = "admin";
-const MANIFEST = "admin-files.json";
+export const ADMIN_MANIFEST = "admin-files.json";
+const MANIFEST = ADMIN_MANIFEST;
 
-interface AdminManifest {
+export interface AdminManifest {
   version: string;
+  dataSchema?: number;
   files: string[];
 }
 

@@ -1,0 +1,80 @@
+---
+name: agentcms-manage
+description: Check, repair and update existing AgentCMS sites - list the sites this computer manages, register one installed elsewhere, check their health (admin, theme assets, config.js, GitHub Pages, credentials), detect when a newer AgentCMS release or newer skills exist, and offer to update hosted admins. Use when the user asks about one of their AgentCMS / Flexweg CMS sites, says something is broken, or wants to update.
+license: PolyForm-Noncommercial-1.0.0
+metadata:
+  version: "0.1.0"
+  repository: "https://github.com/fleox/agentcms"
+---
+
+# Manage AgentCMS sites
+
+**Language:** talk to the user in their language; keep commands and files in English.
+
+Every command is `npx -y agentcms@0.1.0 <command> --json` (Node.js 20+); read `error.hint` whenever `ok` is false. Fallback without npm: `node agentcms/dist/agent/agentcms.mjs` from a clone of https://github.com/fleox/agentcms.
+
+## Always start with status
+
+```bash
+npx -y agentcms@0.1.0 status --json
+```
+
+It compares this tool (= these skills, same release) with the latest release, and each registered site's hosted admin with this release.
+
+- `data.tool.updateAvailable: true` -> tell the user AgentCMS `data.tool.latest` exists and offer to update the skills **before anything else**: Claude Code `/plugin marketplace update agentcms` then `/reload-plugins`; other agents re-read the skills from the repository. The new skills pin the new CLI, which then sees the new admin.
+- A site with `state: "update"` -> summarise `update.changes` (breaking ones first, `update.breaking`), then **offer** `deploy-admin` (below). Never update silently.
+- `state: "newer"` -> the hosted admin is newer than this tool: update the skills / tool first, never deploy an older admin.
+- `state: "unreachable"` -> run `doctor` for that site.
+- `data.advice` already phrases these; relay it.
+
+## Which site?
+
+One computer can manage many sites. `npx -y agentcms@0.1.0 site list --json` lists them.
+
+- Commands take `--site <alias>`. Without it the tool uses the only site, the folder's `agentcms.json` (`{ "site": "<alias>" }`), or the default chosen with `site use` - otherwise it fails with `site-required`: ask the user which site.
+- Always say which site you are working on before changing anything ("Working on **my-blog** (https://...)").
+- Never move on to another site without telling the user.
+
+Registry commands: `site show <alias>`, `site use <alias>`, `site rename <from> <to>`, `site forget <alias>` (local only - nothing is deleted online).
+
+## Register a site installed elsewhere
+
+(Setup wizard, another computer, by hand.)
+
+```bash
+npx -y agentcms@0.1.0 site add <alias> --admin-url https://example.com/admin/ --data-credential github:<login> --hosting-credential <account> --json
+```
+
+- `--data-credential` is required for Markdown-in-git sites (to read where the site publishes); omit it otherwise.
+- `--hosting-credential` is needed to update the hosted admin later; for git hostings on the same account as the content it defaults to the data credential.
+- Missing credential -> see "Credentials" in the `agentcms-install` skill (the user stores secrets themselves; never in the chat).
+
+## Health check
+
+```bash
+npx -y agentcms@0.1.0 doctor --site <alias> --json
+```
+
+Add `--deep` to also test write access (writes then deletes a probe file on file hosts). For each check with `status: "fail"` or `"warn"`, explain it in plain words and propose its `fix`. Common ones:
+
+- `admin` / `admin-files` failing right after a deploy on GitHub/GitLab/Cloudflare Pages: wait a minute, re-run.
+- `admin-files`: bundle "served as application/xml" or missing -> the admin was copied partially; propose `deploy-admin`.
+- `config-js` publishes secrets -> urgent: tell the user to revoke those keys first, then redeploy.
+- `github-pages` not enabled -> give the user the settings link from `fix`.
+- `credential-*` missing -> the user stores it again with `credentials set`.
+
+## Update a hosted admin
+
+1. Plan only (writes nothing):
+   ```bash
+   npx -y agentcms@0.1.0 deploy-admin --site <alias> --json
+   ```
+   Show `from -> to`, the number of files and the changes (breaking first). If a plan has `refused`, explain why and stop for that site.
+2. After the user agrees:
+   ```bash
+   npx -y agentcms@0.1.0 deploy-admin --site <alias> --yes --json
+   ```
+   Add `--theme-assets` when the changes list the `sync-theme-assets` action. `--all` plans / updates every hosted site (list them all to the user first).
+3. Relay `pendingActions` (e.g. `regenerate-all`: in the admin, Regenerate -> Everything) and run `doctor` again.
+
+Downgrades are refused (`--allow-downgrade` only on the user's explicit request), and an admin is never replaced by one that can't read the site's data format.
