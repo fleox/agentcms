@@ -6,9 +6,10 @@ const __filename = __acmsPath(import.meta.url);
 const __dirname = __acmsDirname(__filename);
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
-import { E as buildConfigJsSource, F as createFilesApiConnector, G as instantiateStorageConnector, H as setSqlJsWasmBinary } from "./registry-BU0AVXwQ.mjs";
+import { A as buildConfigJsSource, B as createFilesApiConnector, C as instantiateStorageConnector, E as setSqlJsWasmBinary } from "./registry-lkfb_E9O.mjs";
+import "./index-CrvEoyi0.mjs";
 import { d as distRoot, C as CliError } from "../agentcms.mjs";
-import { c as cleanFolder } from "./plan-BhnegERT.mjs";
+import { c as cleanFolder } from "./plan-EYKegfhp.mjs";
 import "util";
 import "crypto";
 import "process";
@@ -27,8 +28,8 @@ import "zlib";
 import "buffer";
 import "node:util";
 import "node:url";
-import "node:child_process";
 import "node:os";
+import "node:child_process";
 import "node:http";
 if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
   window.addEventListener("beforeunload", (e) => {

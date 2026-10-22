@@ -468,6 +468,19 @@
       "replaceConfirm": "De modus Vervangen verwijdert vóór het importeren alle bestaande items van de collecties die in het bestand staan. Doorgaan?",
       "invalidFile": "Dit bestand is geen contentexport van Flexweg CMS.",
       "imported": "{{posts}} posts/pagina's, {{terms}} termen en {{media}} media geïmporteerd. Voer Opnieuw genereren → Alles uit om ze te publiceren."
+    },
+    "encryption": {
+      "title": "Databaseversleuteling:",
+      "on": "aan",
+      "off": "uit",
+      "onHelp": "Het databasebestand is onleesbaar zonder de wachtzin. Wijzigen slaat het bestand opnieuw op met een nieuwe sleutel; andere browsers vragen om de nieuwe wachtzin.",
+      "offHelp": "Het databasebestand is leesbaar voor iedereen die het kan downloaden (statische hosting serveert het als elke pagina). Versleutel het met een wachtzin.",
+      "enable": "Database versleutelen…",
+      "change": "Wachtzin wijzigen…",
+      "savedConfirm": "Ik heb deze wachtzin in mijn wachtwoordmanager bewaard — zonder kan de inhoud niet worden geopend.",
+      "enableConfirm": "Nu versleutelen",
+      "changeConfirm": "Wachtzin wijzigen",
+      "done": "Database opnieuw opgeslagen met de nieuwe wachtzin."
     }
   },
   "users": {

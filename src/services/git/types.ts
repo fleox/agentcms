@@ -61,6 +61,10 @@ export interface GitTransport {
   // Applies every change in ONE commit. Returns the new head sha.
   commit(changes: GitChange[], opts: GitCommitOptions): Promise<string>;
   permissions(): Promise<GitPermissions>;
+  // Optional: replaces the branch with ONE parentless commit holding
+  // exactly these files (history dropped). Refused with GitConflictError
+  // when the head moved away from `expectedHeadSha`.
+  resetBranch?(files: Array<{ path: string; content: string; encoding: "base64" }>, opts: { message: string; expectedHeadSha: string }): Promise<string>;
 }
 
 export class GitConflictError extends Error {

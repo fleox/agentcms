@@ -468,6 +468,19 @@
       "replaceConfirm": "Der Ersetzen-Modus löscht vor dem Import alle vorhandenen Einträge der in der Datei enthaltenen Sammlungen. Fortfahren?",
       "invalidFile": "Diese Datei ist kein Inhaltsexport von Flexweg CMS.",
       "imported": "{{posts}} Beiträge/Seiten, {{terms}} Begriffe und {{media}} Medien importiert. Führen Sie Neu generieren → Alles aus, um sie zu veröffentlichen."
+    },
+    "encryption": {
+      "title": "Datenbankverschlüsselung:",
+      "on": "an",
+      "off": "aus",
+      "onHelp": "Die Datenbankdatei ist ohne Passphrase unlesbar. Eine Änderung speichert die Datei mit neuem Schlüssel; andere Browser fragen nach der neuen Passphrase.",
+      "offHelp": "Die Datenbankdatei ist für jeden lesbar, der sie herunterladen kann (ein statisches Hosting liefert sie wie jede Seite aus). Verschlüssele sie mit einer Passphrase.",
+      "enable": "Datenbank verschlüsseln…",
+      "change": "Passphrase ändern…",
+      "savedConfirm": "Ich habe diese Passphrase in meinem Passwort-Manager gespeichert — ohne sie lässt sich der Inhalt nicht öffnen.",
+      "enableConfirm": "Jetzt verschlüsseln",
+      "changeConfirm": "Passphrase ändern",
+      "done": "Datenbank mit der neuen Passphrase gespeichert."
     }
   },
   "users": {

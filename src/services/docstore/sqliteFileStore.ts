@@ -221,6 +221,12 @@ export interface SqliteFileDocStore extends DocStore {
   resetSession(): void;
   // Why the last load couldn't open an encrypted file, if it couldn't.
   passphraseProblem(): "missing" | "wrong" | null;
+  // The file is (or will be, on next save) encrypted.
+  isEncrypted(): boolean;
+  // Re-saves the database encrypted with a NEW passphrase (fresh salt):
+  // turns encryption on for a plain file, or changes the passphrase.
+  // Other browsers are asked for the new one on their next load.
+  rekey(passphrase: string): Promise<void>;
 }
 
 export function createSqliteFileDocStore(cfg: SqliteFileConfig): SqliteFileDocStore {
@@ -229,6 +235,7 @@ export function createSqliteFileDocStore(cfg: SqliteFileConfig): SqliteFileDocSt
   // Salt / iterations of the encrypted file as loaded (kept on save).
   let cryptoParams: EncryptionParams | null = null;
   let passphraseProblem: "missing" | "wrong" | null = null;
+  let encrypted = !!cfg.encrypted;
   // After a rebase our file carries changes the core hasn't seen yet.
   let stale = false;
 
@@ -256,7 +263,7 @@ export function createSqliteFileDocStore(cfg: SqliteFileConfig): SqliteFileDocSt
     writeJson(DOC_SECRETS_KEY, secrets);
     const plain = await encodeDatabase(clean);
     // An encrypted file stays encrypted even if config.js lost the flag.
-    const encrypt = cfg.encrypted || cryptoParams !== null;
+    const encrypt = encrypted || cryptoParams !== null;
     const bytes = encrypt ? await encryptDatabase(plain, getSqlitePassphrase() ?? "", cryptoParams ?? undefined) : plain;
     await open().put({ path: cfg.path, content: bytesToBase64(bytes), encoding: "base64" });
     lastHash = await hashBytes(bytes);
@@ -313,7 +320,7 @@ export function createSqliteFileDocStore(cfg: SqliteFileConfig): SqliteFileDocSt
     // them otherwise).
     async identity() {
       if (missingFields(cfg.connectorId, connectorSettingsWithSecrets(cfg), ["siteUrl"]).length > 0) return null;
-      if (cfg.encrypted && !getSqlitePassphrase()) {
+      if (encrypted && !getSqlitePassphrase()) {
         passphraseProblem = "missing";
         return null;
       }
@@ -335,6 +342,28 @@ export function createSqliteFileDocStore(cfg: SqliteFileConfig): SqliteFileDocSt
 
   return Object.assign(store, {
     passphraseProblem: () => passphraseProblem,
+    isEncrypted: () => encrypted || cryptoParams !== null,
+    async rekey(passphrase: string) {
+      if (passphrase.trim().length < 12) throw new Error("The passphrase must be at least 12 characters long.");
+      await store.ready();
+      // Latest remote content, opened with the current passphrase.
+      const remote = await readRemote();
+      const previous = getSqlitePassphrase();
+      saveSqlitePassphrase(passphrase.trim());
+      const previousParams = cryptoParams;
+      cryptoParams = null;
+      try {
+        encrypted = true;
+        await writeRemote(remote.snapshot);
+        // Keep the salt of what we just wrote for the next saves.
+        await readRemote();
+      } catch (err) {
+        saveSqlitePassphrase(previous);
+        cryptoParams = previousParams;
+        encrypted = !!cfg.encrypted;
+        throw err;
+      }
+    },
     resetSession() {
       connector = null;
       cryptoParams = null;

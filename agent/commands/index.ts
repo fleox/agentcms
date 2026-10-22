@@ -1,5 +1,6 @@
 import { printResult } from "../output";
 import { readVersionInfo } from "../paths";
+import { compactDataCommand } from "./compactData";
 import { credentialsCommand } from "./credentials";
 import { deployAdminCommand } from "./deployAdmin";
 import { doctorCommand } from "./doctor";
@@ -63,6 +64,7 @@ export const COMMANDS: Command[] = [
   installCommand,
   deployAdminCommand,
   doctorCommand,
+  compactDataCommand,
   serveCommand,
 ];
 

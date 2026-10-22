@@ -274,6 +274,28 @@ export function createGitHubTransport(cfg: GitHubConfig): GitTransport {
     }
   }
 
+  async function resetBranch(
+    files: Array<{ path: string; content: string; encoding: "base64" }>,
+    opts: { message: string; expectedHeadSha: string },
+  ): Promise<string> {
+    const items = [];
+    for (const f of files) {
+      const blob = await postJson<{ sha: string }>(`${repoUrl}/git/blobs`, { content: f.content, encoding: "base64" });
+      items.push({ path: f.path, mode: "100644", type: "blob", sha: blob.sha });
+    }
+    const tree = await postJson<{ sha: string }>(`${repoUrl}/git/trees`, { tree: items });
+    const created = await postJson<{ sha: string }>(`${repoUrl}/git/commits`, { message: opts.message, tree: tree.sha, parents: [] });
+    // Last check right before the forced move: a save in between wins.
+    const head = await headSha();
+    if (head !== opts.expectedHeadSha) throw new GitConflictError(`Branch ${cfg.branch} moved`, head);
+    await gitFetch("commit", `${repoUrl}/git/refs/${refPath}`, {
+      method: "PATCH",
+      headers: jsonHeaders,
+      body: JSON.stringify({ sha: created.sha, force: true }),
+    });
+    return created.sha;
+  }
+
   async function permissions() {
     const [user, repo] = await Promise.all([
       getJson<{ login: string }>(`${api}/user`),
@@ -292,5 +314,6 @@ export function createGitHubTransport(cfg: GitHubConfig): GitTransport {
     readBytes,
     commit,
     permissions,
+    resetBranch,
   };
 }

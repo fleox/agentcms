@@ -468,6 +468,19 @@
       "replaceConfirm": "Replace mode deletes every existing item of the collections present in the file before importing. Continue?",
       "invalidFile": "This file is not a Flexweg CMS content export.",
       "imported": "Imported {{posts}} posts/pages, {{terms}} terms, {{media}} media. Run Regenerate → Everything to publish them."
+    },
+    "encryption": {
+      "title": "Database encryption:",
+      "on": "on",
+      "off": "off",
+      "onHelp": "The database file is unreadable without the passphrase. Changing it re-saves the file with a new key; other browsers will ask for the new passphrase.",
+      "offHelp": "The database file is readable by anyone who can download it (a static host serves it like any page). Encrypt it with a passphrase.",
+      "enable": "Encrypt the database…",
+      "change": "Change the passphrase…",
+      "savedConfirm": "I saved this passphrase in my password manager — without it the content can't be opened.",
+      "enableConfirm": "Encrypt now",
+      "changeConfirm": "Change passphrase",
+      "done": "Database re-saved with the new passphrase."
     }
   },
   "users": {

@@ -25,7 +25,11 @@ import {
   DEFAULT_ADMIN_FOLDER,
   deployAdmin,
   readAdminManifest,
+  uploadConfigJsTo,
 } from "../services/adminDeploy";
+import { getDocStore } from "../services/docstore";
+import { generatePassphrase } from "../services/docstore/sqliteCrypto";
+import type { SqliteFileDocStore } from "../services/docstore/sqliteFileStore";
 import { updateSettings } from "../services/settings";
 import { setUserPreferences } from "../services/users";
 import { invalidateCachedReady } from "../services/firestoreSetup";
@@ -33,6 +37,7 @@ import { toast } from "../lib/toast";
 import {
   getBackendKind,
   getRuntimeConfig,
+  LOCAL_RUNTIME_CONFIG_KEY,
   resetRuntimeConfigCache,
   saveLocalRuntimeConfig,
 } from "../lib/runtimeConfig";
@@ -578,6 +583,8 @@ function BackendSettings({ backend }: { backend: ReturnType<typeof getBackendKin
         </p>
       )}
 
+      {config?.backend === "sqlite-file" && <SqliteEncryptionSettings />}
+
       <ContentTransfer />
 
       {!confirming ? (
@@ -625,6 +632,123 @@ function BackendSettings({ backend }: { backend: ReturnType<typeof getBackendKin
 // into a document-store backend with ids preserved. The way to move a
 // site from Firebase or SQLite to Markdown-in-git (or back up a local
 // install).
+// SQLite file: turn encryption on for a plain database, or change the
+// passphrase. The file is re-saved with a fresh key; other browsers are
+// asked for the new passphrase on their next load.
+function SqliteEncryptionSettings() {
+  const { t } = useTranslation();
+  const store = getDocStore() as SqliteFileDocStore;
+  const [encrypted, setEncrypted] = useState(() => store.isEncrypted());
+  const [open, setOpen] = useState(false);
+  const [passphrase, setPassphrase] = useState(generatePassphrase);
+  const [saved, setSaved] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  async function apply() {
+    setBusy(true);
+    try {
+      await store.rekey(passphrase);
+      // Record the flag where this admin's config lives (an encrypted
+      // file is detected without it, but the access page asks earlier).
+      const config = getRuntimeConfig();
+      if (config?.backend === "sqlite-file") {
+        const next = { ...config, sqlite: { ...config.sqlite, encrypted: true } };
+        window.__FLEXWEG_CONFIG__ = next;
+        if (window.localStorage.getItem(LOCAL_RUNTIME_CONFIG_KEY)) saveLocalRuntimeConfig(next);
+        const folder = currentAdminFolderOn(await readPublishTarget());
+        if (folder) await uploadConfigJsTo(folder, next).catch(() => {});
+        resetRuntimeConfigCache();
+      }
+      setEncrypted(true);
+      setOpen(false);
+      setSaved(false);
+      toast.success(t("settings.encryption.done"));
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="rounded-lg ring-1 ring-surface-200 p-3 space-y-2 dark:ring-surface-700">
+      <p className="text-sm font-medium">
+        {t("settings.encryption.title")}{" "}
+        <span className={encrypted ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}>
+          {t(encrypted ? "settings.encryption.on" : "settings.encryption.off")}
+        </span>
+      </p>
+      <p className="text-xs text-surface-500 dark:text-surface-400">
+        {t(encrypted ? "settings.encryption.onHelp" : "settings.encryption.offHelp")}
+      </p>
+      {!open ? (
+        <button type="button" className="btn-secondary text-xs" onClick={() => setOpen(true)}>
+          {t(encrypted ? "settings.encryption.change" : "settings.encryption.enable")}
+        </button>
+      ) : (
+        <form
+          className="space-y-2"
+          data-form-type="other"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!busy && saved) void apply();
+          }}
+        >
+          <label className="label" htmlFor="sqlite-new-passphrase">
+            {t("setup.sqliteFile.passphrase")}
+          </label>
+          <div className="flex gap-2">
+            <input
+              id="sqlite-new-passphrase"
+              className="input font-mono text-xs"
+              autoComplete="off"
+              spellCheck={false}
+              value={passphrase}
+              onChange={(e) => {
+                setPassphrase(e.target.value);
+                setCopied(false);
+              }}
+            />
+            <button
+              type="button"
+              className="btn-secondary shrink-0"
+              onClick={() => void navigator.clipboard?.writeText(passphrase).then(() => setCopied(true))}
+            >
+              <span>{t(copied ? "setup.sqliteFile.copied" : "setup.sqliteFile.copy")}</span>
+            </button>
+            <button
+              type="button"
+              className="btn-secondary shrink-0"
+              onClick={() => {
+                setPassphrase(generatePassphrase());
+                setCopied(false);
+              }}
+            >
+              <span>{t("setup.sqliteFile.generate")}</span>
+            </button>
+          </div>
+          <label className="flex items-start gap-2 text-xs text-amber-700 dark:text-amber-300">
+            <input type="checkbox" className="mt-0.5" checked={saved} onChange={(e) => setSaved(e.target.checked)} />
+            <span>{t("settings.encryption.savedConfirm")}</span>
+          </label>
+          <div className="flex gap-2">
+            <button type="submit" className="btn-primary text-xs" disabled={busy || !saved || passphrase.trim().length < 12}>
+              <span className="inline-flex items-center gap-1.5">
+                <Loader2 className={"h-3.5 w-3.5 animate-spin " + (busy ? "" : "hidden")} />
+                <span>{t(encrypted ? "settings.encryption.changeConfirm" : "settings.encryption.enableConfirm")}</span>
+              </span>
+            </button>
+            <button type="button" className="btn-ghost text-xs" onClick={() => setOpen(false)}>
+              {t("common.cancel")}
+            </button>
+          </div>
+        </form>
+      )}
+    </div>
+  );
+}
+
 function ContentTransfer() {
   const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
