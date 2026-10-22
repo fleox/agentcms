@@ -6,10 +6,9 @@ const __filename = __acmsPath(import.meta.url);
 const __dirname = __acmsDirname(__filename);
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
-import { w as buildConfigJsSource, x as createFilesApiConnector, y as instantiateStorageConnector } from "./registry-C6BuhuyI.mjs";
-import "./markdownLayout-DDqv_pCV.mjs";
+import { E as buildConfigJsSource, F as createFilesApiConnector, G as instantiateStorageConnector, H as setSqlJsWasmBinary } from "./registry-BU0AVXwQ.mjs";
 import { d as distRoot, C as CliError } from "../agentcms.mjs";
-import { cleanFolder } from "./plan-BkCcoZHp.mjs";
+import { c as cleanFolder } from "./plan-BhnegERT.mjs";
 import "util";
 import "crypto";
 import "process";
@@ -101,10 +100,17 @@ async function applyOps(connector, ops, onProgress) {
     else if (connector.deletePrefix) await connector.deletePrefix(op.path);
   }
 }
+function loadSqlWasm() {
+  const assets = join(distRoot(), "admin", "assets");
+  const wasm = readdirSync(assets).find((f) => /^sql-wasm.*\.wasm$/.test(f));
+  if (!wasm) throw new CliError("admin-missing", `sql.js WASM not found in ${assets}.`);
+  setSqlJsWasmBinary(new Uint8Array(readFileSync(join(assets, wasm))));
+}
 export {
   adminOps,
   applyOps,
   hostingConnector,
+  loadSqlWasm,
   readLocalAdminManifest,
   themeAssetOps
 };

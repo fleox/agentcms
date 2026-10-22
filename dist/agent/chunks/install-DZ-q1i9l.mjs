@@ -4,12 +4,10 @@ import { dirname as __acmsDirname } from "node:path";
 const require2 = __acmsRequire(import.meta.url);
 const __filename = __acmsPath(import.meta.url);
 const __dirname = __acmsDirname(__filename);
-import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-import { g as getDoc, s as setDoc, d as doc, a as getDb, c as configDocs, b as collections, e as sqlQuery, f as sqlExec, h as getDocStore, i as getBackendKind, j as isDocStoreBackend, o as onSnapshot, k as settingsDocs, l as deleteField, m as sqlVersion, S as SqliteApiError, n as setFlexwegConfig, D as DEFAULT_FLEXWEG_API_BASE_URL, p as setGitToken, q as saveSqliteConnectorSecrets, t as testStorageConnection, r as githubPagesCheck, u as setSqlJsWasmBinary, v as resetRuntimeConfigCache } from "./registry-C6BuhuyI.mjs";
-import { j as joinRepoPath, s as subscribeToToasts, c as createRemoteGitTransport } from "./markdownLayout-DDqv_pCV.mjs";
-import { d as distRoot, C as CliError } from "../agentcms.mjs";
-import { themeAssetOps, adminOps, applyOps, hostingConnector } from "./hosting-WLUvaATj.mjs";
+import { g as getDoc, s as setDoc, d as doc, a as getDb, c as configDocs, b as collections, e as sqlQuery, f as sqlExec, h as getDocStore, i as getBackendKind, j as isDocStoreBackend, o as onSnapshot, k as settingsDocs, l as deleteField, m as sqlVersion, S as SqliteApiError, n as setFlexwegConfig, D as DEFAULT_FLEXWEG_API_BASE_URL, p as setGitToken, q as saveSqliteConnectorSecrets, r as saveSqlitePassphrase, t as testStorageConnection, u as joinRepoPath, v as openDatabaseBytes, w as githubPagesCheck, x as subscribeToToasts, y as createRemoteGitTransport, z as resetRuntimeConfigCache, A as resetDocStore } from "./registry-BU0AVXwQ.mjs";
+import { g as generatePassphrase, s as setCredential, i as isEncryptedDatabase, S as SqlitePassphraseError } from "../agentcms.mjs";
+import { e as ensurePublishBranch } from "./plan-BhnegERT.mjs";
+import { loadSqlWasm, themeAssetOps, adminOps, applyOps, hostingConnector } from "./hosting-Dx0eiJCs.mjs";
 import "util";
 import "crypto";
 import "process";
@@ -27,11 +25,12 @@ import "dns";
 import "zlib";
 import "buffer";
 import "node:util";
+import "node:fs";
+import "node:path";
 import "node:url";
 import "node:child_process";
 import "node:os";
 import "node:http";
-import "./plan-BkCcoZHp.mjs";
 const storageDocRef = () => doc(getDb(), collections.config, configDocs.storage);
 async function getStorageConfig$2() {
   const snap = await getDoc(storageDocRef());
@@ -500,14 +499,29 @@ async function checkPlan(plan) {
       data = { ok: false, detail: err.message, existing: false };
     }
   } else {
+    const location = plan.dataLocation ?? plan.target;
     try {
-      const connector = hostingConnector(plan.target);
-      if (!connector.getBytes) throw new Error(`${plan.target.connectorId} can't hold a SQLite file`);
+      if (location !== plan.target) {
+        const res = await testStorageConnection(location.connectorId, location.settings, { ignore: ["siteUrl"] });
+        if (!res.ok) throw new Error(`data location: ${res.detail}`);
+      }
+      const connector = hostingConnector(location);
+      if (!connector.getBytes) throw new Error(`${location.connectorId} can't hold a SQLite file`);
       const path = plan.runtime.backend === "sqlite-file" ? plan.runtime.sqlite.path : "";
-      const existing = await connector.getBytes(path) !== null;
-      data = { ok: true, detail: existing ? `existing database at ${path}` : `new database at ${path}`, existing };
+      const bytes = await connector.getBytes(path);
+      const where = `${path}${location !== plan.target ? ` (${plan.dataLocationType})` : ""}`;
+      if (!bytes) {
+        data = { ok: true, detail: `new ${plan.passphraseAccount ? "encrypted " : ""}database at ${where}`, existing: false };
+      } else if (isEncryptedDatabase(bytes)) {
+        if (!plan.passphrase) throw new Error(`an encrypted database already exists at ${where}: store its passphrase as ${plan.passphraseAccount ?? "passphrase:<alias>"} (and set data.encryption)`);
+        await openDatabaseBytes(bytes, plan.passphrase);
+        data = { ok: true, detail: `existing encrypted database at ${where}`, existing: true };
+      } else {
+        data = { ok: true, detail: `existing database at ${where}${plan.passphraseAccount ? " — encrypted from its next save" : ""}`, existing: true };
+      }
     } catch (err) {
-      data = { ok: false, detail: err.message, existing: false };
+      const message = err instanceof SqlitePassphraseError ? `wrong passphrase in ${plan.passphraseAccount}` : err.message;
+      data = { ok: false, detail: message, existing: false };
     }
   }
   return { hosting, data };
@@ -515,12 +529,7 @@ async function checkPlan(plan) {
 function activate(runtime) {
   window.__FLEXWEG_CONFIG__ = runtime;
   resetRuntimeConfigCache();
-}
-function loadSqlWasm() {
-  const assets = join(distRoot(), "admin", "assets");
-  const wasm = readdirSync(assets).find((f) => /^sql-wasm.*\.wasm$/.test(f));
-  if (!wasm) throw new CliError("admin-missing", `sql.js WASM not found in ${assets}.`);
-  setSqlJsWasmBinary(new Uint8Array(readFileSync(join(assets, wasm))));
+  resetDocStore();
 }
 async function runInstall(plan, onStep) {
   const toasts = collectToasts();
@@ -529,7 +538,16 @@ async function runInstall(plan, onStep) {
     if (plan.runtime.backend === "markdown-git") setGitToken(plan.runtime.git, plan.gitToken ?? null);
     if (plan.runtime.backend === "sqlite-file") {
       saveSqliteConnectorSecrets(plan.sqliteSecrets ?? {});
+      if (plan.passphraseAccount) {
+        if (!plan.passphrase) {
+          plan.passphrase = generatePassphrase();
+          setCredential(plan.passphraseAccount, { passphrase: plan.passphrase });
+          onStep(`Generated the database passphrase (stored as ${plan.passphraseAccount})`);
+        }
+        saveSqlitePassphrase(plan.passphrase);
+      }
       loadSqlWasm();
+      await ensurePublishBranch(plan.target);
     }
     onStep("Opening the content store");
     await getDocStore().ready();

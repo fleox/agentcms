@@ -37,11 +37,24 @@ export const DATA_BACKENDS: DataBackendSpec[] = [
     summary: "One SQLite file stored on the site's own hosting.",
     goodFor: "One owner, simplest setup, no other account.",
     cli: true,
-    fields: [{ key: "path", required: true, description: "File path on the hosting.", example: "data/site.sqlite" }],
-    credentialTypes: [],
+    fields: [
+      { key: "path", required: true, description: "File path on the hosting (or in the separate location).", example: "data/site.sqlite" },
+      {
+        key: "encryption",
+        required: false,
+        description: "Default: encrypted with a passphrase generated at install, stored as passphrase:<alias>. { credential: \"passphrase:<name>\" } to use an existing one, false for a plain file.",
+      },
+      {
+        key: "location",
+        required: false,
+        description: "Separate PRIVATE place for the database: { type, settings, credential } like hosting (e.g. a private S3 / R2 bucket, a private GitHub repo via git-other). Default: the hosting itself — for git hostings, the dedicated branch agentcms-data of the same repo (never published, no site rebuild on save).",
+      },
+    ],
+    credentialTypes: ["passphrase"],
     notes: [
-      "No login screen: protecting /admin is the owner's job (host-level password, obscure folder name).",
-      "Uses the hosting's credential; not available with the ZIP / local folder targets.",
+      "A static host serves the database file like any page: keep it encrypted (default) and/or in a separate private location.",
+      "No login screen: anyone who can open the admin and has the passphrase can edit; each browser asks for the keys + passphrase once.",
+      "Losing the passphrase means losing the content: have the user save it (`agentcms credentials copy passphrase:<alias>`).",
     ],
   },
   {
@@ -174,7 +187,7 @@ export const HOSTINGS: HostingSpec[] = [
   {
     id: "own-server",
     connectorId: "php-bridge",
-    summary: "Your own PHP server, through the bridge script in external/bridges/php/.",
+    summary: "Advanced — your own PHP server through the bridge script in external/bridges/php/ (not a static host; prefer a static hosting).",
     cli: true,
     fields: [
       { key: "apiBaseUrl", required: true, description: "URL of flexweg-bridge.php.", example: "https://example.com/cms-bridge/flexweg-bridge.php" },

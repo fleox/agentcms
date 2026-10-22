@@ -118,6 +118,8 @@ interface Props {
   testIgnore?: string[];
   // Hide the hosting picker (the hosting is fixed, only fields change).
   lockHosting?: boolean;
+  // Label of the "select" picker (default "Publish target").
+  pickerLabel?: string;
 }
 
 export function PublishTargetForm({
@@ -129,6 +131,7 @@ export function PublishTargetForm({
   hideFields = [],
   testIgnore,
   lockHosting = false,
+  pickerLabel,
 }: Props) {
   const options = HOSTING_OPTIONS.filter((o) => !exclude.includes(o.id));
   const { t } = useTranslation();
@@ -236,7 +239,7 @@ export function PublishTargetForm({
         </div>
       ) : (
         <div>
-          <label className="label">{t("connectors.target")}</label>
+          <label className="label">{pickerLabel ?? t("connectors.target")}</label>
           <select className="input" value={hosting.id} onChange={(e) => selectHosting(e.target.value)}>
             {options.map((o) => (
               <option key={o.id} value={o.id}>

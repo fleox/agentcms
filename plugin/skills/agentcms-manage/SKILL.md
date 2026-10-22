@@ -47,6 +47,7 @@ npx -y agentcms@0.1.0 site add <alias> --admin-url https://example.com/admin/ --
 
 - `--data-credential` is required for Markdown-in-git sites (to read where the site publishes); omit it otherwise.
 - `--hosting-credential` is needed to update the hosted admin later; for git hostings on the same account as the content it defaults to the data credential.
+- SQLite sites: `--data-credential` is the account of the database location (it reads the real publish target from the database), `--passphrase-credential passphrase:<name>` the passphrase of an encrypted database (store it first with `credentials set`).
 - Missing credential -> see "Credentials" in the `agentcms-install` skill (the user stores secrets themselves; never in the chat).
 
 ## Health check
@@ -60,6 +61,7 @@ Add `--deep` to also test write access (writes then deletes a probe file on file
 - `admin` / `admin-files` failing right after a deploy on GitHub/GitLab/Cloudflare Pages: wait a minute, re-run.
 - `admin-files`: bundle "served as application/xml" or missing -> the admin was copied partially; propose `deploy-admin`.
 - `config-js` publishes secrets -> urgent: tell the user to revoke those keys first, then redeploy.
+- `database-exposure` fails -> the SQLite database is downloadable in clear text: propose moving to an encrypted database or a separate private location (reinstall with a new alias, then the user migrates content with Settings -> Data backend -> export / import).
 - `github-pages` not enabled -> give the user the settings link from `fix`.
 - `credential-*` missing -> the user stores it again with `credentials set`.
 

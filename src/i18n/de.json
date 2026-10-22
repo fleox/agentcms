@@ -796,7 +796,7 @@
       "noteLocalConfig": "Die Konfiguration wird in diesem Browser gespeichert; Ihnen wird config.js zum Ablegen im Admin-Ordner angeboten, damit andere Redakteure diese Einrichtung überspringen."
     },
     "sqliteFile": {
-      "security": "Keine Benutzerkonten: Jeder, der diesen Admin öffnen kann, kann die Inhalte bearbeiten. Schützen Sie den Admin-Ordner auf Ebene Ihres Hostings (z. B. ein Passwort für /admin) — und auch die Datenbankdatei, falls sie öffentlich ausgeliefert wird.",
+      "security": "Keine Benutzerkonten: Wer dieses Admin öffnen kann, kann den Inhalt bearbeiten — schütze den Admin-Ordner auf Ebene deines Hostings. Die Datenbankdatei wird wie jede andere Datei ausgeliefert: Halte sie verschlüsselt oder speichere sie an einem separaten privaten Ort.",
       "intro": "Wo die Datenbankdatei gespeichert wird. Dieser Admin liest und speichert sie über dieselben Konnektoren wie das Hosting.",
       "path": "Pfad der Datenbankdatei",
       "pathHint": "Wird beim ersten Speichern angelegt, falls sie noch nicht existiert. Bei einem Git-Repository ist jedes Speichern ein Commit — verwenden Sie besser ein Repository oder einen Branch, der keinen Website-Build auslöst.",
@@ -807,7 +807,23 @@
       "flexwegService": "Den SQLite-Dienst von Flexweg verwenden",
       "flexwegServiceHint": "Die Datenbank wird von Flexweg betrieben und bringt integrierte Benutzerkonten mit (E-Mail + Passwort). Andernfalls ist sie eine einfache Datei auf diesem Hosting, ohne Konten.",
       "summaryFile": "Datei {{path}} auf diesem Hosting",
-      "summaryService": "SQLite-Dienst von Flexweg ({{path}})"
+      "summaryService": "SQLite-Dienst von Flexweg ({{path}})",
+      "encrypt": "Datenbank verschlüsseln",
+      "encryptHint": "Empfohlen bei öffentlichem Hosting: Ohne Passphrase ist die Datei unlesbar. Jeder neue Browser fragt einmal danach.",
+      "passphrase": "Passphrase",
+      "passphraseHint": "Speichere sie jetzt in deinem Passwort-Manager: Ohne sie kann niemand die Datenbank öffnen — auch du nicht.",
+      "copy": "Kopieren",
+      "copied": "Kopiert",
+      "generate": "Neu",
+      "passphraseTooShort": "Die Passphrase muss mindestens 12 Zeichen lang sein.",
+      "existingEncrypted": "An diesem Pfad gibt es bereits eine verschlüsselte Datenbank: Gib ihre Passphrase ein.",
+      "separate": "Datenbank an einem separaten privaten Ort speichern",
+      "separateHint": "Z. B. ein privater S3- / R2-Bucket oder ein privates Git-Repository: Die Datenbank wird dann nie von der öffentlichen Website ausgeliefert.",
+      "summaryEncrypted": "verschlüsselt",
+      "summaryLocation": "gespeichert in {{location}}",
+      "locationLabel": "Speicherort der Datenbank",
+      "gitBranchNote": "Die Datenbank liegt im Branch {{branch}} dieses Repositorys, der nie veröffentlicht wird: Speichern von Inhalten baut die Website nicht neu.",
+      "summaryBranch": "im Branch {{branch}}"
     },
     "adminHosting": {
       "deploying": "Admin wird auf die Website kopiert…",
@@ -1051,6 +1067,10 @@
   "sqliteAccess": {
     "heading": "Mit der Datenbank verbinden",
     "intro": "Dieser Admin speichert seine Inhalte in {{path}}. Geben Sie die Zugangsdaten für diesen Browser ein.",
-    "storage": "Die Zugangsdaten werden nur in diesem Browser gespeichert. Beim Abmelden werden sie vergessen."
+    "storage": "Die Zugangsdaten werden nur in diesem Browser gespeichert. Beim Abmelden werden sie vergessen.",
+    "passphrase": "Passphrase der Datenbank",
+    "passphraseHint": "Die Datenbank ist verschlüsselt. Gib die bei der Installation gewählte Passphrase ein (wird nur in diesem Browser gespeichert).",
+    "passphraseWrong": "Falsche Passphrase: Die Datenbank konnte nicht geöffnet werden.",
+    "passphraseMissing": "Gib die Passphrase der Datenbank ein."
   }
 }

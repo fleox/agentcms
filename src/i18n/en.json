@@ -796,7 +796,7 @@
       "noteLocalConfig": "The configuration is saved in this browser; you'll be offered config.js to put in the admin folder so other editors skip this setup."
     },
     "sqliteFile": {
-      "security": "No user accounts: anyone who can open this admin can edit the content. Protect the admin folder at your hosting level (e.g. a password on /admin) — and the database file too if it is served publicly.",
+      "security": "No user accounts: anyone who can open this admin can edit the content — protect the admin folder at your hosting level. The database file is served like any other file: keep it encrypted, or store it in a separate private location.",
       "intro": "Where the database file is stored. It is read and saved by this admin through the same connectors as the hosting.",
       "path": "Database file path",
       "pathHint": "Created on first save if it doesn't exist yet. With a Git repository, every save is a commit — prefer a repository or branch that doesn't trigger a site build.",
@@ -807,7 +807,23 @@
       "flexwegService": "Use Flexweg's SQLite service",
       "flexwegServiceHint": "The database is run by Flexweg and comes with built-in user accounts (email + password). Otherwise it is a plain file on this hosting, without accounts.",
       "summaryFile": "File {{path}} on this hosting",
-      "summaryService": "Flexweg SQLite service ({{path}})"
+      "summaryService": "Flexweg SQLite service ({{path}})",
+      "encrypt": "Encrypt the database",
+      "encryptHint": "Recommended on a public hosting: the file is unreadable without the passphrase. Each new browser asks for it once.",
+      "passphrase": "Passphrase",
+      "passphraseHint": "Save it in your password manager now: without it, nobody can open the database — not even you.",
+      "copy": "Copy",
+      "copied": "Copied",
+      "generate": "New",
+      "passphraseTooShort": "The passphrase must be at least 12 characters long.",
+      "existingEncrypted": "An encrypted database already exists at this path: enter its passphrase.",
+      "separate": "Store the database in a separate private location",
+      "separateHint": "E.g. a private S3 / R2 bucket or a private Git repository: the database is then never served by the public site.",
+      "summaryEncrypted": "encrypted",
+      "summaryLocation": "stored in {{location}}",
+      "locationLabel": "Database location",
+      "gitBranchNote": "The database is kept on the branch {{branch}} of this repository, which is never published: saving content doesn't rebuild the site.",
+      "summaryBranch": "on branch {{branch}}"
     },
     "adminHosting": {
       "deploying": "Copying the admin to the site…",
@@ -1051,6 +1067,10 @@
   "sqliteAccess": {
     "heading": "Connect to the database",
     "intro": "This admin stores its content in {{path}}. Enter the access credentials for this browser.",
-    "storage": "Credentials are kept in this browser only. Signing out forgets them."
+    "storage": "Credentials are kept in this browser only. Signing out forgets them.",
+    "passphrase": "Database passphrase",
+    "passphraseHint": "The database is encrypted. Enter the passphrase chosen at install (kept in this browser only).",
+    "passphraseWrong": "Wrong passphrase: the database could not be opened.",
+    "passphraseMissing": "Enter the database passphrase."
   }
 }

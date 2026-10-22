@@ -19,7 +19,8 @@ export interface SiteRecord {
   runtime: FlexwegRuntimeConfig;
   // Publish target, secret fields stripped.
   hosting: { connectorId: string; settings: Record<string, unknown> };
-  credentials: { data?: string; hosting?: string };
+  // Account ids: content / data location, hosting, SQLite passphrase.
+  credentials: { data?: string; hosting?: string; passphrase?: string };
   adminVersion?: string;
   installedAt: string;
   updatedAt: string;

@@ -107,6 +107,9 @@ export interface SqliteFileRuntimeConfig {
     settings: Record<string, unknown>;
     // Path of the database file on that target, e.g. "admin/data/cms.sqlite".
     path: string;
+    // The file is encrypted with a passphrase each browser enters once
+    // (services/docstore/sqliteCrypto.ts). Not a secret itself.
+    encrypted?: boolean;
   };
 }
 

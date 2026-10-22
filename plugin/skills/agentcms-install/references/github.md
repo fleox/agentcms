@@ -56,6 +56,10 @@ Each editor of a Markdown site later signs in to the admin with **their own** to
 
 Omit `hosting.credential` when the content is also on GitHub with the same account (its token is reused).
 
+## SQLite data on a GitHub Pages site
+
+With the SQLite backend, the database goes into the **same repository** on a dedicated branch, `agentcms-data`, that Pages never publishes: saving content doesn't rebuild the site and the file isn't served by it. It is encrypted, so a public repository is fine - but keep the passphrase safe: anyone who has it and can read the repo can read the content. Nothing to configure; the install creates the branch (after `main`, so `main` stays the default branch).
+
 ## GitHub Pages switch
 
 The first install commit tries to enable Pages through the API (needs the Pages permission). If the install notices say it could not, or `doctor` reports `github-pages: fail`, the user opens `https://github.com/<owner>/<site-repo>/settings/pages` -> Source: **Deploy from a branch** -> `main` / `(root)` -> Save. The first build takes about a minute.

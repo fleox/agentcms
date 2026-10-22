@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import initSqlJs from "sql.js";
 import { clearMirror, createBrowserMirrorConnector } from "../storage/connectors/browserMirror";
-import { createSqliteFileDocStore, splitConnectorSettings } from "./sqliteFileStore";
+import { isEncryptedDatabase } from "./sqliteCrypto";
+import { createSqliteFileDocStore, saveSqlitePassphrase, splitConnectorSettings } from "./sqliteFileStore";
 import { DocConflictError } from "./types";
 
 // The browser-mirror connector (in-memory in Node) stands in for the
@@ -106,5 +107,56 @@ describe("sqlite-file doc store", () => {
       publicSettings: { repo: "r", nested: { a: 1 } },
       secrets: { token: "t", nested: { apiKey: "k" } },
     });
+  });
+
+  describe("encrypted", () => {
+    const enc = { ...cfg, encrypted: true };
+
+    it("writes an unreadable file that only the passphrase opens", async () => {
+      saveSqlitePassphrase("correct horse battery staple");
+      const store = createSqliteFileDocStore(enc);
+      expect(await store.identity()).toMatchObject({ role: "admin" });
+      await store.write([{ op: "set", collection: "posts", doc: post("P1", "Secret draft") }]);
+      const bytes = (await mirror.getBytes!(cfg.path))!;
+      expect(isEncryptedDatabase(bytes)).toBe(true);
+      expect(Buffer.from(bytes).toString("latin1")).not.toContain("Secret draft");
+
+      const again = createSqliteFileDocStore(enc);
+      await again.ready();
+      expect(again.get("posts", "P1")).toMatchObject({ title: "Secret draft" });
+    }, 20_000);
+
+    it("asks for the passphrase when missing or wrong", async () => {
+      saveSqlitePassphrase("correct horse battery staple");
+      const writer = createSqliteFileDocStore(enc);
+      await writer.write([{ op: "set", collection: "posts", doc: post("P1", "x") }]);
+
+      saveSqlitePassphrase(null);
+      const noPass = createSqliteFileDocStore(enc);
+      expect(await noPass.identity()).toBeNull();
+      expect(noPass.passphraseProblem()).toBe("missing");
+
+      saveSqlitePassphrase("wrong passphrase!!");
+      const wrong = createSqliteFileDocStore(enc);
+      expect(await wrong.identity()).toBeNull();
+      expect(wrong.passphraseProblem()).toBe("wrong");
+
+      // config.js lost the flag: the encrypted file is still detected.
+      const unflagged = createSqliteFileDocStore(cfg);
+      expect(await unflagged.identity()).toBeNull();
+      expect(unflagged.passphraseProblem()).toBe("wrong");
+    }, 20_000);
+
+    it("encrypts an existing plain database on its next save", async () => {
+      const plain = createSqliteFileDocStore(cfg);
+      await plain.write([{ op: "set", collection: "posts", doc: post("P1", "Before") }]);
+      expect(isEncryptedDatabase(await mirror.getBytes!(cfg.path))).toBe(false);
+      saveSqlitePassphrase("correct horse battery staple");
+      const store = createSqliteFileDocStore(enc);
+      await store.ready();
+      expect(store.get("posts", "P1")).toMatchObject({ title: "Before" });
+      await store.write([{ op: "set", collection: "posts", doc: post("P2", "After") }]);
+      expect(isEncryptedDatabase(await mirror.getBytes!(cfg.path))).toBe(true);
+    }, 20_000);
   });
 });

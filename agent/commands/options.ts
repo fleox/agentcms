@@ -26,6 +26,7 @@ export const optionsCommand: Command = {
         "Secrets never go in the plan: store them first with `agentcms credentials set <type>:<name>` and reference the account id.",
         "hosting.credential may be omitted for git hostings on the same provider as markdown-git content (the content token is reused).",
         "admin: false skips copying the admin onto the hosting.",
+        "SQLite is encrypted by default (passphrase generated and stored as passphrase:<alias>); data.location keeps the file in a separate private place.",
         "Entries with cli: false need the setup wizard: `agentcms serve`.",
       ],
     };

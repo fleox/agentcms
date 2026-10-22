@@ -4,11 +4,29 @@ import { dirname as __acmsDirname } from "node:path";
 const require2 = __acmsRequire(import.meta.url);
 const __filename = __acmsPath(import.meta.url);
 const __dirname = __acmsDirname(__filename);
-import { c as createRemoteGitTransport, j as joinRepoPath, a as splitSecrets } from "./markdownLayout-DDqv_pCV.mjs";
-import { C as CliError, b as fetchText, c as parseConfigJs, p as parseAccount, r as requireCredential, e as fetchHostedAdmin } from "../agentcms.mjs";
-import "node:util";
+import { y as createRemoteGitTransport, u as joinRepoPath, B as splitSecrets, v as openDatabaseBytes, C as decodeDatabase } from "./registry-BU0AVXwQ.mjs";
+import { loadSqlWasm, hostingConnector } from "./hosting-Dx0eiJCs.mjs";
+import { C as CliError, f as fetchText, p as parseConfigJs, a as parseAccount, r as requireCredential, b as fetchHostedAdmin } from "../agentcms.mjs";
+import "util";
+import "crypto";
+import "process";
+import "tls";
+import "fs";
+import "os";
+import "net";
+import "events";
+import "stream";
+import "path";
+import "http2";
+import "http";
+import "url";
+import "dns";
+import "zlib";
+import "buffer";
 import "node:fs";
 import "node:path";
+import "./plan-BhnegERT.mjs";
+import "node:util";
 import "node:url";
 import "node:child_process";
 import "node:os";
@@ -53,6 +71,28 @@ async function siteFromAdminUrl(opts) {
     }
   } else if (runtime.backend === "sqlite-file") {
     hosting = { connectorId: runtime.sqlite.connectorId, settings: { ...runtime.sqlite.settings, siteUrl } };
+    if (opts.passphraseCredential) {
+      parseAccount(opts.passphraseCredential);
+      credentials.passphrase = opts.passphraseCredential;
+    }
+    if (opts.dataCredential) {
+      credentials.data = opts.dataCredential;
+      loadSqlWasm();
+      const location = { connectorId: runtime.sqlite.connectorId, settings: { ...runtime.sqlite.settings, ...requireCredential(opts.dataCredential).values } };
+      const bytes = await hostingConnector(location).getBytes?.(runtime.sqlite.path);
+      if (bytes) {
+        const passphrase = opts.passphraseCredential ? requireCredential(opts.passphraseCredential).values.passphrase : null;
+        const { plain } = await openDatabaseBytes(bytes, passphrase);
+        const snapshot = await decodeDatabase(plain);
+        const storage = snapshot.config.get("storage");
+        if (storage?.connectorId === "flexweg") {
+          const fw = snapshot.config.get("flexweg");
+          hosting = { connectorId: "flexweg", settings: { siteUrl: fw?.siteUrl ?? siteUrl, apiBaseUrl: fw?.apiBaseUrl } };
+        } else if (storage?.connectorId) {
+          hosting = { connectorId: storage.connectorId, settings: splitSecrets(storage.settings ?? {}).clean };
+        }
+      }
+    }
   }
   if (opts.hostingCredential) {
     parseAccount(opts.hostingCredential);

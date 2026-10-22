@@ -796,7 +796,7 @@
       "noteLocalConfig": "La configuration est enregistrée dans ce navigateur ; vous pourrez télécharger config.js à placer dans le dossier admin pour éviter cette étape aux autres éditeurs."
     },
     "sqliteFile": {
-      "security": "Pas de comptes utilisateurs : toute personne qui peut ouvrir cet admin peut modifier le contenu. Protégez le dossier de l'admin au niveau de l'hébergement (ex. un mot de passe sur /admin) — et le fichier de base aussi s'il est servi publiquement.",
+      "security": "Pas de comptes utilisateurs : toute personne qui peut ouvrir cet admin peut modifier le contenu — protégez le dossier de l'admin au niveau de l'hébergement. Le fichier de base est servi comme n'importe quel fichier : gardez-le chiffré, ou stockez-le dans un emplacement privé séparé.",
       "intro": "Là où le fichier de base est stocké. Il est lu et enregistré par cet admin via les mêmes connecteurs que l'hébergement.",
       "path": "Chemin du fichier de base",
       "pathHint": "Créé au premier enregistrement s'il n'existe pas encore. Avec un dépôt Git, chaque enregistrement est un commit — préférez un dépôt ou une branche qui ne déclenche pas de build du site.",
@@ -807,7 +807,23 @@
       "flexwegService": "Utiliser le service SQLite de Flexweg",
       "flexwegServiceHint": "La base est gérée par Flexweg et dispose de comptes utilisateurs intégrés (e-mail + mot de passe). Sinon, c'est un simple fichier sur cet hébergement, sans comptes.",
       "summaryFile": "Fichier {{path}} sur cet hébergement",
-      "summaryService": "Service SQLite de Flexweg ({{path}})"
+      "summaryService": "Service SQLite de Flexweg ({{path}})",
+      "encrypt": "Chiffrer la base",
+      "encryptHint": "Recommandé sur un hébergement public : le fichier est illisible sans la phrase secrète. Chaque nouveau navigateur la demande une fois.",
+      "passphrase": "Phrase secrète",
+      "passphraseHint": "Enregistrez-la maintenant dans votre gestionnaire de mots de passe : sans elle, personne ne peut ouvrir la base, pas même vous.",
+      "copy": "Copier",
+      "copied": "Copiée",
+      "generate": "Nouvelle",
+      "passphraseTooShort": "La phrase secrète doit faire au moins 12 caractères.",
+      "existingEncrypted": "Une base chiffrée existe déjà à cet emplacement : saisissez sa phrase secrète.",
+      "separate": "Stocker la base dans un emplacement privé séparé",
+      "separateHint": "Par ex. un bucket S3 / R2 privé ou un dépôt Git privé : la base n'est alors jamais servie par le site public.",
+      "summaryEncrypted": "chiffrée",
+      "summaryLocation": "stockée dans {{location}}",
+      "locationLabel": "Emplacement de la base",
+      "gitBranchNote": "La base est conservée sur la branche {{branch}} de ce dépôt, qui n'est jamais publiée : enregistrer un contenu ne relance pas la construction du site.",
+      "summaryBranch": "sur la branche {{branch}}"
     },
     "adminHosting": {
       "deploying": "Copie de l'admin sur le site…",
@@ -1051,6 +1067,10 @@
   "sqliteAccess": {
     "heading": "Connexion à la base de données",
     "intro": "Cet admin stocke son contenu dans {{path}}. Saisissez les identifiants d'accès pour ce navigateur.",
-    "storage": "Les identifiants sont conservés dans ce navigateur uniquement. La déconnexion les efface."
+    "storage": "Les identifiants sont conservés dans ce navigateur uniquement. La déconnexion les efface.",
+    "passphrase": "Phrase secrète de la base",
+    "passphraseHint": "La base est chiffrée. Saisissez la phrase secrète choisie à l'installation (conservée dans ce navigateur uniquement).",
+    "passphraseWrong": "Phrase secrète incorrecte : la base n'a pas pu être ouverte.",
+    "passphraseMissing": "Saisissez la phrase secrète de la base."
   }
 }

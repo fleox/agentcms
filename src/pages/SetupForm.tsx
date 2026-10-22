@@ -20,6 +20,8 @@ import { getHostingOption, hostingOptionFor } from "../components/connectors/hos
 import { getAdminFolder } from "../lib/adminBase";
 import { DEFAULT_FLEXWEG_API_BASE_URL } from "../services/flexwegConfig";
 import { LOCAL_CONTENT_HANDLE_KEY } from "../services/docstore/gitStore";
+import { generatePassphrase } from "../services/docstore/sqliteCrypto";
+import { defaultSqliteLocation, SQLITE_DATA_BRANCH } from "../services/docstore/sqliteLocation";
 import { isLocalFolderSupported, pickLocalFolder, saveFolderHandle } from "../services/git";
 import type { PublishTarget } from "../services/storage/target";
 import { testStorageConnection } from "../services/storage/testConnection";
@@ -177,6 +179,16 @@ export function SetupForm() {
   // …or, when that hosting is Flexweg, optionally in Flexweg's SQLite
   // service (built-in user accounts).
   const [flexwegService, setFlexwegService] = useState(false);
+  // SQLite file encrypted with a passphrase (a static host serves the
+  // file to anyone who guesses its path)…
+  const [sqliteEncrypt, setSqliteEncrypt] = useState(true);
+  const [sqlitePassphrase, setSqlitePassphrase] = useState(generatePassphrase);
+  // …and/or kept in a separate private location instead of the site.
+  const [sqliteSeparate, setSqliteSeparate] = useState(false);
+  const [sqliteLocation, setSqliteLocation] = useState<PublishTarget>(() => {
+    const option = getHostingOption("s3");
+    return { connectorId: option.connectorId, settings: { ...option.preset } };
+  });
   // Host the admin on the publish target too (copied into this folder).
   const [hostAdmin, setHostAdmin] = useState(true);
   const [adminFolder, setAdminFolder] = useState(DEFAULT_ADMIN_FOLDER);
@@ -281,7 +293,12 @@ export function SetupForm() {
       if (useFlexwegService) {
         await verifySqlite(flexwegServiceForm(), t);
       } else if (backend === "sqlite-file") {
-        setSqliteExisting(await verifySqliteFile(target, sqlitePathOnHost, t));
+        if (sqliteEncrypt && sqlitePassphrase.trim().length < 12) {
+          throw new SetupError("generic", t("setup.sqliteFile.passphraseTooShort"));
+        }
+        setSqliteExisting(
+          await verifySqliteFile(sqliteDataLocation(target), sqlitePathOnHost, t, sqliteEncrypt ? sqlitePassphrase : null),
+        );
       }
       setWizardStep("install");
     });
@@ -302,7 +319,12 @@ export function SetupForm() {
             ? await installSqlite(flexwegServiceForm(), target, progress, t, opts)
             : await installDocStore(
                 backend === "sqlite-file"
-                  ? { backend, location: target, path: sqlitePathOnHost }
+                  ? {
+                      backend,
+                      location: sqliteDataLocation(target),
+                      path: sqlitePathOnHost,
+                      passphrase: sqliteEncrypt ? sqlitePassphrase : null,
+                    }
                   : backend === "markdown-git"
                     ? { backend, git, token: gitToken }
                     : { backend: "local" },
@@ -319,6 +341,12 @@ export function SetupForm() {
   }
 
   const useFlexwegService = backend === "sqlite-file" && flexwegService && target?.connectorId === "flexweg";
+
+  // SQLite file location: the separate private place when chosen, else a
+  // dedicated branch of a git hosting, else the hosting itself.
+  function sqliteDataLocation(hosting: PublishTarget): PublishTarget {
+    return sqliteSeparate ? sqliteLocation : defaultSqliteLocation(hosting);
+  }
 
   // Flexweg SQLite service: its credentials are the Flexweg hosting ones.
   function flexwegServiceForm(): SetupFormState {
@@ -434,12 +462,21 @@ export function SetupForm() {
             {backend === "sqlite-file" && target && (
               <SqliteHostingFields
                 onFlexweg={target.connectorId === "flexweg"}
+                onGit={target.connectorId === "git-pages"}
                 useService={useFlexwegService}
                 setUseService={setFlexwegService}
                 path={sqlitePathOnHost}
                 setPath={setSqlitePathOnHost}
                 form={form}
                 patch={patch}
+                encrypt={sqliteEncrypt}
+                setEncrypt={setSqliteEncrypt}
+                passphrase={sqlitePassphrase}
+                setPassphrase={setSqlitePassphrase}
+                separate={sqliteSeparate}
+                setSeparate={setSqliteSeparate}
+                location={sqliteLocation}
+                setLocation={setSqliteLocation}
               />
             )}
           </WizardCard>
@@ -467,9 +504,20 @@ export function SetupForm() {
                   <span className="block text-xs font-normal text-surface-500 break-all">
                     {useFlexwegService
                       ? t("setup.sqliteFile.summaryService", { path: form.sqlitePath })
-                      : `${t("setup.sqliteFile.summaryFile", { path: sqlitePathOnHost })} · ${t(
-                          sqliteExisting ? "setup.sqliteFile.existing" : "setup.sqliteFile.new",
-                        )}`}
+                      : [
+                          t("setup.sqliteFile.summaryFile", { path: sqlitePathOnHost }),
+                          t(sqliteExisting ? "setup.sqliteFile.existing" : "setup.sqliteFile.new"),
+                          sqliteEncrypt ? t("setup.sqliteFile.summaryEncrypted") : null,
+                          sqliteSeparate
+                            ? t("setup.sqliteFile.summaryLocation", {
+                                location: t(`hosting.${hostingOptionFor(sqliteLocation.connectorId, sqliteLocation.settings).id}.title`),
+                              })
+                            : target?.connectorId === "git-pages"
+                              ? t("setup.sqliteFile.summaryBranch", { branch: SQLITE_DATA_BRANCH })
+                              : null,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
                   </span>
                 )}
               </dd>
@@ -692,18 +740,45 @@ function FirebaseFields({ form, patch }: { form: SetupFormState; patch: Patch })
 
 interface SqliteHostingFieldsProps {
   onFlexweg: boolean;
+  onGit: boolean;
   useService: boolean;
   setUseService: (v: boolean) => void;
   path: string;
   setPath: (path: string) => void;
   form: SetupFormState;
   patch: Patch;
+  encrypt: boolean;
+  setEncrypt: (v: boolean) => void;
+  passphrase: string;
+  setPassphrase: (v: string) => void;
+  separate: boolean;
+  setSeparate: (v: boolean) => void;
+  location: PublishTarget;
+  setLocation: (next: PublishTarget) => void;
 }
 
 // SQLite storage on the chosen hosting: a database file (path below), or
 // — on Flexweg only — Flexweg's SQLite service with user accounts.
-function SqliteHostingFields({ onFlexweg, useService, setUseService, path, setPath, form, patch }: SqliteHostingFieldsProps) {
+function SqliteHostingFields({
+  onFlexweg,
+  onGit,
+  useService,
+  setUseService,
+  path,
+  setPath,
+  form,
+  patch,
+  encrypt,
+  setEncrypt,
+  passphrase,
+  setPassphrase,
+  separate,
+  setSeparate,
+  location,
+  setLocation,
+}: SqliteHostingFieldsProps) {
   const { t } = useTranslation();
+  const [copied, setCopied] = useState(false);
   return (
     <fieldset className="space-y-3 border-t border-surface-200 pt-5 dark:border-surface-700">
       <legend className="text-sm font-semibold text-surface-900 dark:text-surface-50">{t("setup.sqliteFile.heading")}</legend>
@@ -736,8 +811,75 @@ function SqliteHostingFields({ onFlexweg, useService, setUseService, path, setPa
           </div>
           <div>
             <Field label={t("setup.sqliteFile.path")} value={path} onChange={setPath} required placeholder="admin/data/cms.sqlite" />
-            <p className="text-[11px] text-surface-500 dark:text-surface-400 mt-1">{t("setup.sqliteFile.pathHint")}</p>
+            <p className="text-[11px] text-surface-500 dark:text-surface-400 mt-1">
+              {onGit && !separate ? t("setup.sqliteFile.gitBranchNote", { branch: SQLITE_DATA_BRANCH }) : t("setup.sqliteFile.pathHint")}
+            </p>
           </div>
+          <label className="flex items-start gap-2 text-sm">
+            <input type="checkbox" className="mt-1" checked={encrypt} onChange={(e) => setEncrypt(e.target.checked)} />
+            <span>
+              <span className="font-medium">{t("setup.sqliteFile.encrypt")}</span>
+              <span className="block text-xs text-surface-500 dark:text-surface-400">{t("setup.sqliteFile.encryptHint")}</span>
+            </span>
+          </label>
+          {encrypt && (
+            <div>
+              <label className="label" htmlFor="sqlite-passphrase">
+                {t("setup.sqliteFile.passphrase")}
+              </label>
+              <div className="flex gap-2">
+                <input
+                  id="sqlite-passphrase"
+                  className="input font-mono text-xs"
+                  autoComplete="off"
+                  spellCheck={false}
+                  value={passphrase}
+                  onChange={(e) => {
+                    setPassphrase(e.target.value);
+                    setCopied(false);
+                  }}
+                  required
+                />
+                <button
+                  type="button"
+                  className="btn-secondary shrink-0"
+                  onClick={() => {
+                    void navigator.clipboard?.writeText(passphrase).then(() => setCopied(true));
+                  }}
+                >
+                  <span>{t(copied ? "setup.sqliteFile.copied" : "setup.sqliteFile.copy")}</span>
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary shrink-0"
+                  onClick={() => {
+                    setPassphrase(generatePassphrase());
+                    setCopied(false);
+                  }}
+                >
+                  <span>{t("setup.sqliteFile.generate")}</span>
+                </button>
+              </div>
+              <p className="text-[11px] text-amber-700 dark:text-amber-300 mt-1">{t("setup.sqliteFile.passphraseHint")}</p>
+            </div>
+          )}
+          <label className="flex items-start gap-2 text-sm">
+            <input type="checkbox" className="mt-1" checked={separate} onChange={(e) => setSeparate(e.target.checked)} />
+            <span>
+              <span className="font-medium">{t("setup.sqliteFile.separate")}</span>
+              <span className="block text-xs text-surface-500 dark:text-surface-400">{t("setup.sqliteFile.separateHint")}</span>
+            </span>
+          </label>
+          {separate && (
+            <PublishTargetForm
+              value={location}
+              onChange={setLocation}
+              exclude={["zip", "flexweg"]}
+              pickerLabel={t("setup.sqliteFile.locationLabel")}
+              hideFields={["siteUrl", "publicRead"]}
+              testIgnore={["siteUrl"]}
+            />
+          )}
         </>
       )}
     </fieldset>

@@ -113,6 +113,21 @@ export async function runDoctor(site: SiteRecord, opts: { deep?: boolean; fetchI
     }
   }
 
+  // A SQLite database on a public host must not be readable.
+  if (site.runtime.backend === "sqlite-file") {
+    const path = site.runtime.sqlite.path;
+    const db = await fetchText(`${siteUrl}/${path}`, f);
+    if (!db.ok) add({ id: "database-exposure", status: "ok", message: `Database not served by the public site (${db.status || db.error}).` });
+    else if (db.text.startsWith("ACMSENC1")) add({ id: "database-exposure", status: "ok", message: "Database served publicly but encrypted." });
+    else
+      add({
+        id: "database-exposure",
+        status: "fail",
+        message: `Anyone can download the unencrypted database at ${siteUrl}/${path} (drafts, settings).`,
+        fix: "Turn on encryption (reinstall with data.encryption, or store the database in a separate private location) and block the path at the host if possible.",
+      });
+  }
+
   // Credentials held by this computer.
   for (const [role, account] of Object.entries(site.credentials)) {
     if (!account) continue;

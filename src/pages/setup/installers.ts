@@ -22,7 +22,14 @@ import { createRemoteGitTransport, joinRepoPath, loadFolderHandle } from "../../
 import { savePublishTarget, type PublishTarget } from "../../services/storage/target";
 import { instantiateStorageConnector } from "../../services/storage/registry";
 import { testStorageConnection } from "../../services/storage/testConnection";
-import { saveSqliteConnectorSecrets, splitConnectorSettings } from "../../services/docstore/sqliteFileStore";
+import {
+  openDatabaseBytes,
+  saveSqliteConnectorSecrets,
+  saveSqlitePassphrase,
+  splitConnectorSettings,
+} from "../../services/docstore/sqliteFileStore";
+import { isEncryptedDatabase, SqlitePassphraseError } from "../../services/docstore/sqliteCrypto";
+import { ensurePublishBranch } from "../../services/docstore/sqliteLocation";
 import { syncThemeAssets } from "../../services/themeSync";
 import { adminUrlOn, currentAdminFolderOn, deployAdmin, uploadConfigJsTo } from "../../services/adminDeploy";
 
@@ -269,16 +276,28 @@ export async function verifyGitContent(git: GitContent, token: string, t: T): Pr
   return stored?.connectorId ? { connectorId: stored.connectorId, settings: stored.settings ?? {} } : null;
 }
 
-// SQLite file on the user's hosting: the location must accept a write
-// (probe file) and, if a database already exists there, it is reused.
-// Returns true when an existing database was found.
-export async function verifySqliteFile(location: PublishTarget, path: string, t: T): Promise<boolean> {
+// SQLite file on the user's hosting (or a separate private location):
+// the location must accept a write (probe file) and, if a database
+// already exists there, it is reused — an encrypted one must open with
+// the passphrase typed in the wizard. Returns true when one was found.
+export async function verifySqliteFile(location: PublishTarget, path: string, t: T, passphrase?: string | null): Promise<boolean> {
   if (!/^[\w./-]+\.(sqlite|db)$/i.test(path.trim())) throw new SetupError("missingFields");
   const res = await testStorageConnection(location.connectorId, location.settings, { ignore: ["siteUrl"] });
   if (!res.ok) throw new SetupError("generic", `${t("connectors.testFailed")} — ${res.detail}`);
   const connector = instantiateStorageConnector(location.connectorId, location.settings);
   if (!connector.getBytes) throw new SetupError("generic", t("docstore.errors.sqliteUnsupported", { connector: location.connectorId }));
-  return (await connector.getBytes(path.trim().replace(/^\/+/, ""))) !== null;
+  const bytes = await connector.getBytes(path.trim().replace(/^\/+/, ""));
+  if (bytes && isEncryptedDatabase(bytes)) {
+    try {
+      await openDatabaseBytes(bytes, passphrase ?? null);
+    } catch (err) {
+      if (err instanceof SqlitePassphraseError) {
+        throw new SetupError("generic", t(err.reason === "wrong" ? "sqliteAccess.passphraseWrong" : "setup.sqliteFile.existingEncrypted"));
+      }
+      throw err;
+    }
+  }
+  return bytes !== null;
 }
 
 // ─── Step 3: install ─────────────────────────────────────────────────────
@@ -433,7 +452,8 @@ export async function installSqlite(
 export type DocStoreInput =
   | { backend: "local" }
   | { backend: "markdown-git"; git: GitContent; token: string }
-  | { backend: "sqlite-file"; location: PublishTarget; path: string };
+  // passphrase set → the file is encrypted with it (sqliteCrypto.ts).
+  | { backend: "sqlite-file"; location: PublishTarget; path: string; passphrase?: string | null };
 
 // Markdown in git / SQLite file / this browser. `target` null = reuse
 // the publish target already stored in the content.
@@ -451,9 +471,16 @@ export async function installDocStore(
     // Connector secrets stay in this browser; the rest goes to config.js.
     const { publicSettings, secrets } = splitConnectorSettings(input.location.settings);
     saveSqliteConnectorSecrets(secrets);
+    const passphrase = input.passphrase?.trim() || null;
+    saveSqlitePassphrase(passphrase);
     runtime = {
       backend: "sqlite-file",
-      sqlite: { connectorId: input.location.connectorId, settings: publicSettings, path: input.path.trim().replace(/^\/+/, "") },
+      sqlite: {
+        connectorId: input.location.connectorId,
+        settings: publicSettings,
+        path: input.path.trim().replace(/^\/+/, ""),
+        ...(passphrase ? { encrypted: true } : {}),
+      },
     };
   } else {
     const git = input.git;
@@ -473,6 +500,9 @@ export async function installDocStore(
   }
   activate(runtime);
   try {
+    // SQLite on a dedicated branch of a git hosting: the published branch
+    // must exist first (an empty repo's first branch becomes its default).
+    if (input.backend === "sqlite-file" && target) await ensurePublishBranch(target);
     p.step(t("setup.docstore.steps.content"));
     await getDocStore().ready();
     p.done(t("setup.docstore.steps.content"));

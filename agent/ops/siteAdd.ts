@@ -1,6 +1,8 @@
 import type { FlexwegRuntimeConfig } from "../../src/lib/runtimeConfig";
 import { splitSecrets } from "../../src/services/docstore/markdownLayout";
 import { createRemoteGitTransport, joinRepoPath } from "../../src/services/git";
+import { decodeDatabase, openDatabaseBytes } from "../../src/services/docstore/sqliteFileStore";
+import { hostingConnector, loadSqlWasm } from "./hosting";
 import { parseAccount, requireCredential } from "../credentials";
 import { CliError } from "../output";
 import { fetchHostedAdmin, fetchText, parseConfigJs } from "../remote";
@@ -16,6 +18,7 @@ export async function siteFromAdminUrl(opts: {
   siteUrl?: string;
   dataCredential?: string;
   hostingCredential?: string;
+  passphraseCredential?: string;
 }): Promise<SiteRecord> {
   let admin: URL;
   try {
@@ -60,7 +63,32 @@ export async function siteFromAdminUrl(opts: {
       credentials.hosting = opts.dataCredential;
     }
   } else if (runtime.backend === "sqlite-file") {
+    // Default: the database sits on the hosting itself.
     hosting = { connectorId: runtime.sqlite.connectorId, settings: { ...runtime.sqlite.settings, siteUrl } };
+    if (opts.passphraseCredential) {
+      parseAccount(opts.passphraseCredential);
+      credentials.passphrase = opts.passphraseCredential;
+    }
+    // With the data location's credential, read the real publish target
+    // from the database (it may be a separate private location).
+    if (opts.dataCredential) {
+      credentials.data = opts.dataCredential;
+      loadSqlWasm();
+      const location = { connectorId: runtime.sqlite.connectorId, settings: { ...runtime.sqlite.settings, ...requireCredential(opts.dataCredential).values } };
+      const bytes = await hostingConnector(location).getBytes?.(runtime.sqlite.path);
+      if (bytes) {
+        const passphrase = opts.passphraseCredential ? requireCredential(opts.passphraseCredential).values.passphrase : null;
+        const { plain } = await openDatabaseBytes(bytes, passphrase);
+        const snapshot = await decodeDatabase(plain);
+        const storage = snapshot.config.get("storage") as { connectorId?: string; settings?: Record<string, unknown> } | undefined;
+        if (storage?.connectorId === "flexweg") {
+          const fw = snapshot.config.get("flexweg") as { siteUrl?: string; apiBaseUrl?: string } | undefined;
+          hosting = { connectorId: "flexweg", settings: { siteUrl: fw?.siteUrl ?? siteUrl, apiBaseUrl: fw?.apiBaseUrl } };
+        } else if (storage?.connectorId) {
+          hosting = { connectorId: storage.connectorId, settings: splitSecrets(storage.settings ?? {}).clean };
+        }
+      }
+    }
   }
   if (opts.hostingCredential) {
     parseAccount(opts.hostingCredential);
