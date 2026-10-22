@@ -24,6 +24,13 @@ export function getDocStore(): DocStore {
   return active;
 }
 
+// Drops the active store: the next getDocStore() builds one from the
+// current runtime config (the agentcms CLI may activate several configs
+// in one process).
+export function resetDocStore(): void {
+  active = null;
+}
+
 // Tests: install a specific store (typically createMemoryDocStore()).
 export function setDocStoreForTests(store: DocStore | null): void {
   active = store;

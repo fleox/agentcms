@@ -1,17 +1,21 @@
-import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-import { getDocStore } from "../../src/services/docstore";
+import { getDocStore, resetDocStore } from "../../src/services/docstore";
 import { setGitToken } from "../../src/services/docstore/gitStore";
-import { saveSqliteConnectorSecrets, setSqlJsWasmBinary } from "../../src/services/docstore/sqliteFileStore";
+import {
+  openDatabaseBytes,
+  saveSqliteConnectorSecrets,
+  saveSqlitePassphrase,
+} from "../../src/services/docstore/sqliteFileStore";
+import { generatePassphrase, isEncryptedDatabase, SqlitePassphraseError } from "../../src/services/docstore/sqliteCrypto";
+import { setCredential } from "../credentials";
+import { ensurePublishBranch } from "../../src/services/docstore/sqliteLocation";
 import { createRemoteGitTransport, joinRepoPath } from "../../src/services/git";
 import { resetRuntimeConfigCache, type FlexwegRuntimeConfig, type MarkdownGitRuntimeConfig } from "../../src/lib/runtimeConfig";
+import { invalidateActiveStorageConnector } from "../../src/services/storage/registry";
 import { savePublishTarget } from "../../src/services/storage/target";
 import { testStorageConnection } from "../../src/services/storage/testConnection";
 import { subscribeToToasts } from "../../src/lib/toast";
 import { githubPagesCheck } from "../../src/services/storage/connectors/gitPages";
-import { CliError } from "../output";
-import { distRoot } from "../paths";
-import { adminOps, applyOps, hostingConnector, themeAssetOps } from "./hosting";
+import { adminOps, applyOps, hostingConnector, loadSqlWasm, themeAssetOps } from "./hosting";
 import type { ResolvedPlan } from "./plan";
 
 // Same steps as the setup wizard's installDocStore (src/pages/setup/
@@ -80,15 +84,30 @@ export async function checkPlan(plan: ResolvedPlan): Promise<CheckReport> {
       data = { ok: false, detail: (err as Error).message, existing: false };
     }
   } else {
-    // The database lives on the hosting itself.
+    // The database lives on the hosting, or in its separate location.
+    const location = plan.dataLocation ?? plan.target;
     try {
-      const connector = hostingConnector(plan.target);
-      if (!connector.getBytes) throw new Error(`${plan.target.connectorId} can't hold a SQLite file`);
+      if (location !== plan.target) {
+        const res = await testStorageConnection(location.connectorId, location.settings, { ignore: ["siteUrl"] });
+        if (!res.ok) throw new Error(`data location: ${res.detail}`);
+      }
+      const connector = hostingConnector(location);
+      if (!connector.getBytes) throw new Error(`${location.connectorId} can't hold a SQLite file`);
       const path = plan.runtime.backend === "sqlite-file" ? plan.runtime.sqlite.path : "";
-      const existing = (await connector.getBytes(path)) !== null;
-      data = { ok: true, detail: existing ? `existing database at ${path}` : `new database at ${path}`, existing };
+      const bytes = await connector.getBytes(path);
+      const where = `${path}${location !== plan.target ? ` (${plan.dataLocationType})` : ""}`;
+      if (!bytes) {
+        data = { ok: true, detail: `new ${plan.passphraseAccount ? "encrypted " : ""}database at ${where}`, existing: false };
+      } else if (isEncryptedDatabase(bytes)) {
+        if (!plan.passphrase) throw new Error(`an encrypted database already exists at ${where}: store its passphrase as ${plan.passphraseAccount ?? "passphrase:<alias>"} (and set data.encryption)`);
+        await openDatabaseBytes(bytes, plan.passphrase);
+        data = { ok: true, detail: `existing encrypted database at ${where}`, existing: true };
+      } else {
+        data = { ok: true, detail: `existing database at ${where}${plan.passphraseAccount ? " — encrypted from its next save" : ""}`, existing: true };
+      }
     } catch (err) {
-      data = { ok: false, detail: (err as Error).message, existing: false };
+      const message = err instanceof SqlitePassphraseError ? `wrong passphrase in ${plan.passphraseAccount}` : (err as Error).message;
+      data = { ok: false, detail: message, existing: false };
     }
   }
   return { hosting, data };
@@ -97,14 +116,10 @@ export async function checkPlan(plan: ResolvedPlan): Promise<CheckReport> {
 function activate(runtime: FlexwegRuntimeConfig): void {
   window.__FLEXWEG_CONFIG__ = runtime;
   resetRuntimeConfigCache();
+  resetDocStore();
+  invalidateActiveStorageConnector();
 }
 
-function loadSqlWasm(): void {
-  const assets = join(distRoot(), "admin", "assets");
-  const wasm = readdirSync(assets).find((f) => /^sql-wasm.*\.wasm$/.test(f));
-  if (!wasm) throw new CliError("admin-missing", `sql.js WASM not found in ${assets}.`);
-  setSqlJsWasmBinary(new Uint8Array(readFileSync(join(assets, wasm))));
-}
 
 export interface InstallOutcome {
   adminVersion: string | null;
@@ -119,7 +134,17 @@ export async function runInstall(plan: ResolvedPlan, onStep: (label: string) => 
     if (plan.runtime.backend === "markdown-git") setGitToken(plan.runtime.git, plan.gitToken ?? null);
     if (plan.runtime.backend === "sqlite-file") {
       saveSqliteConnectorSecrets(plan.sqliteSecrets ?? {});
+      if (plan.passphraseAccount) {
+        // Stored BEFORE the first encrypted save, so it can't be lost.
+        if (!plan.passphrase) {
+          plan.passphrase = generatePassphrase();
+          setCredential(plan.passphraseAccount, { passphrase: plan.passphrase });
+          onStep(`Generated the database passphrase (stored as ${plan.passphraseAccount})`);
+        }
+        saveSqlitePassphrase(plan.passphrase);
+      }
       loadSqlWasm();
+      await ensurePublishBranch(plan.target);
     }
 
     onStep("Opening the content store");

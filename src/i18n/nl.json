@@ -796,7 +796,7 @@
       "noteLocalConfig": "De configuratie wordt in deze browser opgeslagen; u krijgt config.js aangeboden om in de admin-map te plaatsen, zodat andere redacteuren deze installatie kunnen overslaan."
     },
     "sqliteFile": {
-      "security": "Geen gebruikersaccounts: iedereen die deze admin kan openen, kan de content bewerken. Beveilig de admin-map op het niveau van uw hosting (bijv. een wachtwoord op /admin) — en ook het databasebestand als het publiek wordt aangeboden.",
+      "security": "Geen gebruikersaccounts: iedereen die dit admin kan openen, kan de inhoud bewerken — beveilig de admin-map bij je hosting. Het databasebestand wordt als elk ander bestand geserveerd: houd het versleuteld of bewaar het op een aparte privélocatie.",
       "intro": "Waar het databasebestand wordt opgeslagen. Deze admin leest en bewaart het via dezelfde connectoren als de hosting.",
       "path": "Pad van het databasebestand",
       "pathHint": "Wordt bij de eerste keer opslaan aangemaakt als het nog niet bestaat. Bij een Git-repository is elke keer opslaan een commit — kies bij voorkeur een repository of branch die geen build van de site start.",
@@ -807,7 +807,23 @@
       "flexwegService": "De SQLite-dienst van Flexweg gebruiken",
       "flexwegServiceHint": "De database wordt door Flexweg beheerd en heeft ingebouwde gebruikersaccounts (e-mail + wachtwoord). Anders is het een gewoon bestand op deze hosting, zonder accounts.",
       "summaryFile": "Bestand {{path}} op deze hosting",
-      "summaryService": "SQLite-dienst van Flexweg ({{path}})"
+      "summaryService": "SQLite-dienst van Flexweg ({{path}})",
+      "encrypt": "Database versleutelen",
+      "encryptHint": "Aanbevolen bij openbare hosting: zonder wachtzin is het bestand onleesbaar. Elke nieuwe browser vraagt er één keer om.",
+      "passphrase": "Wachtzin",
+      "passphraseHint": "Bewaar hem nu in je wachtwoordmanager: zonder wachtzin kan niemand de database openen, ook jij niet.",
+      "copy": "Kopiëren",
+      "copied": "Gekopieerd",
+      "generate": "Nieuw",
+      "passphraseTooShort": "De wachtzin moet minstens 12 tekens lang zijn.",
+      "existingEncrypted": "Op dit pad staat al een versleutelde database: voer de wachtzin ervan in.",
+      "separate": "Database op een aparte privélocatie bewaren",
+      "separateHint": "Bijv. een privé S3- / R2-bucket of een privé Git-repository: de database wordt dan nooit door de openbare site geserveerd.",
+      "summaryEncrypted": "versleuteld",
+      "summaryLocation": "opgeslagen in {{location}}",
+      "locationLabel": "Locatie van de database",
+      "gitBranchNote": "De database staat op de branch {{branch}} van deze repository, die nooit wordt gepubliceerd: inhoud opslaan bouwt de site niet opnieuw.",
+      "summaryBranch": "op branch {{branch}}"
     },
     "adminHosting": {
       "deploying": "De admin wordt naar de site gekopieerd…",
@@ -1051,6 +1067,10 @@
   "sqliteAccess": {
     "heading": "Verbinding maken met de database",
     "intro": "Deze admin slaat zijn content op in {{path}}. Voer de toegangsgegevens voor deze browser in.",
-    "storage": "De toegangsgegevens worden alleen in deze browser bewaard. Afmelden wist ze."
+    "storage": "De toegangsgegevens worden alleen in deze browser bewaard. Afmelden wist ze.",
+    "passphrase": "Wachtzin van de database",
+    "passphraseHint": "De database is versleuteld. Voer de wachtzin in die bij de installatie is gekozen (alleen in deze browser bewaard).",
+    "passphraseWrong": "Verkeerde wachtzin: de database kon niet worden geopend.",
+    "passphraseMissing": "Voer de wachtzin van de database in."
   }
 }

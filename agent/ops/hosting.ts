@@ -6,6 +6,7 @@ import { createFilesApiConnector } from "../../src/services/storage/connectors/f
 import { instantiateStorageConnector } from "../../src/services/storage/registry";
 import type { PublishTarget } from "../../src/services/storage/target";
 import type { BatchOp, StorageConnector } from "../../src/services/storage/types";
+import { setSqlJsWasmBinary } from "../../src/services/docstore/sqliteFileStore";
 import { CliError } from "../output";
 import { distRoot } from "../paths";
 import { cleanFolder } from "./plan";
@@ -94,4 +95,12 @@ export async function applyOps(
     else if (connector.deletePrefix) await connector.deletePrefix(op.path);
     onProgress?.(++done, ops.length);
   }
+}
+
+// sql.js needs its WASM: the CLI reuses the admin build's copy.
+export function loadSqlWasm(): void {
+  const assets = join(distRoot(), "admin", "assets");
+  const wasm = readdirSync(assets).find((f) => /^sql-wasm.*\.wasm$/.test(f));
+  if (!wasm) throw new CliError("admin-missing", `sql.js WASM not found in ${assets}.`);
+  setSqlJsWasmBinary(new Uint8Array(readFileSync(join(assets, wasm))));
 }

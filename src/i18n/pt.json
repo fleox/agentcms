@@ -796,7 +796,7 @@
       "noteLocalConfig": "A configuração é guardada neste browser; ser-lhe-á proposto o config.js para colocar na pasta do admin, para que outros editores saltem esta configuração."
     },
     "sqliteFile": {
-      "security": "Sem contas de utilizador: qualquer pessoa que consiga abrir este admin pode editar o conteúdo. Proteja a pasta do admin ao nível do seu alojamento (p. ex. uma palavra-passe em /admin) — e também o ficheiro de base de dados, se for servido publicamente.",
+      "security": "Sem contas de utilizador: quem conseguir abrir este admin pode editar o conteúdo — proteja a pasta do admin no seu alojamento. O ficheiro da base de dados é servido como qualquer outro ficheiro: mantenha-o cifrado ou guarde-o num local privado separado.",
       "intro": "Onde o ficheiro de base de dados é guardado. Este admin lê-o e guarda-o através dos mesmos conectores que o alojamento.",
       "path": "Caminho do ficheiro de base de dados",
       "pathHint": "É criado no primeiro guardar, se ainda não existir. Com um repositório Git, cada gravação é um commit — prefira um repositório ou ramo que não desencadeie um build do site.",
@@ -807,7 +807,23 @@
       "flexwegService": "Utilizar o serviço SQLite da Flexweg",
       "flexwegServiceHint": "A base de dados é gerida pela Flexweg e inclui contas de utilizador integradas (e-mail + palavra-passe). Caso contrário, é um simples ficheiro neste alojamento, sem contas.",
       "summaryFile": "Ficheiro {{path}} neste alojamento",
-      "summaryService": "Serviço SQLite da Flexweg ({{path}})"
+      "summaryService": "Serviço SQLite da Flexweg ({{path}})",
+      "encrypt": "Cifrar a base de dados",
+      "encryptHint": "Recomendado num alojamento público: o ficheiro fica ilegível sem a frase-passe. Cada novo navegador pede-a uma vez.",
+      "passphrase": "Frase-passe",
+      "passphraseHint": "Guarde-a já no seu gestor de palavras-passe: sem ela ninguém consegue abrir a base de dados, nem mesmo você.",
+      "copy": "Copiar",
+      "copied": "Copiada",
+      "generate": "Nova",
+      "passphraseTooShort": "A frase-passe deve ter pelo menos 12 caracteres.",
+      "existingEncrypted": "Já existe uma base de dados cifrada neste caminho: introduza a respetiva frase-passe.",
+      "separate": "Guardar a base de dados num local privado separado",
+      "separateHint": "Por ex. um bucket S3 / R2 privado ou um repositório Git privado: a base de dados nunca é servida pelo site público.",
+      "summaryEncrypted": "cifrada",
+      "summaryLocation": "guardada em {{location}}",
+      "locationLabel": "Local da base de dados",
+      "gitBranchNote": "A base de dados fica no ramo {{branch}} deste repositório, que nunca é publicado: guardar conteúdo não volta a gerar o site.",
+      "summaryBranch": "no ramo {{branch}}"
     },
     "adminHosting": {
       "deploying": "A copiar o admin para o site…",
@@ -1051,6 +1067,10 @@
   "sqliteAccess": {
     "heading": "Ligar à base de dados",
     "intro": "Este admin guarda o seu conteúdo em {{path}}. Introduza as credenciais de acesso para este browser.",
-    "storage": "As credenciais são guardadas apenas neste browser. Terminar sessão apaga-as."
+    "storage": "As credenciais são guardadas apenas neste browser. Terminar sessão apaga-as.",
+    "passphrase": "Frase-passe da base de dados",
+    "passphraseHint": "A base de dados está cifrada. Introduza a frase-passe escolhida na instalação (guardada apenas neste navegador).",
+    "passphraseWrong": "Frase-passe incorreta: não foi possível abrir a base de dados.",
+    "passphraseMissing": "Introduza a frase-passe da base de dados."
   }
 }

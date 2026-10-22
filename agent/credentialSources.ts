@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
@@ -98,4 +98,24 @@ export async function promptHidden(question: string): Promise<string> {
     };
     stdin.on("data", onData);
   });
+}
+
+// Puts a secret on the clipboard without printing it (the user pastes it
+// into a password manager or a form).
+export function copyToClipboard(text: string): string {
+  const candidates: [string, string[]][] =
+    process.platform === "darwin"
+      ? [["pbcopy", []]]
+      : process.platform === "win32"
+        ? [["clip", []]]
+        : [
+            ["wl-copy", []],
+            ["xclip", ["-selection", "clipboard"]],
+            ["xsel", ["--clipboard", "--input"]],
+          ];
+  for (const [cmd, args] of candidates) {
+    const res = spawnSync(cmd, args, { input: text, stdio: ["pipe", "ignore", "ignore"] });
+    if (res.status === 0) return cmd;
+  }
+  throw new CliError("no-clipboard", "No clipboard tool found (pbcopy, clip, wl-copy, xclip or xsel).", "Install one, or read the value from ~/.agentcms/credentials.json yourself.");
 }

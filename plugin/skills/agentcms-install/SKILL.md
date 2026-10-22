@@ -1,6 +1,6 @@
 ---
 name: agentcms-install
-description: Install a new AgentCMS site (static CMS) for the user - ask where content is stored (SQLite file, Markdown in GitHub/GitLab, Firebase, this browser), then where the site is hosted (GitHub/GitLab/Cloudflare Pages, S3 or OVH bucket, Flexweg, own PHP server), help create or import the needed tokens and keys, and install everything with the agentcms CLI. Use when the user wants to create, set up or install an AgentCMS / Flexweg CMS site.
+description: Install a new AgentCMS site (static CMS) for the user - ask where content is stored (SQLite file, Markdown in GitHub/GitLab, Firebase, this browser), then where the site is hosted (GitHub/GitLab/Cloudflare Pages, S3 or OVH bucket, Flexweg), help create or import the needed tokens and keys, and install everything with the agentcms CLI. Use when the user wants to create, set up or install an AgentCMS / Flexweg CMS site.
 license: PolyForm-Noncommercial-1.0.0
 metadata:
   version: "0.1.0"
@@ -28,7 +28,7 @@ npx -y agentcms@0.1.0 status --json
 
 Ask this first; hosting comes after. Run `npx -y agentcms@0.1.0 options --json` and present `data.dataBackends` in one sentence each:
 
-- **SQLite file** on the hosting - one owner, simplest, no other account. No login screen: protecting `/admin` is the owner's job.
+- **SQLite file** - one owner, simplest, no other account. Encrypted with a passphrase by default (a static host serves the file like any page); can also live in a separate private bucket / repo. No login screen: anyone with the admin URL, the keys and the passphrase can edit.
 - **Markdown in a Git repo** (GitHub / GitLab) - several editors or computers, full history; each editor uses their own token.
 - **Firebase** - real-time, email/password logins. Wizard only (see "Wizard fallback").
 - **This browser** - quick try on one computer. Wizard only.
@@ -43,7 +43,6 @@ Present the entries of `data.hostings` with `cli: true` that fit the data choice
 | GitLab Pages | [references/gitlab.md](references/gitlab.md) |
 | S3-compatible bucket (AWS, OVHcloud, Scaleway, R2...) | [references/s3.md](references/s3.md) |
 | Flexweg | [references/flexweg.md](references/flexweg.md) |
-| Own PHP server | [references/own-server.md](references/own-server.md) |
 
 Markdown content on GitHub/GitLab also needs the content repository: [references/github.md](references/github.md) / [references/gitlab.md](references/gitlab.md).
 
@@ -56,6 +55,8 @@ To add one, use the first option that applies:
 1. Import from a tool the user is signed in to: `npx -y agentcms@0.1.0 credentials set github:<login> --from-gh --json`, `npx -y agentcms@0.1.0 credentials set s3:<name> --from-aws-profile <profile> --json`.
 2. Otherwise ask the user to run it **themselves** - in Claude Code they type `! npx -y agentcms@0.1.0 credentials set <account>` - and type the secret at the hidden prompt.
 3. Or an environment variable the user set: `--from-env VAR` (`--from-env KEY_ID,SECRET` for S3).
+
+SQLite passphrase: nothing to do before installing - `install` generates a strong one and stores it as `passphrase:<alias>`. To reuse an existing database, store its passphrase first (`! npx -y agentcms@0.1.0 credentials set passphrase:<alias>`).
 
 Rules: never ask for a token, password or secret key in the chat; never print one; never put one in a plan file, `config.js`, a repo or a commit. When you create a key with a CLI, send it straight into `credentials set` (environment variable or pipe), or copy it to the clipboard (`pbcopy` / `xclip` / `clip`) - never display it.
 
@@ -73,7 +74,7 @@ Write `agentcms-plan.json` (no secrets - only account ids), following `data.plan
 ```
 
 - `alias`: short name for this site (lower-case, dashes). Ask the user if they manage several sites.
-- SQLite: `"data": { "backend": "sqlite-file", "path": "data/site.sqlite" }` - the file lives on the hosting.
+- SQLite: `"data": { "backend": "sqlite-file", "path": "data/site.sqlite" }` - the file is encrypted and lives on the hosting (on git hostings: on the unpublished branch `agentcms-data` of the same repo). Add `"location": { "type": "s3", "settings": { ... }, "credential": "s3:<name>" }` to keep it in a separate private bucket (or a private GitHub repo with `"type": "git-other"`), see [references/s3.md](references/s3.md). Only set `"encryption": false` if the user insists and the file is not publicly served.
 - `hosting.credential` can be omitted when the hosting is on the same git provider as the content.
 - Keep `"admin": { "folder": "admin" }` so the admin is reachable at `<site URL>/admin/` from any computer.
 
@@ -97,6 +98,7 @@ npx -y agentcms@0.1.0 doctor --site <alias> --json
 - Relay `data.notices` (for example "GitHub Pages enabled" or how to enable it) and `data.nextSteps`.
 - For every doctor check with `status: "fail"`, propose its `fix`. Pages hosts need about a minute before the admin URL answers - re-run doctor after waiting.
 - Give the user the site URL and the admin URL, and remind them each new browser asks once for its access token or hosting keys (they are stored per browser, never online).
+- **Encrypted SQLite**: the passphrase is the only key to the content. Before finishing, run `npx -y agentcms@0.1.0 credentials copy passphrase:<alias> --json` (it goes to the clipboard, never to the chat) and ask the user to save it in their password manager now; the admin asks for it once per browser.
 - The plan file holds no secrets; offer to delete it or keep it for reference.
 
 ## Wizard fallback (Firebase, this browser, local folder, ZIP)

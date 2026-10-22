@@ -1,4 +1,12 @@
 import type { Database, SqlJsStatic } from "sql.js";
+import {
+  decryptDatabase,
+  encryptDatabase,
+  encryptionParams,
+  isEncryptedDatabase,
+  SqlitePassphraseError,
+  type EncryptionParams,
+} from "./sqliteCrypto";
 import i18n from "../../i18n";
 import type { SqliteFileRuntimeConfig } from "../../lib/runtimeConfig";
 import { instantiateStorageConnector } from "../storage/registry";
@@ -29,6 +37,7 @@ import { COLLECTIONS, DocConflictError, type DocMutation, type DocStore } from "
 // when it touched the same document.
 
 export type SqliteFileConfig = SqliteFileRuntimeConfig["sqlite"];
+export { SqlitePassphraseError };
 
 const FORMAT_VERSION = "1";
 const MAX_REBASES = 3;
@@ -37,6 +46,7 @@ const MAX_REBASES = 3;
 
 const CONNECTOR_SECRETS_KEY = "flexweg.sqliteConnectorSecrets";
 const DOC_SECRETS_KEY = "flexweg.sqliteDocSecrets";
+const PASSPHRASE_KEY = "flexweg.sqlitePassphrase";
 
 function readJson<T>(key: string, fallback: T): T {
   try {
@@ -67,6 +77,34 @@ export function splitConnectorSettings(settings: Record<string, unknown>): {
 
 export function saveSqliteConnectorSecrets(secrets: Record<string, unknown>): void {
   writeJson(CONNECTOR_SECRETS_KEY, secrets);
+}
+
+// Passphrase of an encrypted database, kept in this browser only.
+export function getSqlitePassphrase(): string | null {
+  try {
+    return window.localStorage.getItem(PASSPHRASE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function saveSqlitePassphrase(passphrase: string | null): void {
+  try {
+    if (passphrase) window.localStorage.setItem(PASSPHRASE_KEY, passphrase);
+    else window.localStorage.removeItem(PASSPHRASE_KEY);
+  } catch {
+    // Storage blocked — the passphrase won't survive a reload.
+  }
+}
+
+// Plain SQLite bytes of a database file, decrypting it when needed.
+// Returns the encryption parameters to reuse when saving it again.
+export async function openDatabaseBytes(
+  bytes: Uint8Array,
+  passphrase: string | null,
+): Promise<{ plain: Uint8Array; params: EncryptionParams | null }> {
+  if (!isEncryptedDatabase(bytes)) return { plain: bytes, params: null };
+  return { plain: await decryptDatabase(bytes, passphrase), params: encryptionParams(bytes) };
 }
 
 export function connectorSettingsWithSecrets(cfg: SqliteFileConfig): Record<string, unknown> {
@@ -181,11 +219,16 @@ function applyOnto(base: Snapshot, mutations: DocMutation[]): Snapshot {
 
 export interface SqliteFileDocStore extends DocStore {
   resetSession(): void;
+  // Why the last load couldn't open an encrypted file, if it couldn't.
+  passphraseProblem(): "missing" | "wrong" | null;
 }
 
 export function createSqliteFileDocStore(cfg: SqliteFileConfig): SqliteFileDocStore {
   let lastHash: string | null = null;
   let connector: StorageConnector | null = null;
+  // Salt / iterations of the encrypted file as loaded (kept on save).
+  let cryptoParams: EncryptionParams | null = null;
+  let passphraseProblem: "missing" | "wrong" | null = null;
   // After a rebase our file carries changes the core hasn't seen yet.
   let stale = false;
 
@@ -198,7 +241,12 @@ export function createSqliteFileDocStore(cfg: SqliteFileConfig): SqliteFileDocSt
     const c = open();
     if (!c.getBytes) throw new StorageError(i18n.t("docstore.errors.sqliteUnsupported", { connector: cfg.connectorId }), 501);
     const bytes = await c.getBytes(cfg.path);
-    const snapshot = bytes ? await decodeDatabase(bytes) : emptySnapshot();
+    let snapshot = emptySnapshot();
+    if (bytes) {
+      const opened = await openDatabaseBytes(bytes, getSqlitePassphrase());
+      if (opened.params) cryptoParams = opened.params;
+      snapshot = await decodeDatabase(opened.plain);
+    }
     mergeSecrets(snapshot, readJson<SecretBag>(DOC_SECRETS_KEY, {}));
     return { snapshot, hash: await hashBytes(bytes) };
   }
@@ -206,7 +254,10 @@ export function createSqliteFileDocStore(cfg: SqliteFileConfig): SqliteFileDocSt
   async function writeRemote(snapshot: Snapshot): Promise<void> {
     const { clean, secrets } = stripDocSecrets(snapshot);
     writeJson(DOC_SECRETS_KEY, secrets);
-    const bytes = await encodeDatabase(clean);
+    const plain = await encodeDatabase(clean);
+    // An encrypted file stays encrypted even if config.js lost the flag.
+    const encrypt = cfg.encrypted || cryptoParams !== null;
+    const bytes = encrypt ? await encryptDatabase(plain, getSqlitePassphrase() ?? "", cryptoParams ?? undefined) : plain;
     await open().put({ path: cfg.path, content: bytesToBase64(bytes), encoding: "base64" });
     lastHash = await hashBytes(bytes);
   }
@@ -262,13 +313,32 @@ export function createSqliteFileDocStore(cfg: SqliteFileConfig): SqliteFileDocSt
     // them otherwise).
     async identity() {
       if (missingFields(cfg.connectorId, connectorSettingsWithSecrets(cfg), ["siteUrl"]).length > 0) return null;
+      if (cfg.encrypted && !getSqlitePassphrase()) {
+        passphraseProblem = "missing";
+        return null;
+      }
+      // Opening the file proves the passphrase (an encrypted file is
+      // detected even when config.js lost the flag).
+      try {
+        await store.ready();
+        passphraseProblem = null;
+      } catch (err) {
+        if (err instanceof SqlitePassphraseError) {
+          passphraseProblem = err.reason;
+          return null;
+        }
+        // Other load errors surface in the admin as usual.
+      }
       return { uid: "admin", email: "admin@localhost", displayName: "Admin", role: "admin" };
     },
   });
 
   return Object.assign(store, {
+    passphraseProblem: () => passphraseProblem,
     resetSession() {
       connector = null;
+      cryptoParams = null;
+      passphraseProblem = null;
       lastHash = null;
       stale = false;
     },

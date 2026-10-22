@@ -99,7 +99,18 @@ export const installCommand: Command = {
       if (plan.backend === "markdown-git") {
         nextSteps.push("Each browser asks once for the editor's own git token (Contents read/write on the content repository).");
       } else {
-        nextSteps.push("Each new browser asks once for the hosting keys (they stay in that browser). No login: protect the admin folder at the hosting level.");
+        nextSteps.push(
+          `Each new browser asks once for the ${plan.dataLocation && plan.dataLocation !== plan.target ? "data location" : "hosting"} keys${plan.passphraseAccount ? " and the database passphrase" : ""} (they stay in that browser). No login: protect the admin folder at the hosting level.`,
+        );
+        if (plan.passphraseAccount) {
+          nextSteps.push(
+            `The database is encrypted. Have the user save its passphrase in a password manager now: \`agentcms credentials copy ${plan.passphraseAccount}\` puts it on the clipboard. Without it the content can't be opened.`,
+          );
+        } else if (!plan.dataLocation || plan.dataLocation === plan.target) {
+          nextSteps.push("Warning: the database is NOT encrypted and is served by the public site — anyone who guesses its path can download it.");
+        } else if (plan.dataLocation.connectorId === "git-pages") {
+          nextSteps.push("Warning: the database is NOT encrypted — anyone who can read the repository (public repos: everyone) can download it.");
+        }
       }
       if (plan.backend === "markdown-git" && SECRET_FIELDS[plan.target.connectorId]) {
         nextSteps.push(`Publishing from a browser needs the hosting ${SECRET_FIELDS[plan.target.connectorId]} once: admin → Settings → Publish target.`);

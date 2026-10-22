@@ -8,13 +8,14 @@ export const siteCommand: Command = {
   name: "site",
   summary:
     "Manage the registry of sites this computer drives: list, show, use <alias> (default), rename <from> <to>, forget <alias> (local only — nothing is deleted online), add <alias> --admin-url <url> (register an existing site).",
-  usage: "site <list|show|use|rename|forget|add> [args] [--site <alias>] [--admin-url <url>] [--site-url <url>] [--data-credential <account>] [--hosting-credential <account>]",
+  usage: "site <list|show|use|rename|forget|add> [args] [--site <alias>] [--admin-url <url>] [--site-url <url>] [--data-credential <account>] [--hosting-credential <account>] [--passphrase-credential <account>]",
   options: [
     { name: "site", type: "string", description: "Site alias (show)." },
     { name: "admin-url", type: "string", description: "add: URL of the hosted admin, e.g. https://example.com/admin/." },
     { name: "site-url", type: "string", description: "add: public site URL when it isn't the admin's parent folder." },
-    { name: "data-credential", type: "string", description: "add: account of the content repo token (Markdown in git)." },
+    { name: "data-credential", type: "string", description: "add: account of the content repo token (Markdown in git) or of the SQLite data location." },
     { name: "hosting-credential", type: "string", description: "add: account used to write to the hosting." },
+    { name: "passphrase-credential", type: "string", description: "add: passphrase account of an encrypted SQLite database." },
   ],
   async run({ io, options, positionals }) {
     const [action = "list", a, b] = positionals;
@@ -73,6 +74,7 @@ export const siteCommand: Command = {
           siteUrl: options["site-url"] as string | undefined,
           dataCredential: options["data-credential"] as string | undefined,
           hostingCredential: options["hosting-credential"] as string | undefined,
+          passphraseCredential: options["passphrase-credential"] as string | undefined,
         });
         putSite(site);
         printResult(io, site, () => `Registered ${a}: ${site.siteUrl} [${site.runtime.backend} → ${site.hosting.connectorId || "unknown hosting"}]`);

@@ -9,7 +9,9 @@ import { getDocStore } from "../services/docstore";
 import { notifyAuthChanged } from "../services/docstore/auth";
 import {
   connectorSettingsWithSecrets,
+  getSqlitePassphrase,
   saveSqliteConnectorSecrets,
+  saveSqlitePassphrase,
   splitConnectorSettings,
   type SqliteFileDocStore,
 } from "../services/docstore/sqliteFileStore";
@@ -17,9 +19,9 @@ import type { PublishTarget } from "../services/storage/target";
 import { testStorageConnection } from "../services/storage/testConnection";
 
 // Shown by the "sqlite-file" backend when this browser lacks the
-// credentials of the database location (token, secret key…): they are
-// never in config.js, so each new browser enters them once. There are no
-// user accounts — protecting the admin is the hosting's job.
+// credentials of the database location (token, secret key…) or the
+// passphrase of an encrypted database: they are never in config.js, so
+// each new browser enters them once. There are no user accounts.
 export function SqliteFileAccessPage() {
   const { t } = useTranslation();
   const config = getRuntimeConfig();
@@ -27,10 +29,15 @@ export function SqliteFileAccessPage() {
   const [location, setLocation] = useState<PublishTarget>(() =>
     sqlite ? { connectorId: sqlite.connectorId, settings: connectorSettingsWithSecrets(sqlite) } : { connectorId: "", settings: {} },
   );
+  const store = getDocStore() as SqliteFileDocStore;
+  const [passphrase, setPassphrase] = useState(() => getSqlitePassphrase() ?? "");
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(() =>
+    store.passphraseProblem?.() === "wrong" ? t("sqliteAccess.passphraseWrong") : null,
+  );
 
   if (!sqlite) return null;
+  const askPassphrase = !!sqlite.encrypted || store.passphraseProblem?.() != null;
 
   async function connect() {
     setBusy(true);
@@ -42,8 +49,11 @@ export function SqliteFileAccessPage() {
         return;
       }
       saveSqliteConnectorSecrets(splitConnectorSettings(location.settings).secrets);
-      (getDocStore() as SqliteFileDocStore).resetSession();
+      if (askPassphrase) saveSqlitePassphrase(passphrase.trim() || null);
+      store.resetSession();
       await notifyAuthChanged();
+      const problem = store.passphraseProblem();
+      if (problem) setError(t(problem === "wrong" ? "sqliteAccess.passphraseWrong" : "sqliteAccess.passphraseMissing"));
     } finally {
       setBusy(false);
     }
@@ -87,6 +97,23 @@ export function SqliteFileAccessPage() {
               hideFields={["siteUrl"]}
               testIgnore={["siteUrl"]}
             />
+            {askPassphrase && (
+              <div>
+                <label className="label" htmlFor="sqlite-passphrase">
+                  {t("sqliteAccess.passphrase")}
+                </label>
+                <input
+                  id="sqlite-passphrase"
+                  type="password"
+                  className="input"
+                  autoComplete="current-password"
+                  value={passphrase}
+                  onChange={(e) => setPassphrase(e.target.value)}
+                  required
+                />
+                <p className="text-[11px] text-surface-500 dark:text-surface-400 mt-1">{t("sqliteAccess.passphraseHint")}</p>
+              </div>
+            )}
             {error && (
               <div className="rounded-lg bg-red-50 text-red-700 ring-1 ring-red-200 px-3 py-2 text-sm break-words dark:bg-red-900/30 dark:text-red-300 dark:ring-red-700/50">
                 {error}

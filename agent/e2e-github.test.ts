@@ -101,4 +101,39 @@ describe("install markdown-git + GitHub Pages (fake GitHub)", () => {
     );
     expect((await run(["install", "--plan", planFile, "--dry-run"])).body.error?.code).toBe("content-exists");
   });
+
+  it("keeps an encrypted SQLite database on a dedicated, unpublished branch", async () => {
+    gh.createRepo("me/notes");
+    const planFile = join(root, "plan-sqlite.json");
+    writeFileSync(
+      planFile,
+      JSON.stringify({
+        alias: "notes",
+        data: { backend: "sqlite-file", path: "data/site.sqlite" },
+        hosting: { type: "github-pages", settings: { owner: "me", repo: "notes", siteUrl: "https://me.github.io/notes" }, credential: "github:me" },
+      }),
+    );
+    const res = await run(["install", "--plan", planFile]);
+    expect(res.body).toMatchObject({ ok: true, data: { installed: true, credentials: { passphrase: "passphrase:notes" } } });
+    expect(res.body.data.checks.data.detail).toContain("branch agentcms-data");
+
+    // The published branch was created first and stays the default one.
+    expect(gh.repo("me/notes").defaultBranch).toBe("main");
+    expect(gh.repo("me/notes").pages).toBe(true);
+    const site = gh.files("me/notes", "main");
+    expect(site.has("admin/index.html")).toBe(true);
+    expect([...site.keys()].some((p) => p.endsWith(".sqlite"))).toBe(false);
+    const data = gh.files("me/notes", "agentcms-data");
+    expect(data.get("data/site.sqlite")?.startsWith("ACMSENC1")).toBe(true);
+    expect(data.has(".nojekyll")).toBe(false);
+
+    const configJs = site.get("admin/config.js")!;
+    expect(configJs).toContain('"branch": "agentcms-data"');
+    expect(configJs).toContain('"encrypted": true');
+    expect(configJs).not.toContain(TOKEN);
+
+    const doctor = await run(["doctor", "--site", "notes"]);
+    const byId = Object.fromEntries((doctor.body.data.checks as { id: string; status: string }[]).map((c) => [c.id, c.status]));
+    expect(byId).toMatchObject({ "database-exposure": "ok", "github-pages": "ok", admin: "ok", "config-js": "ok" });
+  }, 60_000);
 });
