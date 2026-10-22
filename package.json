@@ -48,6 +48,7 @@
     "predev": "npm run themes:tailwind",
     "dev": "vite",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.agent.json",
+    "pretest": "npm run themes:tailwind",
     "test": "vitest run",
     "test:watch": "vitest",
     "prebuild": "npm run typecheck && npm run themes:tailwind",
