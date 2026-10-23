@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { main } from "./cli";
 import { resolveRequestPath, startAdminServer } from "./commands/serve";
-import { fetchLatestVersion } from "./commands/version";
+import { fetchLatestVersion, registryLatestUrl } from "./commands/version";
 import type { Io } from "./output";
 import { compareVersions } from "./semver";
 
@@ -85,6 +85,13 @@ describe("fetchLatestVersion", () => {
     expect(await fetchLatestVersion(ok)).toBe("0.2.0");
     expect(await fetchLatestVersion(down)).toBeNull();
     expect(await fetchLatestVersion(missing)).toBeNull();
+  });
+});
+
+describe("registryLatestUrl", () => {
+  it("encodes scoped package names", () => {
+    expect(registryLatestUrl("@agent-cms/agentcms")).toBe("https://registry.npmjs.org/@agent-cms%2fagentcms/latest");
+    expect(registryLatestUrl("plain")).toBe("https://registry.npmjs.org/plain/latest");
   });
 });
 
