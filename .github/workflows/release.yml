@@ -21,8 +21,6 @@ jobs:
           node-version: 22
           cache: npm
           registry-url: https://registry.npmjs.org
-      # Trusted publishing needs npm >= 11.5.1.
-      - run: npm install -g npm@latest
       - name: Tag matches package.json
         run: |
           version="$(node -p "require('./package.json').version")"
@@ -41,6 +39,10 @@ jobs:
             exit 1
           fi
       - run: npm run check:skills
+      # Trusted publishing needs npm >= 11.5.1 — upgraded only now: building
+      # with another npm than the CI's can change the bundles (and the
+      # committed dist/ check above would no longer hold).
+      - run: npm install -g npm@latest
       # Idempotent: the very first version is published by hand (npm only
       # allows trusted publishing on an existing package).
       - name: Publish to npm
