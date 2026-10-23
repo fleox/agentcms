@@ -33,7 +33,7 @@
     "signOut": "Sign out",
     "administrator": "Administrator",
     "editor": "Editor",
-    "appName": "Flexweg CMS"
+    "appName": "AgentCMS"
   },
   "auth": {
     "signIn": "Sign in",
@@ -466,7 +466,7 @@
       "modeMerge": "Merge (overwrite same ids)",
       "modeReplace": "Replace imported collections",
       "replaceConfirm": "Replace mode deletes every existing item of the collections present in the file before importing. Continue?",
-      "invalidFile": "This file is not a Flexweg CMS content export.",
+      "invalidFile": "This file is not a AgentCMS content export.",
       "imported": "Imported {{posts}} posts/pages, {{terms}} terms, {{media}} media. Run Regenerate → Everything to publish them."
     },
     "encryption": {
@@ -570,7 +570,7 @@
     "consoleHint": "Check the browser console and your .env configuration. See the README for setup instructions."
   },
   "identity": {
-    "brandTitle": "Flexweg CMS",
+    "brandTitle": "AgentCMS",
     "brandSubtitle": "Static publisher",
     "login": {
       "heading": "Sign in",
@@ -593,7 +593,7 @@
     }
   },
   "setup": {
-    "title": "Welcome to Flexweg CMS",
+    "title": "Welcome to AgentCMS",
     "subtitle": "First-time setup",
     "intro": "Fill in your Firebase credentials, the bootstrap administrator account, and your Flexweg API key. The values are validated, written to your project (Firestore + a config.js file on Flexweg), and the admin reloads into the normal sign-in flow. You only do this once.",
     "introFirebase": "Step 1 — Firebase. Fill in your Firebase project credentials and the bootstrap administrator account. We'll sign in, verify the email, and check that your Firestore rules pin this admin before continuing to the Flexweg step.",
@@ -637,10 +637,10 @@
     },
     "terms": {
       "title": "Terms of use",
-      "intro": "Please read and accept the terms below before using Flexweg CMS. They are written in plain language to be quick to read.",
+      "intro": "Please read and accept the terms below before using AgentCMS. They are written in plain language to be quick to read.",
       "section1": {
         "title": "1. Free service",
-        "body": "Flexweg CMS is provided to you free of charge by Flexweg. You can use it without limits with your Flexweg hosting — Flexweg will never bill you for using the CMS itself. Standard charges for your Flexweg hosting plan and your Firebase plan still apply, on the respective accounts you own."
+        "body": "AgentCMS is provided to you free of charge by Flexweg. You can use it without limits with your Flexweg hosting — Flexweg will never bill you for using the CMS itself. Standard charges for your Flexweg hosting plan and your Firebase plan still apply, on the respective accounts you own."
       },
       "section2": {
         "title": "2. Provided as-is, no warranty",

@@ -38,7 +38,7 @@ export function BaseLayout({
       : undefined;
   // Compose the document title. Convention: append the site title
   // unless the author already baked it into `pageTitle` (typical on a
-  // home page whose `seoTitle` reads "Flexweg CMS — A modern static
+  // home page whose `seoTitle` reads "AgentCMS — A modern static
   // CMS"). The `includes` check is a pragmatic guard — it covers both
   // brand-first ("Flexweg — Hello") and brand-last ("Hello — Flexweg")
   // patterns without us having to expose a per-page "no-suffix" flag.

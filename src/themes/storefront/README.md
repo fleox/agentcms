@@ -1,6 +1,6 @@
 # Storefront theme
 
-E-commerce / boutique theme for Flexweg CMS. Designed for product
+E-commerce / boutique theme for AgentCMS. Designed for product
 catalog sites — florists, artisanal goods, slow-fashion, gift shops —
 where every post is a product with prices, stock, variants, and a
 "reservation inquiry" CTA flow.

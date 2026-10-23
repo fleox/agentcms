@@ -1,4 +1,4 @@
-// Marketplace Core — Flexweg CMS external theme.
+// Marketplace Core — AgentCMS external theme.
 //
 // Build: `npm install --legacy-peer-deps && npm run build` produces
 // `dist/bundle.js` + `marketplace-core.zip`. Upload the ZIP via

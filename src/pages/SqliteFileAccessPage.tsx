@@ -71,7 +71,7 @@ export function SqliteFileAccessPage() {
       </div>
       <div className="w-full max-w-md relative z-10">
         <div className="flex items-center gap-2.5 justify-center mb-6">
-          <img src={flexwegLogo} alt="Flexweg" className="h-10 w-10 rounded-xl shadow-card object-cover" />
+          <img src={flexwegLogo} alt="AgentCMS" className="h-10 w-10 rounded-xl shadow-card object-cover" />
           <div>
             <p className="text-base font-semibold leading-none">{t("identity.brandTitle")}</p>
             <p className="text-[11px] text-surface-500 mt-0.5 dark:text-surface-400">{t("identity.brandSubtitle")}</p>

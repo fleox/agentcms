@@ -1,6 +1,6 @@
 import { sha256Hex as E, uploadFile as H, buildPostUrl as Z, markdownToPlainText as W, pickPublicLocale as $, i18n as C, useCmsData as V, formatDateTime as X, toast as T, fetchAllPosts as z, updatePluginConfig as B } from "@flexweg/cms-runtime";
 import { jsxs as d, jsx as s } from "react/jsx-runtime";
-import { forwardRef as O, createElement as A, useState as I, useEffect as Y } from "react";
+import { forwardRef as O, createElement as j, useState as I, useEffect as Y } from "react";
 import { useTranslation as ee } from "react-i18next";
 const Q = {
   title: "Search",
@@ -651,7 +651,7 @@ function oe(t) {
     dialogLabel: C.getResource(n, e, "runtime.dialogLabel") ?? r.dialogLabel
   };
 }
-function F(t) {
+function G(t) {
   const { posts: n, pages: e, terms: r, settings: m, config: u } = t, k = new Set(u.excludedTermIds), b = [];
   for (const i of n)
     i.status === "online" && (i.primaryTermId && k.has(i.primaryTermId) || b.push(i));
@@ -694,7 +694,7 @@ function F(t) {
     generatedAt: Date.now()
   }, items: v };
 }
-function G(t) {
+function F(t) {
   const n = {
     meta: { ...t.meta, generatedAt: 0 },
     items: t.items
@@ -702,13 +702,13 @@ function G(t) {
   return E(JSON.stringify(n));
 }
 async function le(t) {
-  const n = F({
+  const n = G({
     posts: t.posts,
     pages: t.pages,
     terms: t.terms,
     settings: t.settings,
     config: t.config
-  }), e = await G(n), r = { ...S, ...t.config };
+  }), e = await F(n), r = { ...S, ...t.config };
   return r.lastIndexHash === e ? { nextConfig: r, uploaded: !1 } : (await H({
     path: D,
     content: JSON.stringify(n),
@@ -727,13 +727,13 @@ async function ce(t) {
   }), { nextConfig: { ...e, lastRuntimeHash: n }, uploaded: !0 });
 }
 async function _(t) {
-  const n = F({
+  const n = G({
     posts: t.posts,
     pages: t.pages,
     terms: t.terms,
     settings: t.settings,
     config: t.config
-  }), e = await G(n), r = await E(N);
+  }), e = await F(n), r = await E(N);
   return await H({
     path: D,
     content: JSON.stringify(n),
@@ -793,7 +793,7 @@ const me = O(
     children: u,
     iconNode: k,
     ...b
-  }, l) => A(
+  }, l) => j(
     "svg",
     {
       ref: l,
@@ -806,7 +806,7 @@ const me = O(
       ...b
     },
     [
-      ...k.map(([v, y]) => A(v, y)),
+      ...k.map(([v, y]) => j(v, y)),
       ...Array.isArray(u) ? u : [u]
     ]
   )
@@ -819,7 +819,7 @@ const me = O(
  */
 const M = (t, n) => {
   const e = O(
-    ({ className: r, ...m }, u) => A(me, {
+    ({ className: r, ...m }, u) => j(me, {
       ref: u,
       iconNode: n,
       className: K(`lucide-${de(t)}`, r),
@@ -1064,7 +1064,7 @@ function pe({
 }
 const xe = `# Flexweg Search
 
-A theme-agnostic search plugin for Flexweg CMS. Builds a static
+A theme-agnostic search plugin for AgentCMS. Builds a static
 \`/search-index.json\` over your published content and ships a tiny
 runtime (\`/search.js\`) that opens a search modal anywhere a
 \`[data-cms-search]\` trigger is present in your theme.
@@ -1169,7 +1169,7 @@ function J(t) {
   const n = (t.pluginConfigs ?? {})[R];
   return { ...S, ...n ?? {} };
 }
-async function j(t, n) {
+async function A(t, n) {
   if (!n.settings.baseUrl) {
     console.warn("[flexweg-search] skipping regeneration — baseUrl not configured");
     return;
@@ -1205,11 +1205,11 @@ const we = {
   },
   register(t) {
     t.addAction("publish.complete", async (n, e) => {
-      await j(n, e);
+      await A(n, e);
     }), t.addAction("post.unpublished", async (n, e) => {
-      await j(n, e);
+      await A(n, e);
     }), t.addAction("post.deleted", async (n, e) => {
-      await j(n, e);
+      await A(n, e);
     }), t.addFilter("page.body.end", (n, ...e) => {
       e[0];
       const r = `<script src="/${q}" defer><\/script>`;

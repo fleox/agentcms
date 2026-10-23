@@ -33,7 +33,7 @@
     "signOut": "Uitloggen",
     "administrator": "Beheerder",
     "editor": "Redacteur",
-    "appName": "Flexweg CMS"
+    "appName": "AgentCMS"
   },
   "auth": {
     "signIn": "Inloggen",
@@ -466,7 +466,7 @@
       "modeMerge": "Samenvoegen (zelfde id's overschrijven)",
       "modeReplace": "Geïmporteerde collecties vervangen",
       "replaceConfirm": "De modus Vervangen verwijdert vóór het importeren alle bestaande items van de collecties die in het bestand staan. Doorgaan?",
-      "invalidFile": "Dit bestand is geen contentexport van Flexweg CMS.",
+      "invalidFile": "Dit bestand is geen contentexport van AgentCMS.",
       "imported": "{{posts}} posts/pagina's, {{terms}} termen en {{media}} media geïmporteerd. Voer Opnieuw genereren → Alles uit om ze te publiceren."
     },
     "encryption": {
@@ -570,7 +570,7 @@
     "consoleHint": "Controleer de browserconsole en uw .env-configuratie. Zie de README voor instellingsinstructies."
   },
   "identity": {
-    "brandTitle": "Flexweg CMS",
+    "brandTitle": "AgentCMS",
     "brandSubtitle": "Statische publisher",
     "login": {
       "heading": "Inloggen",
@@ -593,7 +593,7 @@
     }
   },
   "setup": {
-    "title": "Welkom bij Flexweg CMS",
+    "title": "Welkom bij AgentCMS",
     "subtitle": "Eerste configuratie",
     "intro": "Vul uw Firebase-gegevens in, het bootstrap-beheerderaccount en uw Flexweg-API-sleutel. De waarden worden gevalideerd, opgeslagen in uw project (Firestore + een config.js-bestand op Flexweg) en de admin laadt opnieuw met het normale aanmeldproces. U doet dit slechts één keer.",
     "introFirebase": "Stap 1 — Firebase. Vul uw Firebase-projectgegevens en het bootstrap-beheerdersaccount in. We melden u aan, verifiëren het e-mailadres en controleren of uw Firestore-regels deze admin herkennen voordat we doorgaan naar de Flexweg-stap.",
@@ -637,10 +637,10 @@
     },
     "terms": {
       "title": "Gebruiksvoorwaarden",
-      "intro": "Lees en accepteer de onderstaande voorwaarden voordat u Flexweg CMS gebruikt. Ze zijn in eenvoudige taal geschreven zodat ze snel te lezen zijn.",
+      "intro": "Lees en accepteer de onderstaande voorwaarden voordat u AgentCMS gebruikt. Ze zijn in eenvoudige taal geschreven zodat ze snel te lezen zijn.",
       "section1": {
         "title": "1. Gratis dienst",
-        "body": "Flexweg CMS wordt door Flexweg gratis aangeboden. U kunt het zonder beperking gebruiken met uw Flexweg-hosting — Flexweg zal u het gebruik van het CMS zelf nooit in rekening brengen. De gebruikelijke kosten van uw Flexweg-hostingplan en uw Firebase-plan blijven van toepassing op de respectieve accounts."
+        "body": "AgentCMS wordt door Flexweg gratis aangeboden. U kunt het zonder beperking gebruiken met uw Flexweg-hosting — Flexweg zal u het gebruik van het CMS zelf nooit in rekening brengen. De gebruikelijke kosten van uw Flexweg-hostingplan en uw Firebase-plan blijven van toepassing op de respectieve accounts."
       },
       "section2": {
         "title": "2. Geleverd „as-is“, zonder garantie",

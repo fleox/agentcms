@@ -1,8 +1,8 @@
 {
-  "name": "flexweg-cms-minimal-theme",
+  "name": "agentcms-minimal-theme",
   "private": true,
   "version": "1.0.0",
-  "description": "Minimal external theme for Flexweg CMS — base/home/single/category/author/notFound templates with a tiny built-in stylesheet.",
+  "description": "Minimal external theme for AgentCMS — base/home/single/category/author/notFound templates with a tiny built-in stylesheet.",
   "type": "module",
   "scripts": {
     "build": "vite build && node scripts/pack.mjs",

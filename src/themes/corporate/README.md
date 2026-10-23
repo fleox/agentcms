@@ -1,6 +1,6 @@
 # Corporate theme
 
-Modern corporate / SaaS showcase theme for Flexweg CMS — Tailwind-based,
+Modern corporate / SaaS showcase theme for AgentCMS — Tailwind-based,
 Material 3 navy + indigo + sky-blue palette, single-font system
 (Inter by default). Built for vitrine sites, lead-gen, and content
 marketing.

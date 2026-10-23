@@ -3,7 +3,7 @@ title: About this site
 slug: about
 type: page
 category: About
-seoTitle: About — Flexweg CMS demo
+seoTitle: About — AgentCMS demo
 seoDescription: Information about the site, the team, and how to get in touch.
 ---
 

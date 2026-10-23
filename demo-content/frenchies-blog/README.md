@@ -1,6 +1,6 @@
 # Frenchies Blog — bilingual EN+FR demo content bundle
 
-A self-contained set of 9 blog posts + 2 static pages about French bulldogs, available in **English and French**, ready to import via the **Flexweg Import** plugin into a Flexweg CMS site running the **default** theme (or any theme that renders standard markdown posts — no theme-specific blocks are used).
+A self-contained set of 9 blog posts + 2 static pages about French bulldogs, available in **English and French**, ready to import via the **Flexweg Import** plugin into a AgentCMS site running the **default** theme (or any theme that renders standard markdown posts — no theme-specific blocks are used).
 
 Bilingual format demonstrates how to ship a single bundle that auto-installs both languages when the **Flexweg Multi-language** plugin is enabled. Sites without the multilang plugin still import cleanly — the FR sidecars become opaque `Post.translations` data on each post (no UI impact, no public-side impact), and the `_terms.json` translation map is stored on each `Term` but never used.
 

@@ -1,4 +1,4 @@
-# Agent CMS
+# AgentCMS
 
 A WordPress-style content management system that publishes a 100% static site to any static host — [Flexweg](https://www.flexweg.com), GitHub Pages, Cloudflare Pages, GitLab Pages, an S3-compatible bucket, your own PHP server, a local folder or a ZIP you upload by hand. The admin is a React + TypeScript single-page app with **four interchangeable data backends**, chosen at install time:
 
@@ -70,7 +70,7 @@ Posts are stored as Markdown in Firestore. When an admin clicks **Publish**, the
 ## Project layout
 
 ```
-flexweg-cms/
+agentcms/
 ├── src/
 │   ├── core/            CMS-wide infrastructure (types, slug, render, markdown, plugin registry)
 │   ├── services/        Firebase + Flexweg API clients, publisher

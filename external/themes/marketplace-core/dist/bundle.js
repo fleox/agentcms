@@ -1702,7 +1702,7 @@ function yi({
 const Yn = {
   heroEyebrow: "FLEXWEG MARKETPLACE",
   heroHeadline: "Modern assets for professional creators.",
-  heroIntro: "Curated themes and plugins for your Flexweg CMS site. Free, open-source, and ready to install.",
+  heroIntro: "Curated themes and plugins for your AgentCMS site. Free, open-source, and ready to install.",
   featuredCategorySlug: "plugins",
   featuredHeading: "Featured Plugins",
   featuredCount: 2,

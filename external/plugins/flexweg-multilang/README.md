@@ -1,6 +1,6 @@
 # flexweg-multilang
 
-Multi-language support for Flexweg CMS — translated posts/pages/terms, hreflang SEO, per-language sitemap entries, per-language RSS feeds.
+Multi-language support for AgentCMS — translated posts/pages/terms, hreflang SEO, per-language sitemap entries, per-language RSS feeds.
 
 ## What it does
 
@@ -14,7 +14,7 @@ Multi-language support for Flexweg CMS — translated posts/pages/terms, hreflan
 
 ## Requirements
 
-- Flexweg CMS admin built from `apiVersion >= 1.2.0`. The plugin uses the inspector-tab + term-editor-section APIs and the publisher's `publish.additional` filter, all introduced in 1.2.
+- AgentCMS admin built from `apiVersion >= 1.2.0`. The plugin uses the inspector-tab + term-editor-section APIs and the publisher's `publish.additional` filter, all introduced in 1.2.
 
 ## Installation
 

@@ -1,6 +1,6 @@
 # Flexweg Import
 
-Bulk-imports posts and pages into Flexweg CMS from two source formats:
+Bulk-imports posts and pages into AgentCMS from two source formats:
 
 - **Markdown** files with YAML frontmatter (Hugo, Eleventy, Astro, Jekyll, custom scripts)
 - **WordPress** XML exports (Tools → Export → All content)
@@ -83,7 +83,7 @@ The plugin parses the export's XML directly via the browser's native `DOMParser`
 
 ### Mapping rules
 
-| WordPress | Flexweg CMS | Notes |
+| WordPress | AgentCMS | Notes |
 |---|---|---|
 | `<wp:post_type>post</wp:post_type>` | `Post.type = "post"` | |
 | `<wp:post_type>page</wp:post_type>` | `Post.type = "page"` | |
@@ -102,7 +102,7 @@ The plugin parses the export's XML directly via the browser's native `DOMParser`
 
 - **Gutenberg blocks**: complex blocks (group, columns, navigation, query loops, …) become HTML in the markdown body. They render correctly when published — DOMPurify keeps the HTML intact at publish time — but the editor sees them as opaque blocks.
 - **Shortcodes**: `[caption]`, `[gallery]`, `[embed]`, custom plugin shortcodes are preserved verbatim. They render as plain text on the public site unless you handle them post-import.
-- **Comments**: ignored — Flexweg CMS has no comments.
+- **Comments**: ignored — AgentCMS has no comments.
 - **Custom post types** (`wp_block`, `wp_template`, `nav_menu_item`, `oembed_cache`): ignored.
 - **Custom fields** (postmeta beyond `_thumbnail_id`): ignored.
 

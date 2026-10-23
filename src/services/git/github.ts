@@ -219,7 +219,7 @@ export function createGitHubTransport(cfg: GitHubConfig): GitTransport {
       if (opts.expectedHeadSha !== undefined && head !== opts.expectedHeadSha) {
         throw new GitConflictError(`Branch ${cfg.branch} moved`, head);
       }
-      if (!head) head = await bootstrapBranch("Initialize branch — Flexweg CMS");
+      if (!head) head = await bootstrapBranch("Initialize branch — AgentCMS");
       const baseTree = await treeShaOf(head);
 
       // Deleting a path that isn't in the base tree is a 422 on GitHub —

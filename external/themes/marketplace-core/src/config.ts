@@ -24,7 +24,7 @@ export const DEFAULT_MARKETPLACE_HOME: MarketplaceHomeConfig = {
   heroEyebrow: "FLEXWEG MARKETPLACE",
   heroHeadline: "Modern assets for professional creators.",
   heroIntro:
-    "Curated themes and plugins for your Flexweg CMS site. Free, open-source, and ready to install.",
+    "Curated themes and plugins for your AgentCMS site. Free, open-source, and ready to install.",
   featuredCategorySlug: "plugins",
   featuredHeading: "Featured Plugins",
   featuredCount: 2,

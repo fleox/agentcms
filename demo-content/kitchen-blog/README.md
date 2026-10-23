@@ -1,6 +1,6 @@
 # Kitchen Stories — demo content bundle
 
-A self-contained set of 9 home-cooking blog posts + 2 static pages, written in English, ready to import via the **Flexweg Import** plugin into a Flexweg CMS site running the **default** theme (or any theme that renders standard markdown posts — no theme-specific blocks used).
+A self-contained set of 9 home-cooking blog posts + 2 static pages, written in English, ready to import via the **Flexweg Import** plugin into a AgentCMS site running the **default** theme (or any theme that renders standard markdown posts — no theme-specific blocks used).
 
 Useful as a quickstart for testing the default theme end-to-end, or as a ready-made skeleton for a personal cooking blog.
 

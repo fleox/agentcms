@@ -7,7 +7,7 @@ Adds the basic SEO meta tags every published page needs to look right when share
 Injects the following into every page's `<head>` at publish time:
 
 - **Twitter Card** meta tags — large summary card with image when the post has a hero, plain summary card otherwise.
-- **`<meta name="generator">`** — identifies pages as built with Flexweg CMS. Helpful for analytics; harmless for SEO.
+- **`<meta name="generator">`** — identifies pages as built with AgentCMS. Helpful for analytics; harmless for SEO.
 
 The page's primary `<title>`, `<meta name="description">`, Open Graph tags and canonical URL are emitted by the active theme's BaseLayout — Core SEO complements them, it doesn't replace them.
 

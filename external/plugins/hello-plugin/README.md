@@ -1,6 +1,6 @@
-# Hello Plugin — Flexweg CMS external plugin example
+# Hello Plugin — AgentCMS external plugin example
 
-Demonstrates how to author a plugin that gets compiled into a single ESM bundle and dropped into a Flexweg CMS admin via the "Install plugin" upload flow.
+Demonstrates how to author a plugin that gets compiled into a single ESM bundle and dropped into a AgentCMS admin via the "Install plugin" upload flow.
 
 ## What it does
 
@@ -19,7 +19,7 @@ Outputs `./dist/bundle.js` and packs `./hello-plugin.zip` next to it.
 
 ## Install
 
-1. In Flexweg CMS admin → **Plugins** → click **Install plugin**.
+1. In AgentCMS admin → **Plugins** → click **Install plugin**.
 2. Pick `hello-plugin.zip`.
 3. After the upload completes the admin reloads. The new card appears on the dashboard, and "View source" on any published page will show the meta tag.
 

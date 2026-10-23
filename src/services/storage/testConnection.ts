@@ -67,7 +67,7 @@ export async function testStorageConnection(
     }
     const connector = instantiateStorageConnector(connectorId, settings);
     if (connectorId === "browser-mirror") return { ok: true, detail: "browser" };
-    await connector.put({ path: PROBE_PATH, content: `Flexweg CMS connection test ${new Date().toISOString()}\n` });
+    await connector.put({ path: PROBE_PATH, content: `AgentCMS connection test ${new Date().toISOString()}\n` });
     const echoed = await connector.get(PROBE_PATH).catch(() => null);
     await connector.delete(PROBE_PATH);
     if (echoed === null) return { ok: false, detail: "write succeeded but read-back failed" };

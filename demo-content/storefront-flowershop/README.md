@@ -2,7 +2,7 @@
 
 A 30-product import fixture for testing the **Storefront** theme in a flower-shop context. Each product is a `post` with a hero image, a `storefront/product-info` block (price, currency, stock, badges, variants, CTAs) and a structured body (intro, ingredients, care notes).
 
-Designed to populate a freshly-installed Flexweg CMS site running the Storefront theme so home / category / product / catalog pages render with realistic content. All copy is in English.
+Designed to populate a freshly-installed AgentCMS site running the Storefront theme so home / category / product / catalog pages render with realistic content. All copy is in English.
 
 ## What's inside
 

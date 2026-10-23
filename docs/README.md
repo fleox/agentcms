@@ -1,4 +1,4 @@
-# Flexweg CMS — Documentation
+# AgentCMS — Documentation
 
 Authoring guides for **external** plugins and themes — packages that get distributed as a ZIP, dropped into the admin via the **Install** UI (or directly into Flexweg under `/admin/plugins/<id>/` or `/admin/themes/<id>/`), and loaded at runtime.
 

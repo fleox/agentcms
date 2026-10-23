@@ -105,7 +105,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
       <div className="px-5 h-16 flex items-center gap-2.5 border-b border-surface-200 dark:border-surface-800">
         <img
           src={flexwegLogo}
-          alt="Flexweg"
+          alt="AgentCMS"
           className="h-8 w-8 rounded-lg shadow-card object-cover shrink-0"
         />
         <div className="flex-1 min-w-0">

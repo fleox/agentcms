@@ -192,7 +192,7 @@ export function createGitDocStore(cfg: GitContentConfig): GitDocStore {
       }
       if (changes.length === 0) return;
       try {
-        const head = await t.commit(changes, { message: `${message} — Flexweg CMS`, expectedHeadSha: state.head });
+        const head = await t.commit(changes, { message: `${message} — AgentCMS`, expectedHeadSha: state.head });
         state = { head, files, index, snapshot: target };
         return;
       } catch (err) {

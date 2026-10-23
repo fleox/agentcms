@@ -1,6 +1,6 @@
-# Minimal Theme — Flexweg CMS external theme example
+# Minimal Theme — AgentCMS external theme example
 
-Demonstrates how to author a theme that gets compiled into a single ESM bundle and dropped into a Flexweg CMS admin via the "Install theme" upload flow.
+Demonstrates how to author a theme that gets compiled into a single ESM bundle and dropped into a AgentCMS admin via the "Install theme" upload flow.
 
 ## What it provides
 
@@ -22,7 +22,7 @@ Outputs:
 
 ## Install
 
-1. In Flexweg CMS admin → **Themes** → click **Install theme**.
+1. In AgentCMS admin → **Themes** → click **Install theme**.
 2. Pick `minimal-theme.zip`.
 3. After upload + reload the theme appears alongside the built-ins. Click **Activate** to switch the site to it.
 

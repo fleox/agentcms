@@ -22,7 +22,7 @@ The blog started in 2024 as a place to save recipes she kept losing on scraps of
 
 Practical recipes for home cooking. Technique notes where they matter. The occasional opinion about why one method works better than another.
 
-This is **not** a competitive food blog. There are no twenty-step recipes that take three hours to read past the headnote. There are no affiliate links. There are no sponsored posts. The blog has run on a single Flexweg CMS site since launch, no ads, no tracking.
+This is **not** a competitive food blog. There are no twenty-step recipes that take three hours to read past the headnote. There are no affiliate links. There are no sponsored posts. The blog has run on a single AgentCMS site since launch, no ads, no tracking.
 
 ## Editorial policy
 
