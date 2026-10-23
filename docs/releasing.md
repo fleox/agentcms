@@ -19,8 +19,8 @@ One repository (`fleox/agentcms`) is the single source for everything users and 
 ## Cutting a release
 
 1. Add an entry at the top of `changelog.json` (English): `version`, `date`, `breaking`, `changes[]`, `actions[]` (`deploy-admin`, `regenerate-all`, `sync-theme-assets` — what an existing hosted site needs after the update).
-2. `npm version patch|minor|major` — bumps the version, syncs plugin + skills, commits, tags `vX.Y.Z`.
-3. `npm run build` and commit `dist/` if it changed (the CI fails when the committed `dist/` doesn't match the sources).
+2. Commit everything else first (the working tree must be clean).
+3. `npm version patch|minor|major` — bumps the version, syncs plugin + skills, **rebuilds `dist/`** (it embeds the version), commits all of it and tags `vX.Y.Z`, so the tagged commit passes the "committed dist/ matches the sources" check.
 4. `git push --follow-tags` — `release.yml` re-checks everything, publishes to npm with provenance and creates the GitHub Release.
 
 ## One-time npm setup

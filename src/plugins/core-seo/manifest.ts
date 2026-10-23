@@ -7,7 +7,7 @@ import readme from "./README.md?raw";
 // schema.org JSON-LD, robots.txt) belong in their own plugins.
 
 function generatorMetaTag(): string {
-  return '<meta name="generator" content="Flexweg CMS" />';
+  return '<meta name="generator" content="AgentCMS" />';
 }
 
 function twitterCardTags(props: BaseLayoutProps): string {

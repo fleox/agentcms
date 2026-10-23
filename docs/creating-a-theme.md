@@ -1,6 +1,6 @@
 # Creating an external theme
 
-This guide walks through authoring a Flexweg CMS theme distributed as a `.zip` and loaded at runtime — no rebuild of the admin required.
+This guide walks through authoring a AgentCMS theme distributed as a `.zip` and loaded at runtime — no rebuild of the admin required.
 
 ## Theme vs. plugin
 

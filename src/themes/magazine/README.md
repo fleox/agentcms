@@ -1,6 +1,6 @@
 # Magazine theme
 
-Editorial magazine theme for Flexweg CMS — Tailwind-based, with an
+Editorial magazine theme for AgentCMS — Tailwind-based, with an
 editable Material 3 palette and a sober editorial type system
 (Newsreader serif + Work Sans). Inspired by long-form journalism layouts.
 

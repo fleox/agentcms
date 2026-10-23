@@ -1,8 +1,8 @@
 {
-  "name": "flexweg-cms-marketplace-core",
+  "name": "agentcms-marketplace-core",
   "private": true,
   "version": "1.0.0",
-  "description": "Marketplace Core — Flexweg CMS theme for app-store style themes/plugins directories. Modern Corporate aesthetic with ambient shadows and rounded XL corners.",
+  "description": "Marketplace Core — AgentCMS theme for app-store style themes/plugins directories. Modern Corporate aesthetic with ambient shadows and rounded XL corners.",
   "type": "module",
   "scripts": {
     "build": "vite build && node scripts/pack.mjs",

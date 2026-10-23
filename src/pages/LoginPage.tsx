@@ -55,7 +55,7 @@ export function LoginPage() {
         <div className="flex items-center gap-2.5 justify-center mb-6">
           <img
             src={flexwegLogo}
-            alt="Flexweg"
+            alt="AgentCMS"
             className="h-10 w-10 rounded-xl shadow-card object-cover"
           />
           <div>

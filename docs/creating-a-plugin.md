@@ -1,6 +1,6 @@
 # Creating an external plugin
 
-This guide walks through authoring a plugin distributed as a `.zip` and loaded at runtime by Flexweg CMS — no rebuild of the admin required.
+This guide walks through authoring a plugin distributed as a `.zip` and loaded at runtime by AgentCMS — no rebuild of the admin required.
 
 ## When to write an external plugin (vs. in-tree)
 

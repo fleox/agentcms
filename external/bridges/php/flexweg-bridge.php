@@ -1,6 +1,6 @@
 <?php
 /**
- * Flexweg CMS — self-hosted publish bridge.
+ * AgentCMS — self-hosted publish bridge.
  *
  * One file that implements the Flexweg Files API contract over the local
  * filesystem, so any PHP host (shared hosting, VPS, NAS…) can be a

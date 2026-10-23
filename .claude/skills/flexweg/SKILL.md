@@ -1,11 +1,11 @@
 ---
 name: flexweg
-description: Build external plugins, themes, and demo content for Flexweg CMS — a static-host CMS where the admin SPA renders React themes server-side in the browser and uploads HTML via Flexweg's Files API. Invoke when the user wants to scaffold a Flexweg extension, add an editor block, write a hook, configure a settings page, or prepare demo content for the Flexweg Import plugin.
+description: Build external plugins, themes, and demo content for AgentCMS — a static-host CMS where the admin SPA renders React themes server-side in the browser and uploads HTML via Flexweg's Files API. Invoke when the user wants to scaffold a Flexweg extension, add an editor block, write a hook, configure a settings page, or prepare demo content for the Flexweg Import plugin.
 ---
 
-# Flexweg CMS — extension authoring skill
+# AgentCMS — extension authoring skill
 
-You are helping a developer build something that runs on **Flexweg CMS**. Stay in this skill until the user's task is complete; if the question is unrelated to Flexweg, exit cleanly.
+You are helping a developer build something that runs on **AgentCMS**. Stay in this skill until the user's task is complete; if the question is unrelated to Flexweg, exit cleanly.
 
 ## How Flexweg works (you must internalize this before scaffolding anything)
 
@@ -1109,7 +1109,7 @@ When in doubt: `unzip -p <zip> manifest.json` to verify the version inside match
 
 ## When to stop using this skill
 
-This skill is for **authoring external plugins, themes, and demo content for Flexweg CMS**. Exit cleanly if the user asks about:
+This skill is for **authoring external plugins, themes, and demo content for AgentCMS**. Exit cleanly if the user asks about:
 
 - Configuring an existing Flexweg site (use the admin UI directly)
 - Internal admin development (in-tree work — refer to the admin's `CLAUDE.md`)

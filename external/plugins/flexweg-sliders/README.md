@@ -1,6 +1,6 @@
 # Flexweg Sliders
 
-External plugin for Flexweg CMS. Adds four slider/carousel blocks to the post & page editor:
+External plugin for AgentCMS. Adds four slider/carousel blocks to the post & page editor:
 
 | Block | Use case |
 |---|---|

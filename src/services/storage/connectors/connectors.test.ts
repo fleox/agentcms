@@ -58,7 +58,7 @@ describe("git-pages connector", () => {
     ]);
     expect(remote.commits).toHaveLength(1);
     expect([...remote.files.keys()].sort()).toEqual(["docs/.nojekyll", "docs/index.html", "docs/news/a.html"]);
-    expect(remote.commits[0].message).toBe("Publish site (2 updated) — Flexweg CMS");
+    expect(remote.commits[0].message).toBe("Publish site (2 updated) — AgentCMS");
     expect(await c.publicUrl("/news/a.html")).toBe("https://me.github.io/site/news/a.html");
     expect(await c.get("news/a.html")).toBe("a");
   });

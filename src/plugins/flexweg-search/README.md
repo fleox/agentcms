@@ -1,6 +1,6 @@
 # Flexweg Search
 
-A theme-agnostic search plugin for Flexweg CMS. Builds a static
+A theme-agnostic search plugin for AgentCMS. Builds a static
 `/search-index.json` over your published content and ships a tiny
 runtime (`/search.js`) that opens a search modal anywhere a
 `[data-cms-search]` trigger is present in your theme.

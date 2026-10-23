@@ -31,7 +31,7 @@ export function Topbar({ onOpenMobileNav }: TopbarProps) {
           <div className="flex items-center gap-2 min-w-0 md:hidden">
             <img
               src={flexwegLogo}
-              alt="Flexweg"
+              alt="AgentCMS"
               className="h-7 w-7 rounded-md object-cover shrink-0"
             />
             <p className="text-sm font-semibold truncate">{t("common.appName")}</p>

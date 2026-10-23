@@ -356,7 +356,7 @@ const compactDataCommand = {
     if (!account) throw new CliError("credential-required", `No credential recorded for the data of ${site.alias}.`);
     const token = requireCredential(account).values.token;
     installBrowserEnv();
-    const { createRemoteGitTransport, joinRepoPath } = await import("./chunks/index-CrvEoyi0.mjs").then((n) => n.g);
+    const { createRemoteGitTransport, joinRepoPath } = await import("./chunks/index-BG05qslv.mjs").then((n) => n.g);
     const transport = createRemoteGitTransport({
       provider: "github",
       owner: s.owner ?? "",
@@ -743,8 +743,8 @@ const deployAdminCommand = {
     const sites = options.all ? listSites().sites.filter((s) => s.adminFolder) : [resolveSite(options.site)];
     if (sites.length === 0) throw new CliError("no-sites", "No registered site has a hosted admin.");
     installBrowserEnv();
-    const { adminOps, applyOps, hostingConnector, themeAssetOps } = await import("./chunks/hosting-D_uj-Mt1.mjs");
-    const { collectToasts, settleHosting } = await import("./chunks/install-DkCCcKAO.mjs");
+    const { adminOps, applyOps, hostingConnector, themeAssetOps } = await import("./chunks/hosting-BftlDdsL.mjs");
+    const { collectToasts, settleHosting } = await import("./chunks/install-DnmgOT3F.mjs");
     const plans = [];
     for (const site of sites) {
       const adminUrl = adminUrlOf(site);
@@ -938,7 +938,7 @@ async function runDoctor(site, opts = {}) {
       add({ id: "hosting-access", status: "skip", message: "No hosting credential to test." });
     } else {
       installBrowserEnv();
-      const { testStorageConnection } = await import("./chunks/registry-lkfb_E9O.mjs").then((n) => n.H);
+      const { testStorageConnection } = await import("./chunks/registry-C9TSnZ77.mjs").then((n) => n.H);
       const res = await testStorageConnection(site.hosting.connectorId, { ...site.hosting.settings, ...hostingCred.values });
       add(
         res.ok ? { id: "hosting-access", status: "ok", message: `Hosting writable: ${res.detail}.` } : { id: "hosting-access", status: "fail", message: `Hosting access failed: ${res.detail}.`, fix: "Check the credential's permissions / expiry, then `agentcms credentials set` it again." }
@@ -997,12 +997,12 @@ const installCommand = {
   async run({ io, options }) {
     if (typeof options.plan !== "string") throw new CliError("usage", "install needs --plan <file|->.", "Run `agentcms options` for the format.", 2);
     installBrowserEnv();
-    const { resolvePlan } = await import("./chunks/plan-EYKegfhp.mjs").then((n) => n.p);
+    const { resolvePlan } = await import("./chunks/plan-BrM8ztEp.mjs").then((n) => n.p);
     const plan = resolvePlan(readPlan(options.plan));
     if (getSite(plan.alias)) {
       throw new CliError("site-exists", `A site named "${plan.alias}" is already registered.`, "Use another alias, or `agentcms site forget` it first.");
     }
-    const { checkPlan, runInstall } = await import("./chunks/install-DkCCcKAO.mjs");
+    const { checkPlan, runInstall } = await import("./chunks/install-DnmgOT3F.mjs");
     io.err("Checking access…");
     const checks = await checkPlan(plan);
     const stored = checks.data.storedTarget;
@@ -1473,7 +1473,7 @@ const siteCommand = {
         if (getSite(a)) throw new CliError("site-exists", `A site named "${a}" already exists.`, "Pick another alias or `site forget` it first.");
         if (typeof options["admin-url"] !== "string") throw new CliError("usage", "site add needs --admin-url.", void 0, 2);
         installBrowserEnv();
-        const { siteFromAdminUrl } = await import("./chunks/siteAdd-BqcYt8nu.mjs");
+        const { siteFromAdminUrl } = await import("./chunks/siteAdd-BcXhN9fk.mjs");
         const site = await siteFromAdminUrl({
           alias: a,
           adminUrl: options["admin-url"],

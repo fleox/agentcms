@@ -33,7 +33,7 @@
     "signOut": "로그아웃",
     "administrator": "관리자",
     "editor": "편집자",
-    "appName": "Flexweg CMS"
+    "appName": "AgentCMS"
   },
   "auth": {
     "signIn": "로그인",
@@ -466,7 +466,7 @@
       "modeMerge": "병합 (같은 ID 덮어쓰기)",
       "modeReplace": "가져온 컬렉션 교체",
       "replaceConfirm": "교체 모드는 가져오기 전에 파일에 포함된 컬렉션의 기존 항목을 모두 삭제합니다. 계속하시겠습니까?",
-      "invalidFile": "이 파일은 Flexweg CMS 콘텐츠 내보내기 파일이 아닙니다.",
+      "invalidFile": "이 파일은 AgentCMS 콘텐츠 내보내기 파일이 아닙니다.",
       "imported": "게시물/페이지 {{posts}}개, 용어 {{terms}}개, 미디어 {{media}}개를 가져왔습니다. 재생성 → 전체를 실행해 게시하세요."
     },
     "encryption": {
@@ -570,7 +570,7 @@
     "consoleHint": "브라우저 콘솔과 .env 설정을 확인하세요. 설정 방법은 README를 참조하세요."
   },
   "identity": {
-    "brandTitle": "Flexweg CMS",
+    "brandTitle": "AgentCMS",
     "brandSubtitle": "정적 퍼블리셔",
     "login": {
       "heading": "로그인",
@@ -593,7 +593,7 @@
     }
   },
   "setup": {
-    "title": "Flexweg CMS에 오신 것을 환영합니다",
+    "title": "AgentCMS에 오신 것을 환영합니다",
     "subtitle": "최초 설정",
     "intro": "Firebase 자격 증명, 부트스트랩 관리자 계정, Flexweg API 키를 입력하세요. 값은 검증된 후 프로젝트에 저장되며(Firestore + Flexweg의 config.js 파일) 관리자가 일반 로그인 흐름으로 다시 로드됩니다. 한 번만 수행하면 됩니다.",
     "introFirebase": "1단계 — Firebase. Firebase 프로젝트 자격 증명과 부트스트랩 관리자 계정을 입력하세요. 로그인하고 이메일을 확인하며 Firestore 규칙이 이 관리자를 인식하는지 확인한 후 Flexweg 단계로 넘어갑니다.",
@@ -637,10 +637,10 @@
     },
     "terms": {
       "title": "이용 약관",
-      "intro": "Flexweg CMS를 사용하기 전에 아래 약관을 읽고 동의해 주세요. 빠르게 읽을 수 있도록 평이한 언어로 작성되었습니다.",
+      "intro": "AgentCMS를 사용하기 전에 아래 약관을 읽고 동의해 주세요. 빠르게 읽을 수 있도록 평이한 언어로 작성되었습니다.",
       "section1": {
         "title": "1. 무료 서비스",
-        "body": "Flexweg CMS는 Flexweg가 무료로 제공합니다. Flexweg 호스팅과 함께 무제한으로 사용할 수 있으며 — Flexweg는 CMS 자체의 사용에 대해 결코 청구하지 않습니다. Flexweg 호스팅 요금제와 Firebase 요금제의 일반 요금은 각각 해당 계정에 적용됩니다."
+        "body": "AgentCMS는 Flexweg가 무료로 제공합니다. Flexweg 호스팅과 함께 무제한으로 사용할 수 있으며 — Flexweg는 CMS 자체의 사용에 대해 결코 청구하지 않습니다. Flexweg 호스팅 요금제와 Firebase 요금제의 일반 요금은 각각 해당 계정에 적용됩니다."
       },
       "section2": {
         "title": "2. \"있는 그대로\" 제공, 무보증",

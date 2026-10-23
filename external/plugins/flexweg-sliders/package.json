@@ -1,5 +1,5 @@
 {
-  "name": "flexweg-cms-sliders-plugin",
+  "name": "agentcms-sliders-plugin",
   "private": true,
   "version": "1.0.0",
   "description": "Adds four slider blocks (image, hero, cards, logo carousel) to the Flexweg post/page editor. Per-page detection injects the runtime JS + CSS only on pages that use a slider.",

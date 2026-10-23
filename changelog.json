@@ -2,6 +2,17 @@
   "$comment": "Newest first. Read by agents (agentcms status) to tell users what changed and what to run. `breaking`: an older admin, skill or site setup stops working without action. `actions`: steps a hosted site needs after updating — deploy-admin, regenerate-all, sync-theme-assets. Keep every entry in English.",
   "versions": [
     {
+      "version": "0.1.1",
+      "date": "2026-10-23",
+      "breaking": false,
+      "changes": [
+        "Renamed to AgentCMS everywhere: admin (title, header, setup wizard, terms — 7 languages), the generator meta tag of published pages, config.js header, commit messages, docs and examples. Stored identifiers (export format, browser keys, plugin ids, @flexweg/cms-runtime) are unchanged, so existing sites and exports keep working."
+      ],
+      "actions": [
+        "deploy-admin"
+      ]
+    },
+    {
       "version": "0.1.0",
       "date": "2026-10-23",
       "breaking": false,

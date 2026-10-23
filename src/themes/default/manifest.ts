@@ -32,7 +32,7 @@ export const manifest: ThemeManifest<DefaultThemeConfig> = {
   id: "default",
   name: "Default",
   version: "1.0.0",
-  description: "Minimal blog/site theme that ships with Flexweg CMS.",
+  description: "Minimal blog/site theme that ships with AgentCMS.",
   scssEntry: "theme.scss",
   cssText,
   jsText,

@@ -394,7 +394,7 @@ export async function installSqlite(
       masterApiKey: f.flexwegApiKey,
       apiBaseUrl: f.flexwegApiBaseUrl,
       path: f.sqlitePath,
-      name: "Flexweg CMS",
+      name: "AgentCMS",
       requireUserAuth: true,
       allowedOrigins: [window.location.origin],
     });

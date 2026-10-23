@@ -1,6 +1,6 @@
-# Marketplace Core — Flexweg CMS theme
+# Marketplace Core — AgentCMS theme
 
-App-store style theme for listing **themes and plugins** for the Flexweg CMS. Modern Corporate aesthetic with ambient shadows, rounded XL corners, blue primary, and Hanken Grotesk + Inter typography.
+App-store style theme for listing **themes and plugins** for the AgentCMS. Modern Corporate aesthetic with ambient shadows, rounded XL corners, blue primary, and Hanken Grotesk + Inter typography.
 
 ## Build & install
 
@@ -18,7 +18,7 @@ This produces `marketplace-core.zip` at the project root, containing:
 
 Install on your CMS:
 
-1. Open `/admin/#/themes` on your Flexweg CMS site
+1. Open `/admin/#/themes` on your AgentCMS site
 2. Click **Install theme** (top right)
 3. Drag and drop `marketplace-core.zip`
 4. Activate the theme on the Themes page once installed

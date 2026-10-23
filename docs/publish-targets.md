@@ -1,6 +1,6 @@
 # Publish targets & data backends
 
-Flexweg CMS separates two independent choices. The first-run setup wizard asks them in order — **1. Data** (where content lives, plus that backend's credentials), **2. Hosting** (where the site is published, tested before you can continue), **3. Install** (summary, then everything is created) — and both can be changed later in **Settings**:
+AgentCMS separates two independent choices. The first-run setup wizard asks them in order — **1. Data** (where content lives, plus that backend's credentials), **2. Hosting** (where the site is published, tested before you can continue), **3. Install** (summary, then everything is created) — and both can be changed later in **Settings**:
 
 | | What it decides | Options |
 |---|---|---|
