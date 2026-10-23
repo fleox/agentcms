@@ -3,12 +3,15 @@ import { readVersionInfo } from "../paths";
 import { compareVersions } from "../semver";
 import type { Command } from "./types";
 
-const REGISTRY_URL = "https://registry.npmjs.org/agentcms/latest";
+// "@scope/name" → https://registry.npmjs.org/@scope%2fname/latest
+export function registryLatestUrl(name: string): string {
+  return `https://registry.npmjs.org/${name.replace("/", "%2f")}/latest`;
+}
 
 // Latest published version on npm, or null when offline / not published.
-export async function fetchLatestVersion(fetchImpl: typeof fetch = fetch): Promise<string | null> {
+export async function fetchLatestVersion(fetchImpl: typeof fetch = fetch, name = readVersionInfo().name): Promise<string | null> {
   try {
-    const res = await fetchImpl(REGISTRY_URL, { signal: AbortSignal.timeout(5000) });
+    const res = await fetchImpl(registryLatestUrl(name), { signal: AbortSignal.timeout(5000) });
     if (!res.ok) return null;
     const body = (await res.json()) as { version?: unknown };
     return typeof body.version === "string" ? body.version : null;

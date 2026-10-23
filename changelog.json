@@ -3,10 +3,10 @@
   "versions": [
     {
       "version": "0.1.0",
-      "date": "2026-10-21",
+      "date": "2026-10-23",
       "breaking": false,
       "changes": [
-        "First release as the agentcms npm package and Claude Code plugin (skills agentcms-install and agentcms-manage).",
+        "First release as the @agent-cms/agentcms npm package (command agentcms) and Claude Code plugin (skills agentcms-install and agentcms-manage).",
         "agentcms install --plan: installs a site from a JSON plan (SQLite file or Markdown in GitHub/GitLab, on GitHub/GitLab/Cloudflare Pages, S3-compatible buckets, Flexweg or an own PHP server) — content store, publish target, theme assets and the admin in one go.",
         "SQLite databases are encrypted by default (AES-256-GCM, passphrase asked once per browser) and can be stored in a separate private location (bucket or repo) — a static host serves the file like any page. `doctor` flags a downloadable plain database.",
         "Settings → Data backend: encrypt an existing SQLite database or change its passphrase; `agentcms compact-data` shrinks a git data branch to one commit.",

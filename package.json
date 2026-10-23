@@ -1,5 +1,5 @@
 {
-  "name": "agentcms",
+  "name": "@agent-cms/agentcms",
   "version": "0.1.0",
   "type": "module",
   "description": "Static CMS whose admin runs in the browser and publishes plain HTML to any static host (GitHub/GitLab/Cloudflare Pages, S3, Flexweg, own server). Installable and manageable from AI coding agents.",

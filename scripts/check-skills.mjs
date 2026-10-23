@@ -73,10 +73,11 @@ for (const name of skills) {
   for (const file of walk(join(skillsDir, name))) {
     const r = relative(root, file);
     const text = readFileSync(file, "utf8");
-    for (const m of text.matchAll(/npx(?:\s+-y)?\s+agentcms(@[0-9][\w.-]*)?(?:[ \t]+([a-z][a-z-]*))?/g)) {
-      if (!m[1]) fail(r, `unpinned "${m[0]}" — always call npx -y agentcms@${version}`);
-      else if (m[1] !== `@${version}`) fail(r, `pins agentcms${m[1]} instead of @${version}`);
-      if (m[2] && !commands.has(m[2])) fail(r, `calls unknown command "${m[2]}" (have: ${[...commands].join(", ")})`);
+    for (const m of text.matchAll(/npx(?:\s+-y)?\s+((?:@[\w.-]+\/)?agentcms)(@[0-9][\w.-]*)?(?:[ \t]+([a-z][a-z-]*))?/g)) {
+      if (m[1] !== pkg.name) fail(r, `calls the package "${m[1]}" — the npm package is ${pkg.name}`);
+      if (!m[2]) fail(r, `unpinned "${m[0]}" — always call npx -y ${pkg.name}@${version}`);
+      else if (m[2] !== `@${version}`) fail(r, `pins ${m[1]}${m[2]} instead of @${version}`);
+      if (m[3] && !commands.has(m[3])) fail(r, `calls unknown command "${m[3]}" (have: ${[...commands].join(", ")})`);
     }
     for (const m of text.matchAll(/raw\.githubusercontent\.com\/fleox\/agentcms\/([^/\s]+)\//g)) {
       if (m[1] !== `v${version}`) fail(r, `raw link pinned to ${m[1]} instead of v${version}`);

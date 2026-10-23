@@ -41,7 +41,17 @@ jobs:
             exit 1
           fi
       - run: npm run check:skills
-      - run: npm publish --provenance --access public
+      # Idempotent: the very first version is published by hand (npm only
+      # allows trusted publishing on an existing package).
+      - name: Publish to npm
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          # Plain registry read (setup-node's placeholder token can make npm view fail).
+          if curl -fsS "https://registry.npmjs.org/@agent-cms%2fagentcms/$version" >/dev/null 2>&1; then
+            echo "@agent-cms/agentcms@$version is already on npm — skipping publish."
+          else
+            npm publish --provenance --access public
+          fi
       - name: GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -53,7 +63,7 @@ jobs:
             if (e.breaking) lines.push("**Breaking changes — read before updating.**", "");
             lines.push(...e.changes.map((c) => "- " + c));
             if (e.actions.length) lines.push("", "After updating a hosted site: " + e.actions.map((a) => "`" + a + "`").join(", "));
-            lines.push("", "Install / update: `npx -y agentcms@" + v + " help` — Claude Code: `/plugin marketplace update agentcms`.");
+            lines.push("", "Install / update: `npx -y @agent-cms/agentcms@" + v + " help` — Claude Code: `/plugin marketplace update agentcms`.");
             require("fs").writeFileSync("release-notes.md", lines.join("\n") + "\n");
           '
           gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes-file release-notes.md

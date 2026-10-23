@@ -5,7 +5,7 @@ One repository (`fleox/agentcms`) is the single source for everything users and 
 | Channel | What it serves | Updated by |
 |---|---|---|
 | `dist/` on `master` and on each `vX.Y.Z` tag | Built admin, theme assets, the `agentcms` CLI, `version.json` | `npm run build`, committed |
-| npm package `agentcms` | Same `dist/` subset + the agent skills (`plugin/`) + `changelog.json` | `release.yml`, on tag |
+| npm package `@agent-cms/agentcms` (command `agentcms`) | Same `dist/` subset + the agent skills (`plugin/`) + `changelog.json` | `release.yml`, on tag |
 | Claude Code marketplace (`.claude-plugin/marketplace.json` → `plugin/`) | The agent skills | Users run `/plugin marketplace update agentcms` |
 | GitHub Release | Release notes generated from `changelog.json` | `release.yml`, on tag |
 
@@ -25,15 +25,15 @@ One repository (`fleox/agentcms`) is the single source for everything users and 
 
 ## One-time npm setup
 
-1. Create the package with a first manual publish from a clean build: `npm login`, then `npm publish --access public`.
-2. On npmjs.com → package `agentcms` → Settings → **Trusted publishing**: add GitHub Actions, repository `fleox/agentcms`, workflow `release.yml`. From then on the workflow publishes without any stored npm token.
+1. Create the package with a first manual publish from a clean, committed build: `npm login`, then `npm publish --access public`. Then push the `v0.1.0` tag: the release workflow sees the version is already on npm, skips publishing and creates the GitHub Release.
+2. On npmjs.com → package `@agent-cms/agentcms` → Settings → **Trusted publishing**: add GitHub Actions, repository `fleox/agentcms`, workflow `release.yml`. From then on the workflow publishes without any stored npm token.
 3. Optionally enable "Require two-factor authentication and disallow tokens".
 
 ## Checks (CI)
 
 `npm run check:skills` fails when:
 
-- plugin / skill / package versions differ, or a skill pins another `agentcms@` version;
+- plugin / skill / package versions differ, or a skill pins another `@agent-cms/agentcms@` version;
 - a skill calls an `agentcms` command that `help --json` doesn't list;
 - a `SKILL.md` uses non-portable frontmatter keys or its `name` differs from its folder;
 - skill text isn't English;

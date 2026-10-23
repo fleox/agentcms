@@ -1491,10 +1491,12 @@ const siteCommand = {
     }
   }
 };
-const REGISTRY_URL = "https://registry.npmjs.org/agentcms/latest";
-async function fetchLatestVersion(fetchImpl = fetch) {
+function registryLatestUrl(name) {
+  return `https://registry.npmjs.org/${name.replace("/", "%2f")}/latest`;
+}
+async function fetchLatestVersion(fetchImpl = fetch, name = readVersionInfo().name) {
   try {
-    const res = await fetchImpl(REGISTRY_URL, { signal: AbortSignal.timeout(5e3) });
+    const res = await fetchImpl(registryLatestUrl(name), { signal: AbortSignal.timeout(5e3) });
     if (!res.ok) return null;
     const body = await res.json();
     return typeof body.version === "string" ? body.version : null;

@@ -22,9 +22,9 @@ The fastest way: let your coding agent install the site for you. It asks where t
   ```
   then ask: *"Install a new AgentCMS site"*.
 - **Any other agent** (Codex, Cursor, Windsurf…): ask it to follow [AGENTS.md](AGENTS.md).
-- **Without an agent**: `npx -y agentcms serve` (Node.js 20+) starts the admin on your computer — open the printed URL and follow the setup wizard.
+- **Without an agent**: `npx -y @agent-cms/agentcms serve` (Node.js 20+) starts the admin on your computer — open the printed URL and follow the setup wizard.
 
-The same `agentcms` CLI works by hand (`npx -y agentcms help`):
+The same `agentcms` CLI works by hand (`npx -y @agent-cms/agentcms help`):
 
 | Command | What it does |
 |---|---|
