@@ -1,0 +1,7 @@
+{
+  "id": "agentcms-sliders",
+  "name": "Sliders",
+  "version": "1.0.2",
+  "apiVersion": "1.0.0",
+  "entry": "bundle.js"
+}

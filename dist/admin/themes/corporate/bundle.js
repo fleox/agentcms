@@ -1,5 +1,5 @@
 import { jsxs as p, Fragment as Se, jsx as l } from "react/jsx-runtime";
-import { i18n as Ee, pickPublicLocale as Le, canonicalUrl as Ea, uploadFile as La, pickFormat as Qe, buildTermUrl as nn, SocialIcon as Ma, socialLabel as Sr, useCmsData as an, MediaPicker as Ia, pickMediaUrl as Ha, logoPath as Oa, FontSelect as Pa, toast as J, uploadThemeLogo as Ra, removeThemeLogo as Ba, fetchAllPosts as Nr, publishMenuJson as za } from "@flexweg/cms-runtime";
+import { i18n as Ee, pickPublicLocale as Le, canonicalUrl as Ea, uploadFile as La, pickFormat as Qe, buildTermUrl as nn, SocialIcon as Ma, socialLabel as Sr, useCmsData as an, MediaPicker as Ia, pickMediaUrl as Ha, logoPath as Oa, FontSelect as Pa, toast as J, uploadThemeLogo as Ra, removeThemeLogo as Ba, fetchAllPosts as Nr, publishMenuJson as za } from "@agent-cms/runtime";
 import j, { forwardRef as Xt, createElement as vt, useState as Q, useRef as $a, createRef as Fa, memo as Ua, createContext as on, version as Ar, useContext as ja } from "react";
 import { useTranslation as H } from "react-i18next";
 import Da, { flushSync as Va } from "react-dom";

@@ -30,11 +30,11 @@ my-plugin/
 ├── src/
 │   ├── manifest.tsx       ← entry — default-exports a PluginManifest
 │   └── types/
-│       └── cms-runtime.d.ts ← types for the externalised @flexweg/cms-runtime
+│       └── cms-runtime.d.ts ← types for the externalised @agent-cms/runtime
 └── README.md              ← shown in the plugins list when an admin clicks "Learn more"
 ```
 
-The published artifact is a single `.zip` containing `manifest.json`, `bundle.js`, optional `README.md`. Anything else inside the ZIP is uploaded to `/admin/plugins/<id>/` on Flexweg too (icons, sub-images, additional assets).
+The published artifact is a single `.zip` containing `manifest.json`, `bundle.js`, optional `README.md`. Anything else inside the ZIP is uploaded to `<admin folder>/plugins/<id>/` on the publish target too (icons, sub-images, additional assets).
 
 ## manifest.json (installation metadata)
 
@@ -50,10 +50,10 @@ The published artifact is a single `.zip` containing `manifest.json`, `bundle.js
 
 | Field | Required | Description |
 |---|---|---|
-| `id` | yes | Unique identifier. Lower-case ASCII + dash. Used as the folder name on Flexweg. |
+| `id` | yes | Unique identifier. Lower-case ASCII + dash. Used as the folder name under `<admin folder>/plugins/`. |
 | `name` | yes | Display name shown during install. |
 | `version` | yes | Semver of the plugin itself. Free-form — surfaced in the admin's plugin list. |
-| `apiVersion` | yes | Runtime API version this bundle was built against. The admin refuses to load if outside `[FLEXWEG_API_MIN_VERSION, FLEXWEG_API_VERSION]`. Read from `@flexweg/cms-runtime`. |
+| `apiVersion` | yes | Runtime API version this bundle was built against. The admin refuses to load if outside `[CMS_API_MIN_VERSION, CMS_API_VERSION]`. Read from `@agent-cms/runtime`. |
 | `entry` | no | Path of the bundle relative to the package root. Defaults to `bundle.js`. |
 
 The admin reads this file during install + at every boot to decide what to import. **`id` is immutable** — changing it after install creates a different plugin.
@@ -63,7 +63,7 @@ The admin reads this file during install + at every boot to decide what to impor
 `src/manifest.tsx` is the entry point. It must default-export a `PluginManifest` object — same shape as in-tree plugins:
 
 ```tsx
-import type { PluginManifest } from "@flexweg/cms-runtime";
+import type { PluginManifest } from "@agent-cms/runtime";
 
 const manifest: PluginManifest = {
   id: "hello-plugin",
@@ -91,7 +91,7 @@ Everything you can do from an in-tree plugin works here: `addFilter`, `addAction
 Plugins that need a configuration UI declare a `settings` field on the manifest exactly like in-tree plugins. The admin renders the settings component at `/settings/plugin/<your-id>` and stores the config under `settings.pluginConfigs.<your-id>` in Firestore.
 
 ```tsx
-import type { PluginManifest, PluginSettingsPageProps } from "@flexweg/cms-runtime";
+import type { PluginManifest, PluginSettingsPageProps } from "@agent-cms/runtime";
 import { useTranslation } from "react-i18next";
 
 interface Config {
@@ -126,7 +126,7 @@ const manifest: PluginManifest<Config> = {
 
 ### React, hooks, i18next
 
-External bundles import `react`, `react-i18next`, `react-dom`, `react/jsx-runtime` and `@flexweg/cms-runtime` like normal — but they must be **externalised** at build time so they don't ship a duplicate React. See the Vite config below.
+External bundles import `react`, `react-i18next`, `react-dom`, `react/jsx-runtime` and `@agent-cms/runtime` like normal — but they must be **externalised** at build time so they don't ship a duplicate React. See the Vite config below.
 
 At runtime, the admin's `index.html` declares an [import-map](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap) that redirects each bare specifier to a tiny stub file under `/admin/runtime/` which hands back the live admin instance. This guarantees one React copy across admin and plugin (required for hooks integrity) and one i18next state (so `useTranslation` calls reach the same store as the admin).
 
@@ -181,7 +181,7 @@ export default defineConfig({
         "react-dom",
         "react-dom/client",
         "react-i18next",
-        "@flexweg/cms-runtime",
+        "@agent-cms/runtime",
       ],
       output: {
         // Collapse any code-split chunks back into bundle.js. The admin
@@ -241,28 +241,15 @@ npm install
 npm run build
 ```
 
-Outputs `<id>.zip`. Then in the admin: **Plugins** → **Install plugin** → pick the zip. The admin uploads the contents to `/admin/plugins/<id>/` on Flexweg, appends an entry to `/admin/external.json`, and reloads. Your plugin runs from then on — same lifecycle as in-tree plugins (toggle from /plugins, configure from /settings/plugin/<id>, etc.).
+Outputs `<id>.zip`. Then in the admin: **Plugins** → **Install plugin** → pick the zip. The admin uploads the contents to `<admin folder>/plugins/<id>/` on the active publish target, adds an entry to the external registry (stored in the data backend — Firestore `settings/externalRegistry` or the document store's `config/externalRegistry`), and reloads. Your plugin runs from then on — same lifecycle as in-tree plugins (toggle from /plugins, configure from /settings/plugin/<id>, etc.).
 
 ## Manual install (without the upload UI)
 
-You can also drop the package directly via Flexweg's file manager:
-
-1. Unzip your `.zip` into a folder named `<id>/`.
-2. Upload the folder into Flexweg under `/admin/plugins/<id>/` (so the structure becomes `/admin/plugins/<id>/manifest.json`, `/admin/plugins/<id>/bundle.js`, etc.).
-3. Edit `/admin/external.json` (or create it with `{ "plugins": [], "themes": [] }`) and append:
-   ```json
-   {
-     "id": "<id>",
-     "version": "1.0.0",
-     "apiVersion": "1.0.0",
-     "entryPath": "plugins/<id>/bundle.js"
-   }
-   ```
-4. Reload `/admin/`. The plugin loads.
+Not supported: copying the files next to the admin by hand is not enough, because the list of installed externals lives in the data backend, not in a file on the site. Use the **Install plugin** modal (it also handles in-place upgrades: upload a newer ZIP with the same `id`).
 
 ## Uninstall
 
-In **Plugins** → **Install plugin**, the modal lists every installed external plugin with an **Uninstall** button. Clicking it deletes `/admin/plugins/<id>/` from Flexweg and removes the entry from `/admin/external.json`. The admin reloads.
+In **Plugins** → **Install plugin**, the modal lists every installed external plugin with an **Uninstall** button. Clicking it removes the entry from the external registry, then deletes `<admin folder>/plugins/<id>/` from the publish target. The admin reloads.
 
 ## Troubleshooting
 

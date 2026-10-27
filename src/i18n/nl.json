@@ -120,8 +120,8 @@
       "delete": "Verwijderen",
       "deleting": "Verwijderen…",
       "deletedCount": "{{ok}} verwijderd, {{failed}} mislukt.",
-      "confirmDelete_one": "{{count}} bericht verwijderen? Dit depubliceert van Flexweg en kan niet ongedaan worden gemaakt.",
-      "confirmDelete_other": "{{count}} berichten verwijderen? Dit depubliceert van Flexweg en kan niet ongedaan worden gemaakt.",
+      "confirmDelete_one": "{{count}} bericht verwijderen? Het wordt van de site gehaald en dit kan niet ongedaan worden gemaakt.",
+      "confirmDelete_other": "{{count}} berichten verwijderen? Ze worden van de site gehaald en dit kan niet ongedaan worden gemaakt.",
       "noDraftSelected": "Geen conceptberichten geselecteerd.",
       "noOnlineSelected": "Geen online berichten geselecteerd.",
       "clear": "Selectie wissen"
@@ -331,7 +331,7 @@
     "titleTheme": "Een thema installeren",
     "labelPlugin": "plugin",
     "labelTheme": "thema",
-    "intro": "Sleep een ZIP-bestand met een {{label}}-bundle (manifest.json + bundle.js in de root van de ZIP) hierheen. De {{label}} wordt naar uw Flexweg-site geüpload en na een herlaad geregistreerd. Een ZIP met dezelfde manifest-id opnieuw uploaden werkt het bestaande item ter plaatse bij — geen deïnstallatie nodig.",
+    "intro": "Sleep een ZIP-bestand met een {{label}}-bundel hierheen (manifest.json + bundle.js in de root van de ZIP). De {{label}} wordt naar de hosting van je site geüpload en na herladen geregistreerd. Een ZIP met hetzelfde manifest-id opnieuw uploaden werkt de bestaande vermelding bij — verwijderen is niet nodig.",
     "zipField": "Bundle-ZIP-bestand",
     "install": "Installeren",
     "installing": "Bezig met installeren…",
@@ -344,14 +344,14 @@
     "bundledDefaultsRestored": "{{plugins}} plugin(s) en {{themes}} thema('s) hersteld. Herladen…",
     "uninstall": "Deïnstalleren",
     "uninstallSuccess": "{{id}} gedeïnstalleerd. Herladen…",
-    "confirmUninstall": "{{id}} deïnstalleren? Bestanden worden verwijderd van Flexweg.",
+    "confirmUninstall": "{{id}} verwijderen? De bestanden worden van de hosting verwijderd.",
     "errors": {
       "no-manifest": "ZIP mist manifest.json in de root.",
       "invalid-manifest": "manifest.json is ongeldig (verplichte velden ontbreken of het is geen geldig JSON).",
       "incompatible-api": "De bundle is gebouwd tegen een incompatibele runtime-API-versie.",
       "no-bundle": "De ZIP bevat niet het in het manifest opgegeven entry-bestand.",
-      "fetch-manifest": "Kon de huidige external.json op Flexweg niet lezen.",
-      "upload-failed": "Upload mislukt — controleer uw Flexweg-API-sleutel en uw verbinding."
+      "fetch-manifest": "Kon de huidige external.json op de hosting niet lezen.",
+      "upload-failed": "Upload mislukt — controleer de gegevens van het publicatiedoel en je verbinding."
     }
   },
   "externalLoader": {
@@ -390,22 +390,12 @@
       "discourageIndexingHelp": "Indien ingeschakeld krijgt elke gepubliceerde pagina een noindex/nofollow-metatag en blokkeert robots.txt alle crawlers. Volgt het gedrag van WordPress — handig voor stagingsites of controles vóór de lancering. Zoekmachines die de instructie respecteren, indexeren de site niet.",
       "discourageRegenerateHint": "Indexeringsinstelling opgeslagen. Klik in Thema's op 'Alles opnieuw genereren' om de wijziging toe te passen op alle gepubliceerde pagina's en robots.txt."
     },
-    "flexweg": {
-      "title": "Flexweg-API",
-      "apiKey": "API-sleutel",
-      "apiKeyHelp": "Aangemaakt vanuit uw Flexweg-account → API.",
-      "siteUrl": "Site-URL",
-      "siteUrlHelp": "Publieke URL van uw Flexweg-site zonder slash op het einde.",
-      "apiBaseUrl": "API-basis-URL",
-      "storageHelpFirebase": "Opgeslagen in Firestore (config/flexweg). Te lezen door elk ingelogd teamlid, alleen door beheerders te schrijven.",
-      "storageHelpSqlite": "Opgeslagen in de lokale SQLite-tabel config. Te lezen door elk ingelogd teamlid, alleen door beheerders te schrijven."
-    },
     "backend": {
       "title": "Data-backend",
       "active": "Actief backend:",
       "switchButton": "Backend wisselen…",
       "confirmTitle": "Alle huidige data gaat verloren.",
-      "confirmBody": "Wisselen wist de configuratie in de browser en herlaadt het instelformulier. Het nieuwe backend start leeg — de data van het vorige backend blijft staan (in Firestore of als .sqlite-bestand op Flexweg), maar het CMS leest het pas weer wanneer u terug wisselt.",
+      "confirmBody": "Overschakelen wist de configuratie in de browser en laadt het installatieformulier opnieuw. De nieuwe backend begint leeg — de gegevens van de vorige backend blijven waar ze waren (in Firestore, de git-repository of het .sqlite-bestand), maar het CMS leest ze pas weer als je terugschakelt. Exporteer ze eerst om ze te verplaatsen.",
       "confirmYes": "Ja, backend wisselen",
       "downloadBackup": "Download een back-up van het .sqlite-bestand",
       "downloadBackupHelp": "doe dit voordat u van backend wisselt.",
@@ -491,15 +481,10 @@
     "editProfileTitle": "Profiel bewerken — {{email}}",
     "profileSaved": "Profiel opgeslagen.",
     "descriptionFirebase": "Beheer uw team. Nieuwe accounts worden aangemaakt in de Firebase Console en hier gespiegeld bij de eerste keer inloggen.",
-    "descriptionSqlite": "Beheer uw team. Gebruik de knop +Gebruiker toevoegen hieronder om accounts direct aan te maken.",
-    "addUser": "Gebruiker toevoegen",
-    "addUserSuccess": "{{email}} toegevoegd.",
     "removeConfirmFirebase": "Het record van {{email}} verwijderen? Hiermee verwijdert u hun profiel en rol uit het CMS. Om hun login-toegang in te trekken, verwijdert u het account ook in de Firebase Console.",
-    "removeConfirmSqlite": "{{email}} definitief verwijderen? Dit trekt hun login-toegang in EN verwijdert hun profiel en rol. Dit kan niet ongedaan worden gemaakt.",
     "empty": {
       "title": "Nog geen teamleden",
-      "descriptionFirebase": "Maak het eerste account aan in de Firebase Console en log hier daarna één keer in om het profiel te registreren.",
-      "descriptionSqlite": "Klik op +Gebruiker toevoegen hierboven om het eerste teamlid uit te nodigen."
+      "descriptionFirebase": "Maak het eerste account aan in de Firebase Console en log hier daarna één keer in om het profiel te registreren."
     },
     "help": {
       "title": "Hoe u een nieuw teamlid toevoegt",
@@ -509,22 +494,11 @@
         "step2": "Stel een e-mail en wachtwoord in en stuur ze naar het nieuwe teamlid.",
         "step3": "Vraag hen om hier één keer in te loggen — hun profiel verschijnt in de lijst hierboven en u kunt hun rol en gegevens bewerken."
       },
-      "sqlite": {
-        "step1": "Klik op de knop +Gebruiker toevoegen hierboven.",
-        "step2": "Voer hun e-mail en een tijdelijk wachtwoord (8+ tekens) in.",
-        "step3": "Deel de inloggegevens veilig — ze kunnen het wachtwoord vanuit hun profiel wijzigen zodra ze zijn ingelogd."
-      },
       "git": {
         "step1": "Voeg de persoon toe als collaborator van de content-repository (schrijftoegang = redacteur, admin / maintainer = admin).",
         "step2": "Diegene maakt een eigen persoonlijk toegangstoken aan op GitHub / GitLab.",
         "step3": "Diegene opent de admin en logt in met dat token — het profiel wordt hier automatisch aangemaakt."
       }
-    },
-    "addUserModal": {
-      "title": "Een nieuw teamlid toevoegen",
-      "intro": "Maakt het account direct aan in de Flexweg SQLite Auth-database. De nieuwe gebruiker krijgt standaard de rol editor; promoveer hem of haar via de lijst hieronder als adminrechten nodig zijn.",
-      "submit": "Gebruiker aanmaken",
-      "submitting": "Aanmaken…"
     },
     "actions": {
       "editProfile": "Profiel bewerken",
@@ -571,76 +545,26 @@
   },
   "identity": {
     "brandTitle": "AgentCMS",
-    "brandSubtitle": "Statische publisher",
-    "login": {
-      "heading": "Inloggen",
-      "intro": "Gebruik het e-mailadres en wachtwoord die uw beheerder met u heeft gedeeld.",
-      "submit": "Inloggen",
-      "submitting": "Inloggen…"
-    },
-    "fields": {
-      "name": "Weergavenaam (optioneel)",
-      "namePlaceholder": "Jan Jansen",
-      "email": "E-mail",
-      "password": "Wachtwoord",
-      "passwordHint": "Minimaal 8 tekens."
-    },
-    "footer": "Nieuwe accounts worden door een beheerder aangemaakt vanaf de Gebruikers-pagina.",
-    "errors": {
-      "invalidEmail": "Voer een geldig e-mailadres in.",
-      "missingPassword": "Wachtwoord is vereist.",
-      "passwordTooShort": "Het wachtwoord moet minimaal 8 tekens lang zijn."
-    }
+    "brandSubtitle": "Statische publisher"
   },
   "setup": {
     "title": "Welkom bij AgentCMS",
     "subtitle": "Eerste configuratie",
-    "intro": "Vul uw Firebase-gegevens in, het bootstrap-beheerderaccount en uw Flexweg-API-sleutel. De waarden worden gevalideerd, opgeslagen in uw project (Firestore + een config.js-bestand op Flexweg) en de admin laadt opnieuw met het normale aanmeldproces. U doet dit slechts één keer.",
-    "introFirebase": "Stap 1 — Firebase. Vul uw Firebase-projectgegevens en het bootstrap-beheerdersaccount in. We melden u aan, verifiëren het e-mailadres en controleren of uw Firestore-regels deze admin herkennen voordat we doorgaan naar de Flexweg-stap.",
-    "introFlexweg": "Stap 2 — Flexweg. Vul uw Flexweg-API-sleutel en site-URL in. We testen de API, slaan de configuratie op in Firestore, uploaden config.js naar uw site en synchroniseren de thema-assets.",
-    "continueToFlexweg": "Firebase valideren en doorgaan",
     "stepper": {
       "terms": "Voorwaarden",
-      "backend": "Backend",
-      "firebase": "Firebase",
-      "flexweg": "Flexweg",
-      "sqlite": "SQLite",
-      "docstore": "Content & publicatie",
       "data": "Gegevens",
       "hosting": "Hosting",
       "install": "Installatie"
     },
     "backend": {
-      "title": "Kies een data-backend",
-      "intro": "Kies waar het CMS uw berichten, pagina's, gebruikers en instellingen opslaat. U kunt later wisselen via Instellingen (data wordt niet gemigreerd).",
-      "sqliteTitle": "Flexweg SQLite (aanbevolen)",
-      "sqliteHint": "Alle data blijft op uw Flexweg-site als SQLite-bestand. Geen externe dienst. Auth wordt geleverd door de Flexweg SQLite-API.",
-      "firebaseTitle": "Firebase",
-      "firebaseHint": "Gebruik een Firebase-project voor Firestore + Auth. Gratis met het Spark-plan. Realtime updates via onSnapshot.",
-      "continue": "Doorgaan",
-      "markdownGitTitle": "Markdown-bestanden in een Git-repository",
-      "markdownGitHint": "Posts als .md-bestanden op GitHub / GitLab (of een lokale clone). Elke redacteur logt in met een eigen toegangstoken; elke wijziging is een commit. Geen database, werkt met meerdere redacteuren en computers.",
-      "localTitle": "Alleen deze browser",
-      "localHint": "Eén gebruiker, geen login, niets in te stellen. Content blijft in deze browser (exporteer via Instellingen). Ideaal voor een admin die op uw eigen computer draait."
-    },
-    "sqlite": {
-      "heading": "Verbind uw Flexweg-site",
-      "intro": "We gebruiken uw Flexweg-master-API-sleutel ÉÉN KEER om een beperkt token aan te maken voor de SQLite-database. Na de installatie wordt de master-sleutel weggegooid en wordt alleen het beperkte token (begrensd tot dit ene SQLite-bestand) opgeslagen.",
-      "apiKeyHint": "Master Flexweg-API-sleutel. Alleen gebruikt om te installeren — daarna nooit opgeslagen.",
-      "detectedFromUrl": "Gedetecteerd uit URL",
-      "advanced": "Geavanceerde instellingen (Site-URL, SQLite-pad…)",
-      "pathHint": "Waar het SQLite-bestand op uw Flexweg-site staat. Mappen worden automatisch aangemaakt.",
-      "adminHeading": "Beheerdersaccount",
-      "adminIntro": "Maak de eerste gebruiker aan — dit account krijgt automatisch adminrechten. Volgende leden worden vanaf de Gebruikers-pagina onboarded zodra u bent ingelogd.",
-      "passwordHint": "Minimaal 8 tekens.",
-      "submit": "SQLite-database installeren"
+      "continue": "Doorgaan"
     },
     "terms": {
       "title": "Gebruiksvoorwaarden",
       "intro": "Lees en accepteer de onderstaande voorwaarden voordat u AgentCMS gebruikt. Ze zijn in eenvoudige taal geschreven zodat ze snel te lezen zijn.",
       "section1": {
         "title": "1. Gratis dienst",
-        "body": "AgentCMS wordt door Flexweg gratis aangeboden. U kunt het zonder beperking gebruiken met uw Flexweg-hosting — Flexweg zal u het gebruik van het CMS zelf nooit in rekening brengen. De gebruikelijke kosten van uw Flexweg-hostingplan en uw Firebase-plan blijven van toepassing op de respectieve accounts."
+        "body": "AgentCMS wordt je gratis aangeboden. De gebruikelijke kosten van de diensten die je kiest (hosting, opslag, Firebase…) blijven gelden, op je eigen accounts."
       },
       "section2": {
         "title": "2. Geleverd „as-is“, zonder garantie",
@@ -648,39 +572,34 @@
       },
       "section3": {
         "title": "3. Uw content, uw verantwoordelijkheid",
-        "body": "U bent als enige verantwoordelijk voor de content die u via het CMS publiceert — tekst, afbeeldingen, video's, formulieren, code-embeds en alle andere media. U moet de toepasselijke wetgeving in uw rechtsgebied (en in de rechtsgebieden waarop u zich richt) naleven, evenals auteursrechten, beeld- en persoonlijkheidsrechten, regels voor de bescherming van persoonsgegevens en de voorwaarden van eventuele derde-diensten die u gebruikt (ingebedde fonts, video's, enz.). Flexweg is niet verantwoordelijk voor content die door gebruikers van het CMS wordt gepubliceerd."
+        "body": "Je bent als enige verantwoordelijk voor de inhoud die je via het CMS publiceert — teksten, afbeeldingen, video's, formulieren, ingesloten code en alle andere media. Je moet je houden aan de geldende wetgeving in je rechtsgebied (en in de rechtsgebieden waarop je je richt), auteursrecht, portret- en persoonlijkheidsrecht, regels voor de bescherming van persoonsgegevens en voorwaarden van derden (bijv. ingesloten lettertypen of video's). De auteurs van AgentCMS zijn niet verantwoordelijk voor inhoud die door gebruikers van het CMS wordt gepubliceerd."
       },
       "section4": {
         "title": "4. Uw Firebase-account, uw beveiliging",
-        "body": "Het CMS slaat zijn data op in uw eigen Firebase-project. U bent verantwoordelijk voor de beveiliging van dat project: kies een sterk wachtwoord voor het bootstrap-beheerderaccount, stel de Firestore-beveiligingsregels in zoals gedocumenteerd, rouleer uw API-sleutels wanneer nodig en controleer wie toegang heeft. Flexweg kan in geen geval verantwoordelijk worden gehouden voor ongeautoriseerde toegang, datalekken, hacks of verlies als gevolg van verkeerde configuratie of compromittering van uw Firebase-account."
+        "body": "Het CMS bewaart zijn gegevens op plekken die van jou zijn (een git-repository, een SQLite-bestand, een Firebase-project, deze browser). Jij bent verantwoordelijk voor de beveiliging ervan: sterke wachtwoorden en wachtzinnen, waar nodig privé-repository's of buckets, Firestore-beveiligingsregels zoals gedocumenteerd, rotatie van tokens en controle op wie toegang heeft. De auteurs van AgentCMS kunnen niet aansprakelijk worden gesteld voor ongeautoriseerde toegang, datalekken, hacks of verliezen door een verkeerde configuratie of het compromitteren van die accounts."
       },
       "section5": {
         "title": "5. Beperking van aansprakelijkheid",
-        "body": "Flexweg kan niet aansprakelijk worden gesteld voor enige inkomstenderving, dataverlies, gemiste zakelijke kansen of enige directe of indirecte schade voortvloeiend uit het gebruik, misbruik of de onbeschikbaarheid van het CMS. Wanneer de toepasselijke wet Flexweg verplicht enige aansprakelijkheid op zich te nemen, is deze beperkt tot het bedrag dat in de afgelopen 12 maanden daadwerkelijk aan Flexweg voor het CMS is betaald — dat is nul, aangezien het CMS gratis is."
+        "body": "De auteurs van AgentCMS kunnen niet aansprakelijk worden gesteld voor gederfde inkomsten, gegevensverlies, gemiste zakelijke kansen of enige directe of indirecte schade die voortvloeit uit het gebruik, misbruik of de onbeschikbaarheid van het CMS. Waar de toepasselijke wet hen enige aansprakelijkheid oplegt, is die beperkt tot het bedrag dat in de afgelopen 12 maanden daadwerkelijk voor het CMS is betaald — dus nul, omdat het CMS gratis is."
       },
       "section6": {
         "title": "6. Uw data blijft van u",
-        "body": "Content die u met het CMS aanmaakt wordt opgeslagen in uw eigen Firebase-project (tekst, instellingen, media-metadata) en op uw eigen Flexweg-hosting (gepubliceerde HTML, afbeeldingen, theme-assets). Het CMS zelf stuurt uw content niet door naar enige derde-dienst. Plugins of themes die u activeert kunnen hun eigen gedrag hebben — controleer wat ze doen voordat u ze activeert."
+        "body": "Inhoud die je met het CMS maakt, wordt opgeslagen waar je dat hebt gekozen (teksten, instellingen, metadata van media) en op je eigen hosting (gepubliceerde HTML, afbeeldingen, thema-assets). Het CMS zelf stuurt je inhoud niet naar diensten van derden. Plugins of thema's die je inschakelt, kunnen hun eigen gedrag hebben — bekijk wat ze doen voordat je ze activeert."
       },
       "section7": {
         "title": "7. Eerlijk gebruik",
-        "body": "Gebruik van het CMS voor onwettige, frauduleuze of schadelijke activiteiten, of op een manier die in strijd is met de algemene voorwaarden van Flexweg, kan leiden tot opschorting van uw toegang tot Flexweg-hosting. We kunnen deze CMS-voorwaarden in de loop van de tijd ook bijwerken; significante wijzigingen worden gecommuniceerd via de admin of per e-mail."
+        "body": "Gebruik het CMS niet voor onwettige, frauduleuze of schadelijke activiteiten, of op een manier die in strijd is met de voorwaarden van de diensten waarmee je het verbindt. Deze voorwaarden kunnen veranderen; belangrijke wijzigingen staan in de release notes."
       },
       "accept": "Ik heb de Gebruiksvoorwaarden gelezen en ga ermee akkoord.",
-      "continue": "Door naar configuratie",
-      "back": "Terug"
+      "continue": "Door naar configuratie"
     },
     "sections": {
       "firebase": "Firebase",
-      "admin": "Bootstrap-beheerder",
-      "flexweg": "Flexweg-API"
+      "admin": "Bootstrap-beheerder"
     },
     "help": {
       "firebase": "Vind deze waarden in Firebase Console → Projectinstellingen → Algemeen → Uw apps → SDK-installatie en configuratie.",
-      "admin": "Gebruik een bestaande gebruiker uit Firebase Authentication. Iedereen die aanmeldt met dit e-mailadres wordt als beheerder behandeld en omzeilt de gebruikersrecord-controle. Maak de gebruiker via Firebase Console → Authentication als deze nog niet bestaat.",
-      "flexweg": "Genereer een permanente API-sleutel in uw Flexweg-account → API. De site-URL is het publieke adres van uw Flexweg-site (bijv. https://uw-site.flexweg.com).",
-      "flexwegApiKeyHint": "Haal uw API-sleutel op uit uw Flexweg-accountinstellingen.",
-      "flexwegApiKeyLink": "Accountinstellingen openen"
+      "admin": "Gebruik een bestaande gebruiker uit Firebase Authentication. Iedereen die aanmeldt met dit e-mailadres wordt als beheerder behandeld en omzeilt de gebruikersrecord-controle. Maak de gebruiker via Firebase Console → Authentication als deze nog niet bestaat."
     },
     "fields": {
       "apiKey": "API-sleutel",
@@ -690,36 +609,20 @@
       "messagingSenderId": "Messaging-afzender-ID",
       "appId": "App-ID",
       "adminEmail": "E-mail",
-      "adminPassword": "Wachtwoord",
-      "flexwegApiKey": "API-sleutel",
-      "flexwegSiteUrl": "Site-URL",
-      "flexwegApiBaseUrl": "API-basis-URL",
-      "sqlitePath": "SQLite-pad"
+      "adminPassword": "Wachtwoord"
     },
-    "submit": "Opslaan en doorgaan",
     "submitting": "Bezig met instellen…",
     "success": "Configuratie voltooid!",
     "reloadingHint": "De admin wordt zo herladen — even geduld.",
-    "footer": "Deze waarden worden opgeslagen in uw project (Firestore + Flexweg). Ze worden nergens anders heen gestuurd.",
+    "footer": "Deze waarden worden opgeslagen in je eigen project en in deze browser. Ze worden nergens anders naartoe gestuurd.",
     "steps": {
       "signInFirebase": "Aanmelden bij Firebase…",
-      "testFlexweg": "Flexweg-API testen…",
       "writeFirestore": "Configuratie opslaan…",
-      "uploadConfig": "config.js uploaden naar Flexweg…",
-      "syncThemes": "Theme-assets synchroniseren naar Flexweg…",
-      "sqliteInstall": "Beperkt SQLite-token aanmaken…",
-      "sqliteRegisterAdmin": "Admin-account registreren…",
-      "sqliteSchema": "SQLite-schema initialiseren…"
-    },
-    "stepsDone": {
-      "sqliteInstall": "Beperkt SQLite-token uitgegeven",
-      "sqliteRegisterAdmin": "Admin geregistreerd en ingelogd",
-      "sqliteSchema": "SQLite-schema klaar"
+      "uploadConfig": "config.js uploaden naast de admin…",
+      "syncThemes": "Thema-assets synchroniseren met de hosting…"
     },
     "errors": {
       "missingFields": "Vul alle velden in.",
-      "rootDeploymentTitle": "De admin moet in een submap staan, niet in de hoofdmap van de site.",
-      "rootDeploymentHint": "Verplaats de admin-bestanden (index.html, config.js, runtime/, …) naar een submap op Flexweg — bijvoorbeeld /admin/ of een willekeurige naam zoals /erf34f654GH3/ voor extra onopvallendheid. Herlaad de admin vervolgens vanuit de URL van de submap en voer de configuratie opnieuw uit.",
       "firebaseAuthGeneric": "Aanmelden bij Firebase mislukt.",
       "firebaseAuthInvalidCredential": "Firebase heeft de combinatie van e-mailadres en wachtwoord geweigerd.",
       "firebaseAuthInvalidCredentialHint": "Moderne Firebase-projecten activeren standaard bescherming tegen e-mailopsomming, waardoor dezelfde fout wordt teruggegeven of het wachtwoord nu fout is, de gebruiker niet bestaat, of de gebruiker zich met een andere provider aanmeldt. Te controleren:\n• Voer het wachtwoord opnieuw in — kopieer/plak vanuit een wachtwoordbeheerder om typfouten uit te sluiten. Minimale lengte is 6 tekens.\n• Open Firebase Console → Authentication → Users en bevestig dat het e-mailadres bestaat. Controleer de kolom 'Providers': als deze alleen Google (of een andere provider) toont en niet 'Email/Password', stel het wachtwoord in of reset het via het rijmenu (⋮ → Wachtwoord resetten).\n• Controleer of de spelling van het e-mailadres exact overeenkomt met wat in Firebase staat opgeslagen.",
@@ -733,13 +636,9 @@
       "wrongAdminEmail": "Het Firebase-account waarmee u bent aangemeld komt niet overeen met het ingevoerde admin-e-mailadres. Probeer het opnieuw.",
       "rulesNotPinnedTitle": "De Firestore-regels herkennen u nog niet als bootstrap-admin.",
       "rulesNotPinnedHint": "Open Firebase Console → Firestore → Rules en vervang de waarde van `bootstrapAdminEmail()` door: {{email}} — klik daarna op Publiceren. De regelsjabloon in de README bevat een placeholder `you@example.com` die vervangen moet worden door uw echte admin-e-mailadres. Klik na het publiceren van de nieuwe regels hier opnieuw op Verzenden.",
-      "flexwegAuth": "Flexweg-API-sleutel geweigerd. Controleer de waarde in uw Flexweg-account → API.",
-      "flexwegNetwork": "Netwerkfout bij contact met Flexweg. Controleer de API-basis-URL en uw verbinding.",
-      "flexwegHttp": "Flexweg-API-fout ({{status}}): {{detail}}",
       "firestoreRulesTitle": "Firestore weigerde het schrijven van de configuratie.",
       "firestoreRulesHint": "Open Firebase Console → Firestore → Regels en zorg dat het bootstrap-admin-e-mailadres is ingesteld op '{{email}}'. De README bevat een kant-en-klare regelsjabloon.",
       "firestoreOther": "Schrijven naar Firestore mislukt",
-      "uploadFailed": "Kon config.js niet uploaden naar Flexweg",
       "generic": "Er is iets misgegaan."
     },
     "docstore": {
@@ -774,11 +673,7 @@
       "options": {
         "sqlite-file": {
           "title": "SQLite",
-          "hint": "Een SQLite-database die wordt opgeslagen op de hosting die u in de volgende stap kiest (Flexweg, uw server, S3, Git…). Zonder gebruikersaccounts — of de SQLite-dienst van Flexweg, met accounts, als u op Flexweg host."
-        },
-        "flexweg-sqlite": {
-          "title": "SQLite (Flexweg-dienst)",
-          "hint": "Een SQLite-database die door de dienst van Flexweg wordt beheerd, met ingebouwde gebruikersaccounts. Vereist een Flexweg-account, ongeacht waar de site wordt gehost."
+          "hint": "Een SQLite-database op de hosting die je in de volgende stap kiest (git-repository, S3-bucket…) of op een aparte privélocatie, standaard versleuteld. Geen gebruikersaccounts."
         },
         "firebase": {
           "title": "Firebase",
@@ -805,7 +700,7 @@
       "data": "Gegevens",
       "hosting": "Hosting",
       "saveTarget": "Publicatiedoel opslaan…",
-      "noteConfigJs": "De admin-configuratie (config.js) wordt indien mogelijk naast de admin op Flexweg geüpload; anders wordt u aangeboden haar te downloaden.",
+      "noteConfigJs": "De admin-configuratie (config.js) wordt in deze browser opgeslagen; je kunt hem downloaden voor de admin-map.",
       "noteLocalConfig": "De configuratie wordt in deze browser opgeslagen; u krijgt config.js aangeboden om in de admin-map te plaatsen, zodat andere redacteuren deze installatie kunnen overslaan."
     },
     "sqliteFile": {
@@ -817,10 +712,7 @@
       "new": "nieuwe database",
       "dataNote": "Hier valt niets te configureren: de database wordt opgeslagen op de hosting die u in de volgende stap kiest.",
       "heading": "SQLite-database",
-      "flexwegService": "De SQLite-dienst van Flexweg gebruiken",
-      "flexwegServiceHint": "De database wordt door Flexweg beheerd en heeft ingebouwde gebruikersaccounts (e-mail + wachtwoord). Anders is het een gewoon bestand op deze hosting, zonder accounts.",
       "summaryFile": "Bestand {{path}} op deze hosting",
-      "summaryService": "SQLite-dienst van Flexweg ({{path}})",
       "encrypt": "Database versleutelen",
       "encryptHint": "Aanbevolen bij openbare hosting: zonder wachtzin is het bestand onleesbaar. Elke nieuwe browser vraagt er één keer om.",
       "passphrase": "Wachtzin",
@@ -849,7 +741,7 @@
       "continueHere": "Doorgaan in deze admin"
     }
   },
-  "flexweg": {
+  "storage": {
     "actions": {
       "upload": "Bestand uploaden",
       "delete": "Bestand verwijderen",
@@ -859,11 +751,9 @@
       "createFolder": "Map aanmaken",
       "renameFolder": "Map hernoemen",
       "deleteFolder": "Map verwijderen",
-      "storageLimits": "Opslaglimieten ophalen",
       "commit": "Wijzigingen publiceren"
     },
     "errors": {
-      "configMissing": "Het publicatiedoel is niet ingesteld. Stel het in via Instellingen voordat je publiceert.",
       "network": "{{action}}: netwerkfout of CORS geblokkeerd. Controleer uw verbinding.",
       "auth": "{{action}}: authenticatie mislukt. Controleer de gegevens van het publicatiedoel in Instellingen.",
       "notFound": "{{action}}: niet gevonden op het publicatiedoel.",
@@ -902,28 +792,7 @@
     "test": "Verbinding testen",
     "testOk": "Verbinding OK",
     "testFailed": "Verbinding mislukt",
-    "names": {
-      "flexweg": "Flexweg",
-      "git-pages": "Git-repository (GitHub Pages, Cloudflare Pages, GitLab Pages…)",
-      "s3": "S3-compatibele bucket (AWS S3, Cloudflare R2, Backblaze B2, OVH…)",
-      "php-bridge": "Uw eigen server (PHP-bridge)",
-      "browser-mirror": "Downloaden als ZIP",
-      "local-folder": "Lokale map op deze computer"
-    },
-    "hints": {
-      "flexweg": "Upload via de Flexweg Files API.",
-      "git-pages": "Elke publicatie is één commit in de repository; de host bouwt de site daaruit opnieuw op.",
-      "s3": "Vereist een CORS-regel op de bucket die de origin van deze admin toestaat, en websitehosting (of een CDN) om index.html-bestanden te serveren.",
-      "php-bridge": "Upload external/bridges/php/flexweg-bridge.php naar uw server, stel de API-sleutel in en vul hier de URL in.",
-      "browser-mirror": "De site wordt in deze browser bewaard; download het ZIP en upload het handmatig waar u maar wilt.",
-      "local-folder": "Schrijft de site rechtstreeks naar een map (Chrome / Edge). Serveer hem lokaal of push hem met uw eigen tools."
-    },
     "fields": {
-      "flexweg": {
-        "apiKey": "API-sleutel",
-        "siteUrl": "Site-URL",
-        "apiBaseUrl": "Basis-URL van de API"
-      },
       "git-pages": {
         "host": "Hosting",
         "provider": "Git-provider",
@@ -947,11 +816,6 @@
         "forcePathStyle": "Padgebaseerde URL's (MinIO, R2, de meeste compatibele diensten)",
         "publicRead": "Geüploade bestanden openbaar maken (ACL public-read) — voor buckets die niet via een bucketbeleid openbaar zijn (OVHcloud, Scaleway…). Laat uit bij AWS-buckets met ‘bucket owner enforced’."
       },
-      "php-bridge": {
-        "apiBaseUrl": "Bridge-URL",
-        "apiKey": "API-sleutel van de bridge",
-        "siteUrl": "Publieke site-URL"
-      },
       "browser-mirror": {
         "siteUrl": "Publieke site-URL (optioneel)"
       },
@@ -960,9 +824,6 @@
       }
     },
     "help": {
-      "flexweg": {
-        "apiKey": "Aangemaakt vanuit uw Flexweg-account → API."
-      },
       "git-pages": {
         "host": "Cloudflare Pages: koppel het project aan deze repository zonder build-commando en met de uitvoermap hieronder. Werkt met privé-repository's.",
         "dir": "Leeg laten voor de root van de repository. GitHub Pages: \"\" of \"docs\". GitLab Pages: \"public\".",
@@ -972,9 +833,6 @@
       "s3": {
         "endpoint": "Leeg laten voor AWS (afgeleid van de regio). R2: https://<account-id>.r2.cloudflarestorage.com",
         "siteUrl": "De website-URL van de bucket of uw CDN-domein."
-      },
-      "php-bridge": {
-        "apiBaseUrl": "De volledige URL van flexweg-bridge.php op uw server (HTTPS)."
       },
       "browser-mirror": {
         "siteUrl": "Waar u het ZIP gaat uploaden — gebruikt voor absolute URL's (sitemaps, RSS, media)."
@@ -1031,11 +889,6 @@
     "openFolder": "Contentmap openen"
   },
   "hosting": {
-    "flexweg": {
-      "title": "Flexweg",
-      "short": "Flexweg-hosting",
-      "hint": "Uploadt via de Flexweg Files API. API-sleutel uit uw Flexweg-account."
-    },
     "github-pages": {
       "title": "GitHub Pages",
       "short": "Gratis, vanuit een GitHub-repository",
@@ -1060,11 +913,6 @@
       "title": "S3 / R2 / B2…",
       "short": "Object-storage-bucket",
       "hint": "AWS S3, Cloudflare R2, Backblaze B2, OVH, Scaleway, MinIO… Vereist een CORS-regel op de bucket en website-hosting of een CDN ervoor."
-    },
-    "own-server": {
-      "title": "Uw eigen server (FTP / SFTP)",
-      "short": "Gedeelde hosting, VPS…",
-      "hint": "Browsers spreken geen FTP of SFTP: upload de PHP-bridge (external/bridges/php/flexweg-bridge.php) eenmalig met uw FTP-client, stel de API-sleutel ervan in en vul hier daarna de URL in. Werkt op elke PHP-host."
     },
     "local-folder": {
       "title": "Lokale map",

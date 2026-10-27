@@ -19,8 +19,8 @@ import { COLLECTIONS, DocConflictError, type DocMutation, type DocStore } from "
 
 // "sqlite-file" document store: the whole dataset lives in ONE SQLite
 // file on the user's own hosting (e.g. admin/data/cms.sqlite), read and
-// rewritten through a publish connector (git repo, S3, PHP bridge,
-// Flexweg, local folder…) and opened in the browser with sql.js.
+// rewritten through a publish connector (git repo, S3,
+// local folder…) and opened in the browser with sql.js.
 //
 // No accounts: whoever can open the admin can edit — protecting it
 // (e.g. a password on /admin at the hosting level) is the site owner's
@@ -44,9 +44,9 @@ const MAX_REBASES = 3;
 
 // ─── Per-browser secrets ─────────────────────────────────────────────────
 
-const CONNECTOR_SECRETS_KEY = "flexweg.sqliteConnectorSecrets";
-const DOC_SECRETS_KEY = "flexweg.sqliteDocSecrets";
-const PASSPHRASE_KEY = "flexweg.sqlitePassphrase";
+const CONNECTOR_SECRETS_KEY = "agentcms.sqliteConnectorSecrets";
+const DOC_SECRETS_KEY = "agentcms.sqliteDocSecrets";
+const PASSPHRASE_KEY = "agentcms.sqlitePassphrase";
 
 function readJson<T>(key: string, fallback: T): T {
   try {
@@ -169,7 +169,7 @@ export async function encodeDatabase(snapshot: Snapshot): Promise<Uint8Array> {
   const db: Database = new SQL.Database();
   try {
     db.run("CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)");
-    db.run("INSERT INTO meta VALUES ('format', 'flexweg-cms'), ('version', ?), ('savedAt', ?)", [
+    db.run("INSERT INTO meta VALUES ('format', 'agentcms'), ('version', ?), ('savedAt', ?)", [
       FORMAT_VERSION,
       new Date().toISOString(),
     ]);

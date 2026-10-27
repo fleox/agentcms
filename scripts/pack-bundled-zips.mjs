@@ -43,7 +43,7 @@ function loadExternalsManifest() {
 // Locates a README.md for the source-side <id> folder. Tries in-tree
 // first (src/plugins/<id> or src/themes/<id>), then external/ — so
 // entries pulled in via `srcDir` in build-bundled-externals.mjs
-// (currently `flexweg-multilang` and `marketplace-core`) have their
+// (currently `agentcms-multilang` and `marketplace-core`) have their
 // README packed without a separate config entry. Returns the first
 // match or null.
 function findSourceReadme(kind, id) {

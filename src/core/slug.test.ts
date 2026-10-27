@@ -111,16 +111,16 @@ describe("normalizeMediaSlug", () => {
 
 describe("pathToPublicUrl", () => {
   it("joins base URL and path without double slashes", () => {
-    expect(pathToPublicUrl("https://site.flexweg.com", "news/hello.html")).toBe(
-      "https://site.flexweg.com/news/hello.html",
+    expect(pathToPublicUrl("https://www.example.com", "news/hello.html")).toBe(
+      "https://www.example.com/news/hello.html",
     );
-    expect(pathToPublicUrl("https://site.flexweg.com/", "/news/hello.html")).toBe(
-      "https://site.flexweg.com/news/hello.html",
+    expect(pathToPublicUrl("https://www.example.com/", "/news/hello.html")).toBe(
+      "https://www.example.com/news/hello.html",
     );
   });
   it("home path resolves to root url", () => {
-    expect(pathToPublicUrl("https://site.flexweg.com", HOME_PATH)).toBe(
-      "https://site.flexweg.com/index.html",
+    expect(pathToPublicUrl("https://www.example.com", HOME_PATH)).toBe(
+      "https://www.example.com/index.html",
     );
   });
 });

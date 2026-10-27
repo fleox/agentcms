@@ -1,5 +1,5 @@
-import type { HomeTemplateProps, SiteContext } from "@flexweg/cms-runtime";
-import { i18n, pickPublicLocale } from "@flexweg/cms-runtime";
+import type { HomeTemplateProps, SiteContext } from "@agent-cms/runtime";
+import { i18n, pickPublicLocale } from "@agent-cms/runtime";
 import { ProjectCard } from "../components/ProjectCard";
 import type { PortfolioThemeConfig } from "../config";
 import { DEFAULT_PORTFOLIO_HOME } from "../config";

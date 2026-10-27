@@ -1,7 +1,7 @@
-import type { Post } from "@flexweg/cms-runtime";
-import { postSortMillis } from "@flexweg/cms-runtime";
-import { getCurrentPublishContext } from "@flexweg/cms-runtime";
-import type { PublishContext } from "@flexweg/cms-runtime";
+import type { Post } from "@agent-cms/runtime";
+import { postSortMillis } from "@agent-cms/runtime";
+import { getCurrentPublishContext } from "@agent-cms/runtime";
+import type { PublishContext } from "@agent-cms/runtime";
 import { decodeAttrs } from "./util";
 import { renderMagazineHero, type MagazineHeroAttrs } from "./magazineHero/render";
 import { renderMostRead, type MostReadAttrs } from "./mostRead/render";

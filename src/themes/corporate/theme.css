@@ -470,7 +470,7 @@
   }
 
   /* ---------- Archives plugin styles ---------- */
-  /* The flexweg-archives plugin emits BEM-style classes outside this
+  /* The agentcms-archives plugin emits BEM-style classes outside this
      theme's content scan, so the safelist regex above keeps the
      matching @layer rules from being purged. Mirrors the default and
      magazine themes for consistency, adapted to corporate tokens. */

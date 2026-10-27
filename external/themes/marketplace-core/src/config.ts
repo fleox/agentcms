@@ -21,7 +21,7 @@ export interface MarketplaceHomeConfig {
 }
 
 export const DEFAULT_MARKETPLACE_HOME: MarketplaceHomeConfig = {
-  heroEyebrow: "FLEXWEG MARKETPLACE",
+  heroEyebrow: "AGENTCMS MARKETPLACE",
   heroHeadline: "Modern assets for professional creators.",
   heroIntro:
     "Curated themes and plugins for your AgentCMS site. Free, open-source, and ready to install.",
@@ -68,7 +68,7 @@ export interface MarketplaceSidebarItem {
   label: string;
   href: string;
   // Optional per-language overrides. Keys are 2-letter ISO codes
-  // matching `flexweg-multilang`'s `enabledLanguages` entries (e.g.
+  // matching `agentcms-multilang`'s `enabledLanguages` entries (e.g.
   // "fr", "de"). When the current rendering locale matches a key,
   // the override label and/or href take over before the locale-prefix
   // step. Missing entries fall back to the primary `label` / `href`.

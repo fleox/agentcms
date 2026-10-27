@@ -1,10 +1,10 @@
-// Contract every PUBLISH connector implements (Flexweg, GitHub Pages,
-// S3, …). A publish connector is where rendered output goes — HTML,
+// Contract every PUBLISH connector implements (GitHub Pages, S3,
+// local folder, …). A publish connector is where rendered output goes — HTML,
 // CSS, media variants, JSON data files. It never stores source data:
-// that's the data backend's job (services/firebase, services/flexweg-sqlite, …).
+// that's the data backend's job (services/firebase, services/docstore).
 //
 // Feature code never talks to a connector directly — it goes through
-// the facade in services/flexwegApi.ts (uploadFile, deleteFile, …),
+// the facade in services/siteFiles.ts (uploadFile, deleteFile, …),
 // which resolves the active connector, emulates missing capabilities
 // and routes writes into a batch when one is open (see ./batch.ts).
 
@@ -17,7 +17,6 @@ export type StorageAction =
   | "createFolder"
   | "renameFolder"
   | "deleteFolder"
-  | "storageLimits"
   | "commit";
 
 // Single error class for every connector. `status` is the HTTP status
@@ -34,7 +33,7 @@ export class StorageError extends Error {
 }
 
 // How a connector applies writes:
-//   - "files"      → each put/delete hits the target immediately (Flexweg, S3, …)
+//   - "files"      → each put/delete hits the target immediately (S3, local folder, …)
 //   - "commit"     → writes are grouped into one commit (GitHub / GitLab / Cloudflare Pages via git)
 //   - "deployment" → the whole site is re-deployed as a snapshot (Cloudflare Direct Upload, ZIP)
 export type PublishModel = "files" | "commit" | "deployment";
@@ -49,8 +48,6 @@ export interface StorageCapabilities {
   folders: boolean;
   // Native recursive folder delete. Emulated with list + delete otherwise.
   deletePrefix: boolean;
-  // Quota / plan usage endpoint (dashboard storage card).
-  storageLimits: boolean;
 }
 
 export interface PutInput {
@@ -80,35 +77,6 @@ export interface ListResponse {
   total?: number;
 }
 
-// Shape of Flexweg's GET /files/storage-limits. Kept as the generic
-// quota shape so the dashboard card works with any connector that can
-// report usage.
-export interface StorageLimitsResponse {
-  success: boolean;
-  plan: { name: string; type: string };
-  usage: {
-    files: {
-      current: number;
-      limit: number;
-      percentage: number;
-      available: number;
-    };
-    storage: {
-      current: number;
-      current_formatted: string;
-      limit: number;
-      limit_formatted: string;
-      percentage: number;
-      available: number;
-      available_formatted: string;
-    };
-  };
-  warnings: {
-    files_near_limit: boolean;
-    storage_near_limit: boolean;
-  };
-}
-
 export interface StorageConnector {
   id: string;
   model: PublishModel;
@@ -129,7 +97,6 @@ export interface StorageConnector {
   renameFolder?(oldPath: string, newPath: string): Promise<void>;
   createFolder?(path: string): Promise<void>;
   list?(page: number, perPage: number): Promise<ListResponse>;
-  storageLimits?(): Promise<StorageLimitsResponse>;
 
   // Required for "commit" / "deployment" models: applies every op
   // collected during a withStorageBatch() scope in one go. Ops are

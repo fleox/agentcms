@@ -9,7 +9,7 @@ import { generatePassphrase, isEncryptedDatabase, SqlitePassphraseError } from "
 import { setCredential } from "../credentials";
 import { ensurePublishBranch } from "../../src/services/docstore/sqliteLocation";
 import { createRemoteGitTransport, joinRepoPath } from "../../src/services/git";
-import { resetRuntimeConfigCache, type FlexwegRuntimeConfig, type MarkdownGitRuntimeConfig } from "../../src/lib/runtimeConfig";
+import { resetRuntimeConfigCache, type CmsRuntimeConfig, type MarkdownGitRuntimeConfig } from "../../src/lib/runtimeConfig";
 import { invalidateActiveStorageConnector } from "../../src/services/storage/registry";
 import { savePublishTarget } from "../../src/services/storage/target";
 import { testStorageConnection } from "../../src/services/storage/testConnection";
@@ -113,8 +113,8 @@ export async function checkPlan(plan: ResolvedPlan): Promise<CheckReport> {
   return { hosting, data };
 }
 
-function activate(runtime: FlexwegRuntimeConfig): void {
-  window.__FLEXWEG_CONFIG__ = runtime;
+function activate(runtime: CmsRuntimeConfig): void {
+  window.__AGENTCMS_CONFIG__ = runtime;
   resetRuntimeConfigCache();
   resetDocStore();
   invalidateActiveStorageConnector();

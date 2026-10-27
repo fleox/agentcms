@@ -10,7 +10,7 @@ import type { CollectionName, DocStore, StoredDoc } from "./types";
 // Data is tied to this browser profile: use Settings → Export to back
 // it up or move it to another backend.
 
-const kv = createKvStore<StoredDoc>("flexweg-local-data", "docs");
+const kv = createKvStore<StoredDoc>("agentcms-local-data", "docs");
 
 const keyOf = (collection: CollectionName, id: string) => `${collection}/${id}`;
 

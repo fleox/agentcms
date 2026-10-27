@@ -12,7 +12,7 @@ import {
   useCmsData,
   type FontOption,
   type ThemeSettingsPageProps,
-} from "@flexweg/cms-runtime";
+} from "@agent-cms/runtime";
 import {
   applyAndUploadCustomCss,
   buildAllFontsPreviewUrl,

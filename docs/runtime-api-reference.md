@@ -1,24 +1,24 @@
 # Runtime API reference
 
-The public surface external plugins and themes use. All exports below come from `@flexweg/cms-runtime` — externalised at build time, redirected at runtime by the admin's import-map to a stub that hands back the live admin instance.
+The public surface external plugins and themes use. All exports below come from `@agent-cms/runtime` — externalised at build time, redirected at runtime by the admin's import-map to a stub that hands back the live admin instance.
 
 ## Versioning
 
 ```ts
 import {
-  FLEXWEG_API_VERSION,        // current version of the runtime API
-  FLEXWEG_API_MIN_VERSION,    // oldest version still supported
-} from "@flexweg/cms-runtime";
+  CMS_API_VERSION,        // current version of the runtime API
+  CMS_API_MIN_VERSION,    // oldest version still supported
+} from "@agent-cms/runtime";
 ```
 
-`apiVersion` in your `manifest.json` is compared against `[FLEXWEG_API_MIN_VERSION, FLEXWEG_API_VERSION]` at install time + at every boot. Out-of-range bundles are skipped with a console warning.
+`apiVersion` in your `manifest.json` is compared against `[CMS_API_MIN_VERSION, CMS_API_VERSION]` at install time + at every boot. Out-of-range bundles are skipped with a console warning.
 
 The current contract is `1.4.0` (minimum `1.0.0`). Breaking changes bump the major; new optional fields bump the minor. Bundles built against `1.x` keep working as long as the admin advertises `MIN <= 1.x <= CURRENT`.
 
 ## pluginApi
 
 ```ts
-import { pluginApi } from "@flexweg/cms-runtime";
+import { pluginApi } from "@agent-cms/runtime";
 ```
 
 Exposes:
@@ -93,7 +93,7 @@ api.registerDashboardCard({
 ## PluginManifest shape
 
 ```ts
-import type { PluginManifest, PluginSettingsPageProps } from "@flexweg/cms-runtime";
+import type { PluginManifest, PluginSettingsPageProps } from "@agent-cms/runtime";
 
 interface PluginManifest<TConfig = unknown> {
   id: string;                      // matches manifest.json id
@@ -143,19 +143,19 @@ interface ThemeManifest<TConfig = unknown> {
 
 The `BaseLayoutProps`, `SiteContext`, `*TemplateProps` types match the in-tree theme types in `src/themes/types.ts`. External theme authors typically copy those types into their own `src/types/` folder so the bundle is self-contained.
 
-## Publish target (Files API helpers)
+## Publish target (site file helpers)
 
-`uploadFile`, `deleteFile`, `deleteFolder`, `getFile`, `renameFile`, `renameFolder`, `createFolder`, `listFiles`, `getStorageLimits` and `publicUrlFor` write to — and read from — the **active publish target** chosen by the site owner (Flexweg, git-backed Pages, S3, …). Same signatures on every target; the admin emulates what a target lacks (`deleteFolder` via list + delete, `renameFile` via get + put + delete, `createFolder` is a no-op on object stores).
+`uploadFile`, `deleteFile`, `deleteFolder`, `getFile`, `renameFile`, `renameFolder`, `createFolder`, `listFiles` and `publicUrlFor` write to — and read from — the **active publish target** chosen by the site owner (git-backed Pages, S3-compatible bucket, local folder, ZIP download, …). Same signatures on every target; the admin emulates what a target lacks (`deleteFolder` via list + delete, `renameFile` via get + put + delete, `createFolder` is a no-op on object stores).
 
 API ≥ 1.4 adds:
 
 ```ts
-import { getStorageCapabilities, withStorageBatch, StorageError } from "@flexweg/cms-runtime";
+import { getStorageCapabilities, withStorageBatch, StorageError } from "@agent-cms/runtime";
 
 const caps = await getStorageCapabilities();
 // { connectorId, model: "files" | "commit" | "deployment",
-//   list, rename, renameFolder, folders, deletePrefix, storageLimits }
-if (caps.storageLimits) { /* show a quota widget */ }
+//   list, rename, renameFolder, folders, deletePrefix }
+if (caps.list) { /* safe to call listFiles */ }
 
 // Group writes: on "commit" / "deployment" targets they land as ONE
 // commit / deployment when the outermost scope exits. Pass-through on
@@ -167,16 +167,16 @@ await withStorageBatch(async () => {
 });
 ```
 
-- `StorageError` (`status`, `body`) is thrown for every target failure; `FlexwegApiError` remains as an alias so `instanceof FlexwegApiError` keeps working. `status === 501` means "not supported by this target".
+- `StorageError` (`status`, `body`) is thrown for every target failure. `status === 501` means "not supported by this target".
 - Inside a batch, writes are not live until commit: `getFile` sees the staged content (read-your-writes), but the public URL may still serve the previous version for a moment on git-backed targets.
-- Check `caps.list` before calling `listFiles` and `caps.storageLimits` before `getStorageLimits` — both throw a 501 `StorageError` (with a toast) otherwise.
+- Check `caps.list` before calling `listFiles` — it throws a 501 `StorageError` (with a toast) otherwise.
 
 ### Custom publish targets (API ≥ 1.4)
 
-A plugin can add a publish target. Implement the `StorageConnector` contract (`put`, `get`, `delete`, `publicUrl` mandatory; `list`, `deletePrefix`, `rename`, `storageLimits`, `commitBatch` optional and advertised through `capabilities` / `model`) and register a factory that builds it from the settings stored in `config/storage`:
+A plugin can add a publish target. Implement the `StorageConnector` contract (`put`, `get`, `delete`, `publicUrl` mandatory; `list`, `deletePrefix`, `rename`, `getBytes`, `commitBatch` optional and advertised through `capabilities` / `model`) and register a factory that builds it from the settings stored in `config/storage`:
 
 ```ts
-import { registerStorageConnector } from "@flexweg/cms-runtime";
+import { registerStorageConnector } from "@agent-cms/runtime";
 
 registerStorageConnector({
   id: "my-host",
@@ -184,7 +184,7 @@ registerStorageConnector({
     return {
       id: "my-host",
       model: "files",
-      capabilities: { list: false, rename: false, renameFolder: false, folders: false, deletePrefix: false, storageLimits: false },
+      capabilities: { list: false, rename: false, renameFolder: false, folders: false, deletePrefix: false },
       async put({ path, content, encoding }) { /* upload */ },
       async get(path) { /* return UTF-8 text */ return ""; },
       async delete(path) { /* must resolve when already gone */ },
@@ -214,7 +214,7 @@ What they must NOT do: bundle their own copy. Always externalise these in `vite.
 
 ## What's NOT exposed
 
-- `services/*` — admin-internal Firestore / Flexweg API code. Plugins should stay pure: they react to hooks but shouldn't reach into the admin's storage layer directly.
+- `services/*` — admin-internal data-backend and publish-connector code (beyond the helpers re-exported above). Plugins should stay pure: they react to hooks but shouldn't reach into the admin's storage layer directly.
 - `core/types.ts` — internal types live under their own paths. External authors copy the relevant subset.
 - `lucide-react` icons — bundle them yourself (icons are pure SVG components, no shared state, duplication is harmless).
 
@@ -233,4 +233,4 @@ Two markers MUST appear in your `BaseLayout` for plugin output to land:
 </body>
 ```
 
-`core/render.tsx` does a string replace on these post-`renderToStaticMarkup`. Without them, plugins like `flexweg-favicon`, `flexweg-rss`, `core-seo` and `flexweg-custom-code` silently no-op on your theme.
+`core/render.tsx` does a string replace on these post-`renderToStaticMarkup`. Without them, plugins like `agentcms-favicon`, `agentcms-rss`, `core-seo` and `agentcms-custom-code` silently no-op on your theme.

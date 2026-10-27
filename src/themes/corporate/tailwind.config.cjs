@@ -4,7 +4,7 @@
  * Compiled by scripts/build-theme-tailwind.mjs into ./theme.compiled.css.
  * The result is bundled into the admin via the manifest's
  * `import cssText from "./theme.compiled.css?inline"` and uploaded to
- * Flexweg as `/theme-assets/corporate.css`.
+ * the hosting as `/theme-assets/corporate.css`.
  *
  * Content scan is intentionally LOCAL to this theme so the compiled CSS
  * stays free of admin-bundle utility classes. Block render functions
@@ -32,7 +32,7 @@ module.exports = {
   // strings the runtime loaders inject, or by plugins outside the
   // theme's content scan.
   // - `material-symbols-outlined`: every icon glyph in templates and blocks.
-  // - archives BEM family: emitted by the `flexweg-archives` plugin's
+  // - archives BEM family: emitted by the `agentcms-archives` plugin's
   //   HTML which lives outside this directory; the regex keeps the
   //   matching `@layer components` rules from being purged.
   safelist: [

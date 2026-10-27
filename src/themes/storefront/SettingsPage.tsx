@@ -15,8 +15,8 @@ import {
   toast,
   uploadThemeLogo,
   useCmsData,
-} from "@flexweg/cms-runtime";
-import type { ThemeSettingsPageProps } from "@flexweg/cms-runtime";
+} from "@agent-cms/runtime";
+import type { ThemeSettingsPageProps } from "@agent-cms/runtime";
 import {
   applyAndUploadCustomCss,
   buildAllFontsPreviewUrl,

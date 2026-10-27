@@ -7,7 +7,7 @@
 // `/index.html` for primary, `/fr/index.html` for secondary) and pick
 // the right per-language menu label from `ResolvedMenuItem.labels`.
 
-import type { ResolvedMenuItem } from "@flexweg/cms-runtime";
+import type { ResolvedMenuItem } from "@agent-cms/runtime";
 
 // Returns "" on the primary-language page, or "/<lang>" on a
 // secondary-language page. Drives every hardcoded link in the theme

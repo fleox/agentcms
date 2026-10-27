@@ -2,12 +2,12 @@
 // "markdown-git" and "local" backends. The image-processing pipeline
 // (services/imageProcessing.ts) is browser-side and stays unchanged —
 // only the metadata CRUD goes to the doc store. The actual file uploads
-// to Flexweg go through services/flexwegApi.ts which is
+// to the publish target go through services/siteFiles.ts which is
 // backend-agnostic. `uploadedAt` is already epoch millis in the domain
 // type, so no Timestamp conversion is needed here.
 
 import { getDocStore, newDocId, type StoredDoc } from "./index";
-import { deleteFile, deleteFolder, publicUrlFor, uploadFile } from "../flexwegApi";
+import { deleteFile, deleteFolder, publicUrlFor, uploadFile } from "../siteFiles";
 import { ADMIN_FORMATS } from "../imageFormats";
 import {
   blobToBase64,
@@ -144,7 +144,7 @@ function resolveImageFormatConfig(settings: SiteSettings | undefined): ImageForm
 }
 
 // Mirrors firebase/media.ts.uploadMedia — pipelined, browser-side
-// variant generation, Flexweg Files API for the uploads, doc store for
+// variant generation, the storage facade for the uploads, doc store for
 // the metadata (one write = one commit on the git backend).
 export async function uploadMedia(
   file: File,
@@ -218,7 +218,7 @@ export async function updateMedia(
   });
 }
 
-// Wipes the Flexweg artifacts first (best-effort), then drops the
+// Wipes the published artifacts first (best-effort), then drops the
 // metadata doc — same order as the other impls.
 export async function deleteMedia(media: Media): Promise<void> {
   try {
@@ -228,7 +228,7 @@ export async function deleteMedia(media: Media): Promise<void> {
       await deleteFile(media.storagePath);
     }
   } catch (err) {
-    console.warn("Flexweg media delete failed (continuing):", err);
+    console.warn("Media files delete failed (continuing):", err);
   }
   const store = getDocStore();
   await store.ready();

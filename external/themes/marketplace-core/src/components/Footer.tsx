@@ -1,4 +1,4 @@
-import type { SiteContext } from "@flexweg/cms-runtime";
+import type { SiteContext } from "@agent-cms/runtime";
 import type { MarketplaceThemeConfig } from "../config";
 import { pickItemLabel } from "../lib/locale";
 

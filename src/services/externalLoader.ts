@@ -14,9 +14,9 @@
 import i18n from "../i18n";
 import { toast } from "../lib/toast";
 import {
-  FLEXWEG_API_MIN_VERSION,
-  FLEXWEG_API_VERSION,
-} from "../core/flexwegRuntime";
+  CMS_API_MIN_VERSION,
+  CMS_API_VERSION,
+} from "../core/cmsRuntime";
 import {
   clearExternalPlugins,
   clearExternalThemes,
@@ -57,8 +57,8 @@ function compareVersions(a: string, b: string): number {
 function isCompatibleApi(version: string): boolean {
   if (!version) return false;
   return (
-    compareVersions(version, FLEXWEG_API_MIN_VERSION) >= 0 &&
-    compareVersions(version, FLEXWEG_API_VERSION) <= 0
+    compareVersions(version, CMS_API_MIN_VERSION) >= 0 &&
+    compareVersions(version, CMS_API_VERSION) <= 0
   );
 }
 
@@ -101,7 +101,7 @@ function resolveBundleUrl(
 // fallback chain and migrates older deployments on first read.
 
 // Outcome of a single bundle load attempt. `missing` distinguishes
-// "file not on Flexweg" (HTTP 404 or non-JS content-type — typically the
+// "file not on the site" (HTTP 404 or non-JS content-type — typically the
 // SPA fallback returning HTML) from "bundle present but broken". Only
 // `missing` failures auto-prune the registry; transient or evaluation
 // errors keep the entry so a later boot or a fix can recover.
@@ -109,11 +109,11 @@ type LoadOutcome =
   | { ok: true }
   | { ok: false; missing: boolean };
 
-// Probes whether the bundle URL actually serves a JS module. Flexweg's
-// static host falls back to index.html for unknown paths, so a "missing"
+// Probes whether the bundle URL actually serves a JS module. Many
+// static hosts fall back to index.html for unknown paths, so a "missing"
 // bundle returns 200 with text/html — that's the classic MIME error the
 // dynamic import surfaces. We treat 404 OR a non-JS content-type as
-// "missing on Flexweg".
+// "missing on the site".
 async function probeBundleMissing(url: string): Promise<boolean> {
   try {
     const res = await fetch(url, { method: "GET", cache: "no-store" });
@@ -136,7 +136,7 @@ async function loadOneEntry(
   if (!isCompatibleApi(entry.apiVersion)) {
     console.warn(
       `[external] skipping ${type}/${entry.id}: apiVersion ${entry.apiVersion} ` +
-        `outside [${FLEXWEG_API_MIN_VERSION}, ${FLEXWEG_API_VERSION}]`,
+        `outside [${CMS_API_MIN_VERSION}, ${CMS_API_VERSION}]`,
     );
     return { ok: false, missing: false };
   }
@@ -200,7 +200,7 @@ async function loadOneEntry(
 // in-memory list first so a re-run (after uninstall/reinstall) reflects
 // the current state. Resolves once every entry has been processed.
 //
-// Self-healing: any entry whose bundle is genuinely missing on Flexweg
+// Self-healing: any entry whose bundle is genuinely missing on the site
 // (404 or HTML fallback served instead of JS) gets pruned from the
 // Firestore registry automatically. This unsticks the common "I renamed
 // a theme but the old id is still referenced" scenario without forcing

@@ -13,12 +13,11 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import flexwegLogo from "../assets/flexweg-logo.png";
+import agentcmsLogo from "../assets/agentcms-logo.svg";
 import { LocaleSwitcher } from "../components/ui/LocaleSwitcher";
 import { PublishTargetForm } from "../components/connectors/PublishTargetForm";
 import { getHostingOption, hostingOptionFor } from "../components/connectors/hostingOptions";
 import { getAdminFolder } from "../lib/adminBase";
-import { DEFAULT_FLEXWEG_API_BASE_URL } from "../services/flexwegConfig";
 import { LOCAL_CONTENT_HANDLE_KEY } from "../services/docstore/gitStore";
 import { generatePassphrase } from "../services/docstore/sqliteCrypto";
 import { defaultSqliteLocation, SQLITE_DATA_BRANCH } from "../services/docstore/sqliteLocation";
@@ -30,11 +29,9 @@ import {
   downloadConfigJs,
   installDocStore,
   installFirebase,
-  installSqlite,
   SetupError,
   verifyFirebase,
   verifyGitContent,
-  verifySqlite,
   verifySqliteFile,
   type GitContent,
   type InstallResult,
@@ -45,55 +42,7 @@ import {
 // First-run setup wizard: Terms → 1. Data backend → 2. Hosting →
 // 3. Install. The logic lives in setup/installers.ts; this file is UI.
 
-// Pre-fills the Flexweg site URL with the page's current origin AND
-// the detected admin folder — the CMS is conventionally deployed at
-// `<site>/admin/`, so the URL the user wants is the full path they
-// loaded the setup form from. Skipped on localhost where the origin is
-// never a useful default.
-function defaultSiteUrl(): string {
-  if (typeof window === "undefined") return "";
-  const h = window.location.hostname;
-  if (
-    h === "localhost" ||
-    h === "127.0.0.1" ||
-    h === "[::1]" ||
-    h === "::1" ||
-    h === "0.0.0.0" ||
-    h.endsWith(".localhost")
-  ) {
-    return "";
-  }
-  const folder = getAdminFolder();
-  return folder ? `${window.location.origin}/${folder}` : window.location.origin;
-}
-
-// Suggests an initial value for the SQLite path. Uses the detected
-// admin folder + `cms.sqlite`. Falls back to `admin/cms.sqlite` when
-// the folder cannot be detected (root deployment / SSR).
-function defaultSqlitePath(): string {
-  if (typeof window === "undefined") return "admin/cms.sqlite";
-  const folder = getAdminFolder();
-  return folder ? `${folder}/cms.sqlite` : "admin/cms.sqlite";
-}
-
-// Reads `?apikey=...` from the page URL so deployments triggered from
-// the Flexweg dashboard can pre-fill the key and skip the copy/paste
-// step. The query string is wiped by the post-install reload (see
-// `reloadAfterSetup`) so the sensitive value never sticks around in
-// browser history / bookmarks / referer headers.
-function defaultFlexwegApiKey(): string {
-  if (typeof window === "undefined") return "";
-  try {
-    const v = new URL(window.location.href).searchParams.get("apikey");
-    return v?.trim() ?? "";
-  } catch {
-    return "";
-  }
-}
-
-// Reloads after a successful setup. Strips ALL query params (including
-// the sensitive `?apikey=...` that the user may have arrived with) so
-// nothing leaks into history / bookmarks / referer.
+// Reloads after a successful setup, without any query params.
 function reloadAfterSetup(): void {
   if (typeof window === "undefined") return;
   const url = new URL(window.location.href);
@@ -110,10 +59,6 @@ const INITIAL_STATE: SetupFormState = {
   appId: "",
   adminEmail: "",
   adminPassword: "",
-  flexwegApiKey: defaultFlexwegApiKey(),
-  flexwegSiteUrl: defaultSiteUrl(),
-  flexwegApiBaseUrl: DEFAULT_FLEXWEG_API_BASE_URL,
-  sqlitePath: defaultSqlitePath(),
 };
 
 const INITIAL_GIT: GitContent = {
@@ -132,8 +77,8 @@ type ErrorState = { kind: SetupErrorKind; detail?: string };
 type WizardStep = "terms" | "data" | "hosting" | "install";
 
 // Data model only — where it is stored is decided by the hosting step
-// (a SQLite file lives on the chosen hosting; on Flexweg it can also be
-// Flexweg's SQLite service with built-in accounts).
+// (a SQLite file lives on the chosen hosting or a separate private
+// location).
 type BackendChoice = "sqlite-file" | "markdown-git" | "firebase" | "local";
 
 const isDocStoreChoice = (b: BackendChoice) => b === "sqlite-file" || b === "markdown-git" || b === "local";
@@ -150,21 +95,15 @@ function toErrorState(err: unknown): ErrorState {
 }
 
 // First hosting suggestion for a data backend — the user can pick any
-// other card. SQLite and Firebase installs historically published to
-// Flexweg; Markdown on GitHub pairs naturally with GitHub Pages; local
-// content stays local (ZIP) until the user decides otherwise.
-function defaultTarget(backend: BackendChoice, form: SetupFormState, git: GitContent): PublishTarget {
+// other card. Markdown on GitLab pairs with GitLab Pages, SQLite /
+// Firebase / Markdown on GitHub with GitHub Pages; local content stays
+// local (ZIP) until the user decides otherwise.
+function defaultTarget(backend: BackendChoice, git: GitContent): PublishTarget {
   const fromOption = (id: string, extra: Record<string, unknown> = {}): PublishTarget => {
     const option = getHostingOption(id);
     return { connectorId: option.connectorId, settings: { ...option.preset, ...extra } };
   };
-  if (backend === "sqlite-file" || backend === "firebase") {
-    return fromOption("flexweg", {
-      apiKey: form.flexwegApiKey,
-      siteUrl: form.flexwegSiteUrl,
-      apiBaseUrl: form.flexwegApiBaseUrl || DEFAULT_FLEXWEG_API_BASE_URL,
-    });
-  }
+  if (backend === "sqlite-file" || backend === "firebase") return fromOption("github-pages");
   if (backend === "markdown-git" && git.provider === "github") return fromOption("github-pages", { owner: git.owner });
   if (backend === "markdown-git" && git.provider === "gitlab") return fromOption("gitlab-pages");
   return fromOption("zip");
@@ -176,9 +115,6 @@ export function SetupForm() {
   const [backend, setBackend] = useState<BackendChoice>("sqlite-file");
   // SQLite: the database file goes on the hosting chosen in step 2…
   const [sqlitePathOnHost, setSqlitePathOnHost] = useState(defaultSqlitePathOnHost);
-  // …or, when that hosting is Flexweg, optionally in Flexweg's SQLite
-  // service (built-in user accounts).
-  const [flexwegService, setFlexwegService] = useState(false);
   // SQLite file encrypted with a passphrase (a static host serves the
   // file to anyone who guesses its path)…
   const [sqliteEncrypt, setSqliteEncrypt] = useState(true);
@@ -225,10 +161,6 @@ export function SetupForm() {
       messagingSenderId: form.messagingSenderId.trim(),
       appId: form.appId.trim(),
       adminEmail: form.adminEmail.trim().toLowerCase(),
-      flexwegApiKey: form.flexwegApiKey.trim(),
-      flexwegSiteUrl: form.flexwegSiteUrl.trim().replace(/\/+$/, ""),
-      flexwegApiBaseUrl: form.flexwegApiBaseUrl.trim().replace(/\/+$/, "") || DEFAULT_FLEXWEG_API_BASE_URL,
-      sqlitePath: form.sqlitePath.trim().replace(/^\/+|\/+$/g, ""),
     };
   }
 
@@ -267,7 +199,7 @@ export function SetupForm() {
         setTarget(found);
         setTargetBackend(backend);
       } else if (!target || targetBackend !== backend) {
-        setTarget(defaultTarget(backend, f, git));
+        setTarget(defaultTarget(backend, git));
         setTargetBackend(backend);
       }
       setWizardStep("hosting");
@@ -290,9 +222,7 @@ export function SetupForm() {
         const res = await testStorageConnection(target.connectorId, settings);
         if (!res.ok) throw new SetupError("generic", `${t("connectors.testFailed")} — ${res.detail}`);
       }
-      if (useFlexwegService) {
-        await verifySqlite(flexwegServiceForm(), t);
-      } else if (backend === "sqlite-file") {
+      if (backend === "sqlite-file") {
         if (sqliteEncrypt && sqlitePassphrase.trim().length < 12) {
           throw new SetupError("generic", t("setup.sqliteFile.passphraseTooShort"));
         }
@@ -315,9 +245,7 @@ export function SetupForm() {
       const res =
         backend === "firebase"
           ? await installFirebase(f, target, progress, t, opts)
-          : useFlexwegService
-            ? await installSqlite(flexwegServiceForm(), target, progress, t, opts)
-            : await installDocStore(
+          : await installDocStore(
                 backend === "sqlite-file"
                   ? {
                       backend,
@@ -340,33 +268,18 @@ export function SetupForm() {
     });
   }
 
-  const useFlexwegService = backend === "sqlite-file" && flexwegService && target?.connectorId === "flexweg";
-
   // SQLite file location: the separate private place when chosen, else a
   // dedicated branch of a git hosting, else the hosting itself.
   function sqliteDataLocation(hosting: PublishTarget): PublishTarget {
     return sqliteSeparate ? sqliteLocation : defaultSqliteLocation(hosting);
   }
 
-  // Flexweg SQLite service: its credentials are the Flexweg hosting ones.
-  function flexwegServiceForm(): SetupFormState {
-    const s = target?.settings ?? {};
-    return {
-      ...trimmed(),
-      flexwegApiKey: String(s.apiKey ?? "").trim(),
-      flexwegSiteUrl: String(s.siteUrl ?? "").trim().replace(/\/+$/, ""),
-      flexwegApiBaseUrl: String(s.apiBaseUrl ?? "").trim().replace(/\/+$/, "") || DEFAULT_FLEXWEG_API_BASE_URL,
-    };
-  }
-
-  // Admin self-hosting: any real web host except Flexweg (where the
-  // admin is uploaded by hand / already lives) and the ZIP mirror; not
+  // Admin self-hosting: any real web host except the ZIP mirror; not
   // offered when this admin already runs from the target.
   const alreadyOnTarget = target ? currentAdminFolderOn(target) : null;
   const offerAdminHosting =
     canHostAdmin &&
     !!target &&
-    target.connectorId !== "flexweg" &&
     target.connectorId !== "browser-mirror" &&
     !alreadyOnTarget;
 
@@ -375,13 +288,12 @@ export function SetupForm() {
 
   return (
     <div className="relative min-h-full flex items-center justify-center p-6 bg-surface-50 dark:bg-surface-950 overflow-hidden">
-      {/* Floating colour blobs — branding accent reused from
-          flexweg.com's home. Lives behind the form (z-index: 0) and
+      {/* Floating colour blobs — branding accent. Lives behind the form (z-index: 0) and
           ignores pointer events. CSS in src/index.css. */}
-      <div className="flexweg-blobs" aria-hidden="true">
-        <div className="flexweg-blob flexweg-blob-1"></div>
-        <div className="flexweg-blob flexweg-blob-2"></div>
-        <div className="flexweg-blob flexweg-blob-3"></div>
+      <div className="agentcms-blobs" aria-hidden="true">
+        <div className="agentcms-blob agentcms-blob-1"></div>
+        <div className="agentcms-blob agentcms-blob-2"></div>
+        <div className="agentcms-blob agentcms-blob-3"></div>
       </div>
       <div className="absolute top-4 right-4 z-10">
         <LocaleSwitcher />
@@ -395,7 +307,7 @@ export function SetupForm() {
         )}
       <div className="w-full max-w-2xl relative z-10">
         <div className="flex items-center gap-2.5 justify-center mb-6">
-          <img src={flexwegLogo} alt="AgentCMS" className="h-10 w-10 rounded-xl shadow-card object-cover" />
+          <img src={agentcmsLogo} alt="AgentCMS" className="h-10 w-10 rounded-xl shadow-card object-cover" />
           <div className="text-center">
             <p className="text-base font-semibold leading-none">{t("setup.title")}</p>
             <p className="text-[11px] text-surface-500 mt-0.5 dark:text-surface-400">{t("setup.subtitle")}</p>
@@ -461,14 +373,9 @@ export function SetupForm() {
             )}
             {backend === "sqlite-file" && target && (
               <SqliteHostingFields
-                onFlexweg={target.connectorId === "flexweg"}
                 onGit={target.connectorId === "git-pages"}
-                useService={useFlexwegService}
-                setUseService={setFlexwegService}
                 path={sqlitePathOnHost}
                 setPath={setSqlitePathOnHost}
-                form={form}
-                patch={patch}
                 encrypt={sqliteEncrypt}
                 setEncrypt={setSqliteEncrypt}
                 passphrase={sqlitePassphrase}
@@ -502,22 +409,20 @@ export function SetupForm() {
                 {t(`setup.data.options.${backend}.title`)}
                 {backend === "sqlite-file" && (
                   <span className="block text-xs font-normal text-surface-500 break-all">
-                    {useFlexwegService
-                      ? t("setup.sqliteFile.summaryService", { path: form.sqlitePath })
-                      : [
-                          t("setup.sqliteFile.summaryFile", { path: sqlitePathOnHost }),
-                          t(sqliteExisting ? "setup.sqliteFile.existing" : "setup.sqliteFile.new"),
-                          sqliteEncrypt ? t("setup.sqliteFile.summaryEncrypted") : null,
-                          sqliteSeparate
-                            ? t("setup.sqliteFile.summaryLocation", {
-                                location: t(`hosting.${hostingOptionFor(sqliteLocation.connectorId, sqliteLocation.settings).id}.title`),
-                              })
-                            : target?.connectorId === "git-pages"
-                              ? t("setup.sqliteFile.summaryBranch", { branch: SQLITE_DATA_BRANCH })
-                              : null,
-                        ]
-                          .filter(Boolean)
-                          .join(" · ")}
+                    {[
+                      t("setup.sqliteFile.summaryFile", { path: sqlitePathOnHost }),
+                      t(sqliteExisting ? "setup.sqliteFile.existing" : "setup.sqliteFile.new"),
+                      sqliteEncrypt ? t("setup.sqliteFile.summaryEncrypted") : null,
+                      sqliteSeparate
+                        ? t("setup.sqliteFile.summaryLocation", {
+                            location: t(`hosting.${hostingOptionFor(sqliteLocation.connectorId, sqliteLocation.settings).id}.title`),
+                          })
+                        : target?.connectorId === "git-pages"
+                          ? t("setup.sqliteFile.summaryBranch", { branch: SQLITE_DATA_BRANCH })
+                          : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
                   </span>
                 )}
               </dd>
@@ -739,14 +644,9 @@ function FirebaseFields({ form, patch }: { form: SetupFormState; patch: Patch })
 }
 
 interface SqliteHostingFieldsProps {
-  onFlexweg: boolean;
   onGit: boolean;
-  useService: boolean;
-  setUseService: (v: boolean) => void;
   path: string;
   setPath: (path: string) => void;
-  form: SetupFormState;
-  patch: Patch;
   encrypt: boolean;
   setEncrypt: (v: boolean) => void;
   passphrase: string;
@@ -757,17 +657,12 @@ interface SqliteHostingFieldsProps {
   setLocation: (next: PublishTarget) => void;
 }
 
-// SQLite storage on the chosen hosting: a database file (path below), or
-// — on Flexweg only — Flexweg's SQLite service with user accounts.
+// SQLite database file on the chosen hosting (or a separate private
+// location), optionally encrypted.
 function SqliteHostingFields({
-  onFlexweg,
   onGit,
-  useService,
-  setUseService,
   path,
   setPath,
-  form,
-  patch,
   encrypt,
   setEncrypt,
   passphrase,
@@ -782,105 +677,79 @@ function SqliteHostingFields({
   return (
     <fieldset className="space-y-3 border-t border-surface-200 pt-5 dark:border-surface-700">
       <legend className="text-sm font-semibold text-surface-900 dark:text-surface-50">{t("setup.sqliteFile.heading")}</legend>
-      {onFlexweg && (
-        <label className="flex items-start gap-2 text-sm">
-          <input type="checkbox" className="mt-1" checked={useService} onChange={(e) => setUseService(e.target.checked)} />
-          <span>
-            <span className="font-medium">{t("setup.sqliteFile.flexwegService")}</span>
-            <span className="block text-xs text-surface-500 dark:text-surface-400">{t("setup.sqliteFile.flexwegServiceHint")}</span>
-          </span>
-        </label>
-      )}
-      {useService ? (
-        <>
-          <div>
-            <Field label={t("setup.fields.sqlitePath")} placeholder="admin/cms.sqlite" value={form.sqlitePath} onChange={(v) => patch("sqlitePath", v)} required />
-            <p className="text-[11px] text-surface-500 dark:text-surface-400 mt-1">{t("setup.sqlite.pathHint")}</p>
-          </div>
-          <p className="text-xs text-surface-500 dark:text-surface-400">{t("setup.sqlite.adminIntro")}</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Field type="email" label={t("setup.fields.adminEmail")} placeholder="you@company.com" value={form.adminEmail} onChange={(v) => patch("adminEmail", v)} required autoComplete="email" />
-            <Field type="password" label={t("setup.fields.adminPassword")} placeholder="••••••••" value={form.adminPassword} onChange={(v) => patch("adminPassword", v)} required autoComplete="new-password" />
-          </div>
-          <p className="text-[11px] text-surface-500 dark:text-surface-400">{t("setup.sqlite.passwordHint")}</p>
-        </>
-      ) : (
-        <>
-          <div className="rounded-lg bg-amber-50 text-amber-800 ring-1 ring-amber-200 px-3 py-2 text-xs leading-relaxed dark:bg-amber-900/30 dark:text-amber-200 dark:ring-amber-700/50">
-            {t("setup.sqliteFile.security")}
-          </div>
-          <div>
-            <Field label={t("setup.sqliteFile.path")} value={path} onChange={setPath} required placeholder="admin/data/cms.sqlite" />
-            <p className="text-[11px] text-surface-500 dark:text-surface-400 mt-1">
-              {onGit && !separate ? t("setup.sqliteFile.gitBranchNote", { branch: SQLITE_DATA_BRANCH }) : t("setup.sqliteFile.pathHint")}
-            </p>
-          </div>
-          <label className="flex items-start gap-2 text-sm">
-            <input type="checkbox" className="mt-1" checked={encrypt} onChange={(e) => setEncrypt(e.target.checked)} />
-            <span>
-              <span className="font-medium">{t("setup.sqliteFile.encrypt")}</span>
-              <span className="block text-xs text-surface-500 dark:text-surface-400">{t("setup.sqliteFile.encryptHint")}</span>
-            </span>
+      <div className="rounded-lg bg-amber-50 text-amber-800 ring-1 ring-amber-200 px-3 py-2 text-xs leading-relaxed dark:bg-amber-900/30 dark:text-amber-200 dark:ring-amber-700/50">
+        {t("setup.sqliteFile.security")}
+      </div>
+      <div>
+        <Field label={t("setup.sqliteFile.path")} value={path} onChange={setPath} required placeholder="admin/data/cms.sqlite" />
+        <p className="text-[11px] text-surface-500 dark:text-surface-400 mt-1">
+          {onGit && !separate ? t("setup.sqliteFile.gitBranchNote", { branch: SQLITE_DATA_BRANCH }) : t("setup.sqliteFile.pathHint")}
+        </p>
+      </div>
+      <label className="flex items-start gap-2 text-sm">
+        <input type="checkbox" className="mt-1" checked={encrypt} onChange={(e) => setEncrypt(e.target.checked)} />
+        <span>
+          <span className="font-medium">{t("setup.sqliteFile.encrypt")}</span>
+          <span className="block text-xs text-surface-500 dark:text-surface-400">{t("setup.sqliteFile.encryptHint")}</span>
+        </span>
+      </label>
+      {encrypt && (
+        <div>
+          <label className="label" htmlFor="sqlite-passphrase">
+            {t("setup.sqliteFile.passphrase")}
           </label>
-          {encrypt && (
-            <div>
-              <label className="label" htmlFor="sqlite-passphrase">
-                {t("setup.sqliteFile.passphrase")}
-              </label>
-              <div className="flex gap-2">
-                <input
-                  id="sqlite-passphrase"
-                  className="input font-mono text-xs"
-                  autoComplete="off"
-                  spellCheck={false}
-                  value={passphrase}
-                  onChange={(e) => {
-                    setPassphrase(e.target.value);
-                    setCopied(false);
-                  }}
-                  required
-                />
-                <button
-                  type="button"
-                  className="btn-secondary shrink-0"
-                  onClick={() => {
-                    void navigator.clipboard?.writeText(passphrase).then(() => setCopied(true));
-                  }}
-                >
-                  <span>{t(copied ? "setup.sqliteFile.copied" : "setup.sqliteFile.copy")}</span>
-                </button>
-                <button
-                  type="button"
-                  className="btn-secondary shrink-0"
-                  onClick={() => {
-                    setPassphrase(generatePassphrase());
-                    setCopied(false);
-                  }}
-                >
-                  <span>{t("setup.sqliteFile.generate")}</span>
-                </button>
-              </div>
-              <p className="text-[11px] text-amber-700 dark:text-amber-300 mt-1">{t("setup.sqliteFile.passphraseHint")}</p>
-            </div>
-          )}
-          <label className="flex items-start gap-2 text-sm">
-            <input type="checkbox" className="mt-1" checked={separate} onChange={(e) => setSeparate(e.target.checked)} />
-            <span>
-              <span className="font-medium">{t("setup.sqliteFile.separate")}</span>
-              <span className="block text-xs text-surface-500 dark:text-surface-400">{t("setup.sqliteFile.separateHint")}</span>
-            </span>
-          </label>
-          {separate && (
-            <PublishTargetForm
-              value={location}
-              onChange={setLocation}
-              exclude={["zip", "flexweg"]}
-              pickerLabel={t("setup.sqliteFile.locationLabel")}
-              hideFields={["siteUrl", "publicRead"]}
-              testIgnore={["siteUrl"]}
+          <div className="flex gap-2">
+            <input
+              id="sqlite-passphrase"
+              className="input font-mono text-xs"
+              autoComplete="off"
+              spellCheck={false}
+              value={passphrase}
+              onChange={(e) => {
+                setPassphrase(e.target.value);
+                setCopied(false);
+              }}
+              required
             />
-          )}
-        </>
+            <button
+              type="button"
+              className="btn-secondary shrink-0"
+              onClick={() => {
+                void navigator.clipboard?.writeText(passphrase).then(() => setCopied(true));
+              }}
+            >
+              <span>{t(copied ? "setup.sqliteFile.copied" : "setup.sqliteFile.copy")}</span>
+            </button>
+            <button
+              type="button"
+              className="btn-secondary shrink-0"
+              onClick={() => {
+                setPassphrase(generatePassphrase());
+                setCopied(false);
+              }}
+            >
+              <span>{t("setup.sqliteFile.generate")}</span>
+            </button>
+          </div>
+          <p className="text-[11px] text-amber-700 dark:text-amber-300 mt-1">{t("setup.sqliteFile.passphraseHint")}</p>
+        </div>
+      )}
+      <label className="flex items-start gap-2 text-sm">
+        <input type="checkbox" className="mt-1" checked={separate} onChange={(e) => setSeparate(e.target.checked)} />
+        <span>
+          <span className="font-medium">{t("setup.sqliteFile.separate")}</span>
+          <span className="block text-xs text-surface-500 dark:text-surface-400">{t("setup.sqliteFile.separateHint")}</span>
+        </span>
+      </label>
+      {separate && (
+        <PublishTargetForm
+          value={location}
+          onChange={setLocation}
+          exclude={["zip"]}
+          pickerLabel={t("setup.sqliteFile.locationLabel")}
+          hideFields={["siteUrl", "publicRead"]}
+          testIgnore={["siteUrl"]}
+        />
       )}
     </fieldset>
   );
@@ -956,9 +825,9 @@ function GitContentFields({ git, setGit, token, setToken }: GitContentFieldsProp
   );
 }
 
-// Shown when config.js could NOT be written next to the admin (non-
-// Flexweg hosting, local dev): the config lives in this browser and is
-// offered as a download for the admin folder.
+// Shown when config.js could NOT be written next to the admin (admin
+// not hosted on the target, local dev): the config lives in this
+// browser and is offered as a download for the admin folder.
 function DoneCard({ result }: { result: InstallResult }) {
   const { t } = useTranslation();
   if (result.adminUrl) {
@@ -1111,13 +980,6 @@ function ErrorMessage({ error }: { error: ErrorState }) {
   switch (error.kind) {
     case "missingFields":
       return <span>{t("setup.errors.missingFields")}</span>;
-    case "rootDeployment":
-      return (
-        <div className="space-y-1.5">
-          <p>{t("setup.errors.rootDeploymentTitle")}</p>
-          <p className="text-xs">{t("setup.errors.rootDeploymentHint")}</p>
-        </div>
-      );
     case "firebaseAuth":
       return <span>{error.detail ?? t("setup.errors.firebaseAuthGeneric")}</span>;
     case "firebaseAuthInvalidCredential":
@@ -1140,10 +1002,6 @@ function ErrorMessage({ error }: { error: ErrorState }) {
           </p>
         </div>
       );
-    case "flexwegAuth":
-      return <span>{t("setup.errors.flexwegAuth")}</span>;
-    case "flexwegNetwork":
-      return <span>{t("setup.errors.flexwegNetwork")}</span>;
     case "firestoreRules":
       return (
         <div className="space-y-1.5">
@@ -1157,13 +1015,6 @@ function ErrorMessage({ error }: { error: ErrorState }) {
       return (
         <span>
           {t("setup.errors.firestoreOther")}: {error.detail}
-        </span>
-      );
-    case "uploadFailed":
-      return (
-        <span>
-          {t("setup.errors.uploadFailed")}
-          {error.detail ? `: ${error.detail}` : ""}
         </span>
       );
     case "generic":

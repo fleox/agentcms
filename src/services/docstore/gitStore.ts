@@ -61,16 +61,16 @@ function writeLs(key: string, value: string | null): void {
 }
 
 export function getGitToken(cfg: GitContentConfig): string | null {
-  return readLs(`flexweg.gitToken:${repoId(cfg)}`);
+  return readLs(`agentcms.gitToken:${repoId(cfg)}`);
 }
 
 export function setGitToken(cfg: GitContentConfig, token: string | null): void {
-  writeLs(`flexweg.gitToken:${repoId(cfg)}`, token?.trim() || null);
+  writeLs(`agentcms.gitToken:${repoId(cfg)}`, token?.trim() || null);
 }
 
 function readSecrets(cfg: GitContentConfig): SecretBag {
   try {
-    return JSON.parse(readLs(`flexweg.gitSecrets:${repoId(cfg)}`) ?? "{}") as SecretBag;
+    return JSON.parse(readLs(`agentcms.gitSecrets:${repoId(cfg)}`) ?? "{}") as SecretBag;
   } catch {
     return {};
   }
@@ -79,7 +79,7 @@ function readSecrets(cfg: GitContentConfig): SecretBag {
 function writeSecrets(cfg: GitContentConfig, secrets: SecretBag): void {
   // Secrets of config docs that are still present win; docs that lost
   // their secrets (field cleared) drop them.
-  writeLs(`flexweg.gitSecrets:${repoId(cfg)}`, JSON.stringify(secrets));
+  writeLs(`agentcms.gitSecrets:${repoId(cfg)}`, JSON.stringify(secrets));
 }
 
 // ─── Store ───────────────────────────────────────────────────────────────

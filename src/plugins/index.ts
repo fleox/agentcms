@@ -10,10 +10,10 @@
 
 import type { ComponentType } from "react";
 import { manifest as coreSeoManifest } from "./core-seo/manifest";
-import { manifest as flexwegSitemapsManifest } from "./flexweg-sitemaps/manifest";
-import { manifest as flexwegRssManifest } from "./flexweg-rss/manifest";
-import { manifest as flexwegArchivesManifest } from "./flexweg-archives/manifest";
-import { manifest as flexwegSearchManifest } from "./flexweg-search/manifest";
+import { manifest as sitemapsManifest } from "./agentcms-sitemaps/manifest";
+import { manifest as rssManifest } from "./agentcms-rss/manifest";
+import { manifest as archivesManifest } from "./agentcms-archives/manifest";
+import { manifest as searchManifest } from "./agentcms-search/manifest";
 import i18n from "../i18n";
 import type { AdminLocale } from "../core/types";
 import { pluginApi, resetRegistry } from "../core/pluginRegistry";
@@ -53,7 +53,7 @@ export interface PluginManifest<TConfig = unknown> {
   version: string;
   description?: string;
   // Plugin author / vendor — surfaced in /admin/#/plugins next to
-  // the version. Free-form string ("Flexweg", company name, GitHub
+  // the version. Free-form string ("AgentCMS", company name, GitHub
   // handle, …) — the admin renders it verbatim.
   author?: string;
   // Long-form documentation, typically the plugin's README.md. When
@@ -84,10 +84,10 @@ export interface PluginManifest<TConfig = unknown> {
 // admin bundle free of plugin code that's already in the externals.
 const BUILTINS_DEV: PluginManifest[] = [
   coreSeoManifest,
-  flexwegSitemapsManifest as PluginManifest,
-  flexwegRssManifest as PluginManifest,
-  flexwegArchivesManifest as PluginManifest,
-  flexwegSearchManifest as PluginManifest,
+  sitemapsManifest as PluginManifest,
+  rssManifest as PluginManifest,
+  archivesManifest as PluginManifest,
+  searchManifest as PluginManifest,
 ];
 export const PLUGINS: PluginManifest[] = import.meta.env.DEV
   ? BUILTINS_DEV

@@ -8,7 +8,7 @@
 // into ./hello-plugin.zip ready for the admin's "Install plugin" UI.
 
 import { useEffect, useState } from "react";
-import type { PluginManifest } from "@flexweg/cms-runtime";
+import type { PluginManifest } from "@agent-cms/runtime";
 
 // Tiny dashboard card showing how external plugins contribute UI.
 function HelloCard() {
@@ -34,7 +34,7 @@ const manifest: PluginManifest = {
   version: "1.0.0",
   description:
     "Sample external plugin — injects a meta tag on every published page and shows a dashboard card.",
-  author: "Flexweg",
+  author: "AgentCMS",
   register(api) {
     // Filter: append a meta tag to every page's <head>.
     api.addFilter<string>("page.head.extra", (head) => {

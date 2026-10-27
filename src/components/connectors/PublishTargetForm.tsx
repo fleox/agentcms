@@ -12,7 +12,6 @@ import {
   PlugZap,
   Server,
   XCircle,
-  Zap,
   type LucideIcon,
 } from "lucide-react";
 import { getHostingOption, hostingOptionFor, HOSTING_OPTIONS } from "./hostingOptions";
@@ -27,7 +26,6 @@ import { exportMirrorZip, mirrorFileCount } from "../../services/storage/connect
 import { LOCAL_PUBLISH_HANDLE_KEY } from "../../services/storage/connectors/localFolder";
 import type { PublishTarget } from "../../services/storage/target";
 import { testStorageConnection, type ConnectionTestResult } from "../../services/storage/testConnection";
-import { DEFAULT_FLEXWEG_API_BASE_URL } from "../../services/flexwegConfig";
 
 // Hosting picker + per-connector fields, shared by the setup wizard
 // (cards) and Settings → Publish target (select). The user picks WHERE
@@ -36,13 +34,11 @@ import { DEFAULT_FLEXWEG_API_BASE_URL } from "../../services/flexwegConfig";
 // parent owns the value and decides when to save.
 
 const HOSTING_ICONS: Record<string, LucideIcon> = {
-  flexweg: Zap,
   "github-pages": GitBranch,
   "cloudflare-pages": Cloud,
   "gitlab-pages": GitBranch,
   "git-other": GitBranch,
   s3: Database,
-  "own-server": Server,
   "local-folder": FolderOpen,
   zip: Archive,
 };
@@ -56,14 +52,9 @@ interface Field {
   show?: (s: Record<string, unknown>) => boolean;
 }
 
-const CONNECTORS = ["flexweg", "git-pages", "s3", "php-bridge", "browser-mirror", "local-folder"] as const;
+const CONNECTORS = ["git-pages", "s3", "browser-mirror", "local-folder"] as const;
 
 const FIELDS: Record<(typeof CONNECTORS)[number], Field[]> = {
-  flexweg: [
-    { key: "apiKey", type: "password", help: true },
-    { key: "siteUrl", type: "text", placeholder: "https://your-site.flexweg.com" },
-    { key: "apiBaseUrl", type: "text", placeholder: DEFAULT_FLEXWEG_API_BASE_URL },
-  ],
   "git-pages": [
     { key: "host", type: "select", options: ["github-pages", "cloudflare-pages", "gitlab-pages", "other"], help: true },
     { key: "provider", type: "select", options: ["github", "gitlab"] },
@@ -87,18 +78,12 @@ const FIELDS: Record<(typeof CONNECTORS)[number], Field[]> = {
     { key: "forcePathStyle", type: "checkbox" },
     { key: "publicRead", type: "checkbox" },
   ],
-  "php-bridge": [
-    { key: "apiBaseUrl", type: "text", placeholder: "https://example.com/cms-bridge/flexweg-bridge.php", help: true },
-    { key: "apiKey", type: "password" },
-    { key: "siteUrl", type: "text", placeholder: "https://example.com" },
-  ],
   "browser-mirror": [{ key: "siteUrl", type: "text", placeholder: "https://www.example.com", help: true }],
   "local-folder": [{ key: "siteUrl", type: "text", placeholder: "http://localhost:8080", help: true }],
 };
 
 // Sensible starting values when switching connector.
 const DEFAULTS: Record<string, Record<string, unknown>> = {
-  flexweg: { apiBaseUrl: DEFAULT_FLEXWEG_API_BASE_URL },
   "git-pages": { host: "github-pages", provider: "github", branch: "main" },
   s3: { region: "auto" },
 };
@@ -143,7 +128,7 @@ export function PublishTargetForm({
 
   const id = (CONNECTORS as readonly string[]).includes(value.connectorId)
     ? (value.connectorId as (typeof CONNECTORS)[number])
-    : "flexweg";
+    : "browser-mirror";
   const settings = value.settings;
   const hosting = hostingOptionFor(id, settings);
 

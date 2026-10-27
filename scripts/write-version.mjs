@@ -13,18 +13,18 @@ import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
-const runtime = readFileSync(join(root, "src", "core", "flexwegRuntime.ts"), "utf8");
+const runtime = readFileSync(join(root, "src", "core", "cmsRuntime.ts"), "utf8");
 const api = (name) => {
   const m = new RegExp(`export const ${name} = "([^"]+)"`).exec(runtime);
-  if (!m) throw new Error(`[version] ${name} not found in src/core/flexwegRuntime.ts`);
+  if (!m) throw new Error(`[version] ${name} not found in src/core/cmsRuntime.ts`);
   return m[1];
 };
 
 const info = {
   name: pkg.name,
   version: pkg.version,
-  apiVersion: api("FLEXWEG_API_VERSION"),
-  apiMinVersion: api("FLEXWEG_API_MIN_VERSION"),
+  apiVersion: api("CMS_API_VERSION"),
+  apiMinVersion: api("CMS_API_MIN_VERSION"),
   minSkillsVersion: pkg.agentcms.minSkillsVersion,
   dataSchema: pkg.agentcms.dataSchema,
   repository: "github:fleox/agentcms",

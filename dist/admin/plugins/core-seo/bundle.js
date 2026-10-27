@@ -35,11 +35,11 @@ function s(e) {
 function n(e) {
   return e.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
-const l = {
+const g = {
   id: "core-seo",
   name: "SEO",
   version: "1.0.0",
-  author: "Flexweg",
+  author: "AgentCMS",
   description: "Adds Twitter card meta tags and a generator hint to every published page.",
   readme: r,
   register(e) {
@@ -51,5 +51,5 @@ const l = {
   }
 };
 export {
-  l as manifest
+  g as manifest
 };

@@ -1,4 +1,4 @@
-import { uploadFile } from "../../services/flexwegApi";
+import { uploadFile } from "../../services/siteFiles";
 
 // Default theme — runtime style customization. The Style tab in the
 // theme settings page lets admins override CSS custom properties and
@@ -492,7 +492,7 @@ export function buildCustomCss(baseCssText: string, style: StyleOverrides): stri
   return output;
 }
 
-// Uploads the customized theme CSS to Flexweg. Path is the same as
+// Uploads the customized theme CSS to the publish target. Path is the same as
 // the baseline (`theme-assets/<themeId>.css`) so every published page
 // picks up the new look on its next load — no per-page republish
 // needed. Browser cache may serve the old version once; users

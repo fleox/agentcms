@@ -8,25 +8,24 @@
 //
 // IMPORTANT: dispatched function exports are HOISTED FUNCTION
 // declarations (not `const x = impl.x`), and `impl()` is resolved
-// lazily on first call. Reason: `core/flexwegRuntime.ts` reads several
+// lazily on first call. Reason: `core/cmsRuntime.ts` reads several
 // dispatcher exports at module-init inside an object literal, and a
 // circular import path through `themes/index.ts` means this module's
-// body hasn't necessarily run when flexwegRuntime's body does. Using
+// body hasn't necessarily run when cmsRuntime's body does. Using
 // hoisted function bindings + lazy impl resolution avoids the TDZ
 // ("can't access lexical declaration X before initialization") crash.
 // Constants stay as direct re-exports from the firebase impl (identical
-// value in SQLite impl).
+// value in the docstore impl).
 
 import { getBackendKind, isDocStoreBackend } from "../lib/runtimeConfig";
 import * as firebase from "./firebase/media";
-import * as sqlite from "./flexweg-sqlite/media";
 import * as docstore from "./docstore/media";
 
-let _impl: typeof firebase | typeof sqlite | typeof docstore | null = null;
+let _impl: typeof firebase | typeof docstore | null = null;
 function impl(): typeof firebase {
   if (!_impl) {
     const kind = getBackendKind();
-    _impl = kind === "flexweg-sqlite" ? sqlite : isDocStoreBackend(kind) ? docstore : firebase;
+    _impl = isDocStoreBackend(kind) ? docstore : firebase;
   }
   // Both backends expose the same public surface (verified at
   // type-check time by the type re-exports below). firebase is used as

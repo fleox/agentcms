@@ -1,4 +1,4 @@
-import type { SiteContext } from "@flexweg/cms-runtime";
+import type { SiteContext } from "@agent-cms/runtime";
 
 // Footer items are loaded at runtime from /menu.json — same pattern as
 // the header. Static markup just provides the empty <ul> container the

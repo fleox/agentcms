@@ -34,21 +34,20 @@ in the UI or API, it's `feat` (or `fix` if it was broken). Otherwise `refactor`.
 A short noun that points at the area touched. Pick one — never multiple.
 Scopes that fit this repo:
 
-- `api` — REST + MCP endpoints
-- `mcp` — the MCP server / tools
-- `auth` — login, OAuth, API keys, sessions
-- `billing` — Stripe, plans, AI tokens
-- `apps` — AppInstaller, flexweg-apps directory
-- `storage` — S3, file CRUD, storage jobs
-- `account` — /account/* UI
-- `home` — homepage + public marketing pages
-- `pricing` — pricing page + localized variants
-- `i18n` — translations, locale routing
-- `ai` — AI providers, chat, prompt service
-- `forms` — form management feature
-- `domains` — custom domain + DNS
-- `infra` — Docker, nginx, env, deploys
-- `db` — entities, migrations, schemas
+- `admin` — admin UI pages and components
+- `editor` — post / page editor, blocks
+- `publish` — publisher, menus, posts/authors JSON
+- `storage` — publish connectors (git Pages, S3, local folder, ZIP)
+- `docstore` — SQLite file / Markdown-in-git / local data backends
+- `firebase` — Firebase data backend
+- `setup` — first-run setup wizard
+- `themes` — in-tree and external themes
+- `plugins` — in-tree, must-use and external plugins
+- `runtime` — @agent-cms/runtime API for external bundles
+- `agent` — the agentcms CLI
+- `skills` — Claude Code plugin and skills
+- `i18n` — translations
+- `release` — versioning, CI, npm publishing
 
 Omit the scope if a single label doesn't fit cleanly. Better no scope than a
 misleading one.

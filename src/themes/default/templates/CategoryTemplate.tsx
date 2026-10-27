@@ -3,7 +3,7 @@ import { Card } from "../components/Card";
 
 // Category archive page. Eyebrow + h1 + description on the left, optional
 // "Follow" RSS button on the right. The button only renders when the
-// flexweg-rss plugin has a feed configured for this term — the publisher
+// agentcms-rss plugin has a feed configured for this term — the publisher
 // passes `categoryRssUrl` as undefined otherwise so we can hide it.
 export function CategoryTemplate({
   term,

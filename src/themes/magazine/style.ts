@@ -1,4 +1,4 @@
-import { uploadFile } from "@flexweg/cms-runtime";
+import { uploadFile } from "@agent-cms/runtime";
 
 // Magazine theme — runtime style customization. Mirrors the default
 // theme's style.ts but adapted to Tailwind: colors are stored as RGB
@@ -350,7 +350,7 @@ export function buildCustomCss(baseCssText: string, style: StyleOverrides): stri
   return output;
 }
 
-// Uploads the customized theme CSS to Flexweg. Path is the same as
+// Uploads the customized theme CSS to the publish target. Path is the same as
 // the baseline (`theme-assets/magazine.css`) so every published page
 // picks up the new look on its next load — no per-page republish
 // needed.

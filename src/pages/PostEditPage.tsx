@@ -442,7 +442,7 @@ export function PostOrPageEditPage({ type }: PostOrPageEditPageProps) {
   // Auto-generated slug is deduplicated against existing posts /
   // pages / categories on the PRIMARY variant — same WordPress-style
   // "post-2", "post-3" suffixes that prevent silent overwrites on
-  // Flexweg. For non-primary variants we skip the dedup because
+  // the public site. For non-primary variants we skip the dedup because
   // collision detection is per-language (handled by the variant
   // provider at save time).
   // When auto-gen produces a suffixed slug (`my-post-2` because
@@ -688,8 +688,8 @@ export function PostOrPageEditPage({ type }: PostOrPageEditPageProps) {
           seo,
         });
         // Optimistic insert — closes the latency gap between the
-        // server-side INSERT and the next subscription tick (~4 s
-        // in SQLite mode, ~100 ms in Firebase). Without it, the
+        // write and the next subscription tick (~100 ms in
+        // Firebase). Without it, the
         // PostEditPage re-renders post-navigate and finds nothing
         // in `useAllPosts`, briefly showing a "Post not found" flash.
         const nowTs = TimestampImpl.now();

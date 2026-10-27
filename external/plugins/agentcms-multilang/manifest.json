@@ -1,0 +1,7 @@
+{
+  "id": "agentcms-multilang",
+  "name": "Multi-language",
+  "version": "1.6.2",
+  "apiVersion": "1.3.0",
+  "entry": "bundle.js"
+}

@@ -9,14 +9,14 @@ import {
   Upload,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useCmsData } from "@flexweg/cms-runtime";
-import { toast } from "@flexweg/cms-runtime";
-import { publishMenuJson } from "@flexweg/cms-runtime";
-import { fetchAllPosts } from "@flexweg/cms-runtime";
-import { FontSelect, type FontOption } from "@flexweg/cms-runtime";
-import type { ThemeSettingsPageProps } from "@flexweg/cms-runtime";
+import { useCmsData } from "@agent-cms/runtime";
+import { toast } from "@agent-cms/runtime";
+import { publishMenuJson } from "@agent-cms/runtime";
+import { fetchAllPosts } from "@agent-cms/runtime";
+import { FontSelect, type FontOption } from "@agent-cms/runtime";
+import type { ThemeSettingsPageProps } from "@agent-cms/runtime";
 import { manifest } from "./manifest";
-import { logoPath, removeThemeLogo, uploadThemeLogo } from "@flexweg/cms-runtime";
+import { logoPath, removeThemeLogo, uploadThemeLogo } from "@agent-cms/runtime";
 import {
   applyAndUploadCustomCss,
   buildAllFontsPreviewUrl,

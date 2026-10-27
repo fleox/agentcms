@@ -1,12 +1,12 @@
-import type { CardPost, SiteContext } from "@flexweg/cms-runtime";
-import { i18n, pickFormat, pickPublicLocale } from "@flexweg/cms-runtime";
+import type { CardPost, SiteContext } from "@agent-cms/runtime";
+import { i18n, pickFormat, pickPublicLocale } from "@agent-cms/runtime";
 
 // Product card — the unit cell of every grid in the marketplace.
 // Wide image up top (16:10), title + excerpt + Free badge below.
 // Hover lifts the card slightly via the `.mp-card` CSS rule.
 //
 // When the post has no hero image (typical for documentation posts
-// imported via `flexweg-cms-docs`), we drop the image slot entirely
+// imported from a docs content set), we drop the image slot entirely
 // and shift to a text-first card via the `.mp-card--no-image`
 // modifier — no awkward grey placeholder, no off-screen title, more
 // room for the excerpt. The free badge also gives way (docs aren't

@@ -1,4 +1,4 @@
-import type { FlexwegRuntimeConfig } from "../../src/lib/runtimeConfig";
+import type { CmsRuntimeConfig } from "../../src/lib/runtimeConfig";
 import { splitSecrets } from "../../src/services/docstore/markdownLayout";
 import { createRemoteGitTransport, joinRepoPath } from "../../src/services/git";
 import { decodeDatabase, openDatabaseBytes } from "../../src/services/docstore/sqliteFileStore";
@@ -28,7 +28,7 @@ export async function siteFromAdminUrl(opts: {
   }
   const cfg = await fetchText(new URL("config.js", admin).href);
   if (!cfg.ok) throw new CliError("config-missing", `Could not read ${admin.href}config.js (${cfg.error ?? `HTTP ${cfg.status}`}).`);
-  const runtime = parseConfigJs(cfg.text) as FlexwegRuntimeConfig | null;
+  const runtime = parseConfigJs(cfg.text) as CmsRuntimeConfig | null;
   if (!runtime || typeof runtime.backend !== "string") {
     throw new CliError("not-installed", "That admin has no configuration yet (config.js is empty).", "Install it first (`agentcms install` or the setup wizard).");
   }
@@ -81,10 +81,7 @@ export async function siteFromAdminUrl(opts: {
         const { plain } = await openDatabaseBytes(bytes, passphrase);
         const snapshot = await decodeDatabase(plain);
         const storage = snapshot.config.get("storage") as { connectorId?: string; settings?: Record<string, unknown> } | undefined;
-        if (storage?.connectorId === "flexweg") {
-          const fw = snapshot.config.get("flexweg") as { siteUrl?: string; apiBaseUrl?: string } | undefined;
-          hosting = { connectorId: "flexweg", settings: { siteUrl: fw?.siteUrl ?? siteUrl, apiBaseUrl: fw?.apiBaseUrl } };
-        } else if (storage?.connectorId) {
+        if (storage?.connectorId) {
           hosting = { connectorId: storage.connectorId, settings: splitSecrets(storage.settings ?? {}).clean };
         }
       }

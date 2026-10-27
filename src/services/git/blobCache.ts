@@ -3,7 +3,7 @@
 // downloaded again. Persists in IndexedDB when available (browser),
 // falls back to memory (Node / private windows / blocked storage).
 
-const DB_NAME = "flexweg-git-blobs";
+const DB_NAME = "agentcms-git-blobs";
 const STORE = "texts";
 
 const memory = new Map<string, string>();

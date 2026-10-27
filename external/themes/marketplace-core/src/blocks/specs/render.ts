@@ -11,7 +11,7 @@ export const DEFAULT_SPECS: SpecsAttrs = {
     { label: "Version", value: "1.0.0" },
     { label: "License", value: "MIT" },
     { label: "Last Updated", value: "" },
-    { label: "Requires Flexweg", value: "≥ 1.0.0" },
+    { label: "Requires AgentCMS", value: "≥ 1.0.0" },
   ],
 };
 

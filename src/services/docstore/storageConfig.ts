@@ -1,7 +1,7 @@
 // Document-store implementation of the publish-connector config store
 // ("markdown-git" / "local" backends). Doc id "storage" in the `config`
-// collection. Same exposure as the Flexweg API key: readable by any
-// signed-in user.
+// collection. Readable by any signed-in user (secrets
+// are kept per browser, not in the doc).
 
 import { getDocStore } from "./index";
 import type { StorageConfig } from "../storageConfig";

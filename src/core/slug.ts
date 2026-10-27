@@ -1,6 +1,6 @@
 import type { Post, Term } from "./types";
 
-// Lower-case ASCII slug. Flexweg URLs are case-sensitive — keeping every slug
+// Lower-case ASCII slug. Static-host URLs are case-sensitive — keeping every slug
 // lower-case avoids "Hero.jpg vs hero.jpg" style 404s. Diacritics are
 // stripped via NFD decomposition (é → e), and any remaining non-alphanumeric
 // run becomes a single dash. Empty input returns an empty string so callers
@@ -33,7 +33,7 @@ export interface BuildPostUrlInput {
 //   - Post with category:             /<category-slug>/<post-slug>.html
 //
 // Tags never become URL prefixes — only categories do. Leading slash is
-// omitted because Flexweg's upload paths are rooted (no leading slash).
+// omitted because publish-target paths are rooted (no leading slash).
 export function buildPostUrl({ post, primaryTerm }: BuildPostUrlInput): string {
   const postSlug = post.slug.trim();
   if (!postSlug) throw new Error("Post slug is required to build its URL.");
@@ -97,16 +97,16 @@ export function buildTermUrl(term: Pick<Term, "type" | "slug">): string {
 // page or the latest-posts feed.
 export const HOME_PATH = "index.html";
 
-// 404 fallback served by browsers when Flexweg returns its default 404. We
+// 404 fallback served by browsers when the host returns its default 404. We
 // upload a `404.html` to the root so visitors see themed content; whether
-// Flexweg actually serves it on misses depends on hosting config.
+// the host actually serves it on misses depends on its config.
 export const NOT_FOUND_PATH = "404.html";
 
 // Sitemap path. Plugins can override or extend this if they add multiple
 // sitemaps (e.g. images, news), but the default sitemap lives here.
 export const SITEMAP_PATH = "sitemap.xml";
 
-// Convert a Flexweg path (e.g. "rubrique/article.html") to a public URL by
+// Convert a site path (e.g. "rubrique/article.html") to a public URL by
 // joining with the base URL (without trailing slash).
 export function pathToPublicUrl(baseUrl: string, path: string): string {
   const cleanBase = baseUrl.replace(/\/+$/, "");
@@ -156,7 +156,7 @@ export function findAvailableSlug(base: string, isUsed: (slug: string) => boolea
   return `${base}-${Date.now()}`;
 }
 
-// Anything that owns a public path on Flexweg. Used by detectPathCollision
+// Anything that owns a public path on the site. Used by detectPathCollision
 // to compare candidate paths across post / page / term collections.
 export interface PathOwner {
   kind: "post" | "page" | "category";
@@ -172,7 +172,7 @@ export interface PathOwner {
 // free. `ignoreId` lets the caller exclude the entity being edited (so a
 // post doesn't collide with itself).
 //
-// Comparison is case-sensitive and trailing-slash-naive — Flexweg URLs
+// Comparison is case-sensitive and trailing-slash-naive — static-host URLs
 // are case-sensitive so two paths only collide when their string form is
 // identical.
 export function detectPathCollision(

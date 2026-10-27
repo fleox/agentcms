@@ -115,7 +115,7 @@ export const settingsEn = {
     brandPositions: { centered: "Centered", left: "Left-aligned" },
     showSearch: "Show search trigger",
     showSearchHelp:
-      "Activates a button in the header that opens the flexweg-search modal (when the plugin is enabled).",
+      "Activates a button in the header that opens the agentcms-search modal (when the plugin is enabled).",
   },
 };
 
@@ -231,7 +231,7 @@ export const settingsFr: typeof settingsEn = {
     brandPositions: { centered: "Centré", left: "Aligné à gauche" },
     showSearch: "Afficher le bouton de recherche",
     showSearchHelp:
-      "Active un bouton dans l'en-tête qui ouvre la modale flexweg-search (quand le plugin est activé).",
+      "Active un bouton dans l'en-tête qui ouvre la modale agentcms-search (quand le plugin est activé).",
   },
 };
 
@@ -347,7 +347,7 @@ export const settingsDe: typeof settingsEn = {
     brandPositions: { centered: "Zentriert", left: "Linksbündig" },
     showSearch: "Suchschaltfläche anzeigen",
     showSearchHelp:
-      "Aktiviert eine Schaltfläche in der Kopfzeile, die das flexweg-search-Modal öffnet (wenn das Plugin aktiv ist).",
+      "Aktiviert eine Schaltfläche in der Kopfzeile, die das agentcms-search-Modal öffnet (wenn das Plugin aktiv ist).",
   },
 };
 
@@ -463,7 +463,7 @@ export const settingsEs: typeof settingsEn = {
     brandPositions: { centered: "Centrado", left: "Alineado a la izquierda" },
     showSearch: "Mostrar botón de búsqueda",
     showSearchHelp:
-      "Activa un botón en el encabezado que abre el modal flexweg-search (cuando el plugin está habilitado).",
+      "Activa un botón en el encabezado que abre el modal agentcms-search (cuando el plugin está habilitado).",
   },
 };
 
@@ -579,7 +579,7 @@ export const settingsNl: typeof settingsEn = {
     brandPositions: { centered: "Gecentreerd", left: "Links uitgelijnd" },
     showSearch: "Zoekknop tonen",
     showSearchHelp:
-      "Activeert een knop in de header die de flexweg-search-modal opent (als de plugin aan staat).",
+      "Activeert een knop in de header die de agentcms-search-modal opent (als de plugin aan staat).",
   },
 };
 
@@ -695,7 +695,7 @@ export const settingsPt: typeof settingsEn = {
     brandPositions: { centered: "Centralizado", left: "Alinhado à esquerda" },
     showSearch: "Mostrar botão de pesquisa",
     showSearchHelp:
-      "Ativa um botão no cabeçalho que abre o modal flexweg-search (quando o plugin está habilitado).",
+      "Ativa um botão no cabeçalho que abre o modal agentcms-search (quando o plugin está habilitado).",
   },
 };
 
@@ -811,6 +811,6 @@ export const settingsKo: typeof settingsEn = {
     brandPositions: { centered: "중앙", left: "왼쪽 정렬" },
     showSearch: "검색 트리거 표시",
     showSearchHelp:
-      "헤더에 flexweg-search 모달을 여는 버튼을 활성화합니다 (플러그인이 활성화된 경우).",
+      "헤더에 agentcms-search 모달을 여는 버튼을 활성화합니다 (플러그인이 활성화된 경우).",
   },
 };

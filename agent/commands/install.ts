@@ -16,8 +16,6 @@ function readPlan(source: string): unknown {
 
 const SECRET_FIELDS: Record<string, string> = {
   s3: "access key + secret key",
-  flexweg: "API key",
-  "php-bridge": "bridge key",
 };
 
 export const installCommand: Command = {

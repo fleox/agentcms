@@ -1,5 +1,5 @@
-import type { CardPost, HomeTemplateProps, SiteContext } from "@flexweg/cms-runtime";
-import { i18n, pickPublicLocale } from "@flexweg/cms-runtime";
+import type { CardPost, HomeTemplateProps, SiteContext } from "@agent-cms/runtime";
+import { i18n, pickPublicLocale } from "@agent-cms/runtime";
 import { ProductCard } from "../components/ProductCard";
 import type { MarketplaceThemeConfig } from "../config";
 import { DEFAULT_MARKETPLACE_HOME } from "../config";

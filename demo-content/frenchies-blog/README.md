@@ -1,8 +1,8 @@
 # Frenchies Blog — bilingual EN+FR demo content bundle
 
-A self-contained set of 9 blog posts + 2 static pages about French bulldogs, available in **English and French**, ready to import via the **Flexweg Import** plugin into a AgentCMS site running the **default** theme (or any theme that renders standard markdown posts — no theme-specific blocks are used).
+A self-contained set of 9 blog posts + 2 static pages about French bulldogs, available in **English and French**, ready to import via the **Import** plugin (`agentcms-import`) into a AgentCMS site running the **default** theme (or any theme that renders standard markdown posts — no theme-specific blocks are used).
 
-Bilingual format demonstrates how to ship a single bundle that auto-installs both languages when the **Flexweg Multi-language** plugin is enabled. Sites without the multilang plugin still import cleanly — the FR sidecars become opaque `Post.translations` data on each post (no UI impact, no public-side impact), and the `_terms.json` translation map is stored on each `Term` but never used.
+Bilingual format demonstrates how to ship a single bundle that auto-installs both languages when the **Multilang** plugin (`agentcms-multilang`) is enabled. Sites without the multilang plugin still import cleanly — the FR sidecars become opaque `Post.translations` data on each post (no UI impact, no public-side impact), and the `_terms.json` translation map is stored on each `Term` but never used.
 
 ## What's in it
 
@@ -83,10 +83,10 @@ All posts are signed by `sophie@frenchies-blog.example` (a fake email). The abou
 ### Option 1 — Bilingual site with the multilang plugin (recommended)
 
 1. **Make sure the default theme is active** at `/admin/#/themes`
-2. **Install + enable Flexweg Multi-language** at `/admin/#/plugins`
-3. Open `/admin/#/settings/plugin/flexweg-multilang` → set the primary language to `en`, enable `fr`
-4. **Enable Flexweg Import** in `/admin/#/plugins`
-5. Open `/admin/#/settings/plugin/flexweg-import` → Drag and drop mode
+2. **Install + enable the Multilang plugin (agentcms-multilang)** at `/admin/#/plugins`
+3. Open `/admin/#/settings/plugin/agentcms-multilang` → set the primary language to `en`, enable `fr`
+4. **Enable the Import plugin (agentcms-import)** in `/admin/#/plugins`
+5. Open `/admin/#/settings/plugin/agentcms-import` → Drag and drop mode
 6. Drag the whole `frenchies-blog/` folder (including `images/` AND `_terms.json`) into the drop zone
 7. Click **Scan** → 9 posts + 2 pages with FR translations, 4 categories with FR slugs/names, ~24 tags, 9 images
 8. Pick a status mode (recommended: **Always import as draft** so you can review before going live)

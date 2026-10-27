@@ -27,8 +27,8 @@ interface CodeEditorProps {
 }
 
 // Shared CodeMirror 6 wrapper used across the admin — currently by
-// the Custom HTML block (flexweg-blocks/html) and the Custom Code
-// plugin (flexweg-custom-code). Lazy-loaded by both consumers via
+// the Custom HTML block (agentcms-blocks/html) and the Custom Code
+// plugin (agentcms-custom-code). Lazy-loaded by both consumers via
 // React.lazy so the bundle (~150 KB gzipped, html-lang module +
 // one-dark theme included) only ships when the user actually opens
 // a feature that needs it.

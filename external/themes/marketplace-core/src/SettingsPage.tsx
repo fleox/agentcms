@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Loader2, Plus, RotateCcw, Save, Trash2 } from "lucide-react";
-import type { ThemeSettingsPageProps, FontOption } from "@flexweg/cms-runtime";
-import { FontSelect } from "@flexweg/cms-runtime";
+import type { ThemeSettingsPageProps, FontOption } from "@agent-cms/runtime";
+import { FontSelect } from "@agent-cms/runtime";
 import {
   DEFAULT_MARKETPLACE_CONFIG,
   DEFAULT_MARKETPLACE_STYLE,

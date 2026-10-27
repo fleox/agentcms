@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState } from "react";
 import {
   ImageIcon,
   Loader2,
@@ -7,14 +7,12 @@ import {
   ShieldCheck,
   ShieldOff,
   Trash2,
-  UserPlus,
   X,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "../components/layout/PageHeader";
 import { MediaPicker } from "../components/editor/MediaPicker";
 import { useCmsData } from "../context/CmsDataContext";
-import { useAuth } from "../context/AuthContext";
 import { pickMediaUrl } from "../core/media";
 import { ADMIN_PREVIEW_KEY, ADMIN_THUMB_KEY } from "../services/imageFormats";
 import { publishAuthorsJson } from "../services/authorsJsonPublisher";
@@ -32,10 +30,7 @@ import {
   setUserProfile,
   setUserRole,
 } from "../services/users";
-import { authErrorKey } from "../services/auth";
 import { getBackendKind } from "../lib/runtimeConfig";
-import { registerUser } from "../services/flexweg-sqlite/userAuth";
-import { syncUsersFromApi } from "../services/flexweg-sqlite/users";
 import { toast } from "../lib/toast";
 import type { SocialEntry, SocialNetwork, UserRecord } from "../core/types";
 import { SOCIAL_NETWORKS } from "../core/types";
@@ -68,18 +63,11 @@ const SOCIAL_PLACEHOLDERS: Record<SocialNetwork, string> = {
 // and now also edit each user's public profile (firstName / lastName /
 // bio / avatar). Non-admin users edit their own profile via
 // Settings → Profile, which exposes the same setUserProfile service.
-//
-// In SQLite mode, also exposes a "+ Add user" button that calls the
-// Flexweg SQLite Auth API directly — Firebase mode users still need to
-// be created through the Firebase Console first.
 export function UsersPage() {
   const { t } = useTranslation();
   const { users } = useCmsData();
-  const { isAdmin } = useAuth();
   const [editingUser, setEditingUser] = useState<UserRecord | null>(null);
-  const [addOpen, setAddOpen] = useState(false);
 
-  const isSqlite = getBackendKind() === "flexweg-sqlite";
   // Git content: accounts ARE repository collaborators (roles follow
   // their repo permissions). Local: a single implicit admin.
   const docstoreKind = getBackendKind();
@@ -98,21 +86,9 @@ export function UsersPage() {
             : isSqliteFile
               ? t("users.descriptionSqliteFile")
               : isLocal
-              ? t("users.descriptionLocal")
-              : isSqlite
-                ? t("users.descriptionSqlite")
+                ? t("users.descriptionLocal")
                 : t("users.descriptionFirebase")}
         </p>
-        {isSqlite && isAdmin && (
-          <button
-            type="button"
-            className="btn-primary text-xs"
-            onClick={() => setAddOpen(true)}
-          >
-            <UserPlus className="h-3.5 w-3.5" />
-            {t("users.addUser")}
-          </button>
-        )}
       </div>
 
       {users.length === 0 ? (
@@ -121,7 +97,7 @@ export function UsersPage() {
             {t("users.empty.title")}
           </p>
           <p className="text-xs text-surface-500 dark:text-surface-400">
-            {isSqlite ? t("users.empty.descriptionSqlite") : t("users.empty.descriptionFirebase")}
+            {t("users.empty.descriptionFirebase")}
           </p>
         </div>
       ) : (
@@ -130,7 +106,6 @@ export function UsersPage() {
             <UserRow
               key={user.id}
               user={user}
-              isSqlite={isSqlite}
               onEdit={() => setEditingUser(user)}
             />
           ))}
@@ -149,12 +124,6 @@ export function UsersPage() {
           <p className="text-sm text-surface-600 dark:text-surface-300">
             {t(isSqliteFile ? "users.descriptionSqliteFile" : "users.descriptionLocal")}
           </p>
-        ) : isSqlite ? (
-          <ol className="text-sm text-surface-600 space-y-1.5 list-decimal pl-5 dark:text-surface-300">
-            <li>{t("users.help.sqlite.step1")}</li>
-            <li>{t("users.help.sqlite.step2")}</li>
-            <li>{t("users.help.sqlite.step3")}</li>
-          </ol>
         ) : (
           <ol className="text-sm text-surface-600 space-y-1.5 list-decimal pl-5 dark:text-surface-300">
             <li>{t("users.help.firebase.step1")}</li>
@@ -167,36 +136,11 @@ export function UsersPage() {
       {editingUser && (
         <EditProfileModal user={editingUser} onClose={() => setEditingUser(null)} />
       )}
-      {addOpen && (
-        <AddUserModal
-          onClose={() => setAddOpen(false)}
-          onCreated={async (email) => {
-            setAddOpen(false);
-            // Refresh the local cache so the new user appears immediately
-            // (the polling tick would also catch it, but this is snappier
-            // and avoids a confusing 409 on re-submit — lesson #3).
-            try {
-              await syncUsersFromApi();
-            } catch (err) {
-              console.warn("syncUsersFromApi failed", err);
-            }
-            toast.success(t("users.addUserSuccess", { email }));
-          }}
-        />
-      )}
     </div>
   );
 }
 
-function UserRow({
-  user,
-  isSqlite,
-  onEdit,
-}: {
-  user: UserRecord;
-  isSqlite: boolean;
-  onEdit: () => void;
-}) {
+function UserRow({ user, onEdit }: { user: UserRecord; onEdit: () => void }) {
   const { t } = useTranslation();
   const { media } = useCmsData();
   const isAdmin = user.role === "admin";
@@ -262,9 +206,7 @@ function UserRow({
           type="button"
           className="btn-ghost"
           onClick={() => {
-            const msg = isSqlite
-              ? t("users.removeConfirmSqlite", { email: user.email })
-              : t("users.removeConfirmFirebase", { email: user.email });
+            const msg = t("users.removeConfirmFirebase", { email: user.email });
             if (window.confirm(msg)) {
               void deleteUserRecord(user.id);
             }
@@ -583,177 +525,5 @@ function EditProfileModal({ user, onClose }: { user: UserRecord; onClose: () => 
         />
       )}
     </>
-  );
-}
-
-// Modal exposed only when the active backend is `flexweg-sqlite` and
-// the signed-in user is admin. Calls the Flexweg SQLite Auth API
-// (`/auth/register`) — the first user in an empty pool gets role
-// `admin` automatically; subsequent ones default to `editor`.
-//
-// On success, the parent calls `syncUsersFromApi()` to refresh the
-// local cache so the new user appears immediately in the list
-// (otherwise the polling tick takes ~4 s and re-submitting the form
-// would return 409 EMAIL_ALREADY_REGISTERED — lesson #3).
-interface AddUserModalProps {
-  onClose: () => void;
-  onCreated: (email: string) => void;
-}
-
-function AddUserModal({ onClose, onCreated }: AddUserModalProps) {
-  const { t } = useTranslation();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (submitting) return;
-    const cleanEmail = email.trim().toLowerCase();
-    if (!cleanEmail || !/.+@.+\..+/.test(cleanEmail)) {
-      setError(t("identity.errors.invalidEmail"));
-      return;
-    }
-    if (password.length < 8) {
-      setError(t("identity.errors.passwordTooShort"));
-      return;
-    }
-    setSubmitting(true);
-    setError(null);
-    try {
-      await registerUser({
-        email: cleanEmail,
-        password,
-        displayName: displayName.trim() || undefined,
-      });
-      onCreated(cleanEmail);
-    } catch (err) {
-      // Translate known auth-error codes via the i18n keys; fall back
-      // to the raw error message for unknowns.
-      const key = authErrorKey(err);
-      setError(t(key, { defaultValue: (err as Error).message }));
-      setSubmitting(false);
-    }
-  }
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-surface-950/60 backdrop-blur-sm p-6"
-      onClick={onClose}
-    >
-      <div
-        className="card w-full max-w-md p-6"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-semibold text-surface-900 dark:text-surface-50">
-            {t("users.addUserModal.title")}
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-surface-400 hover:text-surface-700 dark:hover:text-surface-200"
-            aria-label={t("common.cancel")}
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-        <p className="text-sm text-surface-500 mb-4 dark:text-surface-400">
-          {t("users.addUserModal.intro")}
-        </p>
-        {/* Lesson #4: data-form-type="other" discourages aggressive
-            autofill from major password managers (1Password, Bitwarden,
-            Grammarly, Honey…) which otherwise inject DOM into the form
-            and trigger `Node.insertBefore` crashes when React rerenders
-            the submit button. */}
-        <form onSubmit={handleSubmit} className="space-y-4" data-form-type="other">
-          <div>
-            <label className="label" htmlFor="add-user-name">
-              {t("identity.fields.name")}
-            </label>
-            <input
-              id="add-user-name"
-              type="text"
-              className="input"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder={t("identity.fields.namePlaceholder")}
-              autoComplete="off"
-            />
-          </div>
-          <div>
-            <label className="label" htmlFor="add-user-email">
-              {t("identity.fields.email")}
-            </label>
-            <input
-              id="add-user-email"
-              type="email"
-              className="input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="member@company.com"
-              required
-              autoComplete="off"
-              autoFocus
-            />
-          </div>
-          <div>
-            <label className="label" htmlFor="add-user-password">
-              {t("identity.fields.password")}
-            </label>
-            <input
-              id="add-user-password"
-              type="password"
-              className="input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              autoComplete="new-password"
-            />
-            <p className="text-[11px] text-surface-500 mt-1 dark:text-surface-400">
-              {t("identity.fields.passwordHint")}
-            </p>
-          </div>
-
-          {error && (
-            <div className="rounded-lg bg-red-50 text-red-700 ring-1 ring-red-200 px-3 py-2 text-sm dark:bg-red-900/30 dark:text-red-300 dark:ring-red-700/50">
-              {error}
-            </div>
-          )}
-
-          <div className="flex flex-col sm:flex-row gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn-secondary flex-1 justify-center"
-              disabled={submitting}
-            >
-              {t("common.cancel")}
-            </button>
-            <button
-              type="submit"
-              className="btn-primary flex-1 justify-center"
-              disabled={submitting}
-            >
-              <span className="inline-flex items-center justify-center gap-1.5">
-                <Loader2
-                  className={
-                    "h-4 w-4 animate-spin " + (submitting ? "" : "hidden")
-                  }
-                />
-                <span>
-                  {submitting
-                    ? t("users.addUserModal.submitting")
-                    : t("users.addUserModal.submit")}
-                </span>
-              </span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
   );
 }

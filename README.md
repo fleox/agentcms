@@ -1,15 +1,15 @@
 # AgentCMS
 
-A WordPress-style content management system that publishes a 100% static site to any static host — [Flexweg](https://www.flexweg.com), GitHub Pages, Cloudflare Pages, GitLab Pages, an S3-compatible bucket, your own PHP server, a local folder or a ZIP you upload by hand. The admin is a React + TypeScript single-page app with **four interchangeable data backends**, chosen at install time:
+A WordPress-style content management system that publishes a 100% static site to any static host — GitHub Pages, Cloudflare Pages, GitLab Pages, any host that deploys from a git repository (Netlify, Vercel…), an S3-compatible bucket, a local folder or a ZIP you upload by hand. The admin is a React + TypeScript single-page app with **four interchangeable data backends**, chosen at install time:
 
-- **Firebase** — Firestore + Firebase Auth. Real-time via `onSnapshot`. Free tier covers most small/medium sites.
-- **Flexweg SQLite** — Per-site SQLite file backed by Flexweg's `/api/v1/sqlite/*` endpoints + a full Auth API (bcrypt, opaque session tokens). No external service. Real-time via polling (~4 s).
+- **SQLite file** — one SQLite database file on your hosting (or in a separate private location), opened in the browser with sql.js and **encrypted by default** (AES-256-GCM, key derived from a passphrase). On git hostings it lives on a dedicated `agentcms-data` branch that is never published. No external service, no accounts.
 - **Markdown in a Git repository** — posts as `.md` files on GitHub / GitLab (or a local clone). Each editor signs in with their own access token; every change is a commit. No database, multi-editor, multi-machine.
+- **Firebase** — Firestore + Firebase Auth. Real-time via `onSnapshot`. Free tier covers most small/medium sites.
 - **This browser** — single user, no login, IndexedDB. For an admin running on your own computer.
 
 On publish, the active theme renders posts with `react-dom/server.renderToStaticMarkup` in the browser and the active **publish target** uploads the resulting files. Data backend and publish target are independent choices — see [docs/publish-targets.md](docs/publish-targets.md) for every option, its setup and its constraints.
 
-No Node.js, PHP, or database runs on the public site — only the static HTML/CSS/JS the admin pushes there.
+No Node.js, PHP, or database server runs on the public site — only the static HTML/CSS/JS the admin pushes there.
 
 ## Install with an AI agent
 
@@ -40,31 +40,32 @@ The same `agentcms` CLI works by hand (`npx -y @agent-cms/agentcms help`):
 ## How it works
 
 ```
-              ┌───────────────────────────┐
-              │  Admin SPA at /admin/     │
-              │  (React + Firebase + TS)  │
-              └─────┬───────────┬─────────┘
-                    │           │
-        Firebase Auth + Firestore   Flexweg Files API
-        (posts, pages, terms,       (HTML, CSS, images)
-         media metadata, settings)
-                    │           │
-                    ▼           ▼
+              ┌────────────────────────────┐
+              │  Admin SPA (e.g. /admin/)  │
+              │  (React + TypeScript)      │
+              └─────┬────────────┬─────────┘
+                    │            │
+        Data backend              Publish target
+        (SQLite file, Markdown    (git repo, S3 bucket,
+         in git, Firebase or       local folder or ZIP:
+         this browser)             HTML, CSS, images)
+                    │            │
+                    ▼            ▼
               ┌──────────────────────────┐
               │  Public static site at / │
               │  index.html              │
               │  category/article.html   │
               │  theme-assets/*.css      │
-              │  media/yyyy/mm/*.jpg     │
+              │  media/yyyy/mm/*.webp    │
               └──────────────────────────┘
 ```
 
-Posts are stored as Markdown in Firestore. When an admin clicks **Publish**, the SPA:
+Posts are stored as Markdown in the data backend. When an admin clicks **Publish**, the SPA:
 
 1. Loads the active theme (React components + a pre-compiled CSS bundle).
 2. Converts Markdown to safe HTML.
 3. Renders the active template tree to a static HTML string (`react-dom/server.renderToStaticMarkup`).
-4. Uploads the file to its target path on Flexweg via `POST /api/v1/files/upload`.
+4. Writes the file to its target path through the active publish connector (one commit per publish on git targets).
 5. Re-uploads any pages whose listing depends on the change (home, category archive).
 
 ## Project layout
@@ -72,26 +73,35 @@ Posts are stored as Markdown in Firestore. When an admin clicks **Publish**, the
 ```
 agentcms/
 ├── src/
-│   ├── core/            CMS-wide infrastructure (types, slug, render, markdown, plugin registry)
-│   ├── services/        Firebase + Flexweg API clients, publisher
+│   ├── core/            CMS-wide infrastructure (types, slug, render, markdown, plugin registry, runtime API)
+│   ├── services/        Data backends (firebase/, docstore/), publish connectors (storage/), git layer, publisher
 │   ├── context/         React contexts (auth, data, theme)
 │   ├── components/      Admin UI building blocks
-│   ├── pages/           Admin pages (one file per route)
+│   ├── pages/           Admin pages (one file per route) + the setup wizard
 │   ├── themes/          Public-site themes (one folder per theme)
 │   │   ├── default/     Default theme — SCSS-based, base/home/single/category/author/404 + components
-│   │   └── magazine/    Magazine theme — Tailwind + Material 3 palette, editorial/long-form layout
+│   │   ├── magazine/    Magazine theme — Tailwind + Material 3 palette, editorial/long-form layout
+│   │   ├── corporate/   Corporate theme — Tailwind, lead-gen blocks
+│   │   ├── portfolio/   Portfolio theme
+│   │   └── storefront/  Storefront theme
 │   ├── plugins/         WordPress-style plugins, toggleable via /admin/#/plugins
-│   │   ├── core-seo/         Built-in SEO plugin (Twitter cards + generator hint)
-│   │   ├── flexweg-sitemaps/ Built-in plugin: yearly sitemaps, sitemap-index, optional News, robots.txt
-│   │   ├── flexweg-rss/      Built-in plugin: RSS feed at /rss.xml + per-category feeds
-│   │   └── flexweg-search/   Built-in plugin: static search-index.json + runtime modal for [data-cms-search] triggers
+│   │   ├── core-seo/          Built-in SEO plugin (Twitter cards + generator hint)
+│   │   ├── agentcms-sitemaps/ Built-in plugin: yearly sitemaps, sitemap-index, optional News, robots.txt
+│   │   ├── agentcms-rss/      Built-in plugin: RSS feed at /rss.xml + per-category feeds
+│   │   ├── agentcms-archives/ Built-in plugin: static archive pages under /archives/
+│   │   └── agentcms-search/   Built-in plugin: static search-index.json + runtime modal for [data-cms-search] triggers
 │   ├── mu-plugins/      Must-use plugins — same API as plugins/, but always active (cannot be disabled)
-│   │   ├── flexweg-favicon/     Favicon generator (PNG, ICO, SVG, PWA manifest)
-│   │   ├── flexweg-blocks/      Extra editor blocks (Custom HTML, Columns, …)
-│   │   ├── flexweg-custom-code/ Site-wide HTML/CSS/JS injection (head + body end)
-│   │   └── flexweg-embeds/      YouTube / Vimeo / Twitter / Spotify embed blocks
-│   ├── i18n/            Admin UI translations (en + fr)
-│   └── lib/             Small utilities (date format, hashing, classnames)
+│   │   ├── agentcms-favicon/     Favicon generator (PNG, ICO, SVG, PWA manifest)
+│   │   ├── agentcms-blocks/      Extra editor blocks (Custom HTML, Columns, …)
+│   │   ├── agentcms-custom-code/ Site-wide HTML/CSS/JS injection (head + body end)
+│   │   ├── agentcms-embeds/      YouTube / Vimeo / Twitter / Spotify embed blocks
+│   │   ├── agentcms-metrics/     Dashboard card with content counts
+│   │   └── agentcms-import/      Markdown / WordPress import
+│   ├── i18n/            Admin UI translations (en, fr, de, es, nl, pt, ko)
+│   └── lib/             Small utilities (runtime config, toasts, admin folder detection)
+├── agent/               The agentcms CLI (published to npm as @agent-cms/agentcms)
+├── plugin/              Claude Code plugin + agent skills
+├── external/            External plugin / theme sources and scaffolds
 ├── scripts/
 │   ├── build-theme-tailwind.mjs Compiles each Tailwind-based theme's CSS before vite build (prebuild + predev)
 │   └── build-themes.mjs         Copies theme.compiled.css or compiles theme.scss into dist/theme-assets/<id>.css
@@ -100,40 +110,41 @@ agentcms/
 
 ## Setup
 
-There are two ways to get the admin running, multiplied by two backend choices. Pick whichever fits your workflow:
+The easiest path is the agent / CLI install above, or the in-app setup wizard. There are two ways to get the admin running:
 
-- **Local build path** — clone the repo, fill `.env`, run `npm run build`, upload `dist/admin/` to Flexweg. Best when you're iterating on theme or plugin code. *Currently Firebase-only — `.env` does not configure SQLite mode.*
-- **No-build path** — drop a pre-built `dist/admin/` on Flexweg, open `/admin/`, and fill the in-app **first-run setup form**. Best when handing the admin to a non-technical user — they don't need Node.js, npm, or a clone of the repo. The form lets the user pick **Firebase** or **Flexweg SQLite** at install time. SQLite mode is the only way to deploy without an external service.
+- **No-build path** — use a pre-built admin (`npx -y @agent-cms/agentcms serve`, or the `dist/admin/` folder of a release served from any static host or `npm run preview`), open it, and follow the **first-run setup wizard**. Best when handing the admin to a non-technical user — they don't need to clone the repo.
+- **Local build path** — clone the repo, optionally fill `.env` with Firebase credentials, run `npm run dev` / `npm run build`. Best when you're iterating on theme or plugin code. *`.env` only pre-configures the Firebase backend; the other backends go through the wizard.*
 
-Both paths converge on the same runtime: the form just writes a populated `/admin/config.js` to Flexweg so the next reload boots exactly like a build with `.env` baked in. The single command `npm run build` covers both — there is no separate "portable" build target.
+Both paths converge on the same runtime: the wizard saves the runtime config in the browser and, when the admin is hosted on the publish target, writes a populated `config.js` next to it, so the next load boots exactly like a build with `.env` baked in. The single command `npm run build` covers both — there is no separate "portable" build target.
 
-### The two backends
+### The setup wizard
 
-The form's **Backend** step lets the user pick:
+The wizard asks two independent questions, then installs:
 
-- **Firebase** — collects 6 web-app config fields + bootstrap admin email + password + Flexweg API key + site URL. Validates credentials in-form, writes `config/flexweg` to Firestore, uploads `config.js` to Flexweg. Subsequent boots load Firestore listeners (real-time `onSnapshot`).
-- **Flexweg SQLite** — collects the master Flexweg API key + site URL + SQLite path + bootstrap admin email + password. Calls `POST /api/v1/sqlite/auth/install` to exchange the master key for a **scoped Sqlite token** (bound to the chosen path only — limited blast radius if leaked). Creates the SQLite tables, registers the bootstrap admin (first user → admin server-side), persists the master Flexweg API key in the SQLite `config` table (last use of the key before discarding), and uploads `config.js`. Subsequent boots talk to `/api/v1/sqlite/*` and use polling (~4 s) for real-time updates.
+1. **Data** — SQLite file (default), Markdown in a Git repository, Firebase, or this browser. Firebase asks for the 6 web-app config fields + the bootstrap admin email and password, signs in and checks the pinned Firestore rules (see below). Markdown asks for the repository and your access token and checks write access (an already-initialised content repo is detected and its publish target reused).
+2. **Hosting** — where the site is published: GitHub Pages, Cloudflare Pages, GitLab Pages, another git host, an S3-compatible bucket, a local folder, or a ZIP download. The connection is tested before you can continue. With SQLite, this step also asks where the database file goes (path, encryption passphrase, optional separate private location).
+3. **Install** — saves the publish target, prepares the content store, syncs the theme assets, and — when *Also host the admin on this site* is ticked — copies the admin itself plus a `config.js` into a folder of the target (default `admin`). Otherwise the runtime config stays in this browser and the wizard offers `config.js` as a download for the folder where you host the admin.
 
-**The master Flexweg API key has the same security posture in both backends**: it's stored where the active backend keeps its app data (Firestore `config/flexweg` or SQLite `config` table) and is readable by any authenticated user via devtools. Documented compromise for an internal-tool deployment. Switching backends from Settings doesn't migrate the key — re-enter it in the new backend's Settings → Flexweg API panel.
+`config.js` never contains secrets (tokens, S3 keys, the SQLite passphrase). The Firebase web config it may contain is public by design.
 
-### Path A — Local build with `.env`
+### Path A — Local build with `.env` (Firebase)
 
 1. Clone the repo and install dependencies:
 
    ```bash
-   npm install
+   npm install --legacy-peer-deps
    ```
 
-2. Copy the env template and fill in your Firebase project credentials:
+2. Optionally copy the env template and fill in your Firebase project credentials (skip this to use the setup wizard instead):
 
    ```bash
    cp .env.example .env
    ```
 
-   Required variables:
+   Variables:
 
    - `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`, `VITE_FIREBASE_APP_ID`
-   - `VITE_ADMIN_EMAIL` (**optional, legacy**) — email of the bootstrap administrator. The current bootstrap-admin flow detects the admin via a Firestore rules probe (`config/admin`), so this env var is no longer written into `/admin/config.js` and is not required. Existing dev environments that have it set continue to work as a backward-compat fallback. The pinned admin email **must** still be set in your Firestore security rules.
+   - `VITE_ADMIN_EMAIL` (**optional, legacy**) — email of the bootstrap administrator. The current bootstrap-admin flow detects the admin via a Firestore rules probe (`config/admin`), so this env var is not required. Existing dev environments that have it set continue to work as a backward-compat fallback. The pinned admin email **must** still be set in your Firestore security rules.
 
 3. Start the dev server:
 
@@ -145,39 +156,17 @@ The form's **Backend** step lets the user pick:
 
 4. Configure Firestore security rules (see [Firestore security rules](#firestore-security-rules) below).
 
-5. Sign in with the bootstrap admin email/password (created in Firebase Auth), open **Settings**, fill in:
+5. Sign in with the bootstrap admin email/password (created in Firebase Auth), open **Settings**, fill in the site title, language (BCP-47, e.g. `en` or `fr-FR`) and public site URL, and choose a publish target under **Settings → Publish target** (until then, the site is rendered into the in-browser ZIP mirror).
 
-   - Site title, language (BCP-47, e.g. `en` or `fr-FR`), public site URL.
-   - Flexweg API key + site URL. The API key is stored in `config/flexweg` in Firestore.
+### Path B — No-build deployment (setup wizard)
 
-### Path B — No-build deployment (in-app first-run setup)
+1. Get a built admin: `npx -y @agent-cms/agentcms serve` runs one locally; otherwise run `npm run build` once and use `dist/admin/` (it ships with `config.js` set to a null stub), served from any static host or with `npm run preview`.
 
-1. Run `npm run build` once on any machine that has Node.js — the resulting `dist/admin/` works on any Flexweg site, regardless of which Firebase project it ends up pointing at. (You can skip this step entirely if someone else has already produced the `dist/admin/` for you.)
+2. **Firebase only** — before opening the wizard, configure the Firestore security rules with the bootstrap admin email you'll use (see [Firestore security rules](#firestore-security-rules) below) and create that user in **Firebase Console → Authentication → Users → Add user**. Without the rules, the wizard stops with a message giving the email to pin.
 
-2. Upload `dist/admin/` to your Flexweg site under `/admin/`. The bundle ships with `/admin/config.js` set to a null stub.
+3. Open the admin and follow the wizard (Terms → Data → Hosting → Install, see above). Each failure mode has a specific error message: invalid Firebase credentials, mismatched admin email, Firestore rules not yet configured, repository without write access, publish target that doesn't answer, wrong SQLite passphrase…
 
-3. **Before** opening `/admin/`, configure Firestore security rules with the bootstrap admin email you'll use (see [Firestore security rules](#firestore-security-rules) below). The setup form needs to write to `config/flexweg` — without rules in place, the write fails and the form surfaces a clear "Firestore rejected the configuration write" message pointing back to this section.
-
-4. Create the bootstrap admin user from **Firebase Console → Authentication → Users → Add user** (email + password).
-
-5. Open `https://your-site.flexweg.com/admin/`. The admin renders a **first-run setup form** asking for:
-
-   - Firebase: API key, auth domain, project ID, storage bucket, messaging sender ID, app ID.
-   - Bootstrap administrator: email + password (the user from step 4).
-   - Flexweg: API key, site URL, API base URL.
-
-6. Click **Save & continue**. The form runs through five steps, surfacing errors inline at each one:
-
-   1. Sign in to Firebase with the entered credentials.
-   2. Verify the signed-in email matches the admin email.
-   2b. Verify the signed-in email is verified (`emailVerified == true`). If not, the form sends a Firebase verification email to the admin address and surfaces a clear "click the link, then submit again" message — required because the Firestore rules pin `email_verified == true` on the bootstrap admin.
-   3. Test the Flexweg API key (a HEAD-like ping on `/files/storage-limits`).
-   4. Write `config/flexweg` to Firestore.
-   5. Upload a populated `/admin/config.js` to Flexweg via the API.
-
-   On success the admin reloads. The freshly-uploaded `config.js` synchronously sets `window.__FLEXWEG_CONFIG__` before the bundle loads, the resolver picks the values up, and the admin boots into the normal sign-in flow. The setup form never shows again unless someone manually empties `config.js` on Flexweg.
-
-   Each failure mode has a specific error message: invalid Firebase credentials, mismatched admin email, rejected Flexweg API key, Firestore rules not yet configured (with the email to pin in the rules), and upload failure.
+4. To make the admin available to other editors, keep *Also host the admin on this site* ticked on the Install step (or later: **Settings → Publish target → Admin on this site**), or upload `dist/admin/` plus the downloaded `config.js` to any static host yourself.
 
 ## Firestore security rules
 
@@ -202,9 +191,8 @@ service cloud.firestore {
     // Bootstrap admin: signed in, email matches the pinned address,
     // AND email is verified. The email_verified check matters because
     // Firebase Email/Password sign-in returns `email_verified: false`
-    // by default — the SetupForm enforces verification on first run,
-    // and these rules pin it server-side so an unverified token can
-    // never sign in as bootstrap admin (defends against future bypass).
+    // by default — these rules pin verification server-side so an
+    // unverified token can never act as bootstrap admin.
     function isBootstrapAdmin() {
       return isSignedIn()
         && request.auth.token.email != null
@@ -305,8 +293,8 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // ─── config/flexweg + other config docs ──────────────────────────────
-    // API key — read by every editor (publisher needs it), write admin-only.
+    // ─── config/storage + other config docs ──────────────────────────────
+    // Publish target — read by every editor (publisher needs it), write admin-only.
     // The `docId != "admin"` guard ensures editors do not read the probe
     // doc above (Firestore rules OR-merge across all matching paths, so
     // without this guard editors would silently pass the bootstrap probe).
@@ -328,7 +316,7 @@ service cloud.firestore {
 - **Bootstrap admin**: a user whose email matches `bootstrapAdminEmail()` is treated as admin even without a `users/{uid}` document. This solves the chicken-and-egg problem of the first login (no record exists yet to grant the admin role).
 - **Self-create on first login**: any signed-in user can create their own `users/{uid}` document, but only with `role: "editor"` and `disabled: false` — this prevents privilege escalation. The admin promotes editors via the Users page afterwards.
 - **Self update is restricted to profile fields**: a regular user can change their own `preferences` (admin language), `firstName`, `lastName`, `bio`, and `avatarMediaId` — the editable surface of the **Settings → Profile** form. They cannot touch their own role or disabled flag. Admins can update any field on any record.
-- **`config/flexweg` requires admin to write**: editors can read the API key (the publisher needs it), but only admins can rotate it.
+- **`config/*` docs require admin to write**: editors can read the publish target in `config/storage` (the publisher needs it), but only admins can change it. `config/admin` is excluded so editors can't pass the bootstrap probe.
 - **Each rule call performs one extra read** via `selfRecord()`. Acceptable for an internal tool; if you need to optimize later, switch to [Firebase Auth custom claims](https://firebase.google.com/docs/auth/admin/custom-claims) (requires an admin SDK backend to set them).
 
 If you want only admins to manage themes/plugins/menus, change `allow write: if isEditor();` to `allow write: if isAdmin();` on `match /settings/{docId}`.
@@ -424,24 +412,25 @@ After the indexes finish building (status: `READY` in the console), the post / p
 npm run build
 ```
 
-This produces two folders inside `dist/`, each mapping 1:1 to a Flexweg path:
+This produces (among others — `dist/agent/` holds the CLI) two folders inside `dist/`, each mapping 1:1 to a path on the public site:
 
 ```
 dist/
-├── admin/                  → upload to /admin/ on Flexweg
+├── admin/                  → the admin, e.g. /admin/ on your hosting
 │   ├── index.html
+│   ├── admin-files.json    file list used to copy the admin onto a publish target
 │   └── assets/
-└── theme-assets/           → upload to /theme-assets/ on Flexweg (site root)
+└── theme-assets/           → /theme-assets/ (site root)
     └── <theme-id>.css      one CSS file per theme directory
 ```
 
 The split mirrors the public site layout: every published page contains a `<link rel="stylesheet" href="/theme-assets/<id>.css">` pointing to the site root, **never** to `/admin/...`. Keeping `theme-assets/` at the top level of `dist/` makes the deployment story obvious: drop each folder where its name says it belongs.
 
-**First deploy** — upload both folders to your Flexweg site (zip and drop via the dashboard, or use the Files API).
+**First deploy** — the setup wizard (*Also host the admin on this site*) or `npx -y @agent-cms/agentcms install` copies the admin onto the publish target and uploads the theme assets for you. You can also upload `dist/admin/` (plus the `config.js` downloaded from the wizard) to any static host by hand; the theme CSS is pushed by the wizard / **Themes → Sync theme assets**, so `dist/theme-assets/` rarely needs a manual upload.
 
-**Subsequent deploys** — re-upload `dist/admin/` whenever you ship admin code changes, then open **Themes → Sync theme assets** to push the new theme CSS to the public root. The CSS is embedded inside the admin bundle (Vite `?inline`), so the sync button always uploads the version that shipped with the current admin — no need to manually re-upload `dist/theme-assets/`.
+**Subsequent deploys** — update the hosted admin with **Settings → Publish target → Admin on this site → Deploy / update the admin** or `agentcms deploy-admin --site <alias> --yes` (or re-upload `dist/admin/` by hand), then open **Themes → Sync theme assets** to push the new theme CSS to the public root. The CSS is embedded inside the admin bundle (Vite `?inline`), so the sync button always uploads the version that shipped with the current admin — no need to manually re-upload `dist/theme-assets/`.
 
-After that, every publish action from the admin uploads HTML/asset files directly to your public Flexweg site — no further deploys required for content updates.
+After that, every publish action from the admin writes HTML/asset files directly to the publish target — no further deploys required for content updates.
 
 ## Internationalisation
 
@@ -459,22 +448,22 @@ The admin UI ships with translations for seven locales:
 
 Each user picks their preferred admin language from the **Topbar** language selector or in **Settings → Profile**. The choice is saved on the user's Firestore profile (so it follows them across devices) and in `localStorage` (so reloads don't flash the wrong language). English is the source of truth — `src/i18n/en.json` is the canonical bundle and i18next falls back to it for any missing key in the other locales, so the admin never breaks if a translation is incomplete.
 
-Plugins / mu-plugins / themes ship their own bundled translations alongside their manifest. They're loaded into a dedicated i18next namespace named after the plugin or theme id (e.g. `theme-default`, `flexweg-rss`). All seven admin locales are supported across every built-in plugin and theme.
+Plugins / mu-plugins / themes ship their own bundled translations alongside their manifest. They're loaded into a dedicated i18next namespace named after the plugin or theme id (e.g. `theme-default`, `agentcms-rss`). All seven admin locales are supported across every built-in plugin and theme.
 
-The site language for the public output is configured separately in **Settings → Site → Site language** (BCP-47), and is injected as `<html lang="…">` on every published page. The bundled `flexweg-sitemaps` plugin also localises the styled sitemap-viewer (the HTML rendering of the XML sitemaps in a browser) for the same seven languages — pick the right one when you upload the XSL stylesheets.
+The site language for the public output is configured separately in **Settings → Site → Site language** (BCP-47), and is injected as `<html lang="…">` on every published page. The bundled `agentcms-sitemaps` plugin also localises the styled sitemap-viewer (the HTML rendering of the XML sitemaps in a browser) for the same seven languages — pick the right one when you upload the XSL stylesheets.
 
-### Multi-language public sites (`flexweg-multilang`)
+### Multi-language public sites (`agentcms-multilang`)
 
-For sites that publish content in more than one language, install the bundled `flexweg-multilang` plugin (shipped under `external/plugins/flexweg-multilang/`, pre-installed on a fresh deployment via `external.default.json`). It turns Flexweg into a fully multilingual CMS while keeping the static-publishing model:
+For sites that publish content in more than one language, install the bundled `agentcms-multilang` plugin (shipped under `external/plugins/agentcms-multilang/`, pre-installed on a fresh deployment via `external.default.json`). It turns AgentCMS into a fully multilingual CMS while keeping the static-publishing model:
 
 - **Per-language URL layout** — primary language at root (`/news/hello.html`), secondary languages prefixed (`/fr/actualites/bonjour.html`). Configure the primary language and the list of secondary languages under **Settings → Multi-language**.
 - **Per-post / per-page editor** — when at least one secondary language is enabled, the post editor grows a language tab strip above the canvas. Switching tabs swaps the full editor state (title, slug, body, blocks, excerpt, SEO) for the selected language while keeping the same Tiptap instance alive (so blocks and drag-and-drop survive language switches).
 - **Per-term name + slug + description + SEO** — categories and tags expose the per-language fields inline on the Categories & Tags page (chevron to expand). Empty fields fall back to the primary language.
 - **Per-language menu labels** — the Menus page renders one extra input per secondary language under each item's primary label. Filled-in values get projected into `/menu.json` as a `labels` map; the runtime menu loader picks the right one based on `<html lang>`.
-- **SEO** — every localised page emits its own `<title>`, `<meta name="description">`, `og:locale` + alternates, and a clean canonical (no `/index.html` suffix). Reciprocal `<link rel="alternate" hreflang="…">` tags are emitted in the head of every variant (including the primary). The sitemap entries carry `<xhtml:link rel="alternate" hreflang="…">` alternates, and `flexweg-rss` emits one feed per locale.
+- **SEO** — every localised page emits its own `<title>`, `<meta name="description">`, `og:locale` + alternates, and a clean canonical (no `/index.html` suffix). Reciprocal `<link rel="alternate" hreflang="…">` tags are emitted in the head of every variant (including the primary). The sitemap entries carry `<xhtml:link rel="alternate" hreflang="…">` alternates, and `agentcms-rss` emits one feed per locale.
 - **Per-locale homes + category archives + author archives** — each locale gets its own `/<lang>/index.html`, `/<lang>/<category>/index.html`, etc. The publisher resolves them through a "shadow context" pass so themes don't need any multilang-specific code — they just render whatever props the publisher hands them.
 
-The plugin is backend-agnostic (works on both Firebase and Flexweg SQLite). Configure it under **Plugins → Multi-language → Settings**.
+The plugin is backend-agnostic (works on every data backend). Configure it under **Plugins → Multi-language → Settings**.
 
 ### Per-term SEO meta tags
 
@@ -484,14 +473,14 @@ Every category and tag carries an optional `Term.seo = { title?, description?, o
 - `term.seo.description` (or the term description as fallback) drives `<meta name="description">`
 - `term.seo.ogImage` drives `<meta property="og:image">`
 
-When `flexweg-multilang` is enabled, the per-language SEO overrides live inside the expanded translations section on each row (one collapsible block per secondary language carries the localized `seoTitle` + `seoDescription`).
+When `agentcms-multilang` is enabled, the per-language SEO overrides live inside the expanded translations section on each row (one collapsible block per secondary language carries the localized `seoTitle` + `seoDescription`).
 
 ### Discourage search engines from indexing
 
 A WordPress-style toggle lives under **Settings → Site → Search-engine indexing → Discourage search engines from indexing this site**. When enabled:
 
 - Every published HTML page receives `<meta name="robots" content="noindex,nofollow">`
-- The bundled `flexweg-sitemaps` plugin forces `robots.txt` to `User-agent: *\nDisallow: /`, overriding any user-supplied robots content
+- The bundled `agentcms-sitemaps` plugin forces `robots.txt` to `User-agent: *\nDisallow: /`, overriding any user-supplied robots content
 
 Use it during the staging phase of a new site so search engines don't index draft URLs. Toggle it off (and click **Regenerate ▾ → Everything**) before going live.
 
@@ -518,7 +507,7 @@ Tags do not appear in URLs. All slugs are lower-case ASCII, dash-separated.
 
 ## Slug uniqueness
 
-Two posts / pages / categories must never share the same public URL — Flexweg paths are case-sensitive and a duplicate would silently overwrite the other on the next publish.
+Two posts / pages / categories must never share the same public URL — static hosts are case-sensitive and a duplicate would silently overwrite the other on the next publish.
 
 - **Auto-generated slugs (new entities)**: when the title produces a slug already in use, the admin appends `-2`, `-3`, … until the resulting path is free. You never think about it for the common case.
 - **User-edited slugs**: validated live against existing entities. If you type a slug that collides, an inline error appears under the field naming the conflicting entity, and the **Save** button is disabled.
@@ -538,29 +527,30 @@ Helpers live in [src/core/slug.ts](src/core/slug.ts): `findAvailableSlug`, `dete
 
 Each `Post` carries two fields used by the publisher to keep the public site free of orphaned files:
 
-- `lastPublishedPath` — the path the post is currently live at on Flexweg.
+- `lastPublishedPath` — the path the post is currently live at on the publish target.
 - `previousPublishedPaths[]` — paths the publisher tried but **failed** to delete during a previous publish (e.g. a transient API error).
 
 On every publish, before uploading the new file, the publisher attempts to delete every entry in `[lastPublishedPath, ...previousPublishedPaths]` that isn't the new path. Failed deletions (non-404) are persisted back into `previousPublishedPaths` and retried on the next publish.
 
 This guarantees:
 - Changing a post's slug or primary category never leaves the old URL accessible.
-- A transient Flexweg API hiccup is recovered automatically next publish.
+- A transient publish-target hiccup is recovered automatically next publish.
 - Unpublishing wipes every known historical path, not just the most recent one.
 
 ## Error handling & toasts
 
-Every Flexweg API call goes through a single error funnel that surfaces failures both as thrown `FlexwegApiError`s (so calling code can react locally — e.g. retry buttons on the upload card) **and** as flash toasts in the top-right corner of the admin. Toasts include translated, status-aware messages:
+Every publish-target request goes through a single error funnel (`performRequest` in `src/services/storage/http.ts`) that surfaces failures both as thrown `StorageError`s (so calling code can react locally — e.g. retry buttons on the upload card) **and** as flash toasts in the top-right corner of the admin. Toasts include translated, status-aware messages (`storage.errors.*` in the i18n bundles), prefixed with the action that failed:
 
 | Status | Toast message |
 |---|---|
-| 401 / 403 | "Authentication failed. Check your Flexweg API key in Settings." |
-| 404 | "Target not found on Flexweg." (suppressed for delete calls — 404 is treated as success) |
-| 413 | "File too large for your Flexweg plan." |
+| 401 / 403 | "Authentication failed. Check the publish target credentials in Settings." |
+| 404 | "Target not found on the publish target." (suppressed for delete calls — 404 is treated as success) |
+| 413 | "File too large for the publish target." |
 | 429 | "Too many requests, please retry in a moment." |
-| 5xx | "Flexweg server error ({{status}}). Please retry." |
+| 5xx | "Publish target server error ({{status}}). Please retry." |
 | Network / CORS | "Network error or CORS blocked. Check your connection." |
-| Other | Generic message including the status and any error payload returned by Flexweg. |
+| 501 | "Not supported by the "{{connector}}" publish target." |
+| Other | Generic message including the status and any error detail returned by the target. |
 
 To emit a toast from anywhere in the codebase:
 
@@ -587,7 +577,7 @@ The header / footer menus configured under **Menus** in the admin are loaded **a
 
 ### Per-language menu labels
 
-Each menu item carries an optional `translations: Record<<lang>, { label? }>` map (edited inline in `MenusPage` when at least one secondary language is enabled in `flexweg-multilang`). The resolver projects non-empty entries into a `labels` map on each resolved item in `/menu.json`:
+Each menu item carries an optional `translations: Record<<lang>, { label? }>` map (edited inline in `MenusPage` when at least one secondary language is enabled in `agentcms-multilang`). The resolver projects non-empty entries into a `labels` map on each resolved item in `/menu.json`:
 
 ```json
 { "id": "…", "label": "Care", "href": "/care/", "labels": { "fr": "Soins" } }
@@ -610,7 +600,7 @@ The loader fills the inner `<ul>`. If `/menu.json` is unreachable, the container
 
 ### Failure mode
 
-A failed menu.json publish toasts an error (the same Flexweg error funnel as everything else) but **does not** abort the surrounding action (post publish / save). The Firestore state remains the source of truth; the next successful publish retries the menu upload.
+A failed menu.json publish toasts an error (the same error funnel as everything else) but **does not** abort the surrounding action (post publish / save). The data backend remains the source of truth; the next successful publish retries the menu upload.
 
 ## Image handling
 
@@ -619,7 +609,7 @@ When a user uploads an image, the admin runs the file entirely through a browser
 1. Validates the extension against the active theme's `inputFormats`.
 2. Decodes the file via `createImageBitmap`.
 3. For each variant declared by the active theme **plus** three admin-only formats (`admin-thumb`, `admin-preview`, `admin-original`), renders a resized canvas and re-encodes it as WebP (or whatever `outputFormat` the theme picked).
-4. Uploads each variant to Flexweg under `media/<yyyy>/<mm>/<slug>-<hex>/<variant>.webp`.
+4. Uploads each variant to the publish target under `media/<yyyy>/<mm>/<slug>-<hex>/<variant>.webp`.
 5. Persists a single `media/{id}` Firestore document referencing every variant by name.
 
 The uploaded source file is **not stored verbatim**. Instead, the pipeline produces an `admin-original` variant: the source resized so the longest axis is capped at 2000 px (no crop, ratio preserved, never upscaled) and re-encoded at quality 90 — purpose-built as a high-fidelity source for future re-crops, not for display. This keeps storage bounded while preserving enough resolution that adding a new theme variant later can regenerate from `admin-original` rather than upscaling a smaller display variant.
@@ -756,7 +746,7 @@ Tabs inside the settings page are a theme concern — render a tab strip in your
 The default theme exposes a **General** tab with a logo upload. Workflow:
 
 1. Admin opens **Theme settings → General** and uploads a JPG / PNG / WebP image.
-2. The image is resized client-side (canvas, no server) into a 480 × 144 WebP and pushed to `theme-assets/default-logo.webp` on Flexweg.
+2. The image is resized client-side (canvas, no server) into a 480 × 144 WebP and pushed to `theme-assets/default-logo.webp` on the publish target.
 3. The theme config saves `{ logoEnabled: true, logoUpdatedAt: <ms> }` and the admin re-publishes `data/menu.json` with a new `branding.logoUrl` (the URL is cache-busted via `?v=<logoUpdatedAt>`).
 4. The runtime `menu-loader.js` already loaded on every published page picks up the branding block on the next page load and replaces the text wordmark inside `[data-cms-brand]` with an `<img>`.
 
@@ -764,7 +754,7 @@ So a logo change pushes only **one** small JSON file (`menu.json`) plus the logo
 
 ### Default theme — Style tab (colors, fonts, spacing, radius)
 
-The **Style** tab in the default theme's settings page lets admins customize the entire design token set without re-rendering posts. Click **Save & apply** to push a regenerated CSS file to Flexweg.
+The **Style** tab in the default theme's settings page lets admins customize the entire design token set without re-rendering posts. Click **Save & apply** to push a regenerated CSS file to the publish target.
 
 Editable surface (22 tokens + 2 fonts):
 
@@ -919,7 +909,7 @@ In the admin at `/admin/#/plugins`, two tabs split the UI:
 
 Adds Twitter Card meta tags and a `<meta name="generator">` hint to every published page. Hooks into `page.head.extra`. No settings — toggle it off in **Plugins** if you don't want the extra markup.
 
-### `flexweg-sitemaps`
+### `agentcms-sitemaps`
 
 Generates and maintains the public site's sitemaps and `robots.txt`. Configure under **Settings → Sitemaps** (tab visible only when the plugin is enabled).
 
@@ -928,7 +918,7 @@ Files produced on the public site (relative to your `baseUrl`):
 - `sitemap-<year>.xml` — one per year that has at least one online post (and page, when configured). Built from `createdAt`; `<lastmod>` reflects `updatedAt`.
 - `sitemap-index.xml` — index referencing every yearly sitemap that's currently populated, plus the News sitemap when enabled.
 - `sitemap-news.xml` — Google News urlset of articles modified within the configured window (default 2 days, range 1–30). Optional.
-- `sitemap-news-<lang>.xml` — per-language Google News urlset, ONE per enabled secondary language when both News (in this plugin) AND the `flexweg-multilang` plugin (with at least one secondary language) are active. Each file lists only the translated URLs of recent posts that have a translation in that locale, with `<news:language>` set to the locale code. Referenced from `sitemap-index.xml`. When News is toggled off in this plugin's settings, ALL per-language news sitemaps disappear from the index too — they're built and indexed together via the `sitemap.news.locales` hook so file payloads and `<sitemap>` references can never drift out of sync.
+- `sitemap-news-<lang>.xml` — per-language Google News urlset, ONE per enabled secondary language when both News (in this plugin) AND the `agentcms-multilang` plugin (with at least one secondary language) are active. Each file lists only the translated URLs of recent posts that have a translation in that locale, with `<news:language>` set to the locale code. Referenced from `sitemap-index.xml`. When News is toggled off in this plugin's settings, ALL per-language news sitemaps disappear from the index too — they're built and indexed together via the `sitemap.news.locales` hook so file payloads and `<sitemap>` references can never drift out of sync.
 - `robots.txt` — user-supplied; defaults to `User-agent: *` + `Allow: /` + `Disallow: /admin/` + a `Sitemap:` line per generated sitemap. The `Disallow: /admin/` line keeps the admin SPA out of search-engine indexes (the admin's `index.html` also ships with `<meta name="robots" content="noindex, nofollow, noarchive">` as a fallback for crawlers that ignore robots.txt).
 - `sitemap.xsl` and `sitemap-news.xsl` — XSL stylesheets referenced by every sitemap file via an `<?xml-stylesheet?>` processing instruction. When a browser opens a sitemap URL, these transform the raw XML into a styled HTML table for human inspection. Crawlers ignore the PI entirely. Labels honor `settings.language` (English / French baked in).
 
@@ -944,7 +934,7 @@ Incremental regeneration is automatic: every `publish.complete`, `post.unpublish
 
 The lifecycle hooks **do not** re-upload the XSL stylesheets — those change rarely. After installing the plugin or changing `settings.language`, click **Upload stylesheets** (or **Force regenerate**) once to refresh them; subsequent content publishes don't pay that cost.
 
-### `flexweg-rss`
+### `agentcms-rss`
 
 Generates RSS 2.0 feeds for the site and optionally per category. Configure under **Settings → RSS feeds**.
 
@@ -970,7 +960,7 @@ Cover images: when a post has a `heroMediaId`, the item gets an RSS 2.0 `<enclos
 
 Footer items injected by this plugin appear at the **end** of the resolved footer in `/menu.json`. Labels are auto-generated: `RSS` for the site feed, `RSS — <category name>` for per-category feeds. To control placement or labels manually, leave the addToFooter checkboxes off and add custom items via **Menus** with the feed URL as an external link.
 
-### `flexweg-favicon` (must-use)
+### `agentcms-favicon` (must-use)
 
 Lives under `src/mu-plugins/` — always active, cannot be disabled in the admin (every site benefits from a favicon by default).
 
@@ -981,7 +971,7 @@ Files produced under `/favicon/` on the public site:
 - `favicon-96x96.png` — modern browser favicon (96×96)
 - `apple-touch-icon.png` — iOS home-screen icon (180×180, white background to avoid Safari masking transparency)
 - `web-app-manifest-192x192.png` and `web-app-manifest-512x512.png` — PWA install icons (purpose: maskable)
-- `favicon.ico` — multi-size legacy icon (16/32/48 PNG payloads packed via a pure-JS encoder under `src/mu-plugins/flexweg-favicon/icoEncoder.ts`)
+- `favicon.ico` — multi-size legacy icon (16/32/48 PNG payloads packed via a pure-JS encoder under `src/mu-plugins/agentcms-favicon/icoEncoder.ts`)
 - `favicon.svg` — vector variant. Only generated when the source upload is itself an SVG (passthrough); skipped silently for raster sources since rasterizing a PNG into SVG produces fake-vector output.
 - `site.webmanifest` — PWA manifest JSON
 
@@ -997,7 +987,7 @@ Configuration options:
 
 Head injection happens automatically via the `page.head.extra` filter — every published page receives the appropriate `<link rel="icon">` / `<link rel="apple-touch-icon">` / `<link rel="manifest">` tags plus a `<meta name="theme-color">` when PWA is configured. Tags only emit for files actually present on the site (the per-format flags in the plugin config drive this), so partial setups don't produce broken links. Cache-busting via `?v=<uploadedAt>` ensures browsers pick up replacements without manual refresh.
 
-### `flexweg-blocks` (must-use)
+### `agentcms-blocks` (must-use)
 
 Lives under `src/mu-plugins/` — always active. Ships first-party editor blocks the post / page editor relies on:
 
@@ -1006,7 +996,7 @@ Lives under `src/mu-plugins/` — always active. Ships first-party editor blocks
 
 Disabling these would silently strip blocks from existing posts on the next render — they're must-use to prevent that footgun. New blocks belong in this plugin (or in their own dedicated plugin if they're optional).
 
-### `flexweg-custom-code` (must-use)
+### `agentcms-custom-code` (must-use)
 
 Lives under `src/mu-plugins/` — always active. Configure under **Settings → Custom code**.
 
@@ -1019,13 +1009,13 @@ Both editors share the CodeMirror component used by the Custom HTML block (lazy-
 
 Hooks: `page.head.extra` and `page.body.end`. Reading the live config from the resolved `BaseLayoutProps` keeps the filter handlers stateless.
 
-### `flexweg-embeds` (must-use)
+### `agentcms-embeds` (must-use)
 
 Lives under `src/mu-plugins/` — always active. Adds editor blocks for **YouTube**, **Vimeo**, **Twitter / X**, and **Spotify**. Each block is an atom Tiptap node that round-trips through Markdown as `<div data-cms-embed="<provider>" data-id="<x>" data-url="<y>"></div>`, so embeds survive editor saves without losing the source URL.
 
 At publish time the publisher rewrites each marker into the provider's actual iframe / blockquote (via the `post.html.body` filter), and per-page detection injects a single `<style>` tag plus any provider-specific scripts (Twitter's `widgets.js` is the only one needing JS today — YouTube / Vimeo / Spotify are iframe-only). Pages without embeds pay zero overhead.
 
-Adding a new provider = one entry in [src/mu-plugins/flexweg-embeds/providers.ts](src/mu-plugins/flexweg-embeds/providers.ts) + one i18n key pair. Disabling this plugin would silently strip embeds from existing posts on the next render — must-use to prevent that footgun.
+Adding a new provider = one entry in [src/mu-plugins/agentcms-embeds/providers.ts](src/mu-plugins/agentcms-embeds/providers.ts) + one i18n key pair. Disabling this plugin would silently strip embeds from existing posts on the next render — must-use to prevent that footgun.
 
 ## Plugin / theme architecture
 
@@ -1033,39 +1023,39 @@ The CMS now ships every plugin (except mu-plugins) and every theme except `defau
 
 **Three categories**:
 
-- **Mu-plugins** (`src/mu-plugins/`) — bundled into the admin SPA, always-on. These are foundational pieces (favicon, custom code injection, embeds, blocks, metrics, **flexweg-import**) that the admin can't meaningfully run without. Cannot be uninstalled or disabled.
-- **In-tree externalised plugins / themes** — source lives in `src/plugins/<id>/` and `src/themes/<id>/`. At `npm run build` time, [scripts/build-bundled-externals.mjs](scripts/build-bundled-externals.mjs) compiles each into its own ESM bundle under `dist/admin/plugins/<id>/` (or `dist/admin/themes/<id>/`) and lists them in `dist/admin/external.json`. The admin loads them at boot via the runtime loader. Includes: `core-seo`, `flexweg-sitemaps`, `flexweg-rss`, `flexweg-archives`, `flexweg-search`, `magazine` theme, `corporate` theme.
-- **User-uploaded externals** — third-party plugins/themes installed via the admin's upload UI (or by dropping a folder into `/admin/<kind>/<id>/` on Flexweg). Same runtime mechanism.
+- **Mu-plugins** (`src/mu-plugins/`) — bundled into the admin SPA, always-on. These are foundational pieces (favicon, custom code injection, embeds, blocks, metrics, **agentcms-import**) that the admin can't meaningfully run without. Cannot be uninstalled or disabled.
+- **In-tree externalised plugins / themes** — source lives in `src/plugins/<id>/` and `src/themes/<id>/`. At `npm run build` time, [scripts/build-bundled-externals.mjs](scripts/build-bundled-externals.mjs) compiles each into its own ESM bundle under `dist/admin/plugins/<id>/` (or `dist/admin/themes/<id>/`) and lists them in `dist/admin/external.json`. The admin loads them at boot via the runtime loader. Includes: `core-seo`, `agentcms-sitemaps`, `agentcms-rss`, `agentcms-archives`, `agentcms-search`, `magazine` theme, `corporate` theme.
+- **User-uploaded externals** — third-party plugins/themes installed via the admin's upload UI. Same runtime mechanism.
 
 The **`default` theme** stays bundled inside the admin SPA as a fallback — when a user uninstalls every external theme, the admin falls back to `default` so the public site never ends up unrendered.
 
-**Restoring bundled defaults**: if a user uninstalls a plugin/theme that was bundled with their admin version (e.g. `core-seo`) and later wants it back, the **Plugins / Themes → Install** modal shows a "Bundled defaults available" section with a one-click **Restore** button. This reads `dist/admin/external.default.json` (a build-time snapshot of what shipped) and re-adds the missing entries to the runtime registry. Only the registry is touched; the bundle files are already on Flexweg from the most recent admin deploy.
+**Restoring bundled defaults**: if a user uninstalls a plugin/theme that was bundled with their admin version (e.g. `core-seo`) and later wants it back, the **Plugins / Themes → Install** modal shows a "Bundled defaults available" section with a one-click **Restore** button. This reads `dist/admin/external.default.json` (a build-time snapshot of what shipped) and re-adds the missing entries to the runtime registry. Only the registry is touched; the bundle files are already on the site from the most recent admin deploy.
 
-**Where the runtime registry lives**: the **list of currently-loaded externals** is stored in Firestore at `settings/externalRegistry`, NOT as a file on Flexweg. This means the entire `dist/admin/` folder is fully re-deployable — re-uploading the build (e.g. for an admin upgrade) never overwrites the user's install/uninstall state. The on-disk `external.default.json` is the immutable baseline (what shipped with the build); the legacy on-disk `external.json` is read-only-from-the-CMS and exists only as a one-time migration source for installs that pre-date the Firestore move.
+**Where the runtime registry lives**: the **list of currently-loaded externals** is stored in the data backend (Firestore `settings/externalRegistry`, or the `config/externalRegistry` document on the other backends), NOT as a file on the site. This means the entire `dist/admin/` folder is fully re-deployable — re-uploading the build (e.g. for an admin upgrade) never overwrites the user's install/uninstall state. The on-disk `external.default.json` is the immutable baseline (what shipped with the build); the legacy on-disk `external.json` is read-only-from-the-CMS and exists only as a one-time migration source for installs that pre-date the Firestore move.
 
 **Boot fallback chain**: on every cold load, the registry resolves in this order — Firestore → legacy `/admin/external.json` → `/admin/external.default.json`. The first non-empty result is materialised back into Firestore so subsequent boots short-circuit at the Firestore step.
 
 ## External plugins & themes
 
-In addition to in-tree plugins (committed under `src/plugins/`) and in-tree themes (under `src/themes/`), the admin supports **external** packages that ship as a `.zip`, install via an in-admin upload UI (or by dropping a folder directly via Flexweg), and load at runtime — no rebuild of the admin required.
+In addition to in-tree plugins (committed under `src/plugins/`) and in-tree themes (under `src/themes/`), the admin supports **external** packages that ship as a `.zip`, install via an in-admin upload UI, and load at runtime — no rebuild of the admin required.
 
-- **Install** — admin **Plugins** / **Themes** → click **Install plugin** / **Install theme** → pick a `.zip`. The admin extracts client-side, uploads the contents to `/admin/plugins/<id>/` or `/admin/themes/<id>/` on Flexweg, appends an entry to `/admin/external.json`, and reloads. The new entry appears alongside the built-ins.
-- **Uninstall** — same modal lists installed external entries with an **Uninstall** button. Files are deleted from Flexweg + the entry is removed from `external.json`.
-- **Manual install** (no upload UI) — drop the unzipped folder under `/admin/<kind>/<id>/` via Flexweg's file manager, then add an entry to `/admin/external.json` (or create the file if it doesn't exist).
+- **Install** — admin **Plugins** / **Themes** → click **Install plugin** / **Install theme** → pick a `.zip`. The admin extracts client-side, uploads the contents to `<admin folder>/plugins/<id>/` or `<admin folder>/themes/<id>/` on the publish target, adds an entry to the external registry in the data backend, and reloads. The new entry appears alongside the built-ins.
+- **Uninstall** — same modal lists installed external entries with an **Uninstall** button. The entry is removed from the registry, then the files are deleted from the publish target.
+- **Upgrade** — upload a newer ZIP with the same `id`: the old folder is replaced in place. Copying files next to the admin by hand is not enough, since the registry lives in the data backend.
 
-External bundles use the **same hook API and manifest shapes** as in-tree plugins/themes. The admin's `index.html` ships an [import-map](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap) that redirects `react`, `react-dom`, `react-i18next`, and `@flexweg/cms-runtime` to runtime stubs in `/admin/runtime/` — bundles externalise these specifiers at build time and at runtime get redirected to the live admin instance, guaranteeing one React copy across admin and bundle (required for hooks integrity).
+External bundles use the **same hook API and manifest shapes** as in-tree plugins/themes. The admin's `index.html` ships an [import-map](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap) that redirects `react`, `react-dom`, `react-i18next`, and `@agent-cms/runtime` to runtime stubs in `/admin/runtime/` — bundles externalise these specifiers at build time and at runtime get redirected to the live admin instance, guaranteeing one React copy across admin and bundle (required for hooks integrity).
 
 Authoring docs and ready-to-build scaffolds:
 
 - [docs/creating-a-plugin.md](docs/creating-a-plugin.md) — full guide for external plugin authoring.
 - [docs/creating-a-theme.md](docs/creating-a-theme.md) — full guide for external theme authoring.
-- [docs/runtime-api-reference.md](docs/runtime-api-reference.md) — public API surface (`@flexweg/cms-runtime` exports, hook list, manifest shapes).
+- [docs/runtime-api-reference.md](docs/runtime-api-reference.md) — public API surface (`@agent-cms/runtime` exports, hook list, manifest shapes).
 - [external/plugins/hello-plugin/](external/plugins/hello-plugin/) — minimal plugin scaffold (head meta tag + dashboard card).
-- [external/plugins/flexweg-multilang/](external/plugins/flexweg-multilang/) — reference multi-language plugin. Per-locale URLs, per-language editor tabs (post title / slug / body / SEO), per-term name + slug + description + SEO, per-language menu labels, hreflang + canonical reciprocity, sitemap `<xhtml:link>` alternates, per-language RSS feeds. Built and bundled into `dist/admin/plugins/flexweg-multilang/` by `npm run build`; pre-installed on fresh deployments via `external.default.json`. See the [authoring guide](docs/creating-a-plugin.md) for the variant-provider pattern used here.
+- [external/plugins/agentcms-multilang/](external/plugins/agentcms-multilang/) — reference multi-language plugin. Per-locale URLs, per-language editor tabs (post title / slug / body / SEO), per-term name + slug + description + SEO, per-language menu labels, hreflang + canonical reciprocity, sitemap `<xhtml:link>` alternates, per-language RSS feeds. Built and bundled into `dist/admin/plugins/agentcms-multilang/` by `npm run build`; pre-installed on fresh deployments via `external.default.json`. See the [authoring guide](docs/creating-a-plugin.md) for the variant-provider pattern used here.
 - [external/themes/minimal-theme/](external/themes/minimal-theme/) — minimal theme scaffold (six templates + hand-written CSS).
 - [external/themes/marketplace-core/](external/themes/marketplace-core/) — full marketplace theme (custom blocks, settings page, palette + font overrides).
 
-Compatibility: external bundles declare an `apiVersion` in their `manifest.json`; the admin checks it against `[FLEXWEG_API_MIN_VERSION, FLEXWEG_API_VERSION]` at install + at every boot, and skips out-of-range bundles with a console warning. Browser support: import-maps are native in Chrome 89+, Firefox 108+, Safari 16.4+ (covers virtually every admin user).
+Compatibility: external bundles declare an `apiVersion` in their `manifest.json`; the admin checks it against `[CMS_API_MIN_VERSION, CMS_API_VERSION]` at install + at every boot, and skips out-of-range bundles with a console warning. Browser support: import-maps are native in Chrome 89+, Firefox 108+, Safari 16.4+ (covers virtually every admin user).
 
 ## Tests
 
@@ -1081,14 +1071,14 @@ Critical units have unit tests:
 
 ## Renaming the admin folder for obscurity
 
-By default the admin SPA is deployed to `/admin/` on Flexweg. You can rename that folder to anything you want — for example a random-looking string like `/erf34f654GH3/` — to make it slightly harder for crawlers and casual scanners to find it.
+By default the admin SPA is deployed to `/admin/` on the site. You can rename that folder to anything you want — for example a random-looking string like `/erf34f654GH3/` — to make it slightly harder for crawlers and casual scanners to find it.
 
-The admin auto-detects its folder name from the URL on every load (via `window.location.pathname`) and uses it as the prefix for every Flexweg API upload (`config.js`, `external.json`, `plugins/<id>/`, `themes/<id>/`). No code change, no rebuild — just rename the folder via Flexweg's file manager and re-open the admin from the new URL. All install / uninstall / setup operations work transparently.
+The admin auto-detects its folder name from the URL on every load (via `window.location.pathname`) and uses it as the prefix for the plugin / theme uploads (`plugins/<id>/`, `themes/<id>/`). No code change, no rebuild — host the admin under the new folder (pick it on the wizard's *Also host the admin on this site* step or in **Settings → Publish target → Admin on this site**, or move the folder on your hosting) and re-open the admin from the new URL.
 
 Two rules:
 
-- **Don't deploy at the site root.** The setup form refuses to run if the admin is being served at `/`. Mixing admin assets (`config.js`, plugin folders, theme bundles) with the public site's HTML pages is a footgun that's easier to prevent than to recover from. Always put the admin under a subfolder, even if you don't care about obscurity.
-- **Rename atomically.** Use Flexweg's file-manager "rename folder" action so all the admin files move together. If you copy + delete instead, you risk leaving orphaned files at the old path that the loader would then ignore — but they'd still be reachable via direct URL.
+- **Don't deploy at the site root.** Mixing admin assets (`config.js`, plugin folders, theme bundles) with the public site's HTML pages is a footgun that's easier to prevent than to recover from — the wizard never writes `config.js` at the site root. Always put the admin under a subfolder, even if you don't care about obscurity.
+- **Clean up the old folder.** After moving the admin, delete the previous folder from the hosting: leftover files would still be reachable via direct URL.
 
 Note that this is **security through obscurity** — the random folder name only stops naive HTTP-level crawlers. The real protection of the admin is still: the `<meta name="robots">` tag, `Disallow: /admin/` in `robots.txt`, the bootstrap admin email + password, and the Firestore security rules. Adjust your `robots.txt` to match the new folder name when renaming, otherwise crawlers ignore the disallow rule.
 
@@ -1097,24 +1087,25 @@ Note that this is **security through obscurity** — the random folder name only
 The admin SPA at `/admin/` is internal-only — it should not appear in search results. Two layers keep it out of indexes:
 
 1. **`/admin/index.html` ships with three meta tags**: `<meta name="robots" content="noindex, nofollow, noarchive">`, the same with `name="googlebot"`, and `<meta name="google" content="notranslate">`. These cover crawlers that read meta but ignore robots.txt.
-2. **`robots.txt` defaults to `Disallow: /admin/`** when the bundled `flexweg-sitemaps` plugin generates it. Crawlers that honour robots.txt skip the path entirely.
+2. **`robots.txt` defaults to `Disallow: /admin/`** when the bundled `agentcms-sitemaps` plugin generates it. Crawlers that honour robots.txt skip the path entirely.
 
 If you've customised `robots.txt`, make sure to keep the `Disallow: /admin/` line. The plugin's **Insert default** button re-injects it.
 
-`/admin/config.js` carries the Firebase web config — which is **public by design** (security comes from Firestore rules + the auth-domain allowlist in Firebase Console, not from the secrecy of these values). The bootstrap admin email is **no longer written into `config.js`**; the client detects bootstrap-admin status via a Firestore probe on `config/admin` whose rule grants read access only to the matching pinned email with `email_verified == true`. The pinned email lives only in the Firestore rules. The Flexweg API key is **not** in `config.js` either; it lives in Firestore at `config/flexweg`, readable only after a successful Firebase Auth sign-in.
+`/admin/config.js` carries the Firebase web config — which is **public by design** (security comes from Firestore rules + the auth-domain allowlist in Firebase Console, not from the secrecy of these values). The bootstrap admin email is **no longer written into `config.js`**; the client detects bootstrap-admin status via a Firestore probe on `config/admin` whose rule grants read access only to the matching pinned email with `email_verified == true`. The pinned email lives only in the Firestore rules. Publish-target secrets (git tokens, S3 keys) and the SQLite passphrase are **never** in `config.js` either: on the SQLite, Markdown and local backends they stay in each editor's browser; in Firebase mode the publish target settings live in Firestore at `config/storage`, readable only after a successful Firebase Auth sign-in.
 
 Legacy deployments may still have an `adminEmail` field in their `/admin/config.js` (older builds wrote it there). The current admin reads it as an opt-in fallback for backward compatibility but never writes it back — re-running the SetupForm or replacing `config.js` with the new shape removes the field permanently. After updating the Firestore rules to the current template (with the `config/admin` probe rule + `email_verified` check), legacy callers are fully covered by the rules-driven path.
 
 ## Limitations
 
-- The Flexweg API key sits in Firestore. Any signed-in admin can read it via devtools — fine for an internal tool, do not deploy this pattern to a multi-tenant or public-facing app.
+- In Firebase mode the publish target settings (including its token / keys) sit in Firestore `config/storage`. Any signed-in editor can read them via devtools — fine for an internal tool, do not deploy this pattern to a multi-tenant or public-facing app.
+- The SQLite-file backend has no user accounts: protect the admin folder at the hosting level.
 - The publisher serialises uploads to avoid hitting API rate limits; very large sites (hundreds of pages) take a while when "Regenerate site" runs.
-- Content is single-language per site (the public language). Admins choose their own UI language separately. Multi-language content can be added later as a plugin.
+- Without the bundled `agentcms-multilang` plugin, content is single-language per site (the public language). Admins choose their own UI language separately.
 
 ## License
 
 Source-available under the [PolyForm Noncommercial License 1.0.0](./LICENSE). Personal, hobbyist, educational, research, and other noncommercial use is permitted free of charge; you can fork, modify, and redistribute under the same terms.
 
-**Commercial use — including selling the software or hosting it as a paid service — requires explicit written authorization.** For commercial licensing inquiries, contact: contact@flexweg.com
+**Commercial use — including selling the software or hosting it as a paid service — requires explicit written authorization.** For commercial licensing inquiries, open an issue on [github.com/fleox/agentcms](https://github.com/fleox/agentcms).
 
 See [LICENSE](./LICENSE) for the full terms.

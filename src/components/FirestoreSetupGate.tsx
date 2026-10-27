@@ -31,8 +31,8 @@ interface FirestoreSetupGateProps {
 export function FirestoreSetupGate({ children }: FirestoreSetupGateProps) {
   const { settings } = useCmsData();
   const mode = settings.paginationMode ?? "global";
-  // The composite-index ping is Firestore-specific. In SQLite mode
-  // there's no Firestore at all — coerce the gate to a pass-through
+  // The composite-index ping is Firestore-specific. On the other
+  // backends there's no Firestore at all — coerce the gate to a pass-through
   // by overriding `mode` so the useEffect's ping never fires and the
   // pass-through branch below short-circuits, even when the user has
   // `paginationMode: "paginated"` left over from a previous Firebase

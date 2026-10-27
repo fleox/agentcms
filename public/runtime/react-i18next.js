@@ -2,13 +2,13 @@
 // pages call useTranslation('<plugin-id>') here, getting the same
 // i18next instance as the admin so addResourceBundle calls land on the
 // shared store.
-const R = (typeof window !== "undefined" && window.__FLEXWEG_RUNTIME__)
-  ? window.__FLEXWEG_RUNTIME__.reactI18next
+const R = (typeof window !== "undefined" && window.__AGENTCMS_RUNTIME__)
+  ? window.__AGENTCMS_RUNTIME__.reactI18next
   : null;
 
 if (!R) {
   throw new Error(
-    "[flexweg] window.__FLEXWEG_RUNTIME__ is not initialised when react-i18next was imported.",
+    "[agentcms] window.__AGENTCMS_RUNTIME__ is not initialised when react-i18next was imported.",
   );
 }
 

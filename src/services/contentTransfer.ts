@@ -21,7 +21,7 @@ import { subscribeToUsers } from "./users";
 // their URLs keep working as long as that target is online) and
 // secrets (API keys / tokens are stripped; re-enter them in Settings).
 
-export const EXPORT_FORMAT = "flexweg-cms-export";
+export const EXPORT_FORMAT = "agentcms-export";
 
 export interface ContentExport {
   format: typeof EXPORT_FORMAT;

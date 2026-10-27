@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createMemoryDocStore, setDocStoreForTests, type DocStore } from "./index";
 import * as docstoreSettings from "./settings";
-import * as docstoreFlexweg from "./flexwegConfig";
 import * as docstoreStorage from "./storageConfig";
 import * as docstoreRegistry from "./externalRegistryStore";
 import type { SiteSettings } from "../../core/types";
@@ -9,11 +8,9 @@ import type { SiteSettings } from "../../core/types";
 // Type-level drift checks against the Firebase impls the dispatchers
 // type themselves on.
 const _s: typeof import("../firebase/settings") = docstoreSettings;
-const _f: typeof import("../firebase/flexwegConfig") = docstoreFlexweg;
 const _st: typeof import("../firebase/storageConfig") = docstoreStorage;
 const _r: typeof import("../firebase/externalRegistryStore") = docstoreRegistry;
 void _s;
-void _f;
 void _st;
 void _r;
 
@@ -84,22 +81,6 @@ describe("docstore settings", () => {
 });
 
 describe("docstore config docs", () => {
-  it("flexweg config round-trips with normalisation", async () => {
-    expect(await docstoreFlexweg.getFlexwegConfig()).toBeNull();
-    await docstoreFlexweg.setFlexwegConfig({ apiKey: "k", siteUrl: "https://s.flexweg.com//", apiBaseUrl: "" });
-    expect(await docstoreFlexweg.getFlexwegConfig()).toEqual({
-      apiKey: "k",
-      siteUrl: "https://s.flexweg.com",
-      apiBaseUrl: docstoreFlexweg.DEFAULT_FLEXWEG_API_BASE_URL,
-    });
-    expect(store.get("config", "flexweg")).toBeTruthy();
-  });
-
-  it("flexweg config without apiKey reads as null", async () => {
-    install({ config: [{ id: "flexweg", siteUrl: "https://s" }] });
-    expect(await docstoreFlexweg.getFlexwegConfig()).toBeNull();
-  });
-
   it("storage config round-trips", async () => {
     expect(await docstoreStorage.getStorageConfig()).toBeNull();
     await docstoreStorage.setStorageConfig({ connectorId: "s3", settings: { bucket: "b" } });

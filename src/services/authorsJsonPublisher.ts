@@ -2,10 +2,10 @@ import { mediaToView, pickFormat } from "../core/media";
 import { buildAuthorUrl } from "../core/slug";
 import type { Media, Post, SocialNetwork, UserRecord } from "../core/types";
 import { SOCIAL_NETWORKS } from "../core/types";
-import { uploadFile } from "./flexwegApi";
+import { uploadFile } from "./siteFiles";
 import { resolvePublicDisplayName } from "./users";
 
-// Path on Flexweg of the public-side authors snapshot. Grouped under
+// Site path of the public-side authors snapshot. Grouped under
 // `data/` alongside menu.json + posts.json so the public-site root
 // stays uncluttered. Absolute fetches still work from any folder depth.
 export const AUTHORS_JSON_PATH = "data/authors.json";

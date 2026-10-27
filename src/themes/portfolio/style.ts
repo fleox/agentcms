@@ -1,4 +1,4 @@
-import { uploadFile } from "@flexweg/cms-runtime";
+import { uploadFile } from "@agent-cms/runtime";
 
 // Portfolio theme — runtime style customization. Mirrors the magazine
 // theme's style.ts adapted for the minimalist palette: colors stored

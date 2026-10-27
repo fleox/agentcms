@@ -1,5 +1,5 @@
-import type { SiteContext } from "@flexweg/cms-runtime";
-import { i18n, pickPublicLocale } from "@flexweg/cms-runtime";
+import type { SiteContext } from "@agent-cms/runtime";
+import { i18n, pickPublicLocale } from "@agent-cms/runtime";
 
 // Storefront header — sticky bar with the brand wordmark centered, a
 // burger toggle on the left, and search + cart icons on the right.
@@ -12,7 +12,7 @@ import { i18n, pickPublicLocale } from "@flexweg/cms-runtime";
 //     button). Uses the standard `[data-cms-menu="header"]` + <ul>
 //     contract.
 //
-// Cart icon is a static affordance (Flexweg is statically hosted —
+// Cart icon is a static affordance (the site is statically hosted —
 // no real cart). Default href points at the catalog page when the
 // catalog feature is enabled, falls back to /contact.html otherwise.
 export function Header({ site }: { site: SiteContext }) {
@@ -46,7 +46,7 @@ export function Header({ site }: { site: SiteContext }) {
           <div className="flex items-center gap-3">
             {/* Multilang plugin populates this when active. */}
             <div data-cms-langswitch="header" aria-hidden="true" />
-            {/* Search trigger — paired with the flexweg-search plugin
+            {/* Search trigger — paired with the agentcms-search plugin
                 which scans `[data-cms-search]` buttons and opens its
                 modal on click. When the plugin is disabled the button
                 renders inert (no-op click). */}

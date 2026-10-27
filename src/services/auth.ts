@@ -4,30 +4,28 @@
 // module-load time. The choice is fixed for the lifetime of the page —
 // switching backend requires a reload (the Settings page handles that).
 //
-// In flexweg-sqlite mode, `sendResetEmail` throws (no email-based reset
-// in that backend — admin uses adminResetPassword from the Users page).
-// `probeBootstrapAdmin` returns false (admin role flows from the user
-// record's `role` field, populated server-side for the first user).
+// In the document-store backends, `sendResetEmail` throws (no
+// email-based reset) and `probeBootstrapAdmin` reflects the role the
+// store grants the current identity (e.g. repo permissions on git).
 //
 // IMPORTANT: dispatched function exports are HOISTED FUNCTION
 // declarations (not `const x = impl.x`), and `impl()` is resolved
-// lazily on first call. Reason: `core/flexwegRuntime.ts` reads several
+// lazily on first call. Reason: `core/cmsRuntime.ts` reads several
 // dispatcher exports at module-init inside an object literal, and a
 // circular import path through `themes/index.ts` means this module's
-// body hasn't necessarily run when flexwegRuntime's body does. Using
+// body hasn't necessarily run when cmsRuntime's body does. Using
 // hoisted function bindings + lazy impl resolution avoids the TDZ
 // ("can't access lexical declaration X before initialization") crash.
 
 import { getBackendKind, isDocStoreBackend } from "../lib/runtimeConfig";
 import * as firebase from "./firebase/auth";
-import * as sqlite from "./flexweg-sqlite/auth";
 import * as docstore from "./docstore/auth";
 
-let _impl: typeof firebase | typeof sqlite | typeof docstore | null = null;
+let _impl: typeof firebase | typeof docstore | null = null;
 function impl(): typeof firebase {
   if (!_impl) {
     const kind = getBackendKind();
-    _impl = kind === "flexweg-sqlite" ? sqlite : isDocStoreBackend(kind) ? docstore : firebase;
+    _impl = isDocStoreBackend(kind) ? docstore : firebase;
   }
   return _impl as typeof firebase;
 }

@@ -4,7 +4,7 @@
  * Compiled by scripts/build-theme-tailwind.mjs into ./theme.compiled.css.
  * The result is bundled into the admin via the manifest's
  * `import cssText from "./theme.compiled.css?inline"` and uploaded to
- * Flexweg as `/theme-assets/magazine.css`.
+ * the hosting as `/theme-assets/magazine.css`.
  *
  * Content scan is intentionally LOCAL to this theme so the compiled CSS
  * stays free of admin-bundle utility classes. Block render functions
@@ -29,7 +29,7 @@ module.exports = {
   // first paragraph) or by inline icon strings — and therefore not
   // discoverable through the content scan alone.
   // The `archives` / `archives__*` / `archives-link` classes are
-  // emitted by the `flexweg-archives` plugin's HTML (which lives
+  // emitted by the `agentcms-archives` plugin's HTML (which lives
   // outside the theme's content scan), so we safelist the whole
   // BEM family to keep the matching `@layer components` rules in
   // theme.css from being purged.

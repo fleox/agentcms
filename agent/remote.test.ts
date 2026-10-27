@@ -5,7 +5,7 @@ describe("config.js", () => {
   it("round-trips what the admin generates", () => {
     const runtime = { backend: "sqlite-file", sqlite: { connectorId: "s3", settings: { bucket: "b" }, path: "data/site.sqlite" } };
     expect(parseConfigJs(buildConfigJsSource(runtime as never))).toEqual(runtime);
-    expect(parseConfigJs("window.__FLEXWEG_CONFIG__ = null;")).toBeNull();
+    expect(parseConfigJs("window.__AGENTCMS_CONFIG__ = null;")).toBeNull();
     expect(() => parseConfigJs("var x = 1;")).toThrow();
   });
 

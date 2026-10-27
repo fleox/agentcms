@@ -4,7 +4,7 @@
 // <ToastContainer> mounted in App subscribes once and renders the toasts.
 //
 // Why an emitter instead of a React context:
-//   1. Services like flexwegApi run outside the React tree (called from
+//   1. Services like siteFiles run outside the React tree (called from
 //      handlers, effects, async chains). Threading a `showToast` callback
 //      down to every call site is noisy and error-prone.
 //   2. The emitter is trivially mockable in tests (no Provider required).

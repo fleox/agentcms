@@ -2,8 +2,8 @@
 // Builds each in-tree plugin (under src/plugins/) and each non-default
 // theme (under src/themes/) as a SEPARATE ESM bundle, output to
 // dist/admin/{plugins,themes}/<id>/. The bundles externalise React,
-// react-i18next and @flexweg/cms-runtime so they share the live admin
-// instances at runtime via window.__FLEXWEG_RUNTIME__.
+// react-i18next and @agent-cms/runtime so they share the live admin
+// instances at runtime via window.__AGENTCMS_RUNTIME__.
 //
 // At admin boot, services/externalLoader.ts reads dist/admin/external.json
 // (also generated here) and dynamic-import()s each entry — same path as
@@ -28,11 +28,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
 const distAdmin = resolve(root, "dist/admin");
 
-// Mirrors src/core/flexwegRuntime.ts — bumped together. The build
+// Mirrors src/core/cmsRuntime.ts — bumped together. The build
 // stamps this on every produced manifest.json + external.json entry
 // so the admin's external loader can reject stale bundles built
 // against an older API.
-const FLEXWEG_API_VERSION = "1.4.0";
+const CMS_API_VERSION = "1.4.0";
 
 // Externalised at build time; resolved via the import-map at runtime.
 // Keep in sync with the import-map in index.html.
@@ -42,7 +42,7 @@ const EXTERNAL_DEPS = [
   "react-dom",
   "react-dom/client",
   "react-i18next",
-  "@flexweg/cms-runtime",
+  "@agent-cms/runtime",
 ];
 
 // Static metadata for each in-tree plugin/theme to externalise. We
@@ -56,19 +56,19 @@ const EXTERNAL_DEPS = [
 //      the install-side artefacts (manifest.json + external.json).
 const PLUGINS = [
   { id: "core-seo", name: "Core SEO", version: "1.0.0" },
-  { id: "flexweg-sitemaps", name: "Flexweg Sitemaps", version: "1.0.0" },
-  { id: "flexweg-rss", name: "Flexweg RSS", version: "1.0.0" },
-  { id: "flexweg-archives", name: "Flexweg Archives", version: "1.0.0" },
-  { id: "flexweg-search", name: "Flexweg Search", version: "1.0.0" },
+  { id: "agentcms-sitemaps", name: "Sitemaps", version: "1.0.0" },
+  { id: "agentcms-rss", name: "RSS", version: "1.0.0" },
+  { id: "agentcms-archives", name: "Archives", version: "1.0.0" },
+  { id: "agentcms-search", name: "Search", version: "1.0.0" },
   // External-source plugins that we still bundle into the admin
   // distribution so a fresh install ships with them pre-installed.
   // `srcDir` is resolved relative to repo root; absent → falls back
   // to src/plugins/<id>/.
   {
-    id: "flexweg-multilang",
+    id: "agentcms-multilang",
     name: "Multi-language",
     version: "1.6.2",
-    srcDir: "external/plugins/flexweg-multilang/src",
+    srcDir: "external/plugins/agentcms-multilang/src",
   },
 ];
 
@@ -79,7 +79,7 @@ const THEMES = [
   { id: "portfolio", name: "Portfolio", version: "0.1.0" },
   // External-source theme — bundled into the admin distribution so a
   // fresh install ships with it pre-installed. Same convention as
-  // `flexweg-multilang` above: `srcDir` is resolved relative to the
+  // `agentcms-multilang` above: `srcDir` is resolved relative to the
   // repo root.
   {
     id: "marketplace-core",
@@ -120,7 +120,7 @@ async function buildOneEntry(kind, meta, srcDir, distOutDir) {
     plugins: [react()],
     resolve: {
       alias: {
-        "@flexweg/cms-runtime": resolve(root, "src/core/flexwegRuntime.ts"),
+        "@agent-cms/runtime": resolve(root, "src/core/cmsRuntime.ts"),
       },
     },
     // Replace `process.env.NODE_ENV` at build time. Vite's lib mode
@@ -165,7 +165,7 @@ async function buildOneEntry(kind, meta, srcDir, distOutDir) {
     id: meta.id,
     name: meta.name,
     version: meta.version,
-    apiVersion: FLEXWEG_API_VERSION,
+    apiVersion: CMS_API_VERSION,
     entry: "bundle.js",
   };
   writeFileSync(
@@ -209,7 +209,7 @@ async function buildOneEntry(kind, meta, srcDir, distOutDir) {
 //
 // We deliberately DO NOT write dist/admin/external.json — the runtime
 // registry now lives in Firestore (settings/externalRegistry), so
-// dropping a fresh dist/admin/ on Flexweg never overwrites user state.
+// redeploying a fresh dist/admin/ never overwrites user state.
 // On a fresh boot the store reads from Firestore first; if that's
 // empty it migrates from the legacy on-disk external.json (older
 // deployments) and otherwise seeds itself from external.default.json.
@@ -218,13 +218,13 @@ function writeExternalManifests() {
     plugins: PLUGINS.map((m) => ({
       id: m.id,
       version: m.version,
-      apiVersion: FLEXWEG_API_VERSION,
+      apiVersion: CMS_API_VERSION,
       entryPath: `plugins/${m.id}/bundle.js`,
     })),
     themes: THEMES.map((m) => ({
       id: m.id,
       version: m.version,
-      apiVersion: FLEXWEG_API_VERSION,
+      apiVersion: CMS_API_VERSION,
       entryPath: `themes/${m.id}/bundle.js`,
     })),
   };

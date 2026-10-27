@@ -1,6 +1,6 @@
-import { deleteFile, uploadFile } from "./flexwegApi";
+import { deleteFile, uploadFile } from "./siteFiles";
 
-// Path on Flexweg of the active theme's logo. Stable across uploads —
+// Site path of the active theme's logo. Stable across uploads —
 // cache busting happens via the `?v=<logoUpdatedAt>` query string the
 // publisher embeds in /data/menu.json's branding.logoUrl.
 export function logoPath(themeId: string): string {
@@ -73,7 +73,7 @@ function blobToBase64(blob: Blob): Promise<string> {
 }
 
 // Uploads a resized logo to /theme-assets/<themeId>-logo.webp on
-// Flexweg. The caller persists `{ logoEnabled: true, logoUpdatedAt }`
+// the site. The caller persists `{ logoEnabled: true, logoUpdatedAt }`
 // in the theme config so the publisher can build a cache-busted URL
 // for /data/menu.json's branding block on the next republish.
 export async function uploadThemeLogo(args: {

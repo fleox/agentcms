@@ -1,8 +1,7 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { ADMIN_MANIFEST, missingIndexReferences, type AdminManifest } from "../../src/services/adminDeploy";
-import { buildConfigJsSource, type FlexwegRuntimeConfig } from "../../src/lib/runtimeConfig";
-import { createFilesApiConnector } from "../../src/services/storage/connectors/flexweg";
+import { buildConfigJsSource, type CmsRuntimeConfig } from "../../src/lib/runtimeConfig";
 import { instantiateStorageConnector } from "../../src/services/storage/registry";
 import type { PublishTarget } from "../../src/services/storage/target";
 import type { BatchOp, StorageConnector } from "../../src/services/storage/types";
@@ -16,16 +15,6 @@ import { cleanFolder } from "./plan";
 // hosts, so a whole admin update triggers a single Pages build.
 
 export function hostingConnector(target: PublishTarget): StorageConnector {
-  if (target.connectorId === "flexweg") {
-    // The admin's Flexweg connector reads its key from the data store;
-    // here the credentials come from the CLI's own store.
-    const s = target.settings as { apiKey?: string; siteUrl?: string; apiBaseUrl?: string };
-    return createFilesApiConnector("flexweg", async () => ({
-      apiKey: s.apiKey ?? "",
-      siteUrl: s.siteUrl ?? "",
-      apiBaseUrl: s.apiBaseUrl || "https://www.flexweg.com/api/v1",
-    }));
-  }
   return instantiateStorageConnector(target.connectorId, target.settings);
 }
 
@@ -47,7 +36,7 @@ export function readLocalAdminManifest(): AdminManifest {
 
 // The admin's files + its manifest + a config.js for this site, under
 // `<folder>/`. index.html comes last for hosts that apply ops one by one.
-export function adminOps(folder: string, runtime: FlexwegRuntimeConfig): { ops: BatchOp[]; manifest: AdminManifest } {
+export function adminOps(folder: string, runtime: CmsRuntimeConfig): { ops: BatchOp[]; manifest: AdminManifest } {
   const dir = cleanFolder(folder);
   const root = join(distRoot(), "admin");
   const manifest = readLocalAdminManifest();

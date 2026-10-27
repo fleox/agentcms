@@ -16,7 +16,7 @@ import {
   renameFile,
   uploadFile,
   withStorageBatch,
-} from "../flexwegApi";
+} from "../siteFiles";
 import { invalidateActiveStorageConnector, registerStorageConnector } from "./registry";
 import { flushImplicitBatch, pendingImplicitBatch } from "./batch";
 import type { BatchOp, ListItem, StorageConnector } from "./types";
@@ -27,7 +27,6 @@ const NO_CAPS = {
   renameFolder: false,
   folders: false,
   deletePrefix: false,
-  storageLimits: false,
 };
 
 // In-memory target. `commit` model when withCommit is true.
@@ -76,17 +75,17 @@ beforeEach(() => {
 });
 
 describe("active connector resolution", () => {
-  it("defaults to Flexweg when no storage config exists", async () => {
+  it("defaults to the ZIP mirror when no storage config exists", async () => {
     storageConfig.getStorageConfig.mockResolvedValue(null);
     const caps = await getStorageCapabilities();
-    expect(caps.connectorId).toBe("flexweg");
+    expect(caps.connectorId).toBe("browser-mirror");
     expect(caps.model).toBe("files");
   });
 
-  it("defaults to Flexweg when the storage config can't be read", async () => {
+  it("defaults to the ZIP mirror when the storage config can't be read", async () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
     storageConfig.getStorageConfig.mockRejectedValue(new Error("permission-denied"));
-    expect((await getStorageCapabilities()).connectorId).toBe("flexweg");
+    expect((await getStorageCapabilities()).connectorId).toBe("browser-mirror");
   });
 
   it("rejects an unknown connector id", async () => {

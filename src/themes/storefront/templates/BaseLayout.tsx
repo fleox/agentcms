@@ -1,4 +1,4 @@
-import { canonicalUrl, type BaseLayoutProps } from "@flexweg/cms-runtime";
+import { canonicalUrl, type BaseLayoutProps } from "@agent-cms/runtime";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import type { StorefrontThemeConfig } from "../config";

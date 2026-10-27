@@ -1,5 +1,5 @@
-import type { SiteContext } from "@flexweg/cms-runtime";
-import { i18n, pickPublicLocale } from "@flexweg/cms-runtime";
+import type { SiteContext } from "@agent-cms/runtime";
+import { i18n, pickPublicLocale } from "@agent-cms/runtime";
 import type { StorefrontThemeConfig } from "../config";
 import { DEFAULT_STOREFRONT_CONFIG } from "../config";
 

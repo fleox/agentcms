@@ -1,4 +1,4 @@
-import type { ThemeManifest } from "@flexweg/cms-runtime";
+import type { ThemeManifest } from "@agent-cms/runtime";
 import { BaseLayout } from "./templates/BaseLayout";
 import { HomeTemplate } from "./templates/HomeTemplate";
 import { SingleTemplate } from "./templates/SingleTemplate";
@@ -39,7 +39,7 @@ import type {
   MenuJson,
   PublishContext,
   ResolvedMenuItem,
-} from "@flexweg/cms-runtime";
+} from "@agent-cms/runtime";
 
 // Extra runtime asset registered on the manifest so the build script
 // (scripts/build-themes.mjs) writes it to the public theme-assets
@@ -140,7 +140,7 @@ export const manifest: ManifestWithCatalogJs = {
     // Catalog feature — when enabled in theme settings, regenerate
     // /data/products.json + the catalog HTML page on every
     // publish/unpublish/delete. Best-effort: failures are logged and
-    // toasted via flexwegApi but never abort the parent publish.
+    // toasted via siteFiles but never abort the parent publish.
     const onCatalogTouch = (_post: unknown, ...rest: unknown[]) => {
       const pubCtx = rest[0] as PublishContext | undefined;
       if (!pubCtx) return;
@@ -178,7 +178,7 @@ export const manifest: ManifestWithCatalogJs = {
     }
 
     // Menu auto-link — when catalog.addToMenu is on, append a header
-    // entry pointing at the catalog slug. Same pattern flexweg-rss
+    // entry pointing at the catalog slug. Same pattern agentcms-rss
     // uses for footer feed entries. Skipped silently when the
     // active theme isn't storefront (the filter still fires for
     // every theme).

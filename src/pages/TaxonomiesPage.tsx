@@ -152,7 +152,7 @@ function TermRow({ term, terms }: { term: Term; terms: Term[] }) {
   const [expanded, setExpanded] = useState(false);
   const [seoModalOpen, setSeoModalOpen] = useState(false);
   // In-memory patches contributed by plugin-registered term editor
-  // sections (e.g. flexweg-multilang's per-language fields). The host
+  // sections (e.g. agentcms-multilang's per-language fields). The host
   // merges them with the standard name + slug fields on save.
   const [pluginPatch, setPluginPatch] = useState<Partial<Term>>({});
   const dirty =
@@ -281,7 +281,7 @@ function TermRow({ term, terms }: { term: Term; terms: Term[] }) {
 // description when left blank. Saves directly through `updateTerm`
 // without going through the row's pluginPatch state.
 //
-// Per-language SEO overrides are owned by the flexweg-multilang
+// Per-language SEO overrides are owned by the agentcms-multilang
 // plugin, surfaced through its `TermTranslationsSection` rendered
 // inline below the row (expand chevron). Keeping the modal scoped
 // to the primary language keeps the core decoupled from any

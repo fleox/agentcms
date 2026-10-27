@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // Patch-up after rewrite-theme-imports.mjs. The themes used to do
 // `import i18n, { pickPublicLocale } from "../../../i18n"`. Generic
-// rewrite mapped the path to "@flexweg/cms-runtime" but kept the
+// rewrite mapped the path to "@agent-cms/runtime" but kept the
 // default-import form for `i18n`, which now collides with the runtime
-// module's default export (the FlexwegRuntime object). The runtime
+// module's default export (the CmsRuntime object). The runtime
 // exposes `i18n` as a NAMED export, so we move it into the named
 // destructure.
 
@@ -19,17 +19,17 @@ const TARGETS = [
   resolve(root, "src/themes/portfolio"),
 ];
 
-// Match: import i18n[, { ... }] from "@flexweg/cms-runtime"
+// Match: import i18n[, { ... }] from "@agent-cms/runtime"
 //   group 1: empty or `, { existing names }`
-const RE = /import i18n(?:,\s*\{\s*([^}]*?)\s*\})?\s+from\s+"@flexweg\/cms-runtime"/g;
+const RE = /import i18n(?:,\s*\{\s*([^}]*?)\s*\})?\s+from\s+"@agent-cms\/runtime"/g;
 
 function patchFile(path) {
   const before = readFileSync(path, "utf8");
   const after = before.replace(RE, (_match, named) => {
     const trimmed = (named ?? "").trim().replace(/,$/, "").trim();
     return trimmed
-      ? `import { i18n, ${trimmed} } from "@flexweg/cms-runtime"`
-      : `import { i18n } from "@flexweg/cms-runtime"`;
+      ? `import { i18n, ${trimmed} } from "@agent-cms/runtime"`
+      : `import { i18n } from "@agent-cms/runtime"`;
   });
   if (before === after) return false;
   writeFileSync(path, after);

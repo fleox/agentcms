@@ -1,6 +1,6 @@
 import { HOSTING_OPTIONS } from "../../src/components/connectors/hostingOptions";
 import { splitSecrets } from "../../src/services/docstore/markdownLayout";
-import type { FlexwegRuntimeConfig, MarkdownGitRuntimeConfig } from "../../src/lib/runtimeConfig";
+import type { CmsRuntimeConfig, MarkdownGitRuntimeConfig } from "../../src/lib/runtimeConfig";
 import { defaultSqliteLocation, SQLITE_DATA_BRANCH } from "../../src/services/docstore/sqliteLocation";
 import { missingFields } from "../../src/services/storage/testConnection";
 import type { PublishTarget } from "../../src/services/storage/target";
@@ -43,7 +43,7 @@ export interface ResolvedPlan {
   alias: string;
   backend: "markdown-git" | "sqlite-file";
   // config.js content — no secrets.
-  runtime: FlexwegRuntimeConfig;
+  runtime: CmsRuntimeConfig;
   // Per-browser secrets the stores read from localStorage.
   gitToken?: string;
   sqliteSecrets?: Record<string, unknown>;
@@ -163,7 +163,7 @@ export function resolvePlan(plan: InstallPlan): ResolvedPlan {
     settings: Object.fromEntries(Object.entries(splitSecrets(t.settings).clean).filter(([k]) => k !== "accessKeyId")),
   });
 
-  let runtime: FlexwegRuntimeConfig;
+  let runtime: CmsRuntimeConfig;
   let sqliteSecrets: Record<string, unknown> | undefined;
   let dataLocation: PublishTarget | undefined;
   let dataLocationType: string | undefined;

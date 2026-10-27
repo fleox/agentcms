@@ -3,7 +3,7 @@
 // can't). The permission grant itself does NOT survive a reload — call
 // ensureFolderPermission(handle, true) from a click to re-grant.
 
-const DB_NAME = "flexweg-folder-handles";
+const DB_NAME = "agentcms-folder-handles";
 const STORE = "handles";
 
 function openDb(): Promise<IDBDatabase> {

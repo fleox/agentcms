@@ -1,4 +1,4 @@
-import { canonicalUrl, type BaseLayoutProps } from "@flexweg/cms-runtime";
+import { canonicalUrl, type BaseLayoutProps } from "@agent-cms/runtime";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import type { CorporateThemeConfig } from "../config";
@@ -62,7 +62,7 @@ export function BaseLayout({
         <Header site={site} />
         <main className="pt-20">{children}</main>
         <Footer site={site} />
-        {/* Floating search FAB — paired with the flexweg-search
+        {/* Floating search FAB — paired with the agentcms-search
             plugin, which scans `[data-cms-search]` triggers and opens
             its modal on click. When the plugin is disabled the
             button renders inert (no-op click); admins can hide it

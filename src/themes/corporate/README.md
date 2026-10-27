@@ -136,7 +136,7 @@ Stores everything under `settings.themeConfigs.corporate` in Firestore.
 
 The header has a `[data-cms-search]` button (the burger overlay can
 hide it via CSS when needed) and the BaseLayout renders a circular
-search FAB at the bottom-right. The optional **flexweg-search**
+search FAB at the bottom-right. The optional **agentcms-search**
 plugin wires both at runtime when enabled. They render inert when
 the plugin is off.
 

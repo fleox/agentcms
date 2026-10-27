@@ -1,19 +1,19 @@
 // Backend-agnostic registry of installed external plugins / themes.
 //
-// This used to live in /admin/external.json on Flexweg, which made
+// This used to live in /admin/external.json on the site, which made
 // re-deploys risky — overwriting the file would wipe the admin's
 // uninstall state. Moving the runtime registry to the active backend's
-// data store (Firestore in Firebase mode, SQLite `config` table in
-// SQLite mode) makes the dist/admin/ folder fully re-deployable; only
+// data store (Firestore in Firebase mode, the `config` collection of
+// the document store otherwise) makes the dist/admin/ folder fully re-deployable; only
 // the backend holds what's actually loaded.
 //
 // Storage layout:
-//   Backend (Firestore doc OR SQLite config row)  ← mutable, user state
-//   /admin/external.default.json                  ← Flexweg file (immutable, built-in baseline)
-//   /admin/external.json (legacy)                  ← Flexweg file (one-time migration source)
+//   Backend (Firestore doc OR doc-store config)    ← mutable, user state
+//   /admin/external.default.json                  ← site file (immutable, built-in baseline)
+//   /admin/external.json (legacy)                  ← site file (one-time migration source)
 //
 // Read precedence on a cold boot:
-//   1. Backend (Firestore/SQLite) — happy path
+//   1. Backend (Firestore / doc store) — happy path
 //   2. Legacy file (pre-Firestore deployments only) — migrates on read
 //   3. Defaults file (fresh install) — seeds the backend
 // On a fallback to (2) or (3), the result is materialised back into
@@ -26,35 +26,34 @@
 
 import { getBackendKind, isDocStoreBackend } from "../lib/runtimeConfig";
 import * as firebaseStore from "./firebase/externalRegistryStore";
-import * as sqliteStore from "./flexweg-sqlite/externalRegistryStore";
 import * as docstoreStore from "./docstore/externalRegistryStore";
 import {
   EMPTY_EXTERNAL_MANIFEST,
   type ExternalManifest,
 } from "./externalRegistry";
 
-// Flexweg paths still relevant to the registry layer:
+// Site paths still relevant to the registry layer:
 // - external.default.json: build-time baseline shipped with the admin
 //   (used by the "Reinstall bundled defaults" UI and the fresh-install
 //   bootstrap path).
-// - external.json: legacy registry on Flexweg, used as a one-time
+// - external.json: legacy registry on the site, used as a one-time
 //   migration source for installs that pre-date the Firestore move.
 export const DEFAULT_MANIFEST_PATH = "admin/external.default.json";
 export const LEGACY_MANIFEST_PATH = "admin/external.json";
 
 // Browser-relative paths for fetching from the document. The loader
-// hits these via `fetch()` so it doesn't need the Flexweg API key (the
+// hits these via `fetch()` so it doesn't need publish credentials (the
 // files are public). Used in the read fallback chain.
 const DEFAULT_MANIFEST_BROWSER_PATH = "external.default.json";
 const LEGACY_MANIFEST_BROWSER_PATH = "external.json";
 
 // ─── Backend dispatcher (storage primitives) ─────────────────────────
 
-let _impl: typeof firebaseStore | typeof sqliteStore | typeof docstoreStore | null = null;
+let _impl: typeof firebaseStore | typeof docstoreStore | null = null;
 function impl(): typeof firebaseStore {
   if (!_impl) {
     const kind = getBackendKind();
-    _impl = kind === "flexweg-sqlite" ? sqliteStore : isDocStoreBackend(kind) ? docstoreStore : firebaseStore;
+    _impl = isDocStoreBackend(kind) ? docstoreStore : firebaseStore;
   }
   return _impl as typeof firebaseStore;
 }
@@ -79,7 +78,7 @@ function normaliseManifest(value: unknown): ExternalManifest | null {
 
 // Same fetch pattern as externalLoader's old fetchExternalManifest:
 // relative URL, no-store, JSON parse. Used to read the legacy and
-// default JSON files on Flexweg via the document base URL.
+// default JSON files on the site via the document base URL.
 async function fetchManifestFile(
   relativePath: string,
 ): Promise<ExternalManifest | null> {

@@ -3,9 +3,9 @@ import { mediaToView, pickFormat } from "../core/media";
 import { markdownToPlainText } from "../core/markdown";
 import { postSortMillis } from "../core/postSort";
 import type { Media, Post, SiteSettings, Term } from "../core/types";
-import { uploadFile } from "./flexwegApi";
+import { uploadFile } from "./siteFiles";
 
-// Path on Flexweg of the public-side posts feed. Grouped under `data/`
+// Site path of the public-side posts feed. Grouped under `data/`
 // alongside menu.json + authors.json so the public-site root stays
 // uncluttered. Absolute fetches still work from any folder depth.
 export const POSTS_JSON_PATH = "data/posts.json";
@@ -146,7 +146,7 @@ export function buildPostsJson(
 // Resolves the current state into a JSON file uploaded at /posts.json.
 // Called as a tail-step of every publish/unpublish/delete by
 // `publisher.republishPostsJson`. Best-effort: failures are swallowed
-// (the underlying flexwegApi call already toasts the user-facing
+// (the underlying siteFiles call already toasts the user-facing
 // error) to avoid aborting the surrounding publish flow.
 //
 // `pathOverride` lets plugins (e.g. multilang) publish per-language

@@ -1,5 +1,5 @@
 import { jsxs as b, Fragment as Gr, jsx as u } from "react/jsx-runtime";
-import { i18n as $e, pickPublicLocale as Ue, canonicalUrl as qr, pickFormat as he, uploadFile as Kr, useCmsData as Yr, logoPath as Xr, FontSelect as tn, toast as R, uploadThemeLogo as Qr, removeThemeLogo as Zr, fetchAllPosts as nn, publishMenuJson as ei } from "@flexweg/cms-runtime";
+import { i18n as $e, pickPublicLocale as Ue, canonicalUrl as qr, pickFormat as he, uploadFile as Kr, useCmsData as Yr, logoPath as Xr, FontSelect as tn, toast as R, uploadThemeLogo as Qr, removeThemeLogo as Zr, fetchAllPosts as nn, publishMenuJson as ei } from "@agent-cms/runtime";
 import L, { forwardRef as Bt, createElement as Qe, useState as D, useRef as ti, createRef as ni, memo as ri, createContext as Dn, version as rn, useContext as ii } from "react";
 import { useTranslation as V } from "react-i18next";
 import oi, { flushSync as si } from "react-dom";

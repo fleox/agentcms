@@ -1,6 +1,6 @@
 import { closeSync, existsSync, mkdirSync, openSync, readFileSync, unlinkSync, writeSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import type { FlexwegRuntimeConfig } from "../src/lib/runtimeConfig";
+import type { CmsRuntimeConfig } from "../src/lib/runtimeConfig";
 import { homePath, readJsonFile, writeJsonFile } from "./home";
 import { CliError } from "./output";
 
@@ -16,7 +16,7 @@ export interface SiteRecord {
   // Folder of the admin on the hosting ("admin"), null when not hosted.
   adminFolder: string | null;
   // What config.js holds (backend + non-secret settings).
-  runtime: FlexwegRuntimeConfig;
+  runtime: CmsRuntimeConfig;
   // Publish target, secret fields stripped.
   hosting: { connectorId: string; settings: Record<string, unknown> };
   // Account ids: content / data location, hosting, SQLite passphrase.

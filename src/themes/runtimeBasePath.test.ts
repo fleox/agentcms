@@ -1,5 +1,5 @@
 // Behavioural tests for the base-path handling of the public runtime
-// scripts (theme loaders + flexweg-search). Each script is evaluated
+// scripts (theme loaders + agentcms-search). Each script is evaluated
 // in a jsdom window, with or without the `x-cms-base` meta, against a
 // stubbed fetch — we assert the fetched URLs and the rendered hrefs.
 import { readFileSync } from "node:fs";
@@ -183,7 +183,7 @@ describe("storefront catalog-loader + search runtime base path", () => {
   });
 
   it("search runtime resolves the index URL under the base", async () => {
-    const src = load("src/plugins/flexweg-search/search-runtime.js");
+    const src = load("src/plugins/agentcms-search/search-runtime.js");
     const { doc, fetched } = await run({
       script: src,
       url: "https://u.github.io/repo/",

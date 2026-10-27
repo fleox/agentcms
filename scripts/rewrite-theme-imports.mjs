@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // One-shot helper that rewrites theme files' internal imports to use
-// "@flexweg/cms-runtime". Exists to convert the magazine + corporate
+// "@agent-cms/runtime". Exists to convert the magazine + corporate
 // in-tree themes into externally-buildable bundles in a single pass —
 // otherwise each theme has 20-30 files to edit by hand. Idempotent:
 // running twice is a no-op once everything has been rewritten.
@@ -12,7 +12,7 @@
 // `../components/Header`) are left untouched.
 //
 // After running, re-run `npm run typecheck` — any unmapped symbol will
-// surface there. The runtime API surface lives in src/core/flexwegRuntime.ts.
+// surface there. The runtime API surface lives in src/core/cmsRuntime.ts.
 
 import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
 import { resolve, join, dirname } from "node:path";
@@ -42,7 +42,7 @@ const RUNTIME_BASES = [
 ];
 
 // Pattern for a relative import that points OUT of the theme folder
-// into admin-internal modules covered by @flexweg/cms-runtime. Matches
+// into admin-internal modules covered by @agent-cms/runtime. Matches
 // any depth of `../`, then one of the runtime bases. Captures the
 // portion after `from "` so the replacement keeps surrounding quotes.
 const INTERNAL_IMPORT_RE = new RegExp(
@@ -56,7 +56,7 @@ const INTERNAL_IMPORT_RE = new RegExp(
 // sibling theme files like `../themes/types/SomethingElse`.
 const THEME_TYPES_IMPORT_RE = /(from\s+["'])(?:\.\.\/)+types(["'])/g;
 
-// Replace `../default/logo` with `@flexweg/cms-runtime` (logoPath +
+// Replace `../default/logo` with `@agent-cms/runtime` (logoPath +
 // uploadThemeLogo + removeThemeLogo are exposed there now). Cross-theme
 // imports were the only legitimate use of this pattern.
 const DEFAULT_LOGO_IMPORT_RE = /(from\s+["'])\.\.\/default\/logo(["'])/g;
@@ -64,9 +64,9 @@ const DEFAULT_LOGO_IMPORT_RE = /(from\s+["'])\.\.\/default\/logo(["'])/g;
 function rewriteFile(path) {
   const before = readFileSync(path, "utf8");
   let after = before;
-  after = after.replace(INTERNAL_IMPORT_RE, '$1@flexweg/cms-runtime$3');
-  after = after.replace(THEME_TYPES_IMPORT_RE, '$1@flexweg/cms-runtime$2');
-  after = after.replace(DEFAULT_LOGO_IMPORT_RE, '$1@flexweg/cms-runtime$2');
+  after = after.replace(INTERNAL_IMPORT_RE, '$1@agent-cms/runtime$3');
+  after = after.replace(THEME_TYPES_IMPORT_RE, '$1@agent-cms/runtime$2');
+  after = after.replace(DEFAULT_LOGO_IMPORT_RE, '$1@agent-cms/runtime$2');
   if (before === after) return false;
   writeFileSync(path, after);
   return true;

@@ -1,5 +1,5 @@
-import type { AuthorTemplateProps, SiteContext } from "@flexweg/cms-runtime";
-import { i18n, pickFormat, pickPublicLocale } from "@flexweg/cms-runtime";
+import type { AuthorTemplateProps, SiteContext } from "@agent-cms/runtime";
+import { i18n, pickFormat, pickPublicLocale } from "@agent-cms/runtime";
 import { ProjectCard } from "../components/ProjectCard";
 import type { PortfolioThemeConfig } from "../config";
 import { DEFAULT_PORTFOLIO_AUTHOR } from "../config";

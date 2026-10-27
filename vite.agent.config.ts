@@ -40,7 +40,7 @@ export default defineConfig({
     alias: [
       // Exact match only: "sql.js/dist/sql-wasm.wasm?url" stays as is.
       { find: /^sql\.js$/, replacement: fileURLToPath(new URL("./agent/vendor/sqljs.ts", import.meta.url)) },
-      { find: "@flexweg/cms-runtime", replacement: fileURLToPath(new URL("./src/core/flexwegRuntime.ts", import.meta.url)) },
+      { find: "@agent-cms/runtime", replacement: fileURLToPath(new URL("./src/core/cmsRuntime.ts", import.meta.url)) },
     ],
   },
   ssr: {

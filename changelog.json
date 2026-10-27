@@ -2,6 +2,22 @@
   "$comment": "Newest first. Read by agents (agentcms status) to tell users what changed and what to run. `breaking`: an older admin, skill or site setup stops working without action. `actions`: steps a hosted site needs after updating — deploy-admin, regenerate-all, sync-theme-assets. Keep every entry in English.",
   "versions": [
     {
+      "version": "0.2.0",
+      "date": "2026-10-27",
+      "breaking": true,
+      "changes": [
+        "Flexweg support removed: the Flexweg SQLite data backend, the Flexweg hosting, the PHP bridge (own server) and the dashboard storage card are gone. Data: SQLite file, Markdown in git, Firebase or this browser. Hosting: GitHub/GitLab/Cloudflare Pages, S3-compatible buckets, local folder or ZIP.",
+        "Internal names no longer mention Flexweg: plugins are agentcms-* (agentcms-sitemaps, agentcms-rss, …), external bundles import @agent-cms/runtime (CMS_API_VERSION), config.js sets window.__AGENTCMS_CONFIG__, browser keys start with agentcms. FlexwegApiError and getStorageLimits are removed from the runtime API.",
+        "New AgentCMS logo and admin favicon.",
+        "Sites and external plugins/themes made with 0.1.x must be reinstalled (or rebuilt against @agent-cms/runtime): their config.js, plugin settings and browser keys use the old names."
+      ],
+      "actions": [
+        "deploy-admin",
+        "sync-theme-assets",
+        "regenerate-all"
+      ]
+    },
+    {
       "version": "0.1.1",
       "date": "2026-10-23",
       "breaking": false,

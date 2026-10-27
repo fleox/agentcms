@@ -2,19 +2,19 @@
 //
 // "Install" expects a ZIP whose root contains a manifest.json + bundle.js.
 // We extract client-side via JSZip, validate, upload every file to
-// /admin/<type>/<id>/* via flexwegApi, and update /admin/external.json
+// /admin/<type>/<id>/* via siteFiles, and update /admin/external.json
 // to reference the new entry. A subsequent reload picks the new entry
 // up via externalLoader.
 //
-// "Uninstall" deletes the folder on Flexweg, removes the entry from
+// "Uninstall" deletes the folder on the site, removes the entry from
 // external.json, and unregisters from the in-memory list. The user can
 // re-install with a fresh ZIP without restarting the admin.
 //
-// All Flexweg API calls go through services/flexwegApi.ts so errors are
+// All publish-target calls go through services/siteFiles.ts so errors are
 // funneled through the standard toast UX.
 
 import JSZip from "jszip";
-import { deleteFolder, uploadFile } from "./flexwegApi";
+import { deleteFolder, uploadFile } from "./siteFiles";
 import {
   unregisterExternalPlugin,
   unregisterExternalTheme,
@@ -27,9 +27,9 @@ import {
   readDefaults,
 } from "./externalRegistryStore";
 import {
-  FLEXWEG_API_MIN_VERSION,
-  FLEXWEG_API_VERSION,
-} from "../core/flexwegRuntime";
+  CMS_API_MIN_VERSION,
+  CMS_API_VERSION,
+} from "../core/cmsRuntime";
 import { withAdminBase } from "../lib/adminBase";
 
 export type ExternalKind = "plugins" | "themes";
@@ -96,18 +96,18 @@ function compareVersions(a: string, b: string): number {
 
 function isCompatibleApi(version: string): boolean {
   return (
-    compareVersions(version, FLEXWEG_API_MIN_VERSION) >= 0 &&
-    compareVersions(version, FLEXWEG_API_VERSION) <= 0
+    compareVersions(version, CMS_API_MIN_VERSION) >= 0 &&
+    compareVersions(version, CMS_API_VERSION) <= 0
   );
 }
 
 // Slugifies the bundle id so a malicious or typo'd manifest can't
-// escape into other Flexweg paths via "../" tricks.
+// escape into other site paths via "../" tricks.
 function safeId(id: string): string {
   return id.replace(/[^a-z0-9-]/gi, "").toLowerCase();
 }
 
-// Flexweg API paths are absolute from the site root. The admin SPA
+// Publish-target paths are absolute from the site root. The admin SPA
 // lives under a folder on the site (conventionally /admin/, but the
 // user can rename it for obscurity). Plugin / theme files and the
 // external.json manifest must be uploaded to `<adminFolder>/<rest>`
@@ -137,7 +137,7 @@ async function writeManifest(manifest: ExternalManifest): Promise<void> {
   await writeRegistry(manifest);
 }
 
-// base64-encodes an ArrayBuffer for use with flexwegApi's base64 upload.
+// base64-encodes an ArrayBuffer for use with siteFiles's base64 upload.
 // Used for binary files (images, fonts, etc.) shipped inside a bundle ZIP.
 function arrayBufferToBase64(buf: ArrayBuffer): string {
   let binary = "";
@@ -167,7 +167,7 @@ function isTextFile(path: string): boolean {
 // Installs a bundle from a ZIP file. Steps:
 //   1. Unzip in-memory
 //   2. Read + validate manifest.json (presence, shape, apiVersion)
-//   3. Upload every file under <kind>/<id>/ on Flexweg
+//   3. Upload every file under <kind>/<id>/ on the site
 //   4. Update external.json adding the new entry
 //
 // Returns the parsed manifest so callers can show a confirmation toast.
@@ -233,7 +233,7 @@ export async function installFromZip(
 
   if (!isCompatibleApi(manifest.apiVersion)) {
     throw new ExternalUploadError(
-      `bundle apiVersion ${manifest.apiVersion} is incompatible — admin supports [${FLEXWEG_API_MIN_VERSION}, ${FLEXWEG_API_VERSION}]`,
+      `bundle apiVersion ${manifest.apiVersion} is incompatible — admin supports [${CMS_API_MIN_VERSION}, ${CMS_API_VERSION}]`,
       "incompatible-api",
     );
   }
@@ -274,7 +274,7 @@ export async function installFromZip(
   // Upload every non-directory file in the (possibly prefixed) ZIP to
   // admin/<kind>/<id>/<relative-path>. The admin/ prefix is required —
   // the runtime loader fetches the bundle via a URL relative to
-  // /admin/index.html, so the file MUST land under /admin/ on Flexweg.
+  // /admin/index.html, so the file MUST land under /admin/ on the site.
   const baseRemote = adminPath(`${kind}/${manifest.id}/`);
   const fileEntries: Array<{ remotePath: string; entry: JSZip.JSZipObject }> = [];
   zip.forEach((relativePath, entry) => {
@@ -332,7 +332,7 @@ export async function installFromZip(
   };
 }
 
-// Uninstalls an external entry. Deletes the folder on Flexweg, drops
+// Uninstalls an external entry. Deletes the folder on the site, drops
 // the entry from external.json, and unregisters from the in-memory
 // list. The admin keeps running with the residual filters/blocks/cards
 // the bundle registered until the next reload — full cleanup requires
@@ -393,7 +393,7 @@ export async function listMissingBundledDefaults(): Promise<{
 // nothing was missing. Does NOT touch entries the user installed via
 // the upload UI; those stay regardless.
 //
-// The bundle files for the restored defaults are already on Flexweg
+// The bundle files for the restored defaults are already on the site
 // from the most recent admin deploy (they live under
 // admin/<kind>/<id>/ on the published site). We only update
 // external.json so the runtime loader picks them up again on the

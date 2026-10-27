@@ -38,8 +38,8 @@ The blocks decode at publish time via the `post.html.body` filter (transforms.ts
 ## Running the import
 
 1. Activate the **Portfolio** theme in `/admin/#/themes`
-2. Enable **Flexweg Import** in `/admin/#/plugins`
-3. `/admin/#/settings/plugin/flexweg-import` → mode **Drag and drop**
+2. Enable the **Import** plugin (`agentcms-import`) in `/admin/#/plugins`
+3. `/admin/#/settings/plugin/agentcms-import` → mode **Drag and drop**
 4. Drop the entire `portfolio-archive/` folder (with `images/`)
 5. **Scan** → 6 posts + 3 pages, 6 categories, ~12 tags, 8 images
 6. **Confirm import** — posts created as drafts

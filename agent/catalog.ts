@@ -176,27 +176,6 @@ export const HOSTINGS: HostingSpec[] = [
     ],
   },
   {
-    id: "flexweg",
-    connectorId: "flexweg",
-    summary: "Flexweg static hosting.",
-    cli: true,
-    fields: [SITE_URL, { key: "apiBaseUrl", required: false, description: "Flexweg API URL.", default: "https://www.flexweg.com/api/v1" }],
-    credentialTypes: ["flexweg"],
-    notes: [],
-  },
-  {
-    id: "own-server",
-    connectorId: "php-bridge",
-    summary: "Advanced — your own PHP server through the bridge script in external/bridges/php/ (not a static host; prefer a static hosting).",
-    cli: true,
-    fields: [
-      { key: "apiBaseUrl", required: true, description: "URL of flexweg-bridge.php.", example: "https://example.com/cms-bridge/flexweg-bridge.php" },
-      SITE_URL,
-    ],
-    credentialTypes: ["php-bridge"],
-    notes: [],
-  },
-  {
     id: "local-folder",
     connectorId: "local-folder",
     summary: "A folder on this computer (browser File System Access).",

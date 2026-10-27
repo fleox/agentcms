@@ -10,7 +10,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { collections, getDb } from "../firebaseClient";
-import { deleteFile, deleteFolder, publicUrlFor, uploadFile } from "../flexwegApi";
+import { deleteFile, deleteFolder, publicUrlFor, uploadFile } from "../siteFiles";
 import { ADMIN_FORMATS } from "../imageFormats";
 import {
   blobToBase64,
@@ -109,7 +109,7 @@ function resolveImageFormatConfig(settings: SiteSettings | undefined): ImageForm
 // Pipeline:
 //   1. Validate extension against the theme's inputFormats (or a default).
 //   2. Decode + resize on the client into N blobs (one per variant).
-//   3. POST each variant to Flexweg under media/yyyy/mm/<slug>/<name>.<ext>.
+//   3. Upload each variant to the publish target under media/yyyy/mm/<slug>/<name>.<ext>.
 //   4. Persist the metadata in Firestore.
 //
 // Caller passes the SiteSettings so we can pick the active theme without
@@ -177,10 +177,10 @@ export async function updateMedia(
   await updateDoc(mediaDoc(id), update);
 }
 
-// Tries to wipe every Flexweg artifact tied to this asset, then drops the
+// Tries to wipe every published artifact tied to this asset, then drops the
 // Firestore doc. Order matters: even if the public-side cleanup fails, we
 // only want to leave the source-of-truth alive. A 404 on the delete call
-// is treated as success inside flexwegApi (already-gone == desired state).
+// is treated as success inside siteFiles (already-gone == desired state).
 export async function deleteMedia(media: Media): Promise<void> {
   try {
     if (media.storageBase) {
@@ -191,7 +191,7 @@ export async function deleteMedia(media: Media): Promise<void> {
       await deleteFile(media.storagePath);
     }
   } catch (err) {
-    console.warn("Flexweg media delete failed (continuing):", err);
+    console.warn("Media files delete failed (continuing):", err);
   }
   await deleteDoc(mediaDoc(media.id));
 }

@@ -220,7 +220,6 @@ export function createGitPagesConnector(settings: GitPagesSettings): StorageConn
       renameFolder: false,
       folders: false,
       deletePrefix: true,
-      storageLimits: false,
     },
 
     // Outside a batch every write is its own commit — correct, just noisy.

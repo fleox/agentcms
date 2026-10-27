@@ -35,7 +35,7 @@ Each marketplace listing (theme or plugin) is a regular CMS post:
 | `heroMediaId` | Main preview screenshot |
 | `primaryTermId` | Category — Themes / Plugins / E-commerce / Analytics / Auth / etc. |
 | `tags` | Topical tags |
-| `authorId` | Creator (Flexweg admin user) |
+| `authorId` | Creator (admin user) |
 | `contentMarkdown` | Description + 4 optional theme blocks |
 
 ### 4 theme blocks (embed in post body)
@@ -44,7 +44,7 @@ Each block is a `<div data-cms-block="marketplace-core/<id>" data-attrs="<base64
 
 - **`marketplace-core/header-buttons`** — Free badge + Download URL + Live Preview URL (right column of the single page hero)
 - **`marketplace-core/gallery`** — Thumbnail strip below the hero image, click to swap the main image
-- **`marketplace-core/specs`** — 2-column spec table (Version / License / Last Updated / Requires Flexweg ≥ …)
+- **`marketplace-core/specs`** — 2-column spec table (Version / License / Last Updated / Requires AgentCMS ≥ …)
 - **`marketplace-core/features`** — Bento of "Key Features" with icon + title + description per item
 
 Authoring tip: the easiest way to populate these is to import the companion content bundle (`demo-content/marketplace-core/`) and edit from the admin afterwards.

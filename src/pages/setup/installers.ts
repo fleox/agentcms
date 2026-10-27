@@ -1,23 +1,17 @@
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
-import { isRootDeployment } from "../../lib/adminBase";
 import {
   buildConfigJsSource,
   resetRuntimeConfigCache,
   saveLocalRuntimeConfig,
   type FirebaseRuntimeConfig,
-  type FlexwegRuntimeConfig,
+  type CmsRuntimeConfig,
   type MarkdownGitRuntimeConfig,
-  type SqliteRuntimeConfig,
 } from "../../lib/runtimeConfig";
-import { SetupApiError, testFlexwegConnection, uploadConfigJs, type SetupFlexwegConfig } from "../../lib/setupApi";
 import { getDocStore } from "../../services/docstore";
 import { LOCAL_CONTENT_HANDLE_KEY, setGitToken } from "../../services/docstore/gitStore";
 import { collections, configDocs, getAuthClient, getDb, initFirebaseFromSetup } from "../../services/firebaseClient";
-import { withStorageBatch } from "../../services/flexwegApi";
-import { installSqliteApp, SqliteApiError } from "../../services/flexweg-sqlite/client";
-import { ensureSchema } from "../../services/flexweg-sqlite/schema";
-import { loginUser, registerUser } from "../../services/flexweg-sqlite/userAuth";
+import { withStorageBatch } from "../../services/siteFiles";
 import { createRemoteGitTransport, joinRepoPath, loadFolderHandle } from "../../services/git";
 import { savePublishTarget, type PublishTarget } from "../../services/storage/target";
 import { instantiateStorageConnector } from "../../services/storage/registry";
@@ -41,16 +35,12 @@ import { adminUrlOn, currentAdminFolderOn, deployAdmin, uploadConfigJsTo } from 
 
 export type SetupErrorKind =
   | "missingFields"
-  | "rootDeployment"
   | "firebaseAuth"
   | "firebaseAuthInvalidCredential"
   | "wrongAdminEmail"
   | "rulesNotPinned"
-  | "flexwegAuth"
-  | "flexwegNetwork"
   | "firestoreRules"
   | "firestoreOther"
-  | "uploadFailed"
   | "generic";
 
 export class SetupError extends Error {
@@ -71,14 +61,9 @@ export interface SetupForm {
   storageBucket: string;
   messagingSenderId: string;
   appId: string;
-  // Admin account (Firebase sign-in or SQLite registration)
+  // Firebase admin account
   adminEmail: string;
   adminPassword: string;
-  // Flexweg account (SQLite backend)
-  flexwegApiKey: string;
-  flexwegSiteUrl: string;
-  flexwegApiBaseUrl: string;
-  sqlitePath: string;
 }
 
 export type GitContent = MarkdownGitRuntimeConfig["git"];
@@ -91,10 +76,10 @@ export interface Progress {
 type T = (key: string, opts?: Record<string, unknown>) => string;
 
 export interface InstallResult {
-  runtime: FlexwegRuntimeConfig;
-  // true → config.js now lives in the admin folder on Flexweg and the
-  // admin reloads by itself; false → the config is in this browser and
-  // the wizard offers config.js as a download.
+  runtime: CmsRuntimeConfig;
+  // true → config.js now lives in the admin folder on the hosting and
+  // the admin reloads by itself; false → the config is in this browser
+  // and the wizard offers config.js as a download.
   configUploaded: boolean;
   // Set when the admin was copied onto the publish target.
   adminUrl?: string;
@@ -109,7 +94,7 @@ export interface InstallOptions {
 // admin there when asked, or — when this admin already runs from the
 // target — drops config.js next to it.
 async function hostAdmin(
-  runtime: FlexwegRuntimeConfig,
+  runtime: CmsRuntimeConfig,
   target: PublishTarget | null,
   opts: InstallOptions,
   p: Progress,
@@ -142,16 +127,6 @@ export function firebaseFieldsComplete(f: SetupForm): boolean {
     [f.apiKey, f.authDomain, f.projectId, f.storageBucket, f.messagingSenderId, f.appId, f.adminEmail, f.adminPassword].every(
       Boolean,
     ) && EMAIL_RE.test(f.adminEmail)
-  );
-}
-
-export function sqliteFieldsComplete(f: SetupForm): boolean {
-  return (
-    [f.flexwegApiKey, f.flexwegSiteUrl, f.flexwegApiBaseUrl, f.sqlitePath, f.adminEmail].every(Boolean) &&
-    EMAIL_RE.test(f.adminEmail) &&
-    f.adminPassword.length >= 8 &&
-    // Server enforces this too; a client check gives a friendlier error.
-    /^[\w./-]+\.(sqlite|db)$/i.test(f.sqlitePath)
   );
 }
 
@@ -196,13 +171,6 @@ function authErrorKey(err: unknown): string {
   }
 }
 
-function flexwegError(err: unknown, t: T): SetupError {
-  const status = err instanceof SetupApiError || err instanceof SqliteApiError ? err.status : 0;
-  if (status === 401 || status === 403) return new SetupError("flexwegAuth");
-  if (status) return new SetupError("generic", t("setup.errors.flexwegHttp", { status, detail: (err as Error).message }));
-  return new SetupError("flexwegNetwork");
-}
-
 // ─── Step 1 checks (run on "Continue") ───────────────────────────────────
 
 // Initialises the SDK, signs the admin in, checks the email and the
@@ -231,17 +199,6 @@ export async function verifyFirebase(f: SetupForm, t: T): Promise<void> {
   } catch (err) {
     if ((err as { code?: string })?.code === "permission-denied") throw new SetupError("rulesNotPinned", f.adminEmail);
     throw err;
-  }
-}
-
-// Flexweg SQLite: validates the fields and the master API key. The
-// database itself is created at install time.
-export async function verifySqlite(f: SetupForm, t: T): Promise<void> {
-  if (!sqliteFieldsComplete(f)) throw new SetupError("missingFields");
-  try {
-    await testFlexwegConnection({ apiKey: f.flexwegApiKey, siteUrl: f.flexwegSiteUrl, apiBaseUrl: f.flexwegApiBaseUrl });
-  } catch (err) {
-    throw flexwegError(err, t);
   }
 }
 
@@ -302,30 +259,15 @@ export async function verifySqliteFile(location: PublishTarget, path: string, t:
 
 // ─── Step 3: install ─────────────────────────────────────────────────────
 
-function activate(runtime: FlexwegRuntimeConfig): void {
-  window.__FLEXWEG_CONFIG__ = runtime;
+function activate(runtime: CmsRuntimeConfig): void {
+  window.__AGENTCMS_CONFIG__ = runtime;
   resetRuntimeConfigCache();
 }
 
-// Saves the runtime config for future boots: always in this browser,
-// and as config.js in the admin folder when Flexweg can host it (the
-// admin then works for every editor without any setup).
-async function persistRuntime(
-  runtime: FlexwegRuntimeConfig,
-  flexweg: SetupFlexwegConfig | null,
-  p: Progress,
-  t: T,
-): Promise<boolean> {
+// Saves the runtime config for future boots in this browser (config.js
+// next to a hosted admin is written by hostAdmin()).
+function persistRuntime(runtime: CmsRuntimeConfig): void {
   saveLocalRuntimeConfig(runtime);
-  if (!flexweg || isRootDeployment()) return false;
-  p.step(t("setup.steps.uploadConfig"));
-  try {
-    await uploadConfigJs(flexweg, buildConfigJsSource(runtime));
-  } catch (err) {
-    throw new SetupError("uploadFailed", err instanceof Error ? err.message : String(err));
-  }
-  p.done(t("setup.steps.uploadConfig"));
-  return true;
 }
 
 async function saveTarget(target: PublishTarget | null, p: Progress, t: T, onPermissionDenied?: () => SetupError) {
@@ -351,15 +293,6 @@ async function syncThemes(p: Progress, t: T) {
   p.done(t("setup.steps.syncThemes"));
 }
 
-const flexwegFromTarget = (target: PublishTarget | null): SetupFlexwegConfig | null =>
-  target?.connectorId === "flexweg"
-    ? {
-        apiKey: String(target.settings.apiKey ?? ""),
-        siteUrl: String(target.settings.siteUrl ?? ""),
-        apiBaseUrl: String(target.settings.apiBaseUrl ?? ""),
-      }
-    : null;
-
 // Firebase: the admin is already signed in (verifyFirebase).
 export async function installFirebase(
   f: SetupForm,
@@ -371,82 +304,10 @@ export async function installFirebase(
   const runtime = firebaseRuntime(f);
   activate(runtime);
   await saveTarget(target, p, t, () => new SetupError("firestoreRules", f.adminEmail));
-  const configUploaded = await persistRuntime(runtime, flexwegFromTarget(target), p, t);
+  persistRuntime(runtime);
   await syncThemes(p, t);
   const hosted = await hostAdmin(runtime, target, opts, p, t);
-  return { runtime, configUploaded: configUploaded || hosted.configUploaded, adminUrl: hosted.adminUrl };
-}
-
-// Flexweg SQLite: exchanges the master key for a scoped token, creates
-// the admin account and the schema. The master key is only persisted
-// (in the SQLite config table) when Flexweg also hosts the site.
-export async function installSqlite(
-  f: SetupForm,
-  target: PublishTarget,
-  p: Progress,
-  t: T,
-  opts: InstallOptions = {},
-): Promise<InstallResult> {
-  p.step(t("setup.steps.sqliteInstall"));
-  let token: string;
-  try {
-    const installed = await installSqliteApp({
-      masterApiKey: f.flexwegApiKey,
-      apiBaseUrl: f.flexwegApiBaseUrl,
-      path: f.sqlitePath,
-      name: "AgentCMS",
-      requireUserAuth: true,
-      allowedOrigins: [window.location.origin],
-    });
-    token = installed.token;
-  } catch (err) {
-    throw flexwegError(err, t);
-  }
-  p.done(t("setup.stepsDone.sqliteInstall"));
-
-  const runtime: SqliteRuntimeConfig = {
-    backend: "flexweg-sqlite",
-    flexweg: { siteUrl: f.flexwegSiteUrl, apiBaseUrl: f.flexwegApiBaseUrl, sqliteToken: token, sqlitePath: f.sqlitePath },
-  };
-  activate(runtime);
-
-  // First user registered on a fresh DB is admin server-side. The master
-  // key authorises the registration; login stores the session token
-  // CRUD calls need (the scoped token requires user auth).
-  p.step(t("setup.steps.sqliteRegisterAdmin"));
-  try {
-    await registerUser({
-      email: f.adminEmail,
-      password: f.adminPassword,
-      displayName: f.adminEmail.split("@")[0],
-      masterApiKey: f.flexwegApiKey,
-    });
-    await loginUser({ email: f.adminEmail, password: f.adminPassword });
-  } catch (err) {
-    throw new SetupError("generic", err instanceof Error ? err.message : String(err));
-  }
-  p.done(t("setup.stepsDone.sqliteRegisterAdmin"));
-
-  p.step(t("setup.steps.sqliteSchema"));
-  try {
-    await ensureSchema();
-  } catch (err) {
-    throw new SetupError("generic", (err as Error).message);
-  }
-  p.done(t("setup.stepsDone.sqliteSchema"));
-
-  await saveTarget(target, p, t);
-  // The SQLite file lives on Flexweg, so config.js can always go there
-  // too — with the master key, used one last time and discarded.
-  const configUploaded = await persistRuntime(
-    runtime,
-    { apiKey: f.flexwegApiKey, siteUrl: f.flexwegSiteUrl, apiBaseUrl: f.flexwegApiBaseUrl },
-    p,
-    t,
-  );
-  await syncThemes(p, t);
-  const hosted = await hostAdmin(runtime, target, opts, p, t);
-  return { runtime, configUploaded: configUploaded || hosted.configUploaded, adminUrl: hosted.adminUrl };
+  return { runtime, ...hosted };
 }
 
 export type DocStoreInput =
@@ -464,7 +325,7 @@ export async function installDocStore(
   t: T,
   opts: InstallOptions & { reusedTarget?: PublishTarget | null } = {},
 ): Promise<InstallResult> {
-  let runtime: FlexwegRuntimeConfig;
+  let runtime: CmsRuntimeConfig;
   if (input.backend === "local") {
     runtime = { backend: "local" };
   } else if (input.backend === "sqlite-file") {
@@ -507,20 +368,20 @@ export async function installDocStore(
     await getDocStore().ready();
     p.done(t("setup.docstore.steps.content"));
     await saveTarget(target, p, t);
-    const configUploaded = await persistRuntime(runtime, flexwegFromTarget(target), p, t);
+    persistRuntime(runtime);
     await syncThemes(p, t);
     const hosted = await hostAdmin(runtime, target ?? opts.reusedTarget ?? null, opts, p, t);
-    return { runtime, configUploaded: configUploaded || hosted.configUploaded, adminUrl: hosted.adminUrl };
+    return { runtime, ...hosted };
   } catch (err) {
     // Leave the browser in setup mode so the user can retry.
     saveLocalRuntimeConfig(null);
-    window.__FLEXWEG_CONFIG__ = null;
+    window.__AGENTCMS_CONFIG__ = null;
     resetRuntimeConfigCache();
     throw err;
   }
 }
 
-export function downloadConfigJs(runtime: FlexwegRuntimeConfig): void {
+export function downloadConfigJs(runtime: CmsRuntimeConfig): void {
   const blob = new Blob([buildConfigJsSource(runtime)], { type: "text/javascript" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");

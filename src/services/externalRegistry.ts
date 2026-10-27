@@ -2,13 +2,13 @@
 //
 // In-tree plugins/themes (under src/plugins/, src/mu-plugins/, src/themes/)
 // stay bundled in the admin SPA — same as before. External entries live
-// in /admin/plugins/<id>/ and /admin/themes/<id>/ on Flexweg, are
+// in /admin/plugins/<id>/ and /admin/themes/<id>/ on the site, are
 // described by a /admin/external.json manifest, and get dynamically
 // imported at boot. This module owns the in-memory list of those
 // imported entries and exposes them to the rest of the admin.
 //
 // Why not Firestore? The list of external bundles is tightly coupled to
-// what files actually exist on Flexweg. Storing it in a static JSON next
+// what files actually exist on the site. Storing it in a static JSON next
 // to the bundles keeps the source of truth in one place and removes the
 // chicken-and-egg of needing Firestore to even know what to load.
 
@@ -56,7 +56,7 @@ export function registerExternalTheme(manifest: ThemeManifest): void {
 }
 
 // Removes an entry by id. Used by the upload UI when the user clicks
-// "uninstall" — combined with deleting the files from Flexweg and
+// "uninstall" — combined with deleting the files from the site and
 // updating /admin/external.json, this reclaims the slot.
 export function unregisterExternalPlugin(id: string): void {
   const idx = externalPlugins.findIndex((m) => m.id === id);
@@ -99,14 +99,14 @@ export function clearExternalThemes(): void {
 
 // Shape of the /admin/external.json manifest file. Maintained by the
 // upload UI and (optionally) hand-edited by users who drop bundles via
-// Flexweg's file manager.
+// their hosting's file manager.
 export interface ExternalEntry {
   id: string;
   // Semver of the bundle itself. Surfaced in the admin's plugin/theme
   // list next to the entry. Free-form; not validated.
   version: string;
-  // Semver of the FLEXWEG runtime API the bundle was built against.
-  // Compared at load time to FLEXWEG_API_VERSION / FLEXWEG_API_MIN_VERSION
+  // Semver of the CMS runtime API the bundle was built against.
+  // Compared at load time to CMS_API_VERSION / CMS_API_MIN_VERSION
   // — incompatible entries are skipped with a console warning.
   apiVersion: string;
   // Path to the bundle's entry JS, relative to the admin root (so the

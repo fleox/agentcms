@@ -1,4 +1,4 @@
-import { canonicalUrl, type BaseLayoutProps } from "@flexweg/cms-runtime";
+import { canonicalUrl, type BaseLayoutProps } from "@agent-cms/runtime";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import type { PortfolioThemeConfig } from "../config";
@@ -10,7 +10,7 @@ import type { PortfolioThemeConfig } from "../config";
 //
 // Sentinels for plugin filters (page.head.extra + page.body.end) are
 // emitted exactly like the other themes — required for core-seo /
-// flexweg-custom-code to work.
+// agentcms-custom-code to work.
 export function BaseLayout({
   site,
   pageTitle,

@@ -103,7 +103,7 @@ export interface Post {
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
   publishedAt?: Timestamp;
-  // The Flexweg path the post is currently live at. Lets the publisher
+  // The site path the post is currently live at. Lets the publisher
   // delete the old file when the slug or category changes.
   lastPublishedPath?: string;
   // Paths that *should* have been deleted on a previous publish but
@@ -115,13 +115,13 @@ export interface Post {
   // Hash of the rendered HTML — skip re-upload when nothing changed.
   lastPublishedHash?: string;
   // Original public URL on the source system, when imported from
-  // an external CMS. Set by flexweg-import when consuming WordPress
+  // an external CMS. Set by agentcms-import when consuming WordPress
   // exports (`<link>` element) or markdown frontmatter that includes
   // a legacy URL. Preserved as opaque metadata so a future redirect
   // generator can consume it; not read by the publisher itself.
   legacyUrl?: string;
   // Optional per-locale extra fields populated by plugins (e.g.
-  // flexweg-multilang). Opaque to the core — the plugin defines its
+  // agentcms-multilang). Opaque to the core — the plugin defines its
   // own shape per locale. Keyed by BCP-47-ish language tag ("fr",
   // "es-MX", …). Backends serialize this as a JSON column (SQLite)
   // or a Firestore Map. Reading code that doesn't care about
@@ -153,7 +153,7 @@ export interface Term {
   updatedAt?: Timestamp;
   lastPublishedPath?: string;
   // Optional per-locale extra fields populated by plugins (e.g.
-  // flexweg-multilang stores `{ slug, name, description, seo }`
+  // agentcms-multilang stores `{ slug, name, description, seo }`
   // per language here). Same opacity contract as `Post.translations`:
   // the core sees an opaque map and never reads its inner shape.
   translations?: Record<string, unknown>;
@@ -161,7 +161,7 @@ export interface Term {
 
 // One pre-rendered variant of an uploaded image. Each Media doc owns N
 // variants (thumbnail, medium, large, …) — every variant lives at a stable
-// public URL on Flexweg.
+// public URL on the site.
 export interface MediaVariant {
   url: string;
   width: number;
@@ -177,7 +177,7 @@ export interface Media {
   contentType: string;
   // Sum of every variant's size in bytes.
   size: number;
-  // Folder path on Flexweg holding all the variants of this asset, e.g.
+  // Folder path on the site holding all the variants of this asset, e.g.
   // "media/2026/05/photo-ete-a3f7b2". Deleting the asset = deleting this
   // folder via the Files API. Always normalized + suffixed for uniqueness.
   storageBase?: string;
@@ -258,7 +258,7 @@ export interface SiteSettings {
   // BCP-47 language tag for the public site, injected as <html lang="...">.
   // Independent of the admin UI locale.
   language: string;
-  // Public base URL of the site, e.g. "https://example.flexweg.com".
+  // Public base URL of the site, e.g. "https://example.com".
   baseUrl: string;
   activeThemeId: string;
   enabledPlugins: Record<string, boolean>;

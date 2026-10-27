@@ -1,7 +1,7 @@
-import type { CategoryTemplateProps, SiteContext } from "@flexweg/cms-runtime";
-import { pickFormat } from "@flexweg/cms-runtime";
-import { buildTermUrl } from "@flexweg/cms-runtime";
-import { i18n, pickPublicLocale } from "@flexweg/cms-runtime";
+import type { CategoryTemplateProps, SiteContext } from "@agent-cms/runtime";
+import { pickFormat } from "@agent-cms/runtime";
+import { buildTermUrl } from "@agent-cms/runtime";
+import { i18n, pickPublicLocale } from "@agent-cms/runtime";
 
 // Editorial category archive (mockup-faithful):
 //

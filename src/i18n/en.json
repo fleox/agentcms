@@ -120,8 +120,8 @@
       "delete": "Delete",
       "deleting": "Deleting…",
       "deletedCount": "Deleted {{ok}}, failed {{failed}}.",
-      "confirmDelete_one": "Delete {{count}} post? This unpublishes from Flexweg and cannot be undone.",
-      "confirmDelete_other": "Delete {{count}} posts? This unpublishes from Flexweg and cannot be undone.",
+      "confirmDelete_one": "Delete {{count}} post? This unpublishes it from the site and cannot be undone.",
+      "confirmDelete_other": "Delete {{count}} posts? This unpublishes them from the site and cannot be undone.",
       "noDraftSelected": "No draft posts selected.",
       "noOnlineSelected": "No online posts selected.",
       "clear": "Clear selection"
@@ -331,7 +331,7 @@
     "titleTheme": "Install a theme",
     "labelPlugin": "plugin",
     "labelTheme": "theme",
-    "intro": "Drop a ZIP file containing a {{label}} bundle (manifest.json + bundle.js at the ZIP root). The {{label}} will be uploaded to your Flexweg site and registered after a reload. Re-uploading a ZIP with the same manifest id upgrades the existing entry in place — no uninstall needed.",
+    "intro": "Drop a ZIP file containing a {{label}} bundle (manifest.json + bundle.js at the ZIP root). The {{label}} will be uploaded to your site's hosting and registered after a reload. Re-uploading a ZIP with the same manifest id upgrades the existing entry in place — no uninstall needed.",
     "zipField": "Bundle ZIP file",
     "install": "Install",
     "installing": "Installing…",
@@ -344,14 +344,14 @@
     "bundledDefaultsRestored": "Restored {{plugins}} plugin(s) and {{themes}} theme(s). Reloading…",
     "uninstall": "Uninstall",
     "uninstallSuccess": "{{id}} uninstalled. Reloading…",
-    "confirmUninstall": "Uninstall {{id}}? Files will be deleted from Flexweg.",
+    "confirmUninstall": "Uninstall {{id}}? Its files will be deleted from the hosting.",
     "errors": {
       "no-manifest": "ZIP is missing manifest.json at its root.",
       "invalid-manifest": "manifest.json is invalid (missing required fields or not valid JSON).",
       "incompatible-api": "The bundle was built against an incompatible runtime API version.",
       "no-bundle": "ZIP does not contain the entry file declared in the manifest.",
-      "fetch-manifest": "Could not read the current external.json on Flexweg.",
-      "upload-failed": "Upload failed — check your Flexweg API key + connection."
+      "fetch-manifest": "Could not read the current external.json on the hosting.",
+      "upload-failed": "Upload failed — check the publish target credentials and your connection."
     }
   },
   "externalLoader": {
@@ -390,22 +390,12 @@
       "discourageIndexingHelp": "When enabled, every published page gets a noindex/nofollow meta tag and robots.txt is set to disallow all crawlers. Mirrors WordPress' behaviour — useful for staging sites or pre-launch reviews. Search engines that respect the directive will not index the site.",
       "discourageRegenerateHint": "Indexing setting saved. Click 'Regenerate all' in Themes to apply the change to every published page and robots.txt."
     },
-    "flexweg": {
-      "title": "Flexweg API",
-      "apiKey": "API key",
-      "apiKeyHelp": "Generated from your Flexweg account → API.",
-      "siteUrl": "Site URL",
-      "siteUrlHelp": "Public URL of your Flexweg site without trailing slash.",
-      "apiBaseUrl": "API base URL",
-      "storageHelpFirebase": "Stored in Firestore (config/flexweg). Readable by any signed-in team member, writable by admins only.",
-      "storageHelpSqlite": "Stored in the local SQLite config table. Readable by any signed-in team member, writable by admins only."
-    },
     "backend": {
       "title": "Data backend",
       "active": "Active backend:",
       "switchButton": "Switch backend…",
       "confirmTitle": "All current data will be lost.",
-      "confirmBody": "Switching wipes the in-browser config and reloads into the setup form. The new backend starts empty — the previous backend's data stays where it was (in Firestore or as a .sqlite file on Flexweg), but the CMS will not read it anymore until you switch back.",
+      "confirmBody": "Switching wipes the in-browser config and reloads into the setup form. The new backend starts empty — the previous backend's data stays where it was (in Firestore, the git repo or the .sqlite file), but the CMS will not read it anymore until you switch back. Export it first to move it.",
       "confirmYes": "Yes, switch backend",
       "downloadBackup": "Download a backup of the .sqlite file",
       "downloadBackupHelp": "do this before switching backends.",
@@ -491,15 +481,10 @@
     "editProfileTitle": "Edit profile — {{email}}",
     "profileSaved": "Profile saved.",
     "descriptionFirebase": "Manage your team. New accounts are created in the Firebase Console, then mirrored here on first sign-in.",
-    "descriptionSqlite": "Manage your team. Use the +Add user button below to create new accounts directly.",
-    "addUser": "Add user",
-    "addUserSuccess": "{{email}} added.",
     "removeConfirmFirebase": "Delete the user record for {{email}}? This removes their profile + role from the CMS. To revoke sign-in access, also delete the account in the Firebase Console.",
-    "removeConfirmSqlite": "Permanently delete {{email}}? This revokes their sign-in access AND removes their profile + role. This cannot be undone.",
     "empty": {
       "title": "No team members yet",
-      "descriptionFirebase": "Create the first account in the Firebase Console, then sign in here once to register the profile.",
-      "descriptionSqlite": "Click +Add user above to invite the first team member."
+      "descriptionFirebase": "Create the first account in the Firebase Console, then sign in here once to register the profile."
     },
     "help": {
       "title": "How to add a new team member",
@@ -509,22 +494,11 @@
         "step2": "Set an email and password and send them to the new team member.",
         "step3": "Ask them to sign in here once — their profile appears in the list above and you can edit their role / details."
       },
-      "sqlite": {
-        "step1": "Click the +Add user button above.",
-        "step2": "Enter their email and a temporary password (8+ characters).",
-        "step3": "Share the credentials securely — they can change the password from their profile once signed in."
-      },
       "git": {
         "step1": "Add the person as a collaborator of the content repository (write access = editor, admin / maintainer = admin).",
         "step2": "They create their own personal access token on GitHub / GitLab.",
         "step3": "They open the admin and sign in with that token — their profile is created here automatically."
       }
-    },
-    "addUserModal": {
-      "title": "Add a new team member",
-      "intro": "Creates the account directly in the Flexweg SQLite Auth database. The new user defaults to the editor role; promote them from the list below if they need admin access.",
-      "submit": "Create user",
-      "submitting": "Creating…"
     },
     "actions": {
       "editProfile": "Edit profile",
@@ -571,76 +545,26 @@
   },
   "identity": {
     "brandTitle": "AgentCMS",
-    "brandSubtitle": "Static publisher",
-    "login": {
-      "heading": "Sign in",
-      "intro": "Use the email and password your admin shared with you.",
-      "submit": "Sign in",
-      "submitting": "Signing in…"
-    },
-    "fields": {
-      "name": "Display name (optional)",
-      "namePlaceholder": "Jane Doe",
-      "email": "Email",
-      "password": "Password",
-      "passwordHint": "At least 8 characters."
-    },
-    "footer": "New accounts are created by an admin from the Users page.",
-    "errors": {
-      "invalidEmail": "Please enter a valid email address.",
-      "missingPassword": "Password is required.",
-      "passwordTooShort": "Password must be at least 8 characters."
-    }
+    "brandSubtitle": "Static publisher"
   },
   "setup": {
     "title": "Welcome to AgentCMS",
     "subtitle": "First-time setup",
-    "intro": "Fill in your Firebase credentials, the bootstrap administrator account, and your Flexweg API key. The values are validated, written to your project (Firestore + a config.js file on Flexweg), and the admin reloads into the normal sign-in flow. You only do this once.",
-    "introFirebase": "Step 1 — Firebase. Fill in your Firebase project credentials and the bootstrap administrator account. We'll sign in, verify the email, and check that your Firestore rules pin this admin before continuing to the Flexweg step.",
-    "introFlexweg": "Step 2 — Flexweg. Fill in your Flexweg API key and site URL. We'll test the API, save the configuration to Firestore, upload config.js to your site, and sync theme assets.",
-    "continueToFlexweg": "Validate Firebase & continue",
     "stepper": {
       "terms": "Terms",
-      "backend": "Backend",
-      "firebase": "Firebase",
-      "flexweg": "Flexweg",
-      "sqlite": "SQLite",
-      "docstore": "Content & publishing",
       "data": "Data",
       "hosting": "Hosting",
       "install": "Install"
     },
     "backend": {
-      "title": "Choose a data backend",
-      "intro": "Pick where the CMS will store your posts, pages, users and settings. You can switch later from the Settings page (data is not migrated).",
-      "sqliteTitle": "Flexweg SQLite (recommended)",
-      "sqliteHint": "All data stays on your Flexweg site as a SQLite file. No external service. Auth is provided by Flexweg's SQLite API.",
-      "firebaseTitle": "Firebase",
-      "firebaseHint": "Use a Firebase project for Firestore + Auth. Free under the Spark plan. Real-time updates via onSnapshot.",
-      "continue": "Continue",
-      "markdownGitTitle": "Markdown files in a Git repository",
-      "markdownGitHint": "Posts as .md files on GitHub / GitLab (or a local clone). Each editor signs in with their own access token; every change is a commit. No database, works with several editors and machines.",
-      "localTitle": "This browser only",
-      "localHint": "Single user, no login, nothing to set up. Content stays in this browser (export it from Settings). Best for an admin running on your own computer."
-    },
-    "sqlite": {
-      "heading": "Connect your Flexweg site",
-      "intro": "We'll use your master Flexweg API key ONCE to create a scoped token for the SQLite database. After install, the master key is discarded and only the scoped token (limited to this one SQLite file) is stored.",
-      "apiKeyHint": "Master Flexweg API key. Used only to install — never stored after.",
-      "detectedFromUrl": "Detected from URL",
-      "advanced": "Advanced settings (Site URL, SQLite path…)",
-      "pathHint": "Where the SQLite file lives on your Flexweg site. Folders are created automatically.",
-      "adminHeading": "Admin account",
-      "adminIntro": "Create the first user — this account gets admin rights automatically. Subsequent members are onboarded from the Users page once you're signed in.",
-      "passwordHint": "At least 8 characters.",
-      "submit": "Install SQLite database"
+      "continue": "Continue"
     },
     "terms": {
       "title": "Terms of use",
       "intro": "Please read and accept the terms below before using AgentCMS. They are written in plain language to be quick to read.",
       "section1": {
         "title": "1. Free service",
-        "body": "AgentCMS is provided to you free of charge by Flexweg. You can use it without limits with your Flexweg hosting — Flexweg will never bill you for using the CMS itself. Standard charges for your Flexweg hosting plan and your Firebase plan still apply, on the respective accounts you own."
+        "body": "AgentCMS is provided to you free of charge. The usual charges of the services you choose (hosting, storage, Firebase…) still apply, on the accounts you own."
       },
       "section2": {
         "title": "2. Provided as-is, no warranty",
@@ -648,39 +572,34 @@
       },
       "section3": {
         "title": "3. Your content, your responsibility",
-        "body": "You are solely responsible for the content you publish through the CMS — text, images, videos, forms, code embeds, and any other media. You must comply with applicable law in your jurisdiction (and in the jurisdictions you target), copyright, image and personality rights, personal data protection rules, and any third-party terms (e.g. embedded fonts or videos). Flexweg is not responsible for content published by users of the CMS."
+        "body": "You are solely responsible for the content you publish through the CMS — text, images, videos, forms, code embeds, and any other media. You must comply with applicable law in your jurisdiction (and in the jurisdictions you target), copyright, image and personality rights, personal data protection rules, and any third-party terms (e.g. embedded fonts or videos). The AgentCMS authors are not responsible for content published by users of the CMS."
       },
       "section4": {
         "title": "4. Your Firebase account, your security",
-        "body": "The CMS stores its data in your own Firebase project. You are responsible for securing that project: choose a strong password for the bootstrap admin account, set up Firestore security rules as documented, rotate your API keys when needed, and review who has access. Flexweg cannot be held responsible for unauthorised access, data leaks, hacks or losses caused by misconfiguration or compromise of your Firebase account."
+        "body": "The CMS stores its data in places you own (a git repository, a SQLite file, a Firebase project, this browser). You are responsible for securing them: strong passwords and passphrases, private repositories or buckets where needed, Firestore security rules as documented, token rotation, and reviewing who has access. The AgentCMS authors cannot be held responsible for unauthorised access, data leaks, hacks or losses caused by misconfiguration or compromise of those accounts."
       },
       "section5": {
         "title": "5. Limitation of liability",
-        "body": "Flexweg cannot be held responsible for any loss of revenue, loss of data, loss of business opportunity, or any direct or indirect damages arising from the use, misuse, or unavailability of the CMS. Where applicable law requires Flexweg to assume some liability for the CMS, that liability is limited to the amount actually paid to Flexweg for the CMS over the past 12 months — which is zero, since the CMS is free."
+        "body": "The AgentCMS authors cannot be held responsible for any loss of revenue, loss of data, loss of business opportunity, or any direct or indirect damages arising from the use, misuse, or unavailability of the CMS. Where applicable law requires them to assume some liability for the CMS, that liability is limited to the amount actually paid for the CMS over the past 12 months — which is zero, since the CMS is free."
       },
       "section6": {
         "title": "6. Your data stays yours",
-        "body": "Content you create with the CMS is stored in your own Firebase project (text, settings, media metadata) and on your own Flexweg hosting (the published HTML, images, theme assets). The CMS itself does not transmit your content to any third-party service. Plugins or themes you choose to enable may have their own behaviour — review what they do before activating them."
+        "body": "Content you create with the CMS is stored where you chose (text, settings, media metadata) and on your own hosting (the published HTML, images, theme assets). The CMS itself does not transmit your content to any third-party service. Plugins or themes you choose to enable may have their own behaviour — review what they do before activating them."
       },
       "section7": {
         "title": "7. Fair use",
-        "body": "Use of the CMS for unlawful, fraudulent, or harmful activities, or in ways that breach Flexweg's general terms of use, may result in suspension of your Flexweg hosting access. We may also update these CMS terms over time; significant changes will be communicated through the admin or via email."
+        "body": "Do not use the CMS for unlawful, fraudulent, or harmful activities, or in ways that breach the terms of the services you connect it to. These terms may be updated over time; significant changes are listed in the release notes."
       },
       "accept": "I have read and accept the Terms of use.",
-      "continue": "Continue to configuration",
-      "back": "Back"
+      "continue": "Continue to configuration"
     },
     "sections": {
       "firebase": "Firebase",
-      "admin": "Bootstrap administrator",
-      "flexweg": "Flexweg API"
+      "admin": "Bootstrap administrator"
     },
     "help": {
       "firebase": "Find these values in Firebase Console → Project settings → General → Your apps → SDK setup and configuration.",
-      "admin": "Use an existing user from Firebase Authentication. Anyone signing in with this email is treated as admin and bypasses the user-record check. Create the user via Firebase Console → Authentication if it doesn't exist yet.",
-      "flexweg": "Generate a permanent API key in your Flexweg account → API. The site URL is the public address of your Flexweg site (e.g. https://your-site.flexweg.com).",
-      "flexwegApiKeyHint": "Get your API key from your Flexweg account settings.",
-      "flexwegApiKeyLink": "Open account settings"
+      "admin": "Use an existing user from Firebase Authentication. Anyone signing in with this email is treated as admin and bypasses the user-record check. Create the user via Firebase Console → Authentication if it doesn't exist yet."
     },
     "fields": {
       "apiKey": "API key",
@@ -690,36 +609,20 @@
       "messagingSenderId": "Messaging sender ID",
       "appId": "App ID",
       "adminEmail": "Email",
-      "adminPassword": "Password",
-      "flexwegApiKey": "API key",
-      "flexwegSiteUrl": "Site URL",
-      "flexwegApiBaseUrl": "API base URL",
-      "sqlitePath": "SQLite path"
+      "adminPassword": "Password"
     },
-    "submit": "Save & continue",
     "submitting": "Setting up…",
     "success": "Setup complete!",
     "reloadingHint": "Reloading the admin in a moment — sit tight.",
-    "footer": "These values are saved on your project (Firestore + Flexweg). They are not sent anywhere else.",
+    "footer": "These values are saved in your own project and in this browser. They are not sent anywhere else.",
     "steps": {
       "signInFirebase": "Signing in to Firebase…",
-      "testFlexweg": "Testing Flexweg API…",
       "writeFirestore": "Saving configuration…",
-      "uploadConfig": "Uploading config.js to Flexweg…",
-      "syncThemes": "Syncing theme assets to Flexweg…",
-      "sqliteInstall": "Creating scoped SQLite token…",
-      "sqliteRegisterAdmin": "Registering the admin account…",
-      "sqliteSchema": "Bootstrapping SQLite schema…"
-    },
-    "stepsDone": {
-      "sqliteInstall": "Scoped SQLite token issued",
-      "sqliteRegisterAdmin": "Admin registered and signed in",
-      "sqliteSchema": "SQLite schema ready"
+      "uploadConfig": "Uploading config.js next to the admin…",
+      "syncThemes": "Syncing theme assets to the hosting…"
     },
     "errors": {
       "missingFields": "Please fill every field.",
-      "rootDeploymentTitle": "The admin must live in a subfolder, not at the site root.",
-      "rootDeploymentHint": "Move the admin files (index.html, config.js, runtime/, …) into a subfolder on Flexweg — for example /admin/ or any random name like /erf34f654GH3/ for obscurity. Then reload the admin from that subfolder URL and re-run the setup.",
       "firebaseAuthGeneric": "Could not sign in to Firebase.",
       "firebaseAuthInvalidCredential": "Firebase rejected the email + password combination.",
       "firebaseAuthInvalidCredentialHint": "Modern Firebase projects ship with email-enumeration protection on, which returns the same error whether the password is wrong, the user doesn't exist, or the user signs in with a different provider. Things to check:\n• Re-enter the password — copy/paste from a password manager to rule out typos. Minimum length is 6 characters.\n• Open Firebase Console → Authentication → Users and confirm the email exists. Check the 'Providers' column: if it shows only Google (or another provider) and not 'Email/Password', set or reset the password from the user's row menu (⋮ → Reset password).\n• Verify the email spelling matches exactly what's stored in Firebase.",
@@ -733,13 +636,9 @@
       "wrongAdminEmail": "The Firebase account you signed in with does not match the admin email you typed. Try again.",
       "rulesNotPinnedTitle": "Firestore rules don't recognize you as bootstrap admin yet.",
       "rulesNotPinnedHint": "Open Firebase Console → Firestore → Rules and replace the value of `bootstrapAdminEmail()` with: {{email}} — then click Publish. The rules template in the README ships with a `you@example.com` placeholder that must be replaced with your real admin email. After publishing the updated rules, click Submit here again.",
-      "flexwegAuth": "Flexweg API key rejected. Check the value from your Flexweg account → API.",
-      "flexwegNetwork": "Network error while contacting Flexweg. Check the API base URL and your connection.",
-      "flexwegHttp": "Flexweg API error ({{status}}): {{detail}}",
       "firestoreRulesTitle": "Firestore rejected the configuration write.",
       "firestoreRulesHint": "Open Firebase Console → Firestore → Rules and make sure the bootstrap admin email is set to '{{email}}'. The README has a copy-pastable rules template.",
       "firestoreOther": "Firestore write failed",
-      "uploadFailed": "Could not upload config.js to Flexweg",
       "generic": "Something went wrong."
     },
     "docstore": {
@@ -774,11 +673,7 @@
       "options": {
         "sqlite-file": {
           "title": "SQLite",
-          "hint": "A SQLite database stored on the hosting you choose in the next step (Flexweg, your server, S3, Git…). No user accounts — or Flexweg's SQLite service with accounts if you host on Flexweg."
-        },
-        "flexweg-sqlite": {
-          "title": "SQLite (Flexweg service)",
-          "hint": "A SQLite database run by Flexweg's service, with built-in user accounts. Needs a Flexweg account, wherever the site is hosted."
+          "hint": "A SQLite database stored on the hosting you choose in the next step (git repo, S3 bucket…) or in a separate private location, encrypted by default. No user accounts."
         },
         "firebase": {
           "title": "Firebase",
@@ -805,7 +700,7 @@
       "data": "Data",
       "hosting": "Hosting",
       "saveTarget": "Saving the publish target…",
-      "noteConfigJs": "The admin configuration (config.js) is uploaded next to the admin on Flexweg when possible; otherwise you'll be offered to download it.",
+      "noteConfigJs": "The admin configuration (config.js) is saved in this browser; you'll be offered to download it for the admin folder.",
       "noteLocalConfig": "The configuration is saved in this browser; you'll be offered config.js to put in the admin folder so other editors skip this setup."
     },
     "sqliteFile": {
@@ -817,10 +712,7 @@
       "new": "new database",
       "dataNote": "Nothing to configure here: the database will be stored on the hosting you choose in the next step.",
       "heading": "SQLite database",
-      "flexwegService": "Use Flexweg's SQLite service",
-      "flexwegServiceHint": "The database is run by Flexweg and comes with built-in user accounts (email + password). Otherwise it is a plain file on this hosting, without accounts.",
       "summaryFile": "File {{path}} on this hosting",
-      "summaryService": "Flexweg SQLite service ({{path}})",
       "encrypt": "Encrypt the database",
       "encryptHint": "Recommended on a public hosting: the file is unreadable without the passphrase. Each new browser asks for it once.",
       "passphrase": "Passphrase",
@@ -849,7 +741,7 @@
       "continueHere": "Continue in this admin"
     }
   },
-  "flexweg": {
+  "storage": {
     "actions": {
       "upload": "Uploading file",
       "delete": "Deleting file",
@@ -859,11 +751,9 @@
       "createFolder": "Creating folder",
       "renameFolder": "Renaming folder",
       "deleteFolder": "Deleting folder",
-      "storageLimits": "Reading storage limits",
       "commit": "Publishing changes"
     },
     "errors": {
-      "configMissing": "The publish target is not configured. Set it up in admin Settings before publishing.",
       "network": "{{action}}: network error or CORS blocked. Check your connection.",
       "auth": "{{action}}: authentication failed. Check the publish target credentials in Settings.",
       "notFound": "{{action}}: target not found on the publish target.",
@@ -902,28 +792,7 @@
     "test": "Test connection",
     "testOk": "Connection OK",
     "testFailed": "Connection failed",
-    "names": {
-      "flexweg": "Flexweg",
-      "git-pages": "Git repository (GitHub Pages, Cloudflare Pages, GitLab Pages…)",
-      "s3": "S3-compatible bucket (AWS S3, Cloudflare R2, Backblaze B2, OVH…)",
-      "php-bridge": "Your own server (PHP bridge)",
-      "browser-mirror": "Download as ZIP",
-      "local-folder": "Local folder on this computer"
-    },
-    "hints": {
-      "flexweg": "Uploads through the Flexweg Files API.",
-      "git-pages": "Each publish is one commit to the repo; the host rebuilds the site from it.",
-      "s3": "Needs a CORS rule on the bucket allowing this admin's origin, and website hosting (or a CDN) to serve index.html files.",
-      "php-bridge": "Upload external/bridges/php/flexweg-bridge.php to your server, set its API key, then fill in its URL here.",
-      "browser-mirror": "The site is kept in this browser; download the ZIP and upload it anywhere by hand.",
-      "local-folder": "Writes the site straight into a folder (Chrome / Edge). Serve it locally or push it with your own tools."
-    },
     "fields": {
-      "flexweg": {
-        "apiKey": "API key",
-        "siteUrl": "Site URL",
-        "apiBaseUrl": "API base URL"
-      },
       "git-pages": {
         "host": "Hosting",
         "provider": "Git provider",
@@ -947,11 +816,6 @@
         "forcePathStyle": "Path-style URLs (MinIO, R2, most compatibles)",
         "publicRead": "Make uploaded files public (public-read ACL) — for buckets not made public by a bucket policy (OVHcloud, Scaleway…). Leave off on AWS buckets that enforce bucket-owner ownership."
       },
-      "php-bridge": {
-        "apiBaseUrl": "Bridge URL",
-        "apiKey": "Bridge API key",
-        "siteUrl": "Public site URL"
-      },
       "browser-mirror": {
         "siteUrl": "Public site URL (optional)"
       },
@@ -960,9 +824,6 @@
       }
     },
     "help": {
-      "flexweg": {
-        "apiKey": "Generated from your Flexweg account → API."
-      },
       "git-pages": {
         "host": "Cloudflare Pages: connect the project to this repo with no build command and the output folder below. Works with private repos.",
         "dir": "Leave empty for the repo root. GitHub Pages: \"\" or \"docs\". GitLab Pages: \"public\".",
@@ -972,9 +833,6 @@
       "s3": {
         "endpoint": "Leave empty for AWS (built from the region). R2: https://<account-id>.r2.cloudflarestorage.com",
         "siteUrl": "The bucket website URL or your CDN domain."
-      },
-      "php-bridge": {
-        "apiBaseUrl": "The full URL of flexweg-bridge.php on your server (HTTPS)."
       },
       "browser-mirror": {
         "siteUrl": "Where you will upload the ZIP — used for absolute URLs (sitemaps, RSS, media)."
@@ -1031,11 +889,6 @@
     "openFolder": "Open content folder"
   },
   "hosting": {
-    "flexweg": {
-      "title": "Flexweg",
-      "short": "Flexweg hosting",
-      "hint": "Uploads through the Flexweg Files API. API key from your Flexweg account."
-    },
     "github-pages": {
       "title": "GitHub Pages",
       "short": "Free, from a GitHub repo",
@@ -1060,11 +913,6 @@
       "title": "S3 / R2 / B2…",
       "short": "Object storage bucket",
       "hint": "AWS S3, Cloudflare R2, Backblaze B2, OVH, Scaleway, MinIO… Needs a CORS rule on the bucket and website hosting or a CDN in front."
-    },
-    "own-server": {
-      "title": "Your own server (FTP / SFTP)",
-      "short": "Shared hosting, VPS…",
-      "hint": "Browsers can't speak FTP or SFTP: upload the PHP bridge (external/bridges/php/flexweg-bridge.php) once with your FTP client, set its API key, then fill in its URL here. Works on any PHP host."
     },
     "local-folder": {
       "title": "Local folder",

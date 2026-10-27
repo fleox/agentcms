@@ -1,11 +1,10 @@
 // Runtime configuration resolver. Picks the data backend + its
 // credentials from one of two sources, in order:
 //
-//   1. window.__FLEXWEG_CONFIG__ — set synchronously by /admin/config.js
-//      before the bundle loads. This is how a "drop dist/ on Flexweg and
-//      configure via the in-admin form" deployment works: the SetupForm
-//      writes a populated config.js to /admin/config.js on Flexweg, and
-//      the next reload reads it from the global.
+//   1. window.__AGENTCMS_CONFIG__ — set synchronously by /admin/config.js
+//      before the bundle loads (written by the setup wizard or the CLI
+//      next to the admin on its hosting), or the same object saved in
+//      this browser's localStorage.
 //
 //   2. import.meta.env.VITE_FIREBASE_* — populated by Vite at build time
 //      from the developer's local .env, OR served by Vite during `npm run
@@ -13,7 +12,7 @@
 //      already has credentials in .env and never sees the SetupForm.
 //      Only relevant for the Firebase backend.
 //
-// Both code paths converge on the same FlexwegRuntimeConfig shape; the
+// Both code paths converge on the same CmsRuntimeConfig shape; the
 // rest of the codebase only ever reads through `getRuntimeConfig()` and
 // stays oblivious to which source provided the values.
 
@@ -25,16 +24,13 @@ declare global {
     // when the admin is freshly deployed without baked-in env values.
     // Accepts the modern discriminated shape OR a legacy shape (no
     // `backend` field — pre-SQLite-migration config.js files).
-    __FLEXWEG_CONFIG__?: FlexwegRuntimeConfig | LegacyFirebaseConfig | null;
+    __AGENTCMS_CONFIG__?: CmsRuntimeConfig | LegacyFirebaseConfig | null;
   }
 }
 
-// The backend discriminator. "firebase" keeps the original Firestore +
-// Firebase Auth path. "flexweg-sqlite" routes all data ops to the
-// Flexweg SQLite Files API instead — no Firestore, no Firebase Auth,
-// no external account required besides the Flexweg one the user
-// already has for hosting.
-export type BackendKind = "firebase" | "flexweg-sqlite" | "sqlite-file" | "markdown-git" | "local";
+// The backend discriminator. "firebase" is Firestore + Firebase Auth;
+// the other three are document-store backends (services/docstore/).
+export type BackendKind = "firebase" | "sqlite-file" | "markdown-git" | "local";
 
 // Backends implemented by the shared document-store layer
 // (services/docstore/) rather than a dedicated service folder.
@@ -51,28 +47,6 @@ export interface FirebaseRuntimeConfig {
   // deployments that still have an `adminEmail` baked into config.js
   // keep working until they migrate the Firestore rules + redeploy.
   adminEmail?: string;
-}
-
-export interface SqliteRuntimeConfig {
-  backend: "flexweg-sqlite";
-  flexweg: {
-    // Base URL of the Flexweg site that hosts the SQLite file. Used
-    // to build public asset URLs for media (same convention as the
-    // Firebase mode's Flexweg attachments config).
-    siteUrl: string;
-    // Base URL of the Flexweg API, e.g. "https://www.flexweg.com/api/v1".
-    apiBaseUrl: string;
-    // Scoped Sqlite token issued by /api/v1/sqlite/auth/install.
-    // Limited to one path + one storage folder + no other Flexweg
-    // permissions. Storing in the browser is acceptable because of
-    // the strict scoping (compared to a master API key which must
-    // NEVER be exposed).
-    sqliteToken: string;
-    // The path of the SQLite file inside the user's Flexweg site,
-    // e.g. "admin/cms.sqlite". Used by /api/v1/sqlite/* for sanity
-    // checks (the token is also bound to this path server-side).
-    sqlitePath: string;
-  };
 }
 
 // Content stored as Markdown + JSON files in a git repo (GitHub /
@@ -95,7 +69,7 @@ export interface MarkdownGitRuntimeConfig {
 }
 
 // A SQLite database FILE stored on the user's own hosting (through any
-// publish connector: git repo, S3, PHP bridge, Flexweg, local folder),
+// publish connector: git repo, S3, local folder),
 // opened in the browser with sql.js. No accounts — access control is
 // the hosting's job (e.g. password-protect /admin). Secret settings of
 // the connector (tokens, keys) are NOT here: each browser keeps them in
@@ -118,9 +92,8 @@ export interface LocalRuntimeConfig {
   backend: "local";
 }
 
-export type FlexwegRuntimeConfig =
+export type CmsRuntimeConfig =
   | FirebaseRuntimeConfig
-  | SqliteRuntimeConfig
   | MarkdownGitRuntimeConfig
   | SqliteFileRuntimeConfig
   | LocalRuntimeConfig;
@@ -158,21 +131,6 @@ export const ENV_KEY_BY_FIELD: Record<FirebaseField, string> = {
 
 function nonEmpty(s: unknown): s is string {
   return typeof s === "string" && s.trim().length > 0;
-}
-
-function looksLikeSqliteShape(raw: unknown): raw is SqliteRuntimeConfig {
-  if (!raw || typeof raw !== "object") return false;
-  const r = raw as Partial<SqliteRuntimeConfig>;
-  if (r.backend !== "flexweg-sqlite") return false;
-  const f = r.flexweg;
-  return (
-    !!f &&
-    typeof f === "object" &&
-    nonEmpty(f.siteUrl) &&
-    nonEmpty(f.apiBaseUrl) &&
-    nonEmpty(f.sqliteToken) &&
-    nonEmpty(f.sqlitePath)
-  );
 }
 
 function looksLikeFirebaseShape(raw: unknown): raw is FirebaseRuntimeConfig {
@@ -217,8 +175,8 @@ function looksLikeSqliteFileShape(raw: unknown): raw is SqliteFileRuntimeConfig 
 
 // Admins running locally (or on a host where config.js can't be
 // written) keep their runtime config in localStorage instead. Same
-// shape as window.__FLEXWEG_CONFIG__; config.js wins when both exist.
-export const LOCAL_RUNTIME_CONFIG_KEY = "flexweg.runtimeConfig";
+// shape as window.__AGENTCMS_CONFIG__; config.js wins when both exist.
+export const LOCAL_RUNTIME_CONFIG_KEY = "agentcms.runtimeConfig";
 
 function readFromLocalStorage(): unknown {
   try {
@@ -229,7 +187,7 @@ function readFromLocalStorage(): unknown {
   }
 }
 
-export function saveLocalRuntimeConfig(config: FlexwegRuntimeConfig | null): void {
+export function saveLocalRuntimeConfig(config: CmsRuntimeConfig | null): void {
   try {
     if (config) window.localStorage.setItem(LOCAL_RUNTIME_CONFIG_KEY, JSON.stringify(config));
     else window.localStorage.removeItem(LOCAL_RUNTIME_CONFIG_KEY);
@@ -239,18 +197,16 @@ export function saveLocalRuntimeConfig(config: FlexwegRuntimeConfig | null): voi
   cached = undefined;
 }
 
-function readFromGlobal(): FlexwegRuntimeConfig | null {
+function readFromGlobal(): CmsRuntimeConfig | null {
   if (typeof window === "undefined") return null;
-  const fromScript = window.__FLEXWEG_CONFIG__;
+  const fromScript = window.__AGENTCMS_CONFIG__;
   const raw = fromScript && typeof fromScript === "object" ? fromScript : readFromLocalStorage();
   if (!raw || typeof raw !== "object") return null;
   if (looksLikeMarkdownGitShape(raw)) return raw;
   if (looksLikeSqliteFileShape(raw)) return raw;
   if ((raw as { backend?: string }).backend === "local") return { backend: "local" };
-  // Try SQLite first (explicit discriminator); fall back to Firebase
-  // shape detection so legacy configs (no `backend` field) keep
-  // working.
-  if (looksLikeSqliteShape(raw)) return raw;
+  // Firebase configs written before the `backend` field existed have
+  // no discriminator.
   if (looksLikeFirebaseShape(raw)) {
     // Normalize: add `backend: "firebase"` so callers can rely on the
     // discriminator even when the source omitted it.
@@ -263,7 +219,7 @@ function readFromGlobal(): FlexwegRuntimeConfig | null {
   return null;
 }
 
-function readFromImportMetaEnv(): FlexwegRuntimeConfig | null {
+function readFromImportMetaEnv(): CmsRuntimeConfig | null {
   const env = import.meta.env;
   const firebase: Partial<FirebaseOptions> = {};
   for (const field of FIREBASE_FIELDS) {
@@ -282,9 +238,9 @@ function readFromImportMetaEnv(): FlexwegRuntimeConfig | null {
   };
 }
 
-let cached: FlexwegRuntimeConfig | null | undefined;
+let cached: CmsRuntimeConfig | null | undefined;
 
-export function getRuntimeConfig(): FlexwegRuntimeConfig | null {
+export function getRuntimeConfig(): CmsRuntimeConfig | null {
   if (cached !== undefined) return cached;
   cached = readFromGlobal() ?? readFromImportMetaEnv();
   return cached;
@@ -308,7 +264,7 @@ export function getBackendKind(): BackendKind | null {
 // Returns the env var names that would need to be set if we were
 // going the .env route. Useful for the "missing fields" diagnostic
 // on the pre-setup error screen and in the SetupForm. Only relevant
-// for the Firebase backend — SQLite has no .env fallback.
+// for the Firebase backend — the others have no .env fallback.
 export function getMissingFirebaseFields(): string[] {
   const fromGlobal = readFromGlobal();
   if (fromGlobal && fromGlobal.backend === "firebase") return [];
@@ -319,30 +275,24 @@ export function getMissingFirebaseFields(): string[] {
 }
 
 // Serialises a runtime config back into the JS source code for
-// /admin/config.js. The SetupForm uploads this string to Flexweg; on
-// the next reload it executes synchronously before the bundle and the
-// resolver picks the values up via readFromGlobal().
+// <admin folder>/config.js. It executes synchronously before the bundle
+// on the next load and the resolver picks the values up via
+// readFromGlobal(). Never contains a secret: Firebase web config is
+// public, git / SQLite-file configs hold locations only (tokens and
+// keys stay in each browser).
 //
 // FIREBASE: adminEmail is intentionally stripped from the serialised
 // output even when present in the input. The modern bootstrap-admin
 // flow uses a Firestore probe (`config/admin` rule) and pinned email
-// in the rules, so writing the admin email into the public
-// /admin/config.js would re-introduce the privacy issue we just
-// solved.
-//
-// SQLITE: the entire `flexweg` block (including the scoped token) is
-// emitted as-is. The token is acceptable to ship in the public
-// config.js because it's strictly scoped to a single sqlite file
-// path + a single storage folder, with no other Flexweg permissions.
-export function buildConfigJsSource(config: FlexwegRuntimeConfig): string {
+// in the rules, so writing the admin email into the public config.js
+// would re-introduce the privacy issue we just solved.
+export function buildConfigJsSource(config: CmsRuntimeConfig): string {
   const banner =
     "// Generated by AgentCMS first-run setup. Do not edit by hand —\n" +
     "// re-run the admin setup form to update.\n";
   let serialisable: object;
   if (config.backend === "firebase") {
     serialisable = { backend: config.backend, firebase: config.firebase };
-  } else if (config.backend === "flexweg-sqlite") {
-    serialisable = { backend: config.backend, flexweg: config.flexweg };
   } else if (config.backend === "markdown-git") {
     // Repo coordinates only — tokens never leave the editor's browser.
     serialisable = { backend: config.backend, git: config.git };
@@ -352,5 +302,5 @@ export function buildConfigJsSource(config: FlexwegRuntimeConfig): string {
   } else {
     serialisable = { backend: config.backend };
   }
-  return `${banner}window.__FLEXWEG_CONFIG__ = ${JSON.stringify(serialisable, null, 2)};\n`;
+  return `${banner}window.__AGENTCMS_CONFIG__ = ${JSON.stringify(serialisable, null, 2)};\n`;
 }

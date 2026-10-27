@@ -31,10 +31,10 @@ export function adminUrlOf(site: Pick<SiteRecord, "siteUrl" | "adminFolder">): s
   return site.adminFolder ? `${site.siteUrl.replace(/\/+$/, "")}/${site.adminFolder}/` : null;
 }
 
-// window.__FLEXWEG_CONFIG__ = {...}; → the object (null when empty).
+// window.__AGENTCMS_CONFIG__ = {...}; → the object (null when empty).
 export function parseConfigJs(source: string): Record<string, unknown> | null {
-  const m = /window\.__FLEXWEG_CONFIG__\s*=\s*([\s\S]*?);?\s*$/.exec(source.trim());
-  if (!m) throw new Error("config.js does not set window.__FLEXWEG_CONFIG__");
+  const m = /window\.__AGENTCMS_CONFIG__\s*=\s*([\s\S]*?);?\s*$/.exec(source.trim());
+  if (!m) throw new Error("config.js does not set window.__AGENTCMS_CONFIG__");
   const value = JSON.parse(m[1].trim().replace(/;$/, "")) as unknown;
   return value && typeof value === "object" ? (value as Record<string, unknown>) : null;
 }

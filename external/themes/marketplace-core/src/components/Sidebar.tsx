@@ -1,4 +1,4 @@
-import type { SiteContext } from "@flexweg/cms-runtime";
+import type { SiteContext } from "@agent-cms/runtime";
 import type { MarketplaceSidebarItem, MarketplaceThemeConfig } from "../config";
 import { DEFAULT_MARKETPLACE_SIDEBAR } from "../config";
 import { localePrefix } from "../lib/locale";

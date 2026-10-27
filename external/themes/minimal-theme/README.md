@@ -6,7 +6,7 @@ Demonstrates how to author a theme that gets compiled into a single ESM bundle a
 
 - The six required templates: base, home, single, category, author, notFound.
 - A small hand-written stylesheet (`src/theme.css`) — no Tailwind / SCSS pipeline so the example stays minimal.
-- The required head-extra and body-end sentinels in BaseLayout, so plugins like `flexweg-favicon` and `flexweg-rss` can inject their tags into your theme's pages.
+- The required head-extra and body-end sentinels in BaseLayout, so plugins like `agentcms-favicon` and `agentcms-rss` can inject their tags into your theme's pages.
 
 ## Build
 

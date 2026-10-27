@@ -1,4 +1,4 @@
-import type { NotFoundTemplateProps, SiteContext } from "@flexweg/cms-runtime";
+import type { NotFoundTemplateProps, SiteContext } from "@agent-cms/runtime";
 
 // Minimalist 404 — giant charcoal numeral, single line of body, single
 // outline back-to-home link. No illustration, no shadow, no radius —

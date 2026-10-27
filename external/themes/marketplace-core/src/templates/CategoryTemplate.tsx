@@ -1,5 +1,5 @@
-import type { CategoryTemplateProps, SiteContext } from "@flexweg/cms-runtime";
-import { i18n, pickPublicLocale } from "@flexweg/cms-runtime";
+import type { CategoryTemplateProps, SiteContext } from "@agent-cms/runtime";
+import { i18n, pickPublicLocale } from "@agent-cms/runtime";
 import { ProductCard } from "../components/ProductCard";
 
 // Category archive — breadcrumb + category title/description + 3-col

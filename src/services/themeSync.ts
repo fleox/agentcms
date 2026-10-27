@@ -1,4 +1,4 @@
-import { uploadFile } from "./flexwegApi";
+import { uploadFile } from "./siteFiles";
 import { listThemes } from "../themes";
 import type { ThemeManifest } from "../themes/types";
 
@@ -8,7 +8,7 @@ export interface ThemeSyncLogger {
 
 // Uploads each theme's CSS bundle (with the `compileCss` hook applied
 // when present) plus its companion JS files (menu loader, posts loader)
-// to /theme-assets/<id>.css | -menu.js | -posts.js on Flexweg. Used by
+// to /theme-assets/<id>.css | -menu.js | -posts.js on the site. Used by
 // the standard "Sync theme assets" button on ThemesPage and by the
 // SetupForm's auto-sync step (so a fresh deployment ends up with both
 // the admin AND the public theme assets in one go).

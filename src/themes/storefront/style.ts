@@ -1,4 +1,4 @@
-import { uploadFile } from "@flexweg/cms-runtime";
+import { uploadFile } from "@agent-cms/runtime";
 
 // Storefront theme — runtime style customization. Mirrors the magazine
 // theme's style.ts: editorial serif heading + sans body pair (the
@@ -364,7 +364,7 @@ export function buildCustomCss(baseCssText: string, style: StyleOverrides): stri
   return output;
 }
 
-// Uploads the customized theme CSS to Flexweg.
+// Uploads the customized theme CSS to the publish target.
 export async function applyAndUploadCustomCss(args: {
   baseCssText: string;
   style: StyleOverrides;

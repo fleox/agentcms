@@ -24,7 +24,7 @@ interface StoredFile {
   updatedAt: number;
 }
 
-const mirror = createKvStore<StoredFile>("flexweg-site-mirror", "files");
+const mirror = createKvStore<StoredFile>("agentcms-site-mirror", "files");
 
 export async function exportMirrorZip(): Promise<Blob> {
   const zip = new JSZip();
@@ -55,7 +55,6 @@ export function createBrowserMirrorConnector(settings: BrowserMirrorSettings): S
       renameFolder: false,
       folders: false,
       deletePrefix: true,
-      storageLimits: false,
     },
 
     async put(input) {

@@ -265,7 +265,7 @@ export function PagesListPage() {
               await deletePostAndUnpublish(target.id, ctx, () => {});
             } catch (err) {
               console.error(
-                `[bulk-delete] Flexweg cleanup failed for "${target.title}", deleting Firestore doc anyway:`,
+                `[bulk-delete] published-file cleanup failed for "${target.title}", deleting Firestore doc anyway:`,
                 err,
               );
             }

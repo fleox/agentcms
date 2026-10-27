@@ -3,12 +3,12 @@ import { createRoot } from "react-dom/client";
 import { HashRouter } from "react-router-dom";
 import App from "./App";
 import "./i18n";
-// Side-effect imports — order matters. flexwegRuntime must run BEFORE
-// any external bundle could be evaluated, so that window.__FLEXWEG_RUNTIME__
+// Side-effect imports — order matters. cmsRuntime must run BEFORE
+// any external bundle could be evaluated, so that window.__AGENTCMS_RUNTIME__
 // is populated when /admin/runtime/*.js stubs read from it. The other
 // two register editor blocks; they're independent of each other but
 // both must run before the editor mounts.
-import "./core/flexwegRuntime";
+import "./core/cmsRuntime";
 import "./core/coreBlocks";
 import "./index.css";
 

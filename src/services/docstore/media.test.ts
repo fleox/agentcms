@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// The binary pipeline is out of scope here — stub the Flexweg API and the
+// The binary pipeline is out of scope here — stub the storage facade and the
 // theme registry (heavy import graph) so only the metadata CRUD runs.
-vi.mock("../flexwegApi", () => ({
+vi.mock("../siteFiles", () => ({
   deleteFile: vi.fn(async () => undefined),
   deleteFolder: vi.fn(async () => undefined),
   publicUrlFor: vi.fn(async (p: string) => `https://example.test/${p}`),
@@ -12,7 +12,7 @@ vi.mock("../../themes", () => ({ getActiveTheme: () => ({}) }));
 
 import { createMemoryDocStore, setDocStoreForTests, type DocStore } from "./index";
 import * as docstoreMedia from "./media";
-import { deleteFolder } from "../flexwegApi";
+import { deleteFolder } from "../siteFiles";
 import type { Media } from "../../core/types";
 
 // Type-level drift guard against the firebase impl.
@@ -65,7 +65,7 @@ describe("docstore media", () => {
     expect(m1.caption).toBe("Cap");
   });
 
-  it("deleteMedia wipes the Flexweg folder then the doc", async () => {
+  it("deleteMedia wipes the published folder then the doc", async () => {
     const [, m1] = await listAllMedia();
     await deleteMedia(m1);
     expect(deleteFolder).toHaveBeenCalledWith("media/2026/01/a-abc123");

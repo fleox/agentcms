@@ -358,7 +358,7 @@
     font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
   }
 
-  /* ─── flexweg-archives plugin styles ─── */
+  /* ─── agentcms-archives plugin styles ─── */
   /* Owned by the archives plugin's emitted HTML (BEM-classed
      `archives__*`). Mirror of the default theme's archive styles
      adapted to the magazine theme's tokens (M3 colors as RGB

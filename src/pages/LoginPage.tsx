@@ -3,7 +3,7 @@ import { Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { signIn, sendResetEmail, authErrorKey } from "../services/auth";
 import { LocaleSwitcher } from "../components/ui/LocaleSwitcher";
-import flexwegLogo from "../assets/flexweg-logo.png";
+import agentcmsLogo from "../assets/agentcms-logo.svg";
 
 export function LoginPage() {
   const { t } = useTranslation();
@@ -54,7 +54,7 @@ export function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="flex items-center gap-2.5 justify-center mb-6">
           <img
-            src={flexwegLogo}
+            src={agentcmsLogo}
             alt="AgentCMS"
             className="h-10 w-10 rounded-xl shadow-card object-cover"
           />

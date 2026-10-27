@@ -14,12 +14,12 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   activeThemeId: "default",
   enabledPlugins: {
     "core-seo": true,
-    "flexweg-sitemaps": true,
-    "flexweg-rss": true,
-    "flexweg-archives": true,
+    "agentcms-sitemaps": true,
+    "agentcms-rss": true,
+    "agentcms-archives": true,
     // Off by default — a one-shot migration tool. Users enable it
     // when they need to import a batch and disable it afterward.
-    "flexweg-import": false,
+    "agentcms-import": false,
   },
   homeMode: "latest-posts",
   postsPerPage: 10,

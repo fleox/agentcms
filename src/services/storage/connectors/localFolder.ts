@@ -33,7 +33,7 @@ export function createLocalFolderConnector(settings: LocalFolderSettings): Stora
     if (transport) return transport;
     const handle = await loadFolderHandle(LOCAL_PUBLISH_HANDLE_KEY);
     if (!handle || !(await ensureFolderPermission(handle, false))) {
-      const message = i18n.t("flexweg.errors.folderAccess");
+      const message = i18n.t("storage.errors.folderAccess");
       toast.error(message);
       throw new StorageError(message, 403);
     }
@@ -55,7 +55,6 @@ export function createLocalFolderConnector(settings: LocalFolderSettings): Stora
       renameFolder: false,
       folders: false,
       deletePrefix: true,
-      storageLimits: false,
     },
 
     async put(input) {

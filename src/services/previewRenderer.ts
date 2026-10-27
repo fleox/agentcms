@@ -191,7 +191,7 @@ async function buildPreviewBootstrap(ctx: PublishContext, settings: SiteSettings
   // Build the raw menu, then apply the `menu.json.resolved` filter
   // — same chain the real publishMenuJson uses. Without this, plugin
   // / theme handlers that inject menu items (storefront catalog
-  // entry, flexweg-rss feed entries, …) wouldn't appear in preview
+  // entry, agentcms-rss feed entries, …) wouldn't appear in preview
   // even though they show up on the live site after a publish.
   const baseMenu = buildMenuJson(settings, ctx.posts, ctx.pages, ctx.terms);
   const filterCtx: MenuFilterContext = {

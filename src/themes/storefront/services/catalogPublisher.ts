@@ -15,8 +15,8 @@ import {
   renderPageToHtml,
   toast,
   uploadFile,
-} from "@flexweg/cms-runtime";
-import type { PublishContext, SiteSettings } from "@flexweg/cms-runtime";
+} from "@agent-cms/runtime";
+import type { PublishContext, SiteSettings } from "@agent-cms/runtime";
 import { BaseLayout } from "../templates/BaseLayout";
 import { CatalogTemplate } from "../templates/CatalogTemplate";
 import {
@@ -41,7 +41,7 @@ function readThemeConfig(settings: SiteSettings): StorefrontThemeConfig | null {
 
 // Renders the CatalogTemplate via renderPageToHtml + uploads to the
 // configured slug. Idempotent — uploads even when the page hasn't
-// changed (the file is small and Flexweg dedupes).
+// changed (the file is small and the hash check dedupes).
 export async function publishCatalogPage(ctx: PublishContext): Promise<void> {
   const themeConfig = readThemeConfig(ctx.settings);
   const catalog = {
@@ -93,7 +93,7 @@ export async function cleanupOldCatalogPath(
 // "Force regenerate" button on the settings page.
 //
 // Best-effort: failures are logged + surfaced via the existing
-// flexwegApi toast funnel; never aborts the parent operation.
+// siteFiles toast funnel; never aborts the parent operation.
 export async function republishCatalog(ctx: PublishContext): Promise<void> {
   const themeConfig = readThemeConfig(ctx.settings);
   if (!themeConfig?.catalog) return;

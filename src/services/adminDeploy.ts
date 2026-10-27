@@ -1,6 +1,6 @@
-import { buildConfigJsSource, type FlexwegRuntimeConfig } from "../lib/runtimeConfig";
+import { buildConfigJsSource, type CmsRuntimeConfig } from "../lib/runtimeConfig";
 import { bytesToBase64 } from "./git/encoding";
-import { uploadFile, withStorageBatch } from "./flexwegApi";
+import { uploadFile, withStorageBatch } from "./siteFiles";
 import type { PublishTarget } from "./storage/target";
 
 // Hosting the admin itself on the publish target (GitHub / GitLab /
@@ -54,7 +54,7 @@ export async function readAdminManifest(): Promise<AdminManifest | null> {
   }
 }
 
-export async function uploadConfigJsTo(folder: string, runtime: FlexwegRuntimeConfig): Promise<void> {
+export async function uploadConfigJsTo(folder: string, runtime: CmsRuntimeConfig): Promise<void> {
   await uploadFile({ path: `${cleanFolder(folder)}/config.js`, content: buildConfigJsSource(runtime) });
 }
 
@@ -84,7 +84,7 @@ export function missingIndexReferences(indexHtml: string, files: string[]): stri
 // (done, total) while files are fetched.
 export async function deployAdmin(
   folder: string,
-  runtime: FlexwegRuntimeConfig,
+  runtime: CmsRuntimeConfig,
   onProgress?: (done: number, total: number) => void,
 ): Promise<{ files: number; version: string }> {
   const manifest = await readAdminManifest();

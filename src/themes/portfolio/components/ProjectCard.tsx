@@ -1,5 +1,5 @@
-import type { CardPost } from "@flexweg/cms-runtime";
-import { pickFormat } from "@flexweg/cms-runtime";
+import type { CardPost } from "@agent-cms/runtime";
+import { pickFormat } from "@agent-cms/runtime";
 
 // Project card — the unit cell of every grid in the theme. Image
 // 4:5 aspect, title in serif, category + year metadata in

@@ -1,7 +1,7 @@
-import type { SingleTemplateProps, SiteContext } from "@flexweg/cms-runtime";
-import { pickFormat } from "@flexweg/cms-runtime";
-import { buildTermUrl } from "@flexweg/cms-runtime";
-import { i18n, pickPublicLocale } from "@flexweg/cms-runtime";
+import type { SingleTemplateProps, SiteContext } from "@agent-cms/runtime";
+import { pickFormat } from "@agent-cms/runtime";
+import { buildTermUrl } from "@agent-cms/runtime";
+import { i18n, pickPublicLocale } from "@agent-cms/runtime";
 import { DEFAULT_CORPORATE_SINGLE, type CorporateThemeConfig } from "../config";
 
 // Corporate single-post layout — applies the Stitch mockup rigorously.

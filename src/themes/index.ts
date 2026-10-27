@@ -6,7 +6,7 @@
 //
 // We import statically (not dynamically) so all themes are bundled into the
 // admin SPA — that's what enables instant preview when an admin switches
-// themes, and matches the static-only constraint of Flexweg hosting.
+// themes, and matches the static-only constraint of the hosting.
 
 import { manifest as defaultManifest } from "./default/manifest";
 import { manifest as magazineManifest } from "./magazine/manifest";

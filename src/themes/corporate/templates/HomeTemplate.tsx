@@ -1,6 +1,6 @@
-import type { HomeTemplateProps, SiteContext } from "@flexweg/cms-runtime";
-import { i18n, pickPublicLocale } from "@flexweg/cms-runtime";
-import { pickFormat } from "@flexweg/cms-runtime";
+import type { HomeTemplateProps, SiteContext } from "@agent-cms/runtime";
+import { i18n, pickPublicLocale } from "@agent-cms/runtime";
+import { pickFormat } from "@agent-cms/runtime";
 import { renderHeroOverlay } from "../blocks/heroOverlay/render";
 import { renderTestimonials } from "../blocks/testimonials/render";
 import {

@@ -1,5 +1,5 @@
-import type { SiteContext } from "@flexweg/cms-runtime";
-import { i18n, pickPublicLocale } from "@flexweg/cms-runtime";
+import type { SiteContext } from "@agent-cms/runtime";
+import { i18n, pickPublicLocale } from "@agent-cms/runtime";
 import type { MagazineThemeConfig } from "../config";
 import { DEFAULT_MAGAZINE_HEADER } from "../config";
 
@@ -12,7 +12,7 @@ import { DEFAULT_MAGAZINE_HEADER } from "../config";
 //     for sites with a longer publication name.
 //
 // The search trigger button carries `[data-cms-search]`; the optional
-// flexweg-search plugin wires it up at runtime with a modal. The
+// agentcms-search plugin wires it up at runtime with a modal. The
 // header config can hide the trigger entirely (plugin disabled →
 // hide a non-functional affordance from the UI).
 //

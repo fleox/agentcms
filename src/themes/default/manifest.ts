@@ -7,7 +7,7 @@ import { AuthorTemplate } from "./templates/AuthorTemplate";
 import { NotFoundTemplate } from "./templates/NotFoundTemplate";
 // Vite compiles the SCSS at build time and the `?inline` suffix returns the
 // resulting CSS as a string instead of injecting a <style> tag. This is what
-// the "Sync theme assets" button uploads to Flexweg.
+// the "Sync theme assets" button uploads to the publish target.
 import cssText from "./theme.scss?inline";
 // `?raw` imports return the file contents verbatim. Used here to embed
 // the runtime scripts (menu loader + posts loader) inside the admin

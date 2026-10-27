@@ -24,7 +24,7 @@ import type {
   SiteContext,
 } from "../themes/types";
 import type { Media, Post, SiteSettings, Term, UserRecord } from "../core/types";
-import { deleteFile, uploadFile, withStorageBatch } from "./flexwegApi";
+import { deleteFile, uploadFile, withStorageBatch } from "./siteFiles";
 import { listAllMedia } from "./media";
 import { publishMenuJson } from "./menuPublisher";
 import { publishPostsJson } from "./postsJsonPublisher";
@@ -33,7 +33,7 @@ import { fetchAllPosts, markPostDraft, markPostOnline } from "./posts";
 import { fetchAllTerms } from "./taxonomies";
 import { postSortMillis } from "../core/postSort";
 import { setCurrentPublishContext } from "./publishContext";
-import { resolveArchivesLink } from "../plugins/flexweg-archives/generator";
+import { resolveArchivesLink } from "../plugins/agentcms-archives/generator";
 import { renderHero } from "../themes/default/blocks/hero/render";
 import { renderPostsList } from "../themes/default/blocks/postsList/render";
 import type { DefaultThemeConfig } from "../themes/default/config";
@@ -82,7 +82,7 @@ export interface PublishContext {
   bulkMode?: boolean;
 }
 
-// THEME CSS PATH on Flexweg, mirrors what the build script produces.
+// THEME CSS PATH on the site, mirrors what the build script produces.
 const THEME_CSS_PREFIX = "theme-assets";
 
 // True when the post (must be a page) is the one currently bound to
@@ -176,7 +176,7 @@ function postToCardData(post: Post, ctx: PublishContext): CardPost {
 // Public entry point for the editor's Preview modal. Renders the
 // post's HTML using the same pipeline that produces the published
 // page — same filters, same template, same plugin hooks — without
-// any side effect on Firestore or Flexweg. The caller is expected to
+// any side effect on the data backend or the site. The caller is expected to
 // have built a `ctx` whose posts/pages array contains the *draft*
 // version of `post` so unsaved edits show up.
 //
@@ -303,7 +303,7 @@ export async function renderHome(
     .map((p) => postToCardData(p, ctx));
 
   // Optional "See full archives →" link, resolved by the
-  // flexweg-archives plugin when enabled. Returns undefined when the
+  // agentcms-archives plugin when enabled. Returns undefined when the
   // plugin is off, the home toggle is off, or no posts exist yet —
   // so the link never appears spuriously.
   const archivesLink = resolveArchivesLink(ctx.settings, ctx.posts, "home");
@@ -522,13 +522,13 @@ async function renderCategory(term: Term, ctx: PublishContext): Promise<string> 
     .sort((a, b) => postSortMillis(b) - postSortMillis(a))
     .map((p) => postToCardData(p, ctx));
 
-  // If the flexweg-rss plugin has a feed configured for this category,
+  // If the agentcms-rss plugin has a feed configured for this category,
   // expose its absolute URL so the template can render a Follow button.
   // Reading pluginConfigs here is a small leak from publisher into the
-  // plugin config shape — accepted in exchange for keeping the flexweg-rss
+  // plugin config shape — accepted in exchange for keeping the agentcms-rss
   // module out of the publisher's import graph.
   const baseUrl = (ctx.settings.baseUrl || "").replace(/\/+$/, "");
-  const rssConfig = ctx.settings.pluginConfigs?.["flexweg-rss"] as
+  const rssConfig = ctx.settings.pluginConfigs?.["agentcms-rss"] as
     | { categoryFeeds?: Array<{ termId: string }> }
     | undefined;
   const hasCategoryFeed = !!rssConfig?.categoryFeeds?.some((f) => f.termId === term.id);
@@ -682,7 +682,7 @@ async function uploadIfChanged(
 // bookkeeping. The plugin produces the HTML; the publisher handles
 // the I/O.
 export interface AdditionalRender {
-  // Absolute path on Flexweg, no leading slash (matches Post.lastPublishedPath).
+  // Absolute site path, no leading slash (matches Post.lastPublishedPath).
   path: string;
   // Pre-rendered HTML ready to upload.
   html: string;
@@ -716,7 +716,7 @@ export async function buildPublishContext(args: {
   // When true, refetch terms from Firestore inside this call instead
   // of trusting `args.terms`. Use this when the caller just wrote
   // new terms in the same turn and can't rely on the React
-  // subscription's eventual update — e.g. flexweg-import after
+  // subscription's eventual update — e.g. agentcms-import after
   // creating new categories. Default false to keep hot-path callers
   // (UI clicks) free of an extra read.
   refreshTerms?: boolean;
@@ -963,7 +963,7 @@ async function regenerateListingsUnbatched(ctx: PublishContext, log: PublishLogg
   }
 
   // Plugin-driven additional listings (e.g. per-locale homes + per-locale
-  // category archives produced by flexweg-multilang). The plugin owns its
+  // category archives produced by agentcms-multilang). The plugin owns its
   // own cleanup of stale paths because we don't track these across calls
   // — they're regenerated wholesale on every listing pass.
   const extras = await applyFilters<AdditionalListingRender[]>(
@@ -1011,7 +1011,7 @@ async function regenerateHomeOnlyUnbatched(
 // reads. Called as a tail-step of every publish/unpublish/delete so menu
 // items stay in sync with post slugs / category slugs even though we
 // don't re-render every HTML page. Best-effort: a failure here gets
-// logged + already-toasted by flexwegApi but never aborts the publish.
+// logged + already-toasted by siteFiles but never aborts the publish.
 async function republishMenu(ctx: PublishContext, log: PublishLogger): Promise<void> {
   try {
     await publishMenuJson(ctx.settings, ctx.posts, ctx.pages, ctx.terms);
@@ -1037,7 +1037,7 @@ async function republishPostsJson(ctx: PublishContext, log: PublishLogger): Prom
 // Lets bio / avatar / name updates reflect on the public site without
 // having to re-render every post HTML the author ever wrote. Also
 // invoked directly from the user-edit modal in /users on profile save.
-// Best-effort: failure is logged + already-toasted by flexwegApi.
+// Best-effort: failure is logged + already-toasted by siteFiles.
 async function republishAuthorsJson(ctx: PublishContext, log: PublishLogger): Promise<void> {
   try {
     await publishAuthorsJson(ctx.users, ctx.media, ctx.posts, ctx.pages);
@@ -1117,7 +1117,7 @@ async function repairPublishPathsUnbatched(
 
 // Full regeneration: every online post, every category, the home, the 404.
 // Used after a theme switch or a settings change that affects every page.
-// Throttled to avoid hammering the Flexweg API.
+// Throttled to avoid hammering the publish target.
 async function regenerateAllUnbatched(ctx: PublishContext, log: PublishLogger): Promise<void> {
   const onlinePosts = [...ctx.posts, ...ctx.pages].filter((p) => p.status === "online");
   log({ level: "info", message: `Regenerating ${onlinePosts.length + ctx.terms.length + 2} files…` });
@@ -1294,9 +1294,9 @@ async function deletePostAndUnpublishUnbatched(
 // "commit" / "deployment" publish target (git-backed Pages, …) receives
 // ONE commit per user action instead of one per file. Nested calls
 // (publishPost → regenerateListings, …) share the outer batch. For the
-// "files" model (Flexweg) the batch is a pass-through.
+// "files" model (S3, local folder…) the batch is a pass-through.
 // Hoisted function declarations on purpose — same TDZ-safety reason as
-// the service dispatchers (flexwegRuntime reads these at module init).
+// the service dispatchers (cmsRuntime reads these at module init).
 
 export function publishAuthorArchive(
   ...args: Parameters<typeof publishAuthorArchiveUnbatched>

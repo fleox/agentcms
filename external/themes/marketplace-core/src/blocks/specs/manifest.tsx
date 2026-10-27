@@ -2,7 +2,7 @@ import { ListChecks, Plus, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { NodeViewWrapper } from "@tiptap/react";
 import type { Editor } from "@tiptap/core";
-import type { BlockManifest } from "@flexweg/cms-runtime";
+import type { BlockManifest } from "@agent-cms/runtime";
 import { blockNodeName, createBlockNode } from "../createBlockNode";
 import { DEFAULT_SPECS, type SpecsAttrs } from "./render";
 

@@ -1,4 +1,4 @@
-import { uploadFile } from "@flexweg/cms-runtime";
+import { uploadFile } from "@agent-cms/runtime";
 
 // Corporate theme — runtime style customization. Mirrors the magazine
 // theme's style.ts but tailored for a single-font system: the
@@ -339,7 +339,7 @@ export function buildCustomCss(baseCssText: string, style: StyleOverrides): stri
   return output;
 }
 
-// Uploads the customized theme CSS to Flexweg. Path is the same as the
+// Uploads the customized theme CSS to the publish target. Path is the same as the
 // baseline (`theme-assets/corporate.css`) so every published page
 // picks up the new look on its next load — no per-page republish
 // needed.

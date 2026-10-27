@@ -63,8 +63,8 @@ function buildItem(item: MenuItem, kind: MenuItemKind): MenuItem {
 // the multilang types: the menu UI lives in core and can't take a
 // hard dependency on a plugin's TypeScript surface.
 function getEnabledLanguages(settings: SiteSettings): string[] {
-  if (settings.enabledPlugins?.["flexweg-multilang"] === false) return [];
-  const config = settings.pluginConfigs?.["flexweg-multilang"] as
+  if (settings.enabledPlugins?.["agentcms-multilang"] === false) return [];
+  const config = settings.pluginConfigs?.["agentcms-multilang"] as
     | { enabledLanguages?: unknown }
     | undefined;
   const raw = config?.enabledLanguages;
@@ -139,7 +139,7 @@ export function MenusPage() {
       toast.success(t("menus.saved"));
     } catch (err) {
       // updateSettings + publishMenuJson already toast through the
-      // flexwegApi funnel; this fallback covers anything else.
+      // siteFiles funnel; this fallback covers anything else.
       toast.error((err as Error).message || t("menus.saveFailed"));
     } finally {
       setSaving(false);

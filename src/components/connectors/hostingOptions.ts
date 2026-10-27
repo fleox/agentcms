@@ -19,13 +19,6 @@ const gitHost = (host: string) => (connectorId: string, s: Record<string, unknow
 
 export const HOSTING_OPTIONS: HostingOption[] = [
   {
-    id: "flexweg",
-    connectorId: "flexweg",
-    preset: {},
-    hiddenFields: [],
-    matches: (c) => c === "flexweg",
-  },
-  {
     id: "github-pages",
     connectorId: "git-pages",
     preset: { host: "github-pages", provider: "github", branch: "main" },
@@ -59,13 +52,6 @@ export const HOSTING_OPTIONS: HostingOption[] = [
     preset: { region: "auto" },
     hiddenFields: [],
     matches: (c) => c === "s3",
-  },
-  {
-    id: "own-server",
-    connectorId: "php-bridge",
-    preset: {},
-    hiddenFields: [],
-    matches: (c) => c === "php-bridge",
   },
   {
     id: "local-folder",

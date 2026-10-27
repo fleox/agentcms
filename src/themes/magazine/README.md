@@ -89,7 +89,7 @@ Stores everything under `settings.themeConfigs.magazine` in Firestore.
 ## Search
 
 The header includes a `[data-cms-search]` button. The optional
-**flexweg-search** plugin (regular plugin, not MU) wires it up at
+**agentcms-search** plugin (regular plugin, not MU) wires it up at
 runtime when enabled. The button is inert when the plugin is off.
 
 To hide the trigger entirely, toggle `Show search trigger` off in the

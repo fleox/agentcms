@@ -1,0 +1,623 @@
+// CmsRuntime — the bridge between the admin bundle and externally
+// loaded plugins/themes.
+//
+// External bundles cannot import React, ReactDOM, react-i18next or our
+// internal API directly: they would each ship their own copy, hooks
+// would crash on a "two Reacts" mismatch, and i18next state would not
+// be shared.
+//
+// The fix is import-maps in index.html that redirect bare specifiers
+// (e.g. `react`, `@agent-cms/runtime`) to small stub files in
+// /admin/runtime/. Each stub reads the live module instances off
+// `window.__AGENTCMS_RUNTIME__` — populated here, side-effect imported
+// by main.tsx **before** any other admin code runs.
+//
+// External plugin / theme authors install our @agent-cms/runtime
+// package as a dev dependency, externalize it in their Vite config,
+// and write `import { uploadFile, pluginApi } from "@agent-cms/runtime"`.
+// At runtime the import-map redirects to /admin/runtime/cms-runtime.js
+// which re-exports from this same global.
+//
+// **In-tree plugins/themes** also use this same API surface — a TS
+// path alias in tsconfig resolves `@agent-cms/runtime` to this file
+// during development and prod builds. At prod build time, each in-tree
+// plugin/theme gets compiled into its own ESM bundle that externalizes
+// `@agent-cms/runtime`, identical to a third-party external bundle.
+
+// Re-export types so TS users (path alias `@agent-cms/runtime`) can
+// `import type { Post, Term, ... } from "@agent-cms/runtime"`.
+// Types are erased at compile time so they don't need to live on the
+// runtime global — the runtime stub at public/runtime/cms-runtime.js
+// only re-exports the values below, not the types.
+export type {
+  AdminLocale,
+  ImageFormatConfig,
+  Media,
+  MenuItem,
+  Post,
+  PostStatus,
+  PostType,
+  SiteSettings,
+  SocialNetwork,
+  Term,
+  UserRecord,
+  UserRole,
+} from "./types";
+export type {
+  AuthorView,
+  AuthorSocial,
+  BaseLayoutProps,
+  CardPost,
+  CategoryTemplateProps,
+  AuthorTemplateProps,
+  HomeTemplateProps,
+  MediaView,
+  NotFoundTemplateProps,
+  SingleTemplateProps,
+  SiteContext,
+  ThemeManifest,
+  ThemeSettingsPageDef,
+  ThemeSettingsPageProps,
+  ArchivesLink,
+} from "../themes/types";
+export type {
+  PluginManifest,
+  PluginSettingsPageDef,
+  PluginSettingsPageProps,
+} from "../plugins";
+export type { PluginApi } from "./pluginRegistry";
+export type { RegenerationTarget } from "./regenerationTargetRegistry";
+export type { BlockManifest } from "./blockRegistry";
+export type { DashboardCardManifest } from "./dashboardCardRegistry";
+export type {
+  InspectorTabManifest,
+  InspectorTabProps,
+} from "./inspectorTabRegistry";
+export type {
+  TermEditorSectionManifest,
+  TermEditorSectionProps,
+} from "./termEditorSectionRegistry";
+export type {
+  EditorVariantProvider,
+  EditorVariant,
+  VariantFields,
+} from "./editorVariantRegistry";
+export type { ResolvedMenuItem } from "./menuResolver";
+export type {
+  PublishContext,
+  PublishLogger,
+  PublishLogEntry,
+  AdditionalRender,
+  AdditionalListingRender,
+  RenderHomeOptions,
+} from "../services/publisher";
+export type { RssChannel, RssItem, RssEnclosure } from "./rss";
+export type { MenuFilterContext, MenuJson } from "../services/menuPublisher";
+export type { ListItem, ListResponse, UploadFileOptions } from "../services/siteFiles";
+
+import * as React from "react";
+import * as ReactJsxRuntime from "react/jsx-runtime";
+import * as ReactDOM from "react-dom";
+import * as ReactDOMClient from "react-dom/client";
+import * as ReactI18next from "react-i18next";
+import {
+  pluginApi,
+  applyFilters,
+  applyFiltersSync,
+  doAction,
+} from "./pluginRegistry";
+import { registerBlock } from "./blockRegistry";
+import { registerDashboardCard } from "./dashboardCardRegistry";
+import { registerInspectorTab } from "./inspectorTabRegistry";
+import { registerTermEditorSection } from "./termEditorSectionRegistry";
+import { registerEditorVariantProvider } from "./editorVariantRegistry";
+import {
+  registerExternalPlugin,
+  registerExternalTheme,
+} from "../services/externalRegistry";
+import { buildRssFeedXml } from "./rss";
+
+// core/slug — URL building + slug validation
+import {
+  slugify,
+  isValidSlug,
+  findAvailableSlug,
+  buildPostUrl,
+  buildTermUrl,
+  pathToPublicUrl,
+  canonicalPath,
+  canonicalUrl,
+  detectPathCollision,
+  detectTermSlugCollision,
+  normalizeMediaSlug,
+} from "./slug";
+
+// services/storage — publish connector registry (API ≥ 1.4)
+import { registerStorageConnector } from "../services/storage/registry";
+
+// core/basePath — sub-folder deployments
+import { basePathFromBaseUrl, withBasePath } from "./basePath";
+
+// core/media — variant helpers
+import { mediaToView, pickFormat, pickMediaUrl } from "./media";
+
+// core/markdown — body rendering / extraction
+import { markdownToPlainText, renderMarkdown } from "./markdown";
+
+// core/socialIcons — author social rendering
+import { SocialIcon, socialLabel } from "./socialIcons";
+
+// core/postSort — date helper used by themes
+import { postSortMillis } from "./postSort";
+
+// core/render — HTML rendering helper
+import { renderPageToHtml } from "./render";
+
+// services/siteFiles — storage facade routed to the active publish connector
+import {
+  uploadFile,
+  deleteFile,
+  deleteFolder,
+  renameFile,
+  renameFolder,
+  createFolder,
+  getFile,
+  listFiles,
+  publicUrlFor,
+  fileToBase64,
+  getStorageCapabilities,
+  withStorageBatch,
+  StorageError,
+} from "../services/siteFiles";
+
+// services/posts — Firestore CRUD
+import { fetchAllPosts, createPost, updatePost } from "../services/posts";
+
+// services/media — image upload pipeline
+import { uploadMedia } from "../services/media";
+
+// services/taxonomies — term CRUD
+import { createTerm, updateTerm, deleteTerm } from "../services/taxonomies";
+
+// services/users — author resolution
+import { buildAuthorLookup } from "../services/users";
+
+// services/publisher — page rendering + publishing
+import {
+  publishPost,
+  buildPublishContext,
+  buildSiteContext,
+  renderHome,
+} from "../services/publisher";
+
+// services/menuPublisher — /menu.json upload
+import { publishMenuJson } from "../services/menuPublisher";
+
+// services/postsJsonPublisher — /data/posts.json upload (sidebar widgets)
+import { publishPostsJson } from "../services/postsJsonPublisher";
+
+// services/authorsJsonPublisher — /data/authors.json upload (author bio widget)
+import { publishAuthorsJson } from "../services/authorsJsonPublisher";
+
+// services/catalogPublisher — /data/products.json upload (storefront theme)
+import { publishProductsJson, deleteProductsJson } from "../services/catalogPublisher";
+
+// services/settings — plugin/theme config storage
+import { updatePluginConfig, updateThemeConfig } from "../services/settings";
+
+// lib/toast — global notification queue
+import { toast } from "../lib/toast";
+
+// lib/utils — small utilities
+import { sha256Hex, formatDateTime, cn } from "../lib/utils";
+
+// React contexts plugins/themes consume via hooks. Imported types-and-
+// values so the hook calls land on the SAME React instance as the admin.
+import { useCmsData } from "../context/CmsDataContext";
+import { useAuth } from "../context/AuthContext";
+
+// i18n helpers — locale resolution for public-side rendering
+import i18nInstance, { pickPublicLocale, setActiveLocale } from "../i18n";
+
+// UI primitives plugins use in their settings pages. Re-exposed so
+// plugin authors don't have to redo a combobox / autocomplete from
+// scratch — just the bare minimum for parity with what in-tree plugins
+// historically used.
+import { EntityCombobox } from "../components/ui/EntityCombobox";
+
+// Active theme resolution — plugins like agentcms-archives need to
+// render archive pages through the active theme's BaseLayout.
+import { getActiveTheme } from "../themes";
+
+// Hooks used by theme blocks at edit time
+import { useAllPosts } from "../hooks/useAllPosts";
+
+// Theme-side block transforms read the current publish context to
+// resolve cross-post lookups at publish time.
+import { getCurrentPublishContext } from "../services/publishContext";
+
+// FontSelect component — used by theme settings pages with font pickers.
+import { FontSelect } from "../components/ui/FontSelect";
+
+// MediaPicker — admin media library modal, used by theme settings
+// pages that let admins pick logo / hero / banner images from the
+// media library instead of pasting URLs.
+import { MediaPicker } from "../components/editor/MediaPicker";
+
+// Theme logo helpers — shared across themes that ship a configurable
+// logo (default, magazine, corporate). Lives in services/themeLogo.ts
+// to avoid forcing themes to cross-reference one another.
+import { logoPath, uploadThemeLogo, removeThemeLogo } from "../services/themeLogo";
+
+declare global {
+  interface Window {
+    __AGENTCMS_RUNTIME__?: CmsRuntime;
+  }
+}
+
+// Bumped whenever the API contract changes in a breaking way. The
+// external loader checks `manifest.apiVersion` against this constant
+// and refuses to load anything outside [MIN_API, CURRENT_API].
+//
+// 1.0.0 — first stable contract: pluginApi (filters/actions/blocks/cards),
+// theme manifest shape, runtime React/i18n exports.
+// 1.1.0 — expanded surface: core helpers (slug, media, markdown,
+// socialIcons, postSort, render), site files API, post/media/term/
+// publisher services, menuPublisher, settings, toast, lib/utils. This
+// is what every in-tree plugin/theme has historically used; exposing
+// it formally lets them all be packaged as external bundles at build
+// time. Backwards compatible — 1.0.0 bundles still load.
+// 1.2.0 — multilang-enablement: filter/action invocation helpers
+// (applyFilters, applyFiltersSync, doAction), updateTerm/deleteTerm
+// dispatchers, registerInspectorTab + registerTermEditorSection
+// (extensible editor + taxonomies UI), Post.translations +
+// lastPublishedPathsByLocale, Term.translations, publisher
+// `publish.additional` + `publish.extraListings` filters, sitemap
+// `sitemap.url.entry` / `sitemap.urls.extra` / `sitemap.urlset.namespaces`
+// / `sitemap.index.extra` filters, BaseLayoutProps.currentLocale for
+// per-page <html lang>, buildRssFeedXml shared helper. Backwards
+// compatible — every 1.1.x bundle still loads.
+// 1.3.0 — editor variant API: registerEditorVariantProvider lets
+// plugins contribute draft variants (multilang, A/B, drafts) that
+// render as a tab strip above the main editor. The WYSIWYG, blocks
+// and drag-and-drop stay identical across variants. Backwards
+// compatible — every 1.2.x bundle still loads.
+// 1.4.0 — publish connectors: the Files API helpers (uploadFile,
+// deleteFile, …) now route to the active publish target
+// (git-backed Pages, S3, …). New: getStorageCapabilities() to feature-
+// detect optional operations, withStorageBatch() to group writes into
+// one commit/deployment, StorageError,
+// registerStorageConnector() for plugin-provided publish targets,
+// basePathFromBaseUrl() / withBasePath() for sub-folder deployments.
+// Also covers the publish.before(post, ctx) / regenerate.listings.before
+// / sitemap.news.locales hooks shipped during 1.3.x. Backwards
+// compatible — every 1.3.x bundle still loads.
+export const CMS_API_VERSION = "1.4.0";
+export const CMS_API_MIN_VERSION = "1.0.0";
+
+// Snapshot of the public runtime API. Each named property is
+// re-exported by /admin/runtime/cms-runtime.js so external bundles
+// `import { uploadFile } from "@agent-cms/runtime"` resolve through
+// the import-map to live admin instances.
+export interface CmsRuntime {
+  apiVersion: string;
+  minApiVersion: string;
+  // React + family
+  react: typeof React;
+  reactJsxRuntime: typeof ReactJsxRuntime;
+  reactDom: typeof ReactDOM;
+  reactDomClient: typeof ReactDOMClient;
+  reactI18next: typeof ReactI18next;
+  // CMS plugin API
+  pluginApi: typeof pluginApi;
+  applyFilters: typeof applyFilters;
+  applyFiltersSync: typeof applyFiltersSync;
+  doAction: typeof doAction;
+  registerBlock: typeof registerBlock;
+  registerDashboardCard: typeof registerDashboardCard;
+  registerInspectorTab: typeof registerInspectorTab;
+  registerTermEditorSection: typeof registerTermEditorSection;
+  registerEditorVariantProvider: typeof registerEditorVariantProvider;
+  registerExternalPlugin: typeof registerExternalPlugin;
+  registerExternalTheme: typeof registerExternalTheme;
+  // core/slug
+  slugify: typeof slugify;
+  isValidSlug: typeof isValidSlug;
+  findAvailableSlug: typeof findAvailableSlug;
+  buildPostUrl: typeof buildPostUrl;
+  buildTermUrl: typeof buildTermUrl;
+  pathToPublicUrl: typeof pathToPublicUrl;
+  canonicalPath: typeof canonicalPath;
+  canonicalUrl: typeof canonicalUrl;
+  detectPathCollision: typeof detectPathCollision;
+  detectTermSlugCollision: typeof detectTermSlugCollision;
+  normalizeMediaSlug: typeof normalizeMediaSlug;
+  basePathFromBaseUrl: typeof basePathFromBaseUrl;
+  registerStorageConnector: typeof registerStorageConnector;
+  withBasePath: typeof withBasePath;
+  // core/media
+  mediaToView: typeof mediaToView;
+  pickFormat: typeof pickFormat;
+  pickMediaUrl: typeof pickMediaUrl;
+  // core/markdown
+  markdownToPlainText: typeof markdownToPlainText;
+  renderMarkdown: typeof renderMarkdown;
+  // core/socialIcons
+  SocialIcon: typeof SocialIcon;
+  socialLabel: typeof socialLabel;
+  // core/postSort
+  postSortMillis: typeof postSortMillis;
+  // core/render
+  renderPageToHtml: typeof renderPageToHtml;
+  // services/siteFiles
+  uploadFile: typeof uploadFile;
+  deleteFile: typeof deleteFile;
+  deleteFolder: typeof deleteFolder;
+  renameFile: typeof renameFile;
+  renameFolder: typeof renameFolder;
+  createFolder: typeof createFolder;
+  getFile: typeof getFile;
+  listFiles: typeof listFiles;
+  publicUrlFor: typeof publicUrlFor;
+  fileToBase64: typeof fileToBase64;
+  getStorageCapabilities: typeof getStorageCapabilities;
+  withStorageBatch: typeof withStorageBatch;
+  StorageError: typeof StorageError;
+  // services/posts
+  fetchAllPosts: typeof fetchAllPosts;
+  createPost: typeof createPost;
+  updatePost: typeof updatePost;
+  // services/media
+  uploadMedia: typeof uploadMedia;
+  // services/taxonomies
+  createTerm: typeof createTerm;
+  updateTerm: typeof updateTerm;
+  deleteTerm: typeof deleteTerm;
+  // core/rss
+  buildRssFeedXml: typeof buildRssFeedXml;
+  // services/users
+  buildAuthorLookup: typeof buildAuthorLookup;
+  // services/publisher
+  publishPost: typeof publishPost;
+  buildPublishContext: typeof buildPublishContext;
+  buildSiteContext: typeof buildSiteContext;
+  renderHome: typeof renderHome;
+  // services/menuPublisher
+  publishMenuJson: typeof publishMenuJson;
+  // services/postsJsonPublisher — exposed so plugins (multilang) can
+  // generate per-language data/posts.json snapshots at custom paths.
+  publishPostsJson: typeof publishPostsJson;
+  publishAuthorsJson: typeof publishAuthorsJson;
+  // services/catalogPublisher
+  publishProductsJson: typeof publishProductsJson;
+  deleteProductsJson: typeof deleteProductsJson;
+  // services/settings
+  updatePluginConfig: typeof updatePluginConfig;
+  updateThemeConfig: typeof updateThemeConfig;
+  // lib/toast
+  toast: typeof toast;
+  // lib/utils
+  sha256Hex: typeof sha256Hex;
+  formatDateTime: typeof formatDateTime;
+  cn: typeof cn;
+  // React hooks — context access for plugin / theme settings pages.
+  useCmsData: typeof useCmsData;
+  useAuth: typeof useAuth;
+  // i18n
+  i18n: typeof i18nInstance;
+  pickPublicLocale: typeof pickPublicLocale;
+  setActiveLocale: typeof setActiveLocale;
+  // UI components
+  EntityCombobox: typeof EntityCombobox;
+  // Themes registry helpers
+  getActiveTheme: typeof getActiveTheme;
+  // Theme block authoring helpers
+  useAllPosts: typeof useAllPosts;
+  getCurrentPublishContext: typeof getCurrentPublishContext;
+  FontSelect: typeof FontSelect;
+  MediaPicker: typeof MediaPicker;
+  // Theme logo helpers
+  logoPath: typeof logoPath;
+  uploadThemeLogo: typeof uploadThemeLogo;
+  removeThemeLogo: typeof removeThemeLogo;
+}
+
+const runtime: CmsRuntime = {
+  apiVersion: CMS_API_VERSION,
+  minApiVersion: CMS_API_MIN_VERSION,
+  react: React,
+  reactJsxRuntime: ReactJsxRuntime,
+  reactDom: ReactDOM,
+  reactDomClient: ReactDOMClient,
+  reactI18next: ReactI18next,
+  pluginApi,
+  applyFilters,
+  applyFiltersSync,
+  doAction,
+  registerBlock,
+  registerDashboardCard,
+  registerInspectorTab,
+  registerTermEditorSection,
+  registerEditorVariantProvider,
+  registerExternalPlugin,
+  registerExternalTheme,
+  slugify,
+  isValidSlug,
+  findAvailableSlug,
+  buildPostUrl,
+  buildTermUrl,
+  pathToPublicUrl,
+  canonicalPath,
+  canonicalUrl,
+  detectPathCollision,
+  detectTermSlugCollision,
+  normalizeMediaSlug,
+  basePathFromBaseUrl,
+  withBasePath,
+  registerStorageConnector,
+  mediaToView,
+  pickFormat,
+  pickMediaUrl,
+  markdownToPlainText,
+  renderMarkdown,
+  SocialIcon,
+  socialLabel,
+  postSortMillis,
+  renderPageToHtml,
+  uploadFile,
+  deleteFile,
+  deleteFolder,
+  renameFile,
+  renameFolder,
+  createFolder,
+  getFile,
+  listFiles,
+  publicUrlFor,
+  fileToBase64,
+  getStorageCapabilities,
+  withStorageBatch,
+  StorageError,
+  fetchAllPosts,
+  createPost,
+  updatePost,
+  uploadMedia,
+  createTerm,
+  updateTerm,
+  deleteTerm,
+  buildRssFeedXml,
+  buildAuthorLookup,
+  publishPost,
+  buildPublishContext,
+  buildSiteContext,
+  renderHome,
+  publishMenuJson,
+  publishPostsJson,
+  publishAuthorsJson,
+  publishProductsJson,
+  deleteProductsJson,
+  updatePluginConfig,
+  updateThemeConfig,
+  toast,
+  sha256Hex,
+  formatDateTime,
+  cn,
+  useCmsData,
+  useAuth,
+  i18n: i18nInstance,
+  pickPublicLocale,
+  setActiveLocale,
+  EntityCombobox,
+  getActiveTheme,
+  useAllPosts,
+  getCurrentPublishContext,
+  FontSelect,
+  MediaPicker,
+  logoPath,
+  uploadThemeLogo,
+  removeThemeLogo,
+};
+
+if (typeof window !== "undefined") {
+  window.__AGENTCMS_RUNTIME__ = runtime;
+}
+
+// Re-export every value as a top-level named export so the TS path
+// alias `@agent-cms/runtime` → this file can resolve plugin imports
+// like `import { uploadFile, slugify } from "@agent-cms/runtime"`.
+export {
+  pluginApi,
+  applyFilters,
+  applyFiltersSync,
+  doAction,
+  registerBlock,
+  registerDashboardCard,
+  registerInspectorTab,
+  registerTermEditorSection,
+  registerEditorVariantProvider,
+  registerExternalPlugin,
+  registerExternalTheme,
+  slugify,
+  isValidSlug,
+  findAvailableSlug,
+  buildPostUrl,
+  buildTermUrl,
+  pathToPublicUrl,
+  canonicalPath,
+  canonicalUrl,
+  detectPathCollision,
+  detectTermSlugCollision,
+  normalizeMediaSlug,
+  basePathFromBaseUrl,
+  withBasePath,
+  registerStorageConnector,
+  mediaToView,
+  pickFormat,
+  pickMediaUrl,
+  markdownToPlainText,
+  renderMarkdown,
+  SocialIcon,
+  socialLabel,
+  postSortMillis,
+  renderPageToHtml,
+  uploadFile,
+  deleteFile,
+  deleteFolder,
+  renameFile,
+  renameFolder,
+  createFolder,
+  getFile,
+  listFiles,
+  publicUrlFor,
+  fileToBase64,
+  getStorageCapabilities,
+  withStorageBatch,
+  StorageError,
+  fetchAllPosts,
+  createPost,
+  updatePost,
+  uploadMedia,
+  createTerm,
+  updateTerm,
+  deleteTerm,
+  buildRssFeedXml,
+  buildAuthorLookup,
+  publishPost,
+  buildPublishContext,
+  buildSiteContext,
+  renderHome,
+  publishMenuJson,
+  publishPostsJson,
+  publishAuthorsJson,
+  publishProductsJson,
+  deleteProductsJson,
+  updatePluginConfig,
+  updateThemeConfig,
+  toast,
+  sha256Hex,
+  formatDateTime,
+  cn,
+  useCmsData,
+  useAuth,
+  i18nInstance as i18n,
+  pickPublicLocale,
+  setActiveLocale,
+  EntityCombobox,
+  getActiveTheme,
+  useAllPosts,
+  getCurrentPublishContext,
+  FontSelect,
+  MediaPicker,
+  logoPath,
+  uploadThemeLogo,
+  removeThemeLogo,
+};
+
+// Type-only re-export for ComboboxOption — needed by plugin settings
+// pages that pass options to <EntityCombobox>.
+export type { ComboboxOption } from "../components/ui/EntityCombobox";
+
+// Type-only re-export for FontOption — used by theme settings pages
+// that pass options to <FontSelect>.
+export type { FontOption } from "../components/ui/FontSelect";
+
+export default runtime;

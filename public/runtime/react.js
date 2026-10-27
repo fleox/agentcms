@@ -7,15 +7,15 @@
 // it's served as-is from /admin/runtime/react.js without going through
 // Vite's bundle pipeline.
 
-const R = (typeof window !== "undefined" && window.__FLEXWEG_RUNTIME__)
-  ? window.__FLEXWEG_RUNTIME__.react
+const R = (typeof window !== "undefined" && window.__AGENTCMS_RUNTIME__)
+  ? window.__AGENTCMS_RUNTIME__.react
   : null;
 
 if (!R) {
   throw new Error(
-    "[flexweg] window.__FLEXWEG_RUNTIME__ is not initialised. " +
+    "[agentcms] window.__AGENTCMS_RUNTIME__ is not initialised. " +
       "An external bundle imported react before the admin booted. " +
-      "Make sure flexwegRuntime is side-effect imported in main.tsx and " +
+      "Make sure cmsRuntime is side-effect imported in main.tsx and " +
       "the import-map in index.html resolves react to ./runtime/react.js.",
   );
 }

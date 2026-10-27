@@ -1,5 +1,5 @@
-import type { SiteContext } from "@flexweg/cms-runtime";
-import { i18n, pickPublicLocale } from "@flexweg/cms-runtime";
+import type { SiteContext } from "@agent-cms/runtime";
+import { i18n, pickPublicLocale } from "@agent-cms/runtime";
 
 // Corporate header — sticky bar with backdrop blur (Glass Lite per
 // DESIGN.md). Two menu hosts share the same `/data/menu.json`:

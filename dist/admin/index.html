@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0f172a" />
     <meta name="google" content="notranslate" />
@@ -28,7 +28,7 @@
       Import-map redirecting bare specifiers used by externally-loaded
       plugins/themes to small stub files in /admin/runtime/. Each stub
       reads the live React / i18n / cms-runtime instances out of
-      window.__FLEXWEG_RUNTIME__ (populated by src/core/flexwegRuntime.ts)
+      window.__AGENTCMS_RUNTIME__ (populated by src/core/cmsRuntime.ts)
       so an external bundle and the admin SPA share the SAME module
       instance — required for React hooks integrity and i18next state.
       Native browser support: Chrome 89+, Firefox 108+, Safari 16.4+.
@@ -51,7 +51,7 @@
       html.dark body {
         background: #020617;
       }
-      .flexweg-boot {
+      .agentcms-boot {
         position: fixed;
         inset: 0;
         display: flex;
@@ -59,15 +59,15 @@
         justify-content: center;
         z-index: 9999;
       }
-      .flexweg-boot-spinner {
+      .agentcms-boot-spinner {
         width: 36px;
         height: 36px;
         border: 3px solid rgba(100, 116, 139, 0.25);
         border-top-color: #3b82f6;
         border-radius: 50%;
-        animation: flexweg-boot-spin 0.85s linear infinite;
+        animation: agentcms-boot-spin 0.85s linear infinite;
       }
-      @keyframes flexweg-boot-spin {
+      @keyframes agentcms-boot-spin {
         to {
           transform: rotate(360deg);
         }
@@ -81,28 +81,28 @@
           "react-dom": "./runtime/react-dom.js",
           "react-dom/client": "./runtime/react-dom-client.js",
           "react-i18next": "./runtime/react-i18next.js",
-          "@flexweg/cms-runtime": "./runtime/cms-runtime.js"
+          "@agent-cms/runtime": "./runtime/cms-runtime.js"
         }
       }
     </script>
-    <script type="module" crossorigin src="./assets/index-DFVZw8E0.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-DMcGogR2.css">
+    <script type="module" crossorigin src="./assets/index-BHpduXqh.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-Dz11lwHX.css">
   </head>
   <body>
     <div id="root">
-      <div class="flexweg-boot" aria-hidden="true">
-        <div class="flexweg-boot-spinner"></div>
+      <div class="agentcms-boot" aria-hidden="true">
+        <div class="agentcms-boot-spinner"></div>
       </div>
     </div>
     <!-- Runtime config bootstrap — must load synchronously, before the
          main bundle, so the Firebase resolver can read
-         window.__FLEXWEG_CONFIG__ during module init.
+         window.__AGENTCMS_CONFIG__ during module init.
 
          document.write injects a cache-busted script tag during HTML
          parsing; the browser processes it synchronously before the
          next <script>. A plain `<script src="./config.js">` would be
          subject to HTTP / CDN caching, and after the first-run setup
-         uploads a populated config.js to Flexweg, the very next
+         writes a populated config.js next to the admin, the very next
          reload could serve the stale (null-stub) version from cache
          — re-displaying the SetupForm instead of the authenticated
          admin. The ?_t timestamp forces a fresh fetch on every load.

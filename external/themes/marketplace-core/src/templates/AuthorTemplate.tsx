@@ -1,5 +1,5 @@
-import type { AuthorTemplateProps, SiteContext } from "@flexweg/cms-runtime";
-import { i18n, pickFormat, pickPublicLocale } from "@flexweg/cms-runtime";
+import type { AuthorTemplateProps, SiteContext } from "@agent-cms/runtime";
+import { i18n, pickFormat, pickPublicLocale } from "@agent-cms/runtime";
 import { ProductCard } from "../components/ProductCard";
 
 // Author profile + works grid. Profile card up top (avatar + name +

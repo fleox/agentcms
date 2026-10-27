@@ -27,7 +27,7 @@ interface ExternalInstallModalProps {
 
 // Modal for installing a new external plugin / theme from a ZIP file
 // AND uninstalling already-installed ones. Same UX for both kinds; the
-// `kind` prop just routes to the right Flexweg path.
+// `kind` prop just routes to the right admin folder.
 export function ExternalInstallModal({
   kind,
   open,

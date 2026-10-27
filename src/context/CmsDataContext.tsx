@@ -57,7 +57,7 @@ interface CmsDataValue {
   // Optimistic-insert helpers — synchronously make a freshly-created
   // entity visible in the local list so the create-then-navigate
   // flow doesn't flash a "not found" before the next subscription
-  // tick (especially relevant in SQLite mode where polling is ~4 s).
+  // tick.
   // The hook auto-clears entries once the canonical snapshot delivers
   // the same id.
   addOptimisticPost: (post: Post) => void;

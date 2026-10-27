@@ -5,19 +5,15 @@ AgentCMS separates two independent choices. The first-run setup wizard asks them
 | | What it decides | Options |
 |---|---|---|
 | **Data model** | How posts, pages, terms, media metadata, users and settings are stored | **SQLite** · **Markdown in a Git repo** · Firebase · **This browser (local)** |
-| **Publish target** | Where the rendered static site (HTML, CSS, media, JSON) is uploaded | Flexweg · **Git repo** (GitHub Pages, Cloudflare Pages, GitLab Pages, Netlify…) · **S3-compatible bucket** · **Your own server (PHP bridge)** · **Download as ZIP** · **Local folder** |
+| **Publish target** | Where the rendered static site (HTML, CSS, media, JSON) is uploaded | **Git repo** (GitHub Pages, Cloudflare Pages, GitLab Pages, Netlify…) · **S3-compatible bucket** · **Download as ZIP** · **Local folder** |
 
-The admin is a static SPA: it runs entirely in the browser, renders the site there and pushes the files through the publish target's API. Nothing needs a server of its own, which is also the main constraint: every target must be reachable from a browser (CORS) — FTP/SFTP aren't, hence the PHP bridge.
+The admin is a static SPA: it runs entirely in the browser, renders the site there and pushes the files through the publish target's API. Nothing needs a server of its own, which is also the main constraint: every target must be reachable from a browser (CORS) — FTP/SFTP aren't, so a classic FTP-only hosting can only receive the site through **Download as ZIP**.
 
-Some combinations have requirements: SQLite (Flexweg service) needs a Flexweg account (even if you publish elsewhere); the local backend is single-user and tied to one browser; local folders need Chrome or Edge.
+Some combinations have requirements: SQLite can't be combined with *Download as ZIP* (the database needs a hosting it can read and write); the local backend is single-user and tied to one browser; local folders need Chrome or Edge.
 
 ---
 
 ## Publish targets
-
-### Flexweg
-
-The original target. API key + site URL, entered in the wizard or **Settings → Publish target**. Stored in `config/flexweg` (Firestore) or the SQLite `config` table.
 
 ### Git repository — GitHub Pages / Cloudflare Pages / GitLab Pages
 
@@ -65,16 +61,6 @@ The bucket needs a **CORS rule** allowing the admin's origin:
 
 …and **static website hosting** (or a CDN rule) so `/news/` serves `/news/index.html` — plain object endpoints don't resolve index documents. HTML / CSS / JS / JSON are uploaded with `Cache-Control: no-cache`, media with one day of caching.
 
-### Your own server (PHP bridge)
-
-Browsers can't speak FTP/SFTP. `external/bridges/php/flexweg-bridge.php` is a single PHP 7.4+ file implementing the Flexweg Files API over the server's filesystem:
-
-1. Create a folder next to the site files (e.g. `/public_html/cms-bridge/`) and upload `flexweg-bridge.php` into it.
-2. Copy `flexweg-bridge.config.example.php` to `flexweg-bridge.config.php` and set `API_KEY` (e.g. `openssl rand -hex 24`). Optionally `SITE_ROOT` (default: parent of the bridge folder) and `ALLOWED_ORIGINS`.
-3. In the CMS: target **Your own server**, URL `https://example.com/cms-bridge/flexweg-bridge.php`, same API key.
-
-The bridge only writes inside `SITE_ROOT`, never inside its own folder, and refuses server-executable files (`.php`, `.phtml`, `.htaccess`, `.user.ini`, CGI scripts, double extensions…): a leaked key can deface the static site but can't run code. Serve it over HTTPS only.
-
 ### Download as ZIP
 
 The rendered site is kept in this browser (IndexedDB). **Settings → Publish target → Download site (ZIP)** exports it; upload it anywhere by hand (Netlify Drop, an FTP client…). The mirror is per browser: run **Regenerate → Everything** before exporting to be sure it's complete.
@@ -91,10 +77,11 @@ When **Settings → General → Base URL** has a path (`https://user.github.io/r
 
 The admin can live on the publish target itself — e.g. `https://user.github.io/my-site/admin/` — so every editor opens it there:
 
-- **During setup**: on the *Install* step, keep *Also host the admin on this site* ticked (offered for every target except Flexweg, where the admin is uploaded as before, and ZIP). The running admin copies its own files (listed at build time in `admin-files.json`) plus a `config.js` into the chosen folder (default `admin`), in one commit on git targets.
+- **During setup**: on the *Install* step, keep *Also host the admin on this site* ticked (offered for every target except ZIP). The running admin copies its own files (listed at build time in `admin-files.json`) plus a `config.js` into the chosen folder (default `admin`), in one commit on git targets.
 - **Later / after an upgrade**: **Settings → Publish target → Admin on this site → Deploy / update the admin**.
 - **config.js holds no secrets** — repo coordinates or the public part of the database location only. Each editor still signs in with their own token / credentials, kept in their browser.
 - When the admin already runs from the site, the wizard simply rewrites its `config.js` in place.
+- Otherwise (ZIP, or the box unticked) the runtime config is kept in this browser and the wizard offers **config.js** as a download: put it next to `index.html` in the admin folder wherever you host it.
 - Only possible from a built admin (`npm run build`, `npm run preview` or a deployed copy), not `npm run dev`.
 
 ### GitHub Pages activation
@@ -115,20 +102,14 @@ Save the new target in **Settings → Publish target**, then run **Regenerate �
 
 ### SQLite
 
-Choosing SQLite in step 1 needs no configuration: the database is stored **on the hosting chosen in step 2**. Two variants:
+Choosing SQLite in step 1 needs no configuration: the whole content lives in **one SQLite file** stored **on the hosting chosen in step 2** (default path `<admin folder>/data/cms.sqlite`) — a Git repository, an S3-compatible bucket or a local folder — or in a **separate private location** (tick *Store the database in a separate private location*, e.g. a private S3 / R2 bucket or a private Git repository, so the public site never serves it). The admin downloads the file, opens it in the browser with sql.js (SQLite compiled to WebAssembly, loaded only for this backend) and uploads it again on every save.
 
-- **A SQLite file on that hosting** (default) — described below.
-- **Flexweg's SQLite service** — only when the hosting is Flexweg: tick *Use Flexweg's SQLite service* to get a Flexweg-managed database with built-in user accounts (email + password).
-
-#### SQLite file
-
-The whole content lives in **one SQLite file** (default `<admin folder>/data/cms.sqlite`) on the hosting — your own server through the PHP bridge (FTP/SFTP hosting), an S3-compatible bucket, a Git repository, Flexweg, or a local folder. The admin downloads it, opens it in the browser with sql.js (SQLite compiled to WebAssembly, loaded only for this backend) and uploads it again on every save.
-
-- **No user accounts.** Anyone who can open the admin can edit. Protecting it is the site owner's job — e.g. a password on `/admin` at the hosting level, which also protects the database file when it sits in the admin folder. If the file is served publicly, drafts are readable.
-- **Credentials stay in each browser.** The location's secret settings (bridge key, token, secret key) are never written to `config.js` nor into the database; a new browser shows a *Connect to the database* screen asking for them once. Signing out forgets them.
+- **Encrypted by default.** A static host serves the database like any other file, so the wizard encrypts it with a passphrase (at least 12 characters; *Generate* suggests one): AES-256-GCM with a key derived by PBKDF2-SHA256. Each new browser asks for the passphrase once. Keep it in a password manager — without it the content can't be opened. **Settings → Data backend → Database encryption** turns encryption on later or changes the passphrase.
+- **Git hostings: a dedicated branch.** On a Git repository the file is kept on the branch `agentcms-data`, which is never published: saving content doesn't rebuild the site. `agentcms compact-data` (CLI, GitHub only) squashes that branch's history into one commit.
+- **No user accounts.** Anyone who can open the admin (and knows the passphrase) can edit. Protecting the admin folder is the site owner's job — e.g. a password at the hosting level.
+- **Credentials stay in each browser.** The location's secret settings (token, secret key) are never written to `config.js` nor into the database; a new browser shows a *Connect to the database* screen asking for them once. Signing out forgets them.
 - **Several editors**: before each save the admin checks the remote file hasn't changed. If someone else saved meanwhile, their version is merged when they touched other items, and the save is refused (their version shown) when they touched the same item. Changes from others are picked up every minute.
-- **Readable with any SQLite tool**: one table per collection (`posts`, `terms`, `media`, `users`, `settings`, `config`) with the document as JSON — `SELECT json_extract(data, '$.title') FROM posts`.
-- With a Git repository as location, every save is a commit: use a repository or branch that doesn't trigger a site build, or prefer the Markdown backend.
+- **Readable with any SQLite tool** (once decrypted, or when encryption is off): one table per collection (`posts`, `terms`, `media`, `users`, `settings`, `config`) with the document as JSON — `SELECT json_extract(data, '$.title') FROM posts`.
 
 ### Markdown in a Git repository
 
@@ -162,12 +143,12 @@ Single user, no login, nothing to configure — content is stored in this browse
 
 ### Moving content between backends
 
-**Settings → Data backend → Export content (JSON)** works on every backend. On a Markdown or local backend, **Import content** loads such a file with ids preserved (posts keep their categories, media and authors). Typical migration: export from Firebase / SQLite → switch backend → import → **Regenerate → Everything**. Media files are not copied; secrets are not exported.
+**Settings → Data backend → Export content (JSON)** works on every backend. On a SQLite, Markdown or local backend, **Import content** loads such a file with ids preserved (posts keep their categories, media and authors). Typical migration: export from Firebase → switch backend → import → **Regenerate → Everything**. Media files are not copied; secrets are not exported.
 
 ---
 
 ## For developers
 
-- Publish connectors: `src/services/storage/` (contract in `types.ts`, built-ins in `connectors/`). Feature code keeps using `uploadFile` & co. from `services/flexwegApi.ts`. Plugins can add targets with `registerStorageConnector({ id, create(settings) })` from `@flexweg/cms-runtime` (API ≥ 1.4) — see `docs/runtime-api-reference.md`.
+- Publish connectors: `src/services/storage/` (contract in `types.ts`, built-ins in `connectors/`). Feature code uses `uploadFile` & co. from `services/siteFiles.ts`. Plugins can add targets with `registerStorageConnector({ id, create(settings) })` from `@agent-cms/runtime` (API ≥ 1.4) — see `docs/runtime-api-reference.md`.
 - Shared git layer: `src/services/git/` (GitHub, GitLab, local folder behind one `GitTransport`).
-- Document-store backends: `src/services/docstore/` (`core.ts` engine, `gitStore.ts`, `localStore.ts`, domain services mirroring `services/firebase/*`).
+- Document-store backends: `src/services/docstore/` (`core.ts` engine, `gitStore.ts`, `sqliteFileStore.ts` + `sqliteCrypto.ts`, `localStore.ts`, domain services mirroring `services/firebase/*`).

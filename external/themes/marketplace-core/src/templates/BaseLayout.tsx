@@ -1,5 +1,5 @@
-import type { BaseLayoutProps } from "@flexweg/cms-runtime";
-import { canonicalUrl } from "@flexweg/cms-runtime";
+import type { BaseLayoutProps } from "@agent-cms/runtime";
+import { canonicalUrl } from "@agent-cms/runtime";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { Sidebar } from "../components/Sidebar";
@@ -10,7 +10,7 @@ import { resolveLocale } from "../lib/locale";
 // canvas. Mobile gets a bottom nav in place of the sidebar.
 //
 // `currentLocale` is set per-page by the publisher (and by the
-// flexweg-multilang plugin's per-locale renders). It wins over the
+// agentcms-multilang plugin's per-locale renders). It wins over the
 // site-wide language for the `<html lang>` attribute and for every
 // i18n lookup inside the shell components — so a French archive
 // page renders the breadcrumb / nav / placeholder strings in French
@@ -40,7 +40,7 @@ export function BaseLayout({
   // unless the author already baked it into `pageTitle` (typical on a
   // home page whose `seoTitle` reads "AgentCMS — A modern static
   // CMS"). The `includes` check is a pragmatic guard — it covers both
-  // brand-first ("Flexweg — Hello") and brand-last ("Hello — Flexweg")
+  // brand-first ("AgentCMS — Hello") and brand-last ("Hello — AgentCMS")
   // patterns without us having to expose a per-page "no-suffix" flag.
   const siteTitle = site.settings.title || "";
   const alreadyBranded =

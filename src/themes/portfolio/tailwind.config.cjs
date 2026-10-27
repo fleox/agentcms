@@ -4,7 +4,7 @@
  * Compiled by scripts/build-theme-tailwind.mjs into ./theme.compiled.css.
  * The result is bundled into the admin via the manifest's
  * `import cssText from "./theme.compiled.css?inline"` and uploaded to
- * Flexweg as `/theme-assets/portfolio.css`.
+ * the hosting as `/theme-assets/portfolio.css`.
  *
  * Content scan is intentionally LOCAL to this theme so the compiled CSS
  * stays free of admin-bundle utility classes. `.js` is included so the

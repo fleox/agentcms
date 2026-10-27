@@ -32,6 +32,6 @@ hello-plugin.zip
 └── README.md       ← shown via "Learn more" in the plugins list
 ```
 
-`manifest.json` controls metadata; `bundle.js` is the single ESM artifact the admin imports at boot. The bundle externalises `react`, `react/jsx-runtime`, `react-dom`, `react-dom/client`, `react-i18next` and `@flexweg/cms-runtime` — the admin's import-map redirects these to live runtime stubs so there is exactly one React instance in the page (required for hooks integrity).
+`manifest.json` controls metadata; `bundle.js` is the single ESM artifact the admin imports at boot. The bundle externalises `react`, `react/jsx-runtime`, `react-dom`, `react-dom/client`, `react-i18next` and `@agent-cms/runtime` — the admin's import-map redirects these to live runtime stubs so there is exactly one React instance in the page (required for hooks integrity).
 
 See `docs/creating-a-plugin.md` in the main repo for the full reference.

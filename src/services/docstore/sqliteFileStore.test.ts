@@ -40,7 +40,7 @@ describe("sqlite-file doc store", () => {
     await store.write([{ op: "set", collection: "posts", doc: post("P1", "Hello") }]);
     const db = await readFile();
     expect(db.exec("SELECT json_extract(data, '$.title') FROM posts")[0].values).toEqual([["Hello"]]);
-    expect(db.exec("SELECT value FROM meta WHERE key = 'format'")[0].values).toEqual([["flexweg-cms"]]);
+    expect(db.exec("SELECT value FROM meta WHERE key = 'format'")[0].values).toEqual([["agentcms"]]);
     db.close();
 
     const again = createSqliteFileDocStore(cfg);

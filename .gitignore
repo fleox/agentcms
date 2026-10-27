@@ -22,5 +22,5 @@ demo-content/marketplace-core/*
 #   - any local credential leak via dist/admin/config.js if a developer
 #     builds with `.env` filled in. The shipped `public/config.js` and
 #     freshly-built `dist/admin/config.js` both ship as
-#     `window.__FLEXWEG_CONFIG__ = null;` stubs — confirm with
+#     `window.__AGENTCMS_CONFIG__ = null;` stubs — confirm with
 #     `grep null dist/admin/config.js` before committing.

@@ -4,7 +4,7 @@
  * Compiled by scripts/build-theme-tailwind.mjs into ./theme.compiled.css.
  * The result is bundled into the admin via the manifest's
  * `import cssText from "./theme.compiled.css?inline"` and uploaded to
- * Flexweg as `/theme-assets/storefront.css`.
+ * the hosting as `/theme-assets/storefront.css`.
  *
  * Content scan is intentionally LOCAL to this theme. The `.js` glob
  * covers the runtime loaders (menu-loader.js, posts-loader.js,

@@ -1,5 +1,5 @@
 import { jsx as d, jsxs as f, Fragment as ai } from "react/jsx-runtime";
-import { i18n as K, pickPublicLocale as se, canonicalUrl as si, pickFormat as ae, FontSelect as mn, MediaPicker as li, pickMediaUrl as Ct } from "@flexweg/cms-runtime";
+import { i18n as K, pickPublicLocale as se, canonicalUrl as si, pickFormat as ae, FontSelect as mn, MediaPicker as li, pickMediaUrl as Ct } from "@agent-cms/runtime";
 import R, { forwardRef as Vt, createElement as lt, useState as he, createRef as ci, memo as di, createContext as Gn, version as gn, useContext as pi, useRef as ui, useEffect as bn, useMemo as hi } from "react";
 import { useTranslation as ee } from "react-i18next";
 import fi, { flushSync as mi } from "react-dom";
@@ -1700,7 +1700,7 @@ function yi({
   ] }) });
 }
 const Yn = {
-  heroEyebrow: "FLEXWEG MARKETPLACE",
+  heroEyebrow: "AGENTCMS MARKETPLACE",
   heroHeadline: "Modern assets for professional creators.",
   heroIntro: "Curated themes and plugins for your AgentCMS site. Free, open-source, and ready to install.",
   featuredCategorySlug: "plugins",
@@ -2507,7 +2507,7 @@ const Ze = {
     { label: "Version", value: "1.0.0" },
     { label: "License", value: "MIT" },
     { label: "Last Updated", value: "" },
-    { label: "Requires Flexweg", value: "≥ 1.0.0" }
+    { label: "Requires AgentCMS", value: "≥ 1.0.0" }
   ]
 };
 function Vi(n) {

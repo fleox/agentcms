@@ -198,7 +198,7 @@ function canvasToBlob(canvas: AnyCanvas, type: string, quality: number): Promise
 }
 
 // Reads a Blob and returns a base64 string (without the data: prefix).
-// Identical to the helper in flexwegApi.ts but kept here so the upload
+// Identical to the helper in siteFiles.ts but kept here so the upload
 // pipeline can be unit-tested without dragging the API layer in.
 export function blobToBase64(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {

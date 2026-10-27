@@ -137,7 +137,6 @@ export function createS3Connector(settings: S3Settings): StorageConnector {
       renameFolder: false,
       folders: false,
       deletePrefix: true,
-      storageLimits: false,
     },
 
     async put(input, signal) {

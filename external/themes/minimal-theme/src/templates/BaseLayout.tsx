@@ -5,7 +5,7 @@
 // IMPORTANT: emit the head-extra sentinel <meta name="x-cms-head-extra" />.
 // The publisher does a string-replace on this marker post-renderToStaticMarkup
 // to inject plugin-contributed head markup. Without it, plugins like
-// flexweg-favicon and flexweg-rss can't add their <link>/<meta> tags
+// agentcms-favicon and agentcms-rss can't add their <link>/<meta> tags
 // to your theme's pages.
 
 interface BaseLayoutProps {

@@ -56,7 +56,7 @@ function resolveLabel(manifest: BlockManifest): string {
 
 // Filters the block list by the user's query. Matches against both
 // the localised label AND the manifest id, so power users can hop to
-// `/flexweg-embeds/youtube` without depending on translations.
+// `/agentcms-embeds/youtube` without depending on translations.
 function filterBlocks(query: string): BlockManifest[] {
   const all = listBlocks();
   if (!query) return all;

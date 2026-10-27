@@ -1,5 +1,5 @@
-import type { SiteContext } from "@flexweg/cms-runtime";
-import { i18n, pickPublicLocale } from "@flexweg/cms-runtime";
+import type { SiteContext } from "@agent-cms/runtime";
+import { i18n, pickPublicLocale } from "@agent-cms/runtime";
 import type { PortfolioThemeConfig } from "../config";
 
 // Portfolio header — wordmark left, primary nav middle, CONTACT pill

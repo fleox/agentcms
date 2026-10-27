@@ -1,9 +1,9 @@
-// Shared RSS 2.0 XML builder. Used by flexweg-rss for the site/category
-// feeds and by flexweg-multilang for the per-language variants. Kept
+// Shared RSS 2.0 XML builder. Used by agentcms-rss for the site/category
+// feeds and by agentcms-multilang for the per-language variants. Kept
 // minimal and stateless — callers prepare the items + channel metadata,
 // this module just serialises them.
 //
-// Exposed on @flexweg/cms-runtime so external plugins can build their
+// Exposed on @agent-cms/runtime so external plugins can build their
 // own RSS feeds without re-implementing the boilerplate.
 
 export interface RssEnclosure {
@@ -69,7 +69,7 @@ function rfc822(ms: number): string {
 
 // Serialises an RSS 2.0 channel + its items to a complete XML
 // document (preamble + optional xml-stylesheet PI + <rss> envelope).
-// Returns the raw XML string ready to upload via the Flexweg Files
+// Returns the raw XML string ready to upload via the publish connector's
 // API.
 export function buildRssFeedXml(channel: RssChannel): string {
   const lines = ['<?xml version="1.0" encoding="UTF-8"?>'];

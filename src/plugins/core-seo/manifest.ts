@@ -1,4 +1,4 @@
-import type { PluginManifest, BaseLayoutProps } from "@flexweg/cms-runtime";
+import type { PluginManifest, BaseLayoutProps } from "@agent-cms/runtime";
 import readme from "./README.md?raw";
 
 // Built-in SEO plugin. Scope is intentionally tiny — it adds extra
@@ -39,7 +39,7 @@ export const manifest: PluginManifest = {
   id: "core-seo",
   name: "SEO",
   version: "1.0.0",
-  author: "Flexweg",
+  author: "AgentCMS",
   description: "Adds Twitter card meta tags and a generator hint to every published page.",
   readme,
   register(api) {

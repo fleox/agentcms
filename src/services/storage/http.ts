@@ -8,7 +8,7 @@ import { StorageError, type StorageAction } from "./types";
 // states, retry buttons) while the user gets an immediate visible alert.
 
 export function actionLabel(action: StorageAction): string {
-  return i18n.t(`flexweg.actions.${action}`);
+  return i18n.t(`storage.actions.${action}`);
 }
 
 // Tries to extract a human-readable message from an error body
@@ -35,20 +35,20 @@ function buildErrorMessage(action: StorageAction, status: number, body: string |
   switch (status) {
     case 401:
     case 403:
-      return i18n.t("flexweg.errors.auth", { action: label });
+      return i18n.t("storage.errors.auth", { action: label });
     case 404:
-      return i18n.t("flexweg.errors.notFound", { action: label });
+      return i18n.t("storage.errors.notFound", { action: label });
     case 413:
-      return i18n.t("flexweg.errors.tooLarge", { action: label });
+      return i18n.t("storage.errors.tooLarge", { action: label });
     case 429:
-      return i18n.t("flexweg.errors.rateLimited", { action: label });
+      return i18n.t("storage.errors.rateLimited", { action: label });
     case 500:
     case 502:
     case 503:
     case 504:
-      return i18n.t("flexweg.errors.serverError", { action: label, status });
+      return i18n.t("storage.errors.serverError", { action: label, status });
     default:
-      return i18n.t("flexweg.errors.generic", {
+      return i18n.t("storage.errors.generic", {
         action: label,
         status,
         detail: detail ? `: ${detail}` : "",
@@ -71,7 +71,7 @@ export async function performRequest(
   } catch (err) {
     // AbortError is an explicit user-initiated cancel — never toast it.
     if ((err as { name?: string })?.name === "AbortError") throw err;
-    toast.error(i18n.t("flexweg.errors.network", { action: actionLabel(action) }));
+    toast.error(i18n.t("storage.errors.network", { action: actionLabel(action) }));
     throw err;
   }
   if (res.ok) return res;
@@ -87,7 +87,7 @@ export async function performRequest(
 // Thrown by the facade when the active connector can't perform an
 // action and there is no emulation path for it.
 export function unsupported(action: StorageAction, connectorId: string): StorageError {
-  const message = i18n.t("flexweg.errors.unsupported", {
+  const message = i18n.t("storage.errors.unsupported", {
     action: actionLabel(action),
     connector: connectorId,
   });

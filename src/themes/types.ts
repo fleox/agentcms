@@ -65,7 +65,7 @@ export interface SiteContext {
     header: ResolvedMenuItem[];
     footer: ResolvedMenuItem[];
   };
-  // Path on Flexweg of the active theme's CSS, e.g. "theme-assets/default.css".
+  // Path on the hosting of the active theme's CSS, e.g. "theme-assets/default.css".
   themeCssPath: string;
   // Active theme's resolved config (manifest defaults merged with what
   // the user saved in /theme-settings). Typed as `unknown` here because
@@ -120,7 +120,7 @@ export interface SingleTemplateProps {
   tags: Term[];
 }
 
-// Optional "See full archives →" link injected by the flexweg-archives
+// Optional "See full archives →" link injected by the agentcms-archives
 // plugin when enabled. Resolved at publish time by the publisher and
 // rendered by the theme as a footer-style link below the post list.
 // Themes that want to ignore it can simply not destructure the prop.
@@ -158,7 +158,7 @@ export interface CategoryTemplateProps {
   term: Term;
   posts: CardPost[];
   // Absolute URL of the per-category RSS feed, when one is enabled in the
-  // flexweg-rss plugin config. Lets the template render a "Follow"
+  // agentcms-rss plugin config. Lets the template render a "Follow"
   // button. Undefined when no feed exists for this category.
   categoryRssUrl?: string;
   archivesLink?: ArchivesLink;
@@ -219,7 +219,7 @@ export interface ThemeManifest<TConfig = unknown> {
   scssEntry: string;
   // Compiled CSS embedded in the admin bundle (via a Vite `?inline` import
   // in the manifest file). The "Sync theme assets" button uploads this
-  // string to Flexweg, so the admin always pushes the CSS that was built
+  // string to the publish target, so the admin always pushes the CSS that was built
   // alongside it — no chicken-and-egg with /theme-assets/ being uploaded
   // first.
   cssText: string;

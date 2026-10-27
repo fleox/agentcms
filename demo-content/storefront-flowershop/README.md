@@ -114,7 +114,7 @@ Most products carry one or two variants — Size, Wrapping, Vase, Pot, Colour, e
 
 ### CTAs
 
-All primary CTAs point at `/contact.html` (the conventional contact form on a static Flexweg site). Secondary CTAs use `mailto:hello@example.com` — replace with your real address before going live.
+All primary CTAs point at `/contact.html` (the conventional contact form on a static site). Secondary CTAs use `mailto:hello@example.com` — replace with your real address before going live.
 
 ### Tags
 
@@ -125,8 +125,8 @@ Tags are auto-created by the importer (`spring`, `pink`, `romantic`, `seasonal`,
 ### Drag-and-drop mode (recommended for a one-off seed)
 
 1. Activate the **Storefront** theme in `/admin/#/themes`.
-2. Enable **Flexweg Import** in `/admin/#/plugins` (regular plugins tab).
-3. Open `/admin/#/settings/plugin/flexweg-import`.
+2. Enable the **Import** plugin (`agentcms-import`) in `/admin/#/plugins` (regular plugins tab).
+3. Open `/admin/#/settings/plugin/agentcms-import`.
 4. Switch source to **Drag and drop**.
 5. Drag the entire `storefront-flowershop/` folder (including `images/`) into the drop zone.
 6. Click **Scan** → the dry-run shows: 30 posts + 7 pages, 5 categories, ~25 tags, 40 images.
@@ -136,14 +136,14 @@ Tags are auto-created by the importer (`spring`, `pink`, `romantic`, `seasonal`,
 
 ### Folder mode
 
-1. Click **Initialize import folder** to create `_cms-import/` on your Flexweg site.
+1. Click **Initialize import folder** to create `_cms-import/` on your site (the active publish target).
 2. Upload the `.md` files to `_cms-import/`.
 3. Upload the `images/` contents to `_cms-import/images/`.
 4. **Refresh listing** → **Scan** → **Confirm import**.
 
 ## Image credits
 
-All 30 images are from [Pexels](https://www.pexels.com/) under the [Pexels License](https://www.pexels.com/license/) (free for commercial use, no attribution required, no modification restrictions). The bundle hot-references the Pexels CDN at download time but stores the files locally — once imported, they live entirely on your Flexweg site through the standard media pipeline (multi-variant WebP, including the new `admin-original` 2000-px source variant).
+All 30 images are from [Pexels](https://www.pexels.com/) under the [Pexels License](https://www.pexels.com/license/) (free for commercial use, no attribution required, no modification restrictions). The bundle hot-references the Pexels CDN at download time but stores the files locally — once imported, they live entirely on your own hosting through the standard media pipeline (multi-variant WebP, including the new `admin-original` 2000-px source variant).
 
 ## Customising before import
 

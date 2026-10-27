@@ -13,20 +13,20 @@
 //      the enabled-flags map.
 
 import type { PluginManifest } from "../plugins";
-import { manifest as flexwegFaviconManifest } from "./flexweg-favicon/manifest";
-import { manifest as flexwegBlocksManifest } from "./flexweg-blocks/manifest";
-import { manifest as flexwegCustomCodeManifest } from "./flexweg-custom-code/manifest";
-import { manifest as flexwegEmbedsManifest } from "./flexweg-embeds/manifest";
-import { manifest as flexwegMetricsManifest } from "./flexweg-metrics/manifest";
-import { manifest as flexwegImportManifest } from "./flexweg-import/manifest";
+import { manifest as faviconManifest } from "./agentcms-favicon/manifest";
+import { manifest as blocksManifest } from "./agentcms-blocks/manifest";
+import { manifest as customCodeManifest } from "./agentcms-custom-code/manifest";
+import { manifest as embedsManifest } from "./agentcms-embeds/manifest";
+import { manifest as metricsManifest } from "./agentcms-metrics/manifest";
+import { manifest as importManifest } from "./agentcms-import/manifest";
 
 export const MU_PLUGINS: PluginManifest[] = [
-  flexwegFaviconManifest as PluginManifest,
-  flexwegBlocksManifest,
-  flexwegCustomCodeManifest as PluginManifest,
-  flexwegEmbedsManifest,
-  flexwegMetricsManifest,
-  flexwegImportManifest as PluginManifest,
+  faviconManifest as PluginManifest,
+  blocksManifest,
+  customCodeManifest as PluginManifest,
+  embedsManifest,
+  metricsManifest,
+  importManifest as PluginManifest,
 ];
 
 export function listMuPlugins(): PluginManifest[] {

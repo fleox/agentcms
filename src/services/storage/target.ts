@@ -1,13 +1,9 @@
-import { DEFAULT_FLEXWEG_API_BASE_URL, getFlexwegConfig, setFlexwegConfig } from "../flexwegConfig";
 import { getSettings, updateSettings } from "../settings";
 import { getStorageConfig, setStorageConfig } from "../storageConfig";
 import { defaultConnectorId, invalidateActiveStorageConnector } from "./registry";
 
 // Read / write the active publish target as one `{ connectorId, settings }`
-// value for the UI. Flexweg keeps its credentials in `config/flexweg`
-// (shared with pre-connector installs and the SQLite install flow), so
-// it's split out here; every other connector stores its settings in
-// `config/storage`.
+// value (stored in `config/storage`).
 
 export interface PublishTarget {
   connectorId: string;
@@ -16,17 +12,7 @@ export interface PublishTarget {
 
 export async function readPublishTarget(): Promise<PublishTarget> {
   const stored = await getStorageConfig().catch(() => null);
-  const connectorId = stored?.connectorId ?? defaultConnectorId();
-  if (connectorId !== "flexweg") return { connectorId, settings: stored?.settings ?? {} };
-  const fw = await getFlexwegConfig().catch(() => null);
-  return {
-    connectorId,
-    settings: {
-      apiKey: fw?.apiKey ?? "",
-      siteUrl: fw?.siteUrl ?? "",
-      apiBaseUrl: fw?.apiBaseUrl ?? DEFAULT_FLEXWEG_API_BASE_URL,
-    },
-  };
+  return { connectorId: stored?.connectorId ?? defaultConnectorId(), settings: stored?.settings ?? {} };
 }
 
 // Public URL a target serves the site at ("" when unknown).
@@ -44,22 +30,12 @@ export async function savePublishTarget(
   target: PublishTarget,
   opts: { siteUrl?: "ifEmpty" | "always" } = {},
 ): Promise<void> {
-  if (target.connectorId === "flexweg") {
-    const s = target.settings as { apiKey?: string; siteUrl?: string; apiBaseUrl?: string };
-    await setFlexwegConfig({
-      apiKey: (s.apiKey ?? "").trim(),
-      siteUrl: (s.siteUrl ?? "").trim(),
-      apiBaseUrl: (s.apiBaseUrl ?? "").trim() || DEFAULT_FLEXWEG_API_BASE_URL,
-    });
-    await setStorageConfig({ connectorId: "flexweg", settings: {} });
-  } else {
-    const clean: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(target.settings)) {
-      if (v === undefined) continue;
-      clean[k] = typeof v === "string" ? v.trim() : v;
-    }
-    await setStorageConfig({ connectorId: target.connectorId, settings: clean });
+  const clean: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(target.settings)) {
+    if (v === undefined) continue;
+    clean[k] = typeof v === "string" ? v.trim() : v;
   }
+  await setStorageConfig({ connectorId: target.connectorId, settings: clean });
   invalidateActiveStorageConnector();
   await adoptSiteUrl(target, opts.siteUrl ?? "ifEmpty");
 }

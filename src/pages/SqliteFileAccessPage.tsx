@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import flexwegLogo from "../assets/flexweg-logo.png";
+import agentcmsLogo from "../assets/agentcms-logo.svg";
 import { PublishTargetForm } from "../components/connectors/PublishTargetForm";
 import { LocaleSwitcher } from "../components/ui/LocaleSwitcher";
 import { getRuntimeConfig } from "../lib/runtimeConfig";
@@ -61,17 +61,17 @@ export function SqliteFileAccessPage() {
 
   return (
     <div className="relative min-h-full flex items-center justify-center p-6 bg-surface-50 dark:bg-surface-950 overflow-hidden">
-      <div className="flexweg-blobs" aria-hidden="true">
-        <div className="flexweg-blob flexweg-blob-1"></div>
-        <div className="flexweg-blob flexweg-blob-2"></div>
-        <div className="flexweg-blob flexweg-blob-3"></div>
+      <div className="agentcms-blobs" aria-hidden="true">
+        <div className="agentcms-blob agentcms-blob-1"></div>
+        <div className="agentcms-blob agentcms-blob-2"></div>
+        <div className="agentcms-blob agentcms-blob-3"></div>
       </div>
       <div className="absolute top-4 right-4 z-10">
         <LocaleSwitcher />
       </div>
       <div className="w-full max-w-md relative z-10">
         <div className="flex items-center gap-2.5 justify-center mb-6">
-          <img src={flexwegLogo} alt="AgentCMS" className="h-10 w-10 rounded-xl shadow-card object-cover" />
+          <img src={agentcmsLogo} alt="AgentCMS" className="h-10 w-10 rounded-xl shadow-card object-cover" />
           <div>
             <p className="text-base font-semibold leading-none">{t("identity.brandTitle")}</p>
             <p className="text-[11px] text-surface-500 mt-0.5 dark:text-surface-400">{t("identity.brandSubtitle")}</p>

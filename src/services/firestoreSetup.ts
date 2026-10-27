@@ -48,7 +48,7 @@ export interface FirestoreSetupResult {
   unexpectedError?: { code: string; message: string };
 }
 
-const CACHE_KEY = "flexweg.firestoreIndexesReady";
+const CACHE_KEY = "agentcms.firestoreIndexesReady";
 const FAILED_PRECONDITION = "failed-precondition";
 
 // Pulls the auto-suggest URL out of Firestore's error message.

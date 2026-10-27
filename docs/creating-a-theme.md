@@ -32,7 +32,7 @@ my-theme/
 └── README.md
 ```
 
-The `.zip` artifact contains `manifest.json`, `bundle.js`, `theme.css`, and optionally `README.md`. Anything else in the ZIP is uploaded to `/admin/themes/<id>/` on Flexweg too.
+The `.zip` artifact contains `manifest.json`, `bundle.js`, `theme.css`, and optionally `README.md`. Anything else in the ZIP is uploaded to `<admin folder>/themes/<id>/` on the publish target too.
 
 ## manifest.json
 
@@ -46,7 +46,7 @@ The `.zip` artifact contains `manifest.json`, `bundle.js`, `theme.css`, and opti
 }
 ```
 
-Same fields as the plugin manifest. `id` is the folder name on Flexweg; lower-case ASCII + dash.
+Same fields as the plugin manifest. `id` is the folder name under `<admin folder>/themes/`; lower-case ASCII + dash.
 
 ## bundle.js (the runtime payload)
 
@@ -103,7 +103,7 @@ Wraps every page. Receives `site` (settings + resolved menus + `themeConfig`), `
 
 **Two sentinels are required**, both consumed by `core/render.tsx` after `renderToStaticMarkup`:
 
-- `<meta name="x-cms-head-extra" />` inside `<head>` — replaced with the result of `applyFiltersSync("page.head.extra", "", baseProps)`. Plugins like `flexweg-favicon`, `core-seo` and `flexweg-rss` inject their `<link>` / `<meta>` tags here.
+- `<meta name="x-cms-head-extra" />` inside `<head>` — replaced with the result of `applyFiltersSync("page.head.extra", "", baseProps)`. Plugins like `agentcms-favicon`, `core-seo` and `agentcms-rss` inject their `<link>` / `<meta>` tags here.
 - `<script type="application/x-cms-body-end" />` just before `</body>` — replaced with the result of `applyFiltersSync("page.body.end", "", baseProps)`. Plugins inject deferred runtime scripts there.
 
 Without those sentinels, the corresponding plugin output silently no-ops on your theme.
@@ -162,7 +162,7 @@ The admin calls this every time it uploads `/theme-assets/<id>.css` (the **Sync 
 }
 ```
 
-`vite.config.ts` — same shape as the plugin example. Externalise `react`, `react/jsx-runtime`, `react-dom`, `react-dom/client`, `react-i18next` (only if you use translations) and `@flexweg/cms-runtime`.
+`vite.config.ts` — same shape as the plugin example. Externalise `react`, `react/jsx-runtime`, `react-dom`, `react-dom/client`, `react-i18next` (only if you use translations) and `@agent-cms/runtime`.
 
 `scripts/pack.mjs` — same idea as the plugin example, but also include `theme.css` from `src/`:
 
@@ -181,22 +181,11 @@ Outputs `<id>.zip`. In the admin: **Themes** → **Install theme** → pick the 
 
 ## Manual install (without the upload UI)
 
-1. Unzip into `<id>/`.
-2. Upload to Flexweg under `/admin/themes/<id>/`.
-3. Append an entry to `/admin/external.json`:
-   ```json
-   {
-     "id": "<id>",
-     "version": "1.0.0",
-     "apiVersion": "1.0.0",
-     "entryPath": "themes/<id>/bundle.js"
-   }
-   ```
-4. Reload the admin.
+Not supported: the list of installed externals lives in the data backend, so copying the files next to the admin by hand is not enough. Use the **Install theme** modal (uploading a newer ZIP with the same `id` upgrades in place).
 
 ## Uninstall
 
-**Themes** → **Install theme** → modal lists installed external themes with an **Uninstall** button. Clicking removes the folder + the entry from `external.json`. If the uninstalled theme was active, the admin falls back to the first available theme — switch to a different theme first if you want to control which one becomes active.
+**Themes** → **Install theme** → modal lists installed external themes with an **Uninstall** button. Clicking removes the entry from the external registry + the folder from the publish target. If the uninstalled theme was active, the admin falls back to the first available theme — switch to a different theme first if you want to control which one becomes active.
 
 ## Troubleshooting
 

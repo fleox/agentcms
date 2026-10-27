@@ -1,28 +1,28 @@
-// Runtime stub for "@flexweg/cms-runtime" — the public API external
+// Runtime stub for "@agent-cms/runtime" — the public API external
 // plugins and themes use to register filters, actions, blocks, dashboard
-// cards AND to call admin services (Flexweg Files API, Firestore CRUD,
+// cards AND to call admin services (publish-target files, data CRUD,
 // publishing, slug helpers, markdown utilities, …).
 //
-// External bundles install @flexweg/cms-runtime as a dev dependency
+// External bundles install @agent-cms/runtime as a dev dependency
 // for type definitions and externalize it at build time. The import-map
 // in /admin/index.html redirects each `import` here. We read the live
-// admin instances off window.__FLEXWEG_RUNTIME__ (populated by
-// src/core/flexwegRuntime.ts on admin boot) and re-export them so the
+// admin instances off window.__AGENTCMS_RUNTIME__ (populated by
+// src/core/cmsRuntime.ts on admin boot) and re-export them so the
 // bundle gets the same module instances the admin itself uses —
 // required for Firebase / i18next / React state to be coherent.
-const R = (typeof window !== "undefined" && window.__FLEXWEG_RUNTIME__)
-  ? window.__FLEXWEG_RUNTIME__
+const R = (typeof window !== "undefined" && window.__AGENTCMS_RUNTIME__)
+  ? window.__AGENTCMS_RUNTIME__
   : null;
 
 if (!R) {
   throw new Error(
-    "[flexweg] window.__FLEXWEG_RUNTIME__ is not initialised when @flexweg/cms-runtime was imported.",
+    "[agentcms] window.__AGENTCMS_RUNTIME__ is not initialised when @agent-cms/runtime was imported.",
   );
 }
 
 // API versioning
-export const FLEXWEG_API_VERSION = R.apiVersion;
-export const FLEXWEG_API_MIN_VERSION = R.minApiVersion;
+export const CMS_API_VERSION = R.apiVersion;
+export const CMS_API_MIN_VERSION = R.minApiVersion;
 
 // CMS plugin API + registries
 export const pluginApi = R.pluginApi;
@@ -72,7 +72,7 @@ export const postSortMillis = R.postSortMillis;
 // core/render
 export const renderPageToHtml = R.renderPageToHtml;
 
-// services/flexwegApi — Flexweg Files API client
+// services/siteFiles — files on the active publish target
 export const uploadFile = R.uploadFile;
 export const deleteFile = R.deleteFile;
 export const deleteFolder = R.deleteFolder;
@@ -83,11 +83,9 @@ export const getFile = R.getFile;
 export const listFiles = R.listFiles;
 export const publicUrlFor = R.publicUrlFor;
 export const fileToBase64 = R.fileToBase64;
-export const getStorageLimits = R.getStorageLimits;
 export const getStorageCapabilities = R.getStorageCapabilities;
 export const withStorageBatch = R.withStorageBatch;
 export const StorageError = R.StorageError;
-export const FlexwegApiError = R.FlexwegApiError;
 
 // services/posts — post Firestore CRUD
 export const fetchAllPosts = R.fetchAllPosts;

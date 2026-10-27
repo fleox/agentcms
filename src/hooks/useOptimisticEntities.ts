@@ -6,15 +6,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 // closing the latency gap between a mutation and the next subscription
 // emission.
 //
-// Why: in SQLite mode, the polling tick is ~4 s. Without optimistic
-// inserts, the flow
+// Why: without optimistic inserts, the flow
 //
 //   1. await createPost(...)  →  returns id
 //   2. navigate(`/posts/${id}`)
 //   3. PostEditPage reads from CmsDataContext  →  no entry yet
 //   4. "Post not found" flash until the next poll catches up
 //
-// gives a brief 404 for every new post. Even Firebase mode (push via
+// can give a brief 404 for a new post: even Firebase mode (push via
 // onSnapshot) has a short window where the freshly-created row is in
 // Firestore but not yet in the local subscription state.
 //

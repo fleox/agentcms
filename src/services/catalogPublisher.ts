@@ -2,9 +2,9 @@ import { buildPostUrl } from "../core/slug";
 import { mediaToView, pickFormat } from "../core/media";
 import { postSortMillis } from "../core/postSort";
 import type { Media, Post, SiteSettings, Term } from "../core/types";
-import { deleteFile, uploadFile } from "./flexwegApi";
+import { deleteFile, uploadFile } from "./siteFiles";
 
-// Path on Flexweg of the public-side products feed. Grouped under
+// Site path of the public-side products feed. Grouped under
 // `data/` alongside menu.json + posts.json + authors.json so the
 // public-site root stays uncluttered.
 export const PRODUCTS_JSON_PATH = "data/products.json";

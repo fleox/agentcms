@@ -2,7 +2,7 @@ import { Menu as MenuIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LocaleSwitcher } from "../ui/LocaleSwitcher";
 import { RegenerateMenu } from "./RegenerateMenu";
-import flexwegLogo from "../../assets/flexweg-logo.png";
+import agentcmsLogo from "../../assets/agentcms-logo.svg";
 
 interface TopbarProps {
   // Click handler for the mobile burger button. Opens the sidebar
@@ -30,7 +30,7 @@ export function Topbar({ onOpenMobileNav }: TopbarProps) {
           </button>
           <div className="flex items-center gap-2 min-w-0 md:hidden">
             <img
-              src={flexwegLogo}
+              src={agentcmsLogo}
               alt="AgentCMS"
               className="h-7 w-7 rounded-md object-cover shrink-0"
             />

@@ -1,15 +1,15 @@
-// Minimal type stub for @flexweg/cms-runtime — the public API external
+// Minimal type stub for @agent-cms/runtime — the public API external
 // plugins use. In a production setup these types would ship as an npm
-// package (`@flexweg/cms-runtime`); for the example we keep them inline
+// package (`@agent-cms/runtime`); for the example we keep them inline
 // so the scaffold is self-contained.
 //
 // Keep this in sync with src/core/pluginRegistry.ts on the admin side.
 
-declare module "@flexweg/cms-runtime" {
+declare module "@agent-cms/runtime" {
   import type { ComponentType } from "react";
 
-  export const FLEXWEG_API_VERSION: string;
-  export const FLEXWEG_API_MIN_VERSION: string;
+  export const CMS_API_VERSION: string;
+  export const CMS_API_MIN_VERSION: string;
 
   export type FilterHandler<T> = (
     value: T,

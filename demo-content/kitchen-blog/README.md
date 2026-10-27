@@ -1,6 +1,6 @@
 # Kitchen Stories — demo content bundle
 
-A self-contained set of 9 home-cooking blog posts + 2 static pages, written in English, ready to import via the **Flexweg Import** plugin into a AgentCMS site running the **default** theme (or any theme that renders standard markdown posts — no theme-specific blocks used).
+A self-contained set of 9 home-cooking blog posts + 2 static pages, written in English, ready to import via the **Import** plugin (`agentcms-import`) into a AgentCMS site running the **default** theme (or any theme that renders standard markdown posts — no theme-specific blocks used).
 
 Useful as a quickstart for testing the default theme end-to-end, or as a ready-made skeleton for a personal cooking blog.
 
@@ -41,8 +41,8 @@ All posts are signed by `anna@kitchen-stories.example` (a fake email). The about
 ## How to use
 
 1. **Make sure the default theme is active** at `/admin/#/themes`
-2. **Enable Flexweg Import** in `/admin/#/plugins`
-3. Open `/admin/#/settings/plugin/flexweg-import` → Drag and drop mode
+2. **Enable the Import plugin (agentcms-import)** in `/admin/#/plugins`
+3. Open `/admin/#/settings/plugin/agentcms-import` → Drag and drop mode
 4. Drag the whole `kitchen-blog/` folder (including `images/`) into the drop zone
 5. Click **Scan** → 9 posts + 2 pages, 4 categories (Recipes / Techniques / Baking / Lifestyle), ~29 tags, 9 images
 6. Pick a status mode (recommended: **Always import as draft** so you can review before going live)

@@ -1,13 +1,13 @@
-// Local stub for @flexweg/cms-runtime — the public API surface the
+// Local stub for @agent-cms/runtime — the public API surface the
 // external theme consumes. In a future packaged release these would
 // ship as a proper npm package; here we keep them inline so the
 // scaffold has no extra dependency.
 
-declare module "@flexweg/cms-runtime" {
+declare module "@agent-cms/runtime" {
   import type { ComponentType, ReactNode } from "react";
 
-  export const FLEXWEG_API_VERSION: string;
-  export const FLEXWEG_API_MIN_VERSION: string;
+  export const CMS_API_VERSION: string;
+  export const CMS_API_MIN_VERSION: string;
 
   // ───── Core data types ─────
   export interface AuthorView {

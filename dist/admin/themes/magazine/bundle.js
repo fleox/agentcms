@@ -1,5 +1,5 @@
 import { jsx as d, jsxs as g, Fragment as Je } from "react/jsx-runtime";
-import { uploadFile as _r, i18n as ee, pickPublicLocale as te, canonicalUrl as Jr, pickFormat as Z, buildTermUrl as Nt, SocialIcon as Wr, socialLabel as Wt, useCmsData as Gr, logoPath as Kr, FontSelect as Gt, toast as D, uploadThemeLogo as Zr, removeThemeLogo as Yr, fetchAllPosts as Kt, publishMenuJson as Xr, useAllPosts as In, postSortMillis as ne, buildPostUrl as ot, mediaToView as Pn, getCurrentPublishContext as Qr } from "@flexweg/cms-runtime";
+import { uploadFile as _r, i18n as ee, pickPublicLocale as te, canonicalUrl as Jr, pickFormat as Z, buildTermUrl as Nt, SocialIcon as Wr, socialLabel as Wt, useCmsData as Gr, logoPath as Kr, FontSelect as Gt, toast as D, uploadThemeLogo as Zr, removeThemeLogo as Yr, fetchAllPosts as Kt, publishMenuJson as Xr, useAllPosts as In, postSortMillis as ne, buildPostUrl as ot, mediaToView as Pn, getCurrentPublishContext as Qr } from "@agent-cms/runtime";
 import P, { forwardRef as Et, createElement as Ke, useState as G, useRef as ei, createRef as ti, memo as ni, createContext as Rn, version as Zt, useContext as ri } from "react";
 import { useTranslation as q } from "react-i18next";
 import ii, { flushSync as oi } from "react-dom";
@@ -1450,7 +1450,7 @@ const en = '@import"https://fonts.googleapis.com/css2?family=Newsreader:ital,wgh
     brandPosition: "Brand position",
     brandPositions: { centered: "Centered", left: "Left-aligned" },
     showSearch: "Show search trigger",
-    showSearchHelp: "Activates a button in the header that opens the flexweg-search modal (when the plugin is enabled)."
+    showSearchHelp: "Activates a button in the header that opens the agentcms-search modal (when the plugin is enabled)."
   }
 }, Si = {
   description: "Personnalisez le thème actif. Les modifications s'appliquent à chaque page publiée au prochain chargement (le navigateur peut mettre en cache le CSS — un Cmd+Maj+R suffit à le rafraîchir).",
@@ -1558,7 +1558,7 @@ const en = '@import"https://fonts.googleapis.com/css2?family=Newsreader:ital,wgh
     brandPosition: "Position du wordmark",
     brandPositions: { centered: "Centré", left: "Aligné à gauche" },
     showSearch: "Afficher le bouton de recherche",
-    showSearchHelp: "Active un bouton dans l'en-tête qui ouvre la modale flexweg-search (quand le plugin est activé)."
+    showSearchHelp: "Active un bouton dans l'en-tête qui ouvre la modale agentcms-search (quand le plugin est activé)."
   }
 }, Ci = {
   description: "Passen Sie das aktive Theme an. Änderungen wirken sich auf jede veröffentlichte Seite beim nächsten Laden aus (Browser können CSS zwischenspeichern — ein Hard-Refresh genügt).",
@@ -1666,7 +1666,7 @@ const en = '@import"https://fonts.googleapis.com/css2?family=Newsreader:ital,wgh
     brandPosition: "Wordmark-Position",
     brandPositions: { centered: "Zentriert", left: "Linksbündig" },
     showSearch: "Suchschaltfläche anzeigen",
-    showSearchHelp: "Aktiviert eine Schaltfläche in der Kopfzeile, die das flexweg-search-Modal öffnet (wenn das Plugin aktiv ist)."
+    showSearchHelp: "Aktiviert eine Schaltfläche in der Kopfzeile, die das agentcms-search-Modal öffnet (wenn das Plugin aktiv ist)."
   }
 }, Ni = {
   description: "Personaliza el tema activo. Los cambios afectan a cada página publicada en la próxima carga (el navegador puede cachear el CSS — un hard-refresh basta).",
@@ -1774,7 +1774,7 @@ const en = '@import"https://fonts.googleapis.com/css2?family=Newsreader:ital,wgh
     brandPosition: "Posición del wordmark",
     brandPositions: { centered: "Centrado", left: "Alineado a la izquierda" },
     showSearch: "Mostrar botón de búsqueda",
-    showSearchHelp: "Activa un botón en el encabezado que abre el modal flexweg-search (cuando el plugin está habilitado)."
+    showSearchHelp: "Activa un botón en el encabezado que abre el modal agentcms-search (cuando el plugin está habilitado)."
   }
 }, Ei = {
   description: "Pas het actieve thema aan. Wijzigingen beïnvloeden elke gepubliceerde pagina bij de volgende lading (browsers kunnen CSS cachen — een hard-refresh helpt).",
@@ -1882,7 +1882,7 @@ const en = '@import"https://fonts.googleapis.com/css2?family=Newsreader:ital,wgh
     brandPosition: "Positie van het wordmark",
     brandPositions: { centered: "Gecentreerd", left: "Links uitgelijnd" },
     showSearch: "Zoekknop tonen",
-    showSearchHelp: "Activeert een knop in de header die de flexweg-search-modal opent (als de plugin aan staat)."
+    showSearchHelp: "Activeert een knop in de header die de agentcms-search-modal opent (als de plugin aan staat)."
   }
 }, Ai = {
   description: "Personalize o tema ativo. As alterações afetam todas as páginas publicadas no próximo carregamento (o navegador pode armazenar em cache o CSS — um hard-refresh resolve).",
@@ -1990,7 +1990,7 @@ const en = '@import"https://fonts.googleapis.com/css2?family=Newsreader:ital,wgh
     brandPosition: "Posição do wordmark",
     brandPositions: { centered: "Centralizado", left: "Alinhado à esquerda" },
     showSearch: "Mostrar botão de pesquisa",
-    showSearchHelp: "Ativa um botão no cabeçalho que abre o modal flexweg-search (quando o plugin está habilitado)."
+    showSearchHelp: "Ativa um botão no cabeçalho que abre o modal agentcms-search (quando o plugin está habilitado)."
   }
 }, Mi = {
   description: "활성 테마를 사용자 지정합니다. 변경 사항은 게시된 모든 페이지의 다음 로드 시 적용됩니다 (브라우저가 CSS를 캐시할 수 있으니 한 번 하드 새로고침해 주세요).",
@@ -2098,7 +2098,7 @@ const en = '@import"https://fonts.googleapis.com/css2?family=Newsreader:ital,wgh
     brandPosition: "워드마크 위치",
     brandPositions: { centered: "중앙", left: "왼쪽 정렬" },
     showSearch: "검색 트리거 표시",
-    showSearchHelp: "헤더에 flexweg-search 모달을 여는 버튼을 활성화합니다 (플러그인이 활성화된 경우)."
+    showSearchHelp: "헤더에 agentcms-search 모달을 여는 버튼을 활성화합니다 (플러그인이 활성화된 경우)."
   }
 }, zi = {
   title: "Theme settings",

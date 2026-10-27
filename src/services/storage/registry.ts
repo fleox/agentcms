@@ -1,23 +1,21 @@
 import i18n from "../../i18n";
 import { toast } from "../../lib/toast";
-import { getBackendKind, isDocStoreBackend } from "../../lib/runtimeConfig";
 import { getStorageConfig } from "../storageConfig";
 import { browserMirrorFactory } from "./connectors/browserMirror";
-import { flexwegConnector } from "./connectors/flexweg";
 import { gitPagesFactory } from "./connectors/gitPages";
 import { localFolderFactory } from "./connectors/localFolder";
-import { phpBridgeFactory } from "./connectors/phpBridge";
 import { s3Factory } from "./connectors/s3";
 import { StorageError, type StorageConnector } from "./types";
 
 // Registry of publish connectors + resolution of the active one.
 //
-// A connector is registered either as a ready instance (Flexweg reads
-// its own credentials from `config/flexweg`) or as a factory that
-// builds an instance from the `settings` stored in `config/storage`
+// A connector is registered either as a ready instance or as a factory
+// that builds an instance from the `settings` stored in `config/storage`
 // (repo + token, bucket + keys, …).
 
-export const DEFAULT_CONNECTOR_ID = flexwegConnector.id;
+// Used when no target is stored: the in-browser ZIP mirror — never
+// silently publish to an unconfigured remote.
+export const DEFAULT_CONNECTOR_ID = "browser-mirror";
 
 export interface StorageConnectorFactory<S = Record<string, unknown>> {
   id: string;
@@ -30,13 +28,11 @@ type Entry = StorageConnector | StorageConnectorFactory;
 // stores them erased (settings come back from storage untyped).
 const connectors = new Map<string, Entry>(
   [
-    flexwegConnector,
     gitPagesFactory,
     s3Factory,
-    phpBridgeFactory,
     browserMirrorFactory,
     localFolderFactory,
-  ].map((e) => [e.id, e as Entry]),
+  ].map((e) => [e.id, e as unknown as Entry]),
 );
 
 function isFactory(entry: Entry): entry is StorageConnectorFactory {
@@ -50,12 +46,8 @@ export function registerStorageConnector(entry: Entry): void {
   if (active && active.id === entry.id) active = null;
 }
 
-// Connector used when none is stored: Flexweg for the Flexweg-era
-// backends (pre-connector installs), the in-browser ZIP mirror for the
-// document-store backends (never silently publish to an unconfigured
-// remote).
 export function defaultConnectorId(): string {
-  return isDocStoreBackend(getBackendKind()) ? "browser-mirror" : DEFAULT_CONNECTOR_ID;
+  return DEFAULT_CONNECTOR_ID;
 }
 
 export function listStorageConnectorIds(): string[] {
@@ -67,7 +59,7 @@ export function listStorageConnectorIds(): string[] {
 export function instantiateStorageConnector(id: string, settings: Record<string, unknown>): StorageConnector {
   const entry = connectors.get(id);
   if (!entry) {
-    throw new StorageError(i18n.t("flexweg.errors.unknownConnector", { connector: id }), 501);
+    throw new StorageError(i18n.t("storage.errors.unknownConnector", { connector: id }), 501);
   }
   return isFactory(entry) ? entry.create(settings) : entry;
 }
@@ -82,10 +74,7 @@ async function resolveActive(): Promise<StorageConnector> {
   try {
     config = await getStorageConfig();
   } catch (err) {
-    // Deployments running older Firestore rules (written before the
-    // generic `config/{docId}` match) can't read `config/storage`.
-    // Those installs predate connectors, so Flexweg is the right answer.
-    console.warn("[storage] could not read storage config, defaulting to Flexweg:", err);
+    console.warn("[storage] could not read storage config, using the default target:", err);
   }
   const id = config?.connectorId ?? defaultConnectorId();
   try {

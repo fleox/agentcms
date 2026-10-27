@@ -1,9 +1,9 @@
 import { applyFilters } from "../core/pluginRegistry";
 import { resolveMenuItems, type ResolvedMenuItem } from "../core/menuResolver";
 import type { Post, SiteSettings, Term } from "../core/types";
-import { uploadFile } from "./flexwegApi";
+import { uploadFile } from "./siteFiles";
 
-// Path on Flexweg where the dynamic menu blob lives. Grouped under
+// Site path where the dynamic menu blob lives. Grouped under
 // `data/` alongside the other content snapshots (posts.json,
 // authors.json) so the public-site root stays uncluttered. Loaders
 // fetch absolute URLs (`/data/menu.json`), so folder depth has no
@@ -45,7 +45,7 @@ function resolveBranding(settings: SiteSettings): MenuJsonBranding | undefined {
 
 // Context handed to plugins via the `menu.json.resolved` filter hook.
 // Lets handlers compute additional menu items from arbitrary site data
-// (e.g. flexweg-rss appends one footer entry per enabled RSS feed).
+// (e.g. agentcms-rss appends one footer entry per enabled RSS feed).
 export interface MenuFilterContext {
   settings: SiteSettings;
   posts: Post[];
@@ -53,7 +53,7 @@ export interface MenuFilterContext {
   terms: Term[];
 }
 
-// Builds the JSON shape uploaded to Flexweg. Pure function — no API
+// Builds the JSON shape uploaded to the site. Pure function — no API
 // access — so callers can pre-compute and reuse / cache it. The shape is
 // deliberately minimal: only fields the public-side menu loader actually
 // reads. Adding more (icons, descriptions) is a non-breaking change.
@@ -72,7 +72,7 @@ export function buildMenuJson(
 }
 
 // Resolves the current menus and uploads the result as `/menu.json` on
-// Flexweg. Called whenever the menu, a referenced post slug, or a
+// the site. Called whenever the menu, a referenced post slug, or a
 // referenced category slug changes — far cheaper than re-rendering every
 // HTML page that embeds the menu, and the public-side loader picks up
 // the change on the next page load.
@@ -81,7 +81,7 @@ export function buildMenuJson(
 // filter so plugins can append their own entries (e.g. RSS feed links).
 //
 // We deliberately don't track a "lastPublishedHash" here: the file is
-// tiny (~1-5 KB) and the Flexweg upload deduplicates server-side, so the
+// tiny (~1-5 KB), so the
 // extra round-trip on a no-op write isn't worth the bookkeeping. If perf
 // ever matters, hash + skip pattern from publisher.uploadIfChanged is
 // trivially portable here.

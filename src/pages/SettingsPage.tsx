@@ -112,9 +112,8 @@ export function SettingsPage() {
     }
   }
 
-  // Publish target — loaded separately from the settings doc (Flexweg
-  // credentials live in config/flexweg, every other connector in
-  // config/storage; services/storage/target.ts hides the split).
+  // Publish target — loaded separately from the settings doc (it lives
+  // in config/storage).
   const [target, setTarget] = useState<PublishTarget | null>(null);
   const [savingTarget, setSavingTarget] = useState(false);
 
@@ -275,7 +274,7 @@ export function SettingsPage() {
             className="input"
             value={baseUrl}
             onChange={(e) => setBaseUrl(e.target.value)}
-            placeholder="https://your-site.flexweg.com"
+            placeholder="https://www.example.com"
           />
         </div>
         <div>
@@ -341,11 +340,10 @@ export function SettingsPage() {
       {/* Performance / pagination toggle is Firestore-specific —
           it controls whether posts/pages lists run live `onSnapshot`
           subscriptions on the whole collection (global) or cursor-
-          paginated queries with composite indexes (paginated). SQLite
-          mode polls a single `/version` endpoint regardless, so the
-          choice has no effect there. Hide the section to avoid
-          surfacing a no-op control. */}
-      {backend !== "flexweg-sqlite" && (
+          paginated queries with composite indexes (paginated). The
+          document-store backends hold everything in memory, so the
+          choice has no effect there. */}
+      {backend === "firebase" && (
         <section className="card p-4 space-y-3">
           <h2 className="font-semibold">{t("settings.performance.title")}</h2>
           <p className="text-xs text-surface-500 dark:text-surface-400">
@@ -489,28 +487,21 @@ export function SettingsPage() {
   );
 }
 
-// Backend switcher (admin-only). Surfaces the active backend, a
-// download link to the SQLite file (in SQLite mode), and a "Switch
-// backend…" button that wipes the in-browser runtime config + reloads
-// so the SetupForm shows up and the user can pick the other backend.
+// Backend switcher (admin-only). Surfaces the active backend and a
+// "Switch backend…" button that wipes the in-browser runtime config +
+// reloads so the SetupForm shows up and the user can pick another one.
 //
-// **Data is NOT migrated** — the previous backend's data stays where
-// it was (Firestore or the .sqlite file on Flexweg) but won't be read
-// until the user switches back.
+// **Data is NOT migrated** by the switch itself — the previous
+// backend's data stays where it was; ContentTransfer below moves it.
 function BackendSettings({ backend }: { backend: ReturnType<typeof getBackendKind> }) {
   const { t } = useTranslation();
   const [confirming, setConfirming] = useState(false);
   const config = getRuntimeConfig();
   const isFirebase = backend === "firebase";
-  const isSqlite = backend === "flexweg-sqlite";
-  const backupHref =
-    config && config.backend === "flexweg-sqlite"
-      ? `${config.flexweg.siteUrl.replace(/\/+$/, "")}/${config.flexweg.sqlitePath.replace(/^\/+/, "")}`
-      : null;
 
   function switchBackend() {
     if (typeof window !== "undefined") {
-      window.__FLEXWEG_CONFIG__ = null;
+      window.__AGENTCMS_CONFIG__ = null;
       // Admins without a writable config.js keep the config here.
       saveLocalRuntimeConfig(null);
       resetRuntimeConfigCache();
@@ -532,11 +523,6 @@ function BackendSettings({ backend }: { backend: ReturnType<typeof getBackendKin
             <>
               <Flame className="h-3.5 w-3.5 text-amber-500" />
               Firebase
-            </>
-          ) : isSqlite ? (
-            <>
-              <Database className="h-3.5 w-3.5 text-emerald-500" />
-              SQLite
             </>
           ) : config?.backend === "markdown-git" ? (
             <>
@@ -567,21 +553,6 @@ function BackendSettings({ backend }: { backend: ReturnType<typeof getBackendKin
           )}
         </span>
       </p>
-
-      {isSqlite && backupHref && (
-        <p className="text-xs text-surface-500 dark:text-surface-400">
-          <a
-            href={backupHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-blue-600 hover:underline dark:text-blue-400"
-          >
-            <Download className="h-3.5 w-3.5" />
-            {t("settings.backend.downloadBackup")}
-          </a>{" "}
-          — {t("settings.backend.downloadBackupHelp")}
-        </p>
-      )}
 
       {config?.backend === "sqlite-file" && <SqliteEncryptionSettings />}
 
@@ -654,7 +625,7 @@ function SqliteEncryptionSettings() {
       const config = getRuntimeConfig();
       if (config?.backend === "sqlite-file") {
         const next = { ...config, sqlite: { ...config.sqlite, encrypted: true } };
-        window.__FLEXWEG_CONFIG__ = next;
+        window.__AGENTCMS_CONFIG__ = next;
         if (window.localStorage.getItem(LOCAL_RUNTIME_CONFIG_KEY)) saveLocalRuntimeConfig(next);
         const folder = currentAdminFolderOn(await readPublishTarget());
         if (folder) await uploadConfigJsTo(folder, next).catch(() => {});
@@ -762,7 +733,7 @@ function ContentTransfer() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `flexweg-content-${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `agentcms-content-${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 10_000);
     } catch (err) {
@@ -840,7 +811,7 @@ function AdminHostingTool({ target }: { target: PublishTarget }) {
     void readAdminManifest().then((m) => setAvailable(!!m));
   }, []);
 
-  if (!available || target.connectorId === "flexweg" || target.connectorId === "browser-mirror") return null;
+  if (!available || target.connectorId === "browser-mirror") return null;
   const runtime = getRuntimeConfig();
   if (!runtime) return null;
   const url = adminUrlOn(target, folder);

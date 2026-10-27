@@ -1,7 +1,7 @@
-import type { CategoryTemplateProps, SiteContext } from "@flexweg/cms-runtime";
-import { pickFormat } from "@flexweg/cms-runtime";
-import { buildTermUrl } from "@flexweg/cms-runtime";
-import { i18n, pickPublicLocale } from "@flexweg/cms-runtime";
+import type { CategoryTemplateProps, SiteContext } from "@agent-cms/runtime";
+import { pickFormat } from "@agent-cms/runtime";
+import { buildTermUrl } from "@agent-cms/runtime";
+import { i18n, pickPublicLocale } from "@agent-cms/runtime";
 
 // Corporate category archive — closely follows the Stitch mockup.
 //
@@ -12,7 +12,7 @@ import { i18n, pickPublicLocale } from "@flexweg/cms-runtime";
 // recent posts thumbs widgets — populated server-side from
 // allCategories prop.
 //
-// FAB search button bottom-right (when flexweg-search plugin is
+// FAB search button bottom-right (when agentcms-search plugin is
 // active) sits in BaseLayout as a `data-cms-search` button — kept
 // out of this template.
 export function CategoryTemplate({

@@ -1,4 +1,3 @@
-import { testFlexwegConnection } from "../../lib/setupApi";
 import { createRemoteGitTransport } from "../git";
 import { getStorageConfig } from "../storageConfig";
 import { resolveGitPagesToken, type GitPagesSettings } from "./connectors/gitPages";
@@ -11,7 +10,7 @@ import { StorageError } from "./types";
 // commit would trigger a Pages build), file targets write + delete a
 // tiny probe file.
 
-export const PROBE_PATH = ".flexweg-cms-probe.txt";
+export const PROBE_PATH = ".agentcms-probe.txt";
 
 export interface ConnectionTestResult {
   ok: boolean;
@@ -21,10 +20,8 @@ export interface ConnectionTestResult {
 
 // Fields without which a connector can't even attempt a request.
 const REQUIRED: Record<string, (s: Record<string, unknown>) => string[]> = {
-  flexweg: () => ["apiKey", "siteUrl"],
   "git-pages": (s) => [...(s.provider === "gitlab" ? ["project"] : ["owner", "repo"]), "branch", "siteUrl"],
   s3: () => ["bucket", "accessKeyId", "secretAccessKey", "siteUrl"],
-  "php-bridge": () => ["apiBaseUrl", "apiKey", "siteUrl"],
 };
 
 // `ignore`: fields irrelevant for the caller (a SQLite database location
@@ -42,17 +39,6 @@ export async function testStorageConnection(
   const missing = missingFields(connectorId, settings, opts.ignore);
   if (missing.length) return { ok: false, detail: `missing: ${missing.join(", ")}` };
   try {
-    if (connectorId === "flexweg") {
-      // Uses the typed credentials (the stored ones may not exist yet —
-      // setup wizard) and a read-only endpoint, like the original setup.
-      const fw = {
-        apiKey: String(settings.apiKey ?? "").trim(),
-        siteUrl: String(settings.siteUrl ?? "").trim(),
-        apiBaseUrl: String(settings.apiBaseUrl ?? "").trim() || "https://www.flexweg.com/api/v1",
-      };
-      await testFlexwegConnection(fw);
-      return { ok: true, detail: fw.siteUrl };
-    }
     if (connectorId === "git-pages") {
       const s = settings as unknown as GitPagesSettings;
       const token = resolveGitPagesToken(s);

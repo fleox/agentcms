@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it, vi } from "vitest";
 
 // Route the real dispatchers to the document-store implementations.
 beforeAll(() => {
-  vi.stubGlobal("window", { __FLEXWEG_CONFIG__: { backend: "local" }, localStorage: undefined });
+  vi.stubGlobal("window", { __AGENTCMS_CONFIG__: { backend: "local" }, localStorage: undefined });
 });
 
 import { createMemoryDocStore, setDocStoreForTests } from "./docstore";
@@ -43,7 +43,7 @@ describe("content transfer", () => {
     const target = createMemoryDocStore({ terms: [{ id: "OLD", type: "tag", name: "Old", slug: "old" }] });
     setDocStoreForTests(target);
     await importContent(
-      { format: "flexweg-cms-export", version: 1, exportedAt: "", backend: "test", collections: { terms: [{ id: "NEW", type: "tag", name: "New", slug: "new" }] } },
+      { format: "agentcms-export", version: 1, exportedAt: "", backend: "test", collections: { terms: [{ id: "NEW", type: "tag", name: "New", slug: "new" }] } },
       "replace",
     );
     expect(target.list("terms").map((t) => t.id)).toEqual(["NEW"]);

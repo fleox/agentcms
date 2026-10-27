@@ -2,7 +2,7 @@
   "name": "@agent-cms/agentcms",
   "version": "0.1.1",
   "type": "module",
-  "description": "Static CMS whose admin runs in the browser and publishes plain HTML to any static host (GitHub/GitLab/Cloudflare Pages, S3, Flexweg, own server). Installable and manageable from AI coding agents.",
+  "description": "Static CMS whose admin runs in the browser and publishes plain HTML to any static host (GitHub/GitLab/Cloudflare Pages, S3-compatible buckets). Installable and manageable from AI coding agents.",
   "license": "SEE LICENSE IN LICENSE",
   "homepage": "https://github.com/fleox/agentcms#readme",
   "repository": {
@@ -41,7 +41,7 @@
   ],
   "agentcms": {
     "minSkillsVersion": "0.1.0",
-    "dataSchema": 1
+    "dataSchema": 2
   },
   "scripts": {
     "themes:tailwind": "node scripts/build-theme-tailwind.mjs",

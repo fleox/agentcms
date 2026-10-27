@@ -1,7 +1,7 @@
-import type { AuthorTemplateProps, SiteContext } from "@flexweg/cms-runtime";
-import { pickFormat } from "@flexweg/cms-runtime";
-import { SocialIcon, socialLabel } from "@flexweg/cms-runtime";
-import { i18n, pickPublicLocale } from "@flexweg/cms-runtime";
+import type { AuthorTemplateProps, SiteContext } from "@agent-cms/runtime";
+import { pickFormat } from "@agent-cms/runtime";
+import { SocialIcon, socialLabel } from "@agent-cms/runtime";
+import { i18n, pickPublicLocale } from "@agent-cms/runtime";
 
 // Storefront author archive — portrait + bio on top, signature
 // products grid below. Phase 5 will polish this further (large

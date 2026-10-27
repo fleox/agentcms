@@ -36,7 +36,7 @@ export default defineConfig({
         "react/jsx-runtime",
         "react-dom",
         "react-dom/client",
-        "@flexweg/cms-runtime",
+        "@agent-cms/runtime",
       ],
       output: {
         inlineDynamicImports: true,

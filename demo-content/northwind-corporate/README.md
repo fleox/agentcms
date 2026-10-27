@@ -1,6 +1,6 @@
 # Northwind Consulting — corporate theme demo content
 
-A complete demo site for the **corporate** theme: 4 fully-composed pages (home, services, about, contact) using the theme's 10 lead-gen blocks, plus 5 long-form blog posts / case studies. Written in English. Ready to import via the **Flexweg Import** plugin.
+A complete demo site for the **corporate** theme: 4 fully-composed pages (home, services, about, contact) using the theme's 10 lead-gen blocks, plus 5 long-form blog posts / case studies. Written in English. Ready to import via the **Import** plugin (`agentcms-import`).
 
 Designed as a realistic B2B vitrine site for a fictional sustainability consultancy, **Northwind Consulting**. Demonstrates how the corporate theme's blocks compose into a complete marketing site rather than a simple blog.
 
@@ -51,8 +51,8 @@ All posts signed by `team@northwind-consulting.example` (fictional). The about p
 ## How to use
 
 1. **Make sure the corporate theme is active** at `/admin/#/themes`
-2. **Enable Flexweg Import** in `/admin/#/plugins`
-3. Open `/admin/#/settings/plugin/flexweg-import` → Drag and drop mode
+2. **Enable the Import plugin (agentcms-import)** in `/admin/#/plugins`
+3. Open `/admin/#/settings/plugin/agentcms-import` → Drag and drop mode
 4. Drag the whole `northwind-corporate/` folder (including `images/`) into the drop zone
 5. Click **Scan** → 5 posts + 4 pages, 5 categories, ~17 tags, 7 images
 6. Pick a status mode (recommended: **Always import as draft** so you can review before going live)

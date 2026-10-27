@@ -17,7 +17,7 @@ import type { PublishContext, PublishLogEntry } from "../services/publisher";
 export type PublishLogger = (entry: PublishLogEntry) => void;
 
 export interface RegenerationTarget {
-  // Stable id — by convention the plugin id, e.g. "flexweg-sitemaps".
+  // Stable id — by convention the plugin id, e.g. "agentcms-sitemaps".
   // Used for React keys + fallback labels when i18n lookup fails.
   id: string;
   // i18n namespace for label / description lookup. Defaults to the

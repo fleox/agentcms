@@ -9,7 +9,7 @@
 // Both load the whole dataset in memory (like the admin's "global"
 // pagination mode already does) and expose the same tiny API. The
 // domain services in this folder (posts.ts, users.ts, …) mirror the
-// exports of services/firebase/* and services/flexweg-sqlite/* on top
+// exports of services/firebase/* on top
 // of it, so the top-level dispatchers can route to them unchanged.
 
 export type CollectionName = "posts" | "terms" | "media" | "users" | "settings" | "config";

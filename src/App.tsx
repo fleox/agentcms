@@ -1,4 +1,4 @@
-import { Component, useEffect, useState, type ErrorInfo, type ReactNode } from "react";
+import { Component, type ErrorInfo, type ReactNode } from "react";
 import { Loader2 } from "lucide-react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -10,7 +10,6 @@ import { ErrorScreen } from "./components/ErrorScreen";
 import { ToastContainer } from "./components/ui/ToastContainer";
 import { FirestoreSetupGate } from "./components/FirestoreSetupGate";
 import { LoginPage } from "./pages/LoginPage";
-import { LocalIdentityPage } from "./pages/LocalIdentityPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { PostsListPage } from "./pages/PostsListPage";
 import { PostEditPage } from "./pages/PostEditPage";
@@ -28,7 +27,6 @@ import { ThemeSettingsRoute } from "./pages/ThemeSettingsRoute";
 import { UsersPage } from "./pages/UsersPage";
 import { SetupForm } from "./pages/SetupForm";
 import { getBackendKind, getRuntimeConfig } from "./lib/runtimeConfig";
-import { ensureSchema } from "./services/flexweg-sqlite/schema";
 import { GitAccessPage, installGitSignOut } from "./pages/GitAccessPage";
 import { SqliteFileAccessPage } from "./pages/SqliteFileAccessPage";
 
@@ -132,12 +130,8 @@ function AuthenticatedShell() {
   const { user, loading, disabled, error } = useAuth();
 
   if (loading) return <FullScreenSpinner />;
-  // SQLite mode uses a dedicated login screen (no email reset, no
-  // bootstrap-admin probe — admins create accounts from the Users
-  // page). Firebase mode keeps the existing LoginPage.
   if (!user) {
     const backend = getBackendKind();
-    if (backend === "flexweg-sqlite") return <LocalIdentityPage />;
     // Git content: sign in with a repo access token (or open the local
     // clone). The "local" backend never gets here — it's always signed in.
     if (backend === "markdown-git") return <GitAccessPage />;
@@ -206,10 +200,10 @@ function AuthenticatedShell() {
 export default function App() {
   // No runtime config available means either:
   //   - the bundle was built without a .env (portable deploy), and
-  //   - /admin/config.js on Flexweg still ships the null stub.
+  //   - <admin folder>/config.js still ships the null stub and this
+  //     browser has no saved config.
   // Render the SetupForm in that case so the user can enter the values
-  // through the UI; the form uploads a populated config.js on success
-  // and reloads, after which this branch never fires.
+  // through the UI.
   if (!getRuntimeConfig()) {
     // Wrap the SetupForm in the same boundary as the authenticated
     // shell. Without it, transient "Node.insertBefore" / "removeChild"
@@ -233,7 +227,6 @@ export default function App() {
   return (
     <AppErrorBoundary>
       <ThemeProvider>
-        <SqliteSchemaGate>
           <AuthProvider>
             <AuthenticatedShell />
             {/* Toasts are mounted outside the routed shell so navigation
@@ -242,47 +235,7 @@ export default function App() {
                 error still surface once the boundary auto-recovers. */}
             <ToastContainer />
           </AuthProvider>
-        </SqliteSchemaGate>
       </ThemeProvider>
     </AppErrorBoundary>
   );
-}
-
-// Runs `ensureSchema()` once on boot in SQLite mode so existing
-// installs pick up any columns we've added since they were installed
-// (the migration uses `ALTER TABLE … ADD COLUMN IF NOT PRESENT` via
-// PRAGMA table_info — idempotent + cheap). Without this, only the
-// SetupForm's first-install path runs the migration, and a site that
-// shipped before columns like `posts.translations` / `terms.seo`
-// existed throws "no such column" 400s the moment an admin tries to
-// save a translation or a per-term SEO override.
-//
-// In Firebase mode (or when no backend has been picked yet) the gate
-// passes through immediately — no work to do. The spinner only
-// renders for the few ms `ensureSchema()` takes against a live SQLite
-// connection.
-function SqliteSchemaGate({ children }: { children: ReactNode }) {
-  const [ready, setReady] = useState(() => getBackendKind() !== "flexweg-sqlite");
-
-  useEffect(() => {
-    if (ready) return;
-    let cancelled = false;
-    void ensureSchema()
-      .catch((err) => {
-        // Don't block the UI on a failed migration — the bad column
-        // will surface as a clear 400 inside the relevant CRUD action
-        // (and the toast pipeline will surface it). Logging here keeps
-        // the failure visible in devtools.
-        console.error("[sqlite] ensureSchema failed at boot:", err);
-      })
-      .finally(() => {
-        if (!cancelled) setReady(true);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [ready]);
-
-  if (!ready) return <FullScreenSpinner />;
-  return <>{children}</>;
 }

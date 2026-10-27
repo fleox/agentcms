@@ -1,9 +1,9 @@
-import { i18n, pickPublicLocale } from "@flexweg/cms-runtime";
-import type { Post } from "@flexweg/cms-runtime";
-import { postSortMillis } from "@flexweg/cms-runtime";
-import type { PublishContext } from "@flexweg/cms-runtime";
-import { mediaToView, pickFormat } from "@flexweg/cms-runtime";
-import { buildPostUrl, buildTermUrl } from "@flexweg/cms-runtime";
+import { i18n, pickPublicLocale } from "@agent-cms/runtime";
+import type { Post } from "@agent-cms/runtime";
+import { postSortMillis } from "@agent-cms/runtime";
+import type { PublishContext } from "@agent-cms/runtime";
+import { mediaToView, pickFormat } from "@agent-cms/runtime";
+import { buildPostUrl, buildTermUrl } from "@agent-cms/runtime";
 import { escapeAttr, escapeText } from "../util";
 
 export interface MagazineHeroAttrs {

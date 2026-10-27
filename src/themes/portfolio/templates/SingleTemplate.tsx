@@ -1,5 +1,5 @@
-import type { SingleTemplateProps, SiteContext } from "@flexweg/cms-runtime";
-import { i18n, pickFormat, pickPublicLocale } from "@flexweg/cms-runtime";
+import type { SingleTemplateProps, SiteContext } from "@agent-cms/runtime";
+import { i18n, pickFormat, pickPublicLocale } from "@agent-cms/runtime";
 import type { PortfolioThemeConfig } from "../config";
 import { DEFAULT_PORTFOLIO_SINGLE } from "../config";
 

@@ -1,6 +1,6 @@
 ---
 name: agentcms-install
-description: Install a new AgentCMS site (static CMS) for the user - ask where content is stored (SQLite file, Markdown in GitHub/GitLab, Firebase, this browser), then where the site is hosted (GitHub/GitLab/Cloudflare Pages, S3 or OVH bucket, Flexweg), help create or import the needed tokens and keys, and install everything with the agentcms CLI. Use when the user wants to create, set up or install an AgentCMS / AgentCMS site.
+description: Install a new AgentCMS site (static CMS) for the user - ask where content is stored (SQLite file, Markdown in GitHub/GitLab, Firebase, this browser), then where the site is hosted (GitHub/GitLab/Cloudflare Pages or an S3 / OVH bucket), help create or import the needed tokens and keys, and install everything with the agentcms CLI. Use when the user wants to create, set up or install an AgentCMS / AgentCMS site.
 license: PolyForm-Noncommercial-1.0.0
 metadata:
   version: "0.1.1"
@@ -42,13 +42,12 @@ Present the entries of `data.hostings` with `cli: true` that fit the data choice
 | GitHub Pages / Cloudflare Pages / other git host | [references/github.md](references/github.md) (+ [references/cloudflare.md](references/cloudflare.md)) |
 | GitLab Pages | [references/gitlab.md](references/gitlab.md) |
 | S3-compatible bucket (AWS, OVHcloud, Scaleway, R2...) | [references/s3.md](references/s3.md) |
-| Flexweg | [references/flexweg.md](references/flexweg.md) |
 
 Markdown content on GitHub/GitLab also needs the content repository: [references/github.md](references/github.md) / [references/gitlab.md](references/gitlab.md).
 
 ## Step 3 - Credentials (never through the chat)
 
-Secrets are stored per **account** (`github:<login>`, `s3:<name>`, `flexweg:<name>`, `php-bridge:<name>`, `gitlab:<name>`), not per site - check `npx -y @agent-cms/agentcms@0.1.1 credentials list --json` first and reuse an account that is already there.
+Secrets are stored per **account** (`github:<login>`, `gitlab:<name>`, `s3:<name>`, `passphrase:<alias>`), not per site - check `npx -y @agent-cms/agentcms@0.1.1 credentials list --json` first and reuse an account that is already there.
 
 To add one, use the first option that applies:
 

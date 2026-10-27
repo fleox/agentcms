@@ -120,8 +120,8 @@
       "delete": "Eliminar",
       "deleting": "A eliminar…",
       "deletedCount": "{{ok}} eliminado(s), {{failed}} falha(s).",
-      "confirmDelete_one": "Eliminar {{count}} artigo? Será despublicado do Flexweg e não pode ser desfeito.",
-      "confirmDelete_other": "Eliminar {{count}} artigos? Serão despublicados do Flexweg e não pode ser desfeito.",
+      "confirmDelete_one": "Eliminar {{count}} artigo? Será despublicado do site e não pode ser anulado.",
+      "confirmDelete_other": "Eliminar {{count}} artigos? Serão despublicados do site e não pode ser anulado.",
       "noDraftSelected": "Nenhum artigo em rascunho selecionado.",
       "noOnlineSelected": "Nenhum artigo online selecionado.",
       "clear": "Limpar seleção"
@@ -331,7 +331,7 @@
     "titleTheme": "Instalar um tema",
     "labelPlugin": "plugin",
     "labelTheme": "tema",
-    "intro": "Largue um ficheiro ZIP com um pacote de {{label}} (manifest.json + bundle.js na raiz do ZIP). O {{label}} será carregado para o seu site Flexweg e registado após uma recarga. Voltar a carregar um ZIP com o mesmo id de manifest atualiza o registo existente no local — não é preciso desinstalar.",
+    "intro": "Largue um ficheiro ZIP com um pacote de {{label}} (manifest.json + bundle.js na raiz do ZIP). O {{label}} será carregado para o alojamento do seu site e registado após recarregar. Voltar a carregar um ZIP com o mesmo id de manifesto atualiza a entrada existente — não é preciso desinstalar.",
     "zipField": "Ficheiro ZIP do pacote",
     "install": "Instalar",
     "installing": "A instalar…",
@@ -344,14 +344,14 @@
     "bundledDefaultsRestored": "{{plugins}} plugin(s) e {{themes}} tema(s) restaurados. A recarregar…",
     "uninstall": "Desinstalar",
     "uninstallSuccess": "{{id}} desinstalado. A recarregar…",
-    "confirmUninstall": "Desinstalar {{id}}? Os ficheiros serão eliminados do Flexweg.",
+    "confirmUninstall": "Desinstalar {{id}}? Os seus ficheiros serão eliminados do alojamento.",
     "errors": {
       "no-manifest": "Ao ZIP falta manifest.json na raiz.",
       "invalid-manifest": "O manifest.json é inválido (campos obrigatórios em falta ou JSON inválido).",
       "incompatible-api": "O pacote foi construído contra uma versão de API runtime incompatível.",
       "no-bundle": "O ZIP não contém o ficheiro de entrada declarado no manifest.",
-      "fetch-manifest": "Não foi possível ler o external.json atual no Flexweg.",
-      "upload-failed": "Falha no carregamento — verifique a sua chave API Flexweg e a sua ligação."
+      "fetch-manifest": "Não foi possível ler o external.json atual no alojamento.",
+      "upload-failed": "Falha no carregamento — verifique as credenciais do destino de publicação e a sua ligação."
     }
   },
   "externalLoader": {
@@ -390,22 +390,12 @@
       "discourageIndexingHelp": "Quando ativado, cada página publicada recebe uma meta tag noindex/nofollow e o robots.txt bloqueia todos os rastreadores. Replica o comportamento do WordPress — útil para sites de staging ou revisões antes do lançamento. Os motores de pesquisa que respeitam a diretiva não indexarão o site.",
       "discourageRegenerateHint": "Definição de indexação guardada. Clique em «Regenerar tudo» em Temas para aplicar a alteração a todas as páginas publicadas e ao robots.txt."
     },
-    "flexweg": {
-      "title": "API Flexweg",
-      "apiKey": "Chave da API",
-      "apiKeyHelp": "Gerada na sua conta Flexweg → API.",
-      "siteUrl": "URL do site",
-      "siteUrlHelp": "URL público do seu site Flexweg sem barra final.",
-      "apiBaseUrl": "URL base da API",
-      "storageHelpFirebase": "Guardada no Firestore (config/flexweg). Legível por qualquer membro com sessão iniciada, gravável apenas por administradores.",
-      "storageHelpSqlite": "Guardada na tabela SQLite local config. Legível por qualquer membro com sessão iniciada, gravável apenas por administradores."
-    },
     "backend": {
       "title": "Backend de dados",
       "active": "Backend ativo:",
       "switchButton": "Mudar de backend…",
       "confirmTitle": "Todos os dados atuais serão perdidos.",
-      "confirmBody": "Mudar limpa a configuração no browser e recarrega o formulário de configuração. O novo backend começa vazio — os dados do backend anterior permanecem onde estavam (no Firestore ou como um ficheiro .sqlite no Flexweg), mas o CMS só voltará a lê-los quando trocar de volta.",
+      "confirmBody": "Mudar apaga a configuração do navegador e recarrega o formulário de configuração. O novo backend começa vazio — os dados do backend anterior ficam onde estavam (no Firestore, no repositório git ou no ficheiro .sqlite), mas o CMS não os lerá até voltar a mudar. Exporte-os antes para os mover.",
       "confirmYes": "Sim, mudar de backend",
       "downloadBackup": "Descarregar uma cópia de segurança do ficheiro .sqlite",
       "downloadBackupHelp": "faça isto antes de mudar de backend.",
@@ -491,15 +481,10 @@
     "editProfileTitle": "Editar perfil — {{email}}",
     "profileSaved": "Perfil guardado.",
     "descriptionFirebase": "Faça a gestão da sua equipa. As novas contas são criadas na Firebase Console e replicadas aqui no primeiro início de sessão.",
-    "descriptionSqlite": "Faça a gestão da sua equipa. Use o botão +Adicionar utilizador abaixo para criar contas diretamente.",
-    "addUser": "Adicionar utilizador",
-    "addUserSuccess": "{{email}} adicionado.",
     "removeConfirmFirebase": "Eliminar o registo de {{email}}? Isto remove o perfil e a função do CMS. Para revogar o acesso, elimine também a conta na Firebase Console.",
-    "removeConfirmSqlite": "Eliminar permanentemente {{email}}? Isto revoga o acesso E remove o perfil e a função. Esta ação não pode ser desfeita.",
     "empty": {
       "title": "Ainda não há membros na equipa",
-      "descriptionFirebase": "Crie a primeira conta na Firebase Console e depois inicie sessão aqui uma vez para registar o perfil.",
-      "descriptionSqlite": "Clique em +Adicionar utilizador acima para convidar o primeiro membro."
+      "descriptionFirebase": "Crie a primeira conta na Firebase Console e depois inicie sessão aqui uma vez para registar o perfil."
     },
     "help": {
       "title": "Como adicionar um novo membro à equipa",
@@ -509,22 +494,11 @@
         "step2": "Defina um e-mail e palavra-passe e envie-os ao novo membro.",
         "step3": "Peça-lhe para iniciar sessão aqui uma vez — o perfil aparece na lista acima e pode editar a função e os dados."
       },
-      "sqlite": {
-        "step1": "Clique no botão +Adicionar utilizador acima.",
-        "step2": "Introduza o e-mail e uma palavra-passe temporária (8+ caracteres).",
-        "step3": "Partilhe as credenciais de forma segura — ele pode alterar a palavra-passe a partir do perfil depois de iniciar sessão."
-      },
       "git": {
         "step1": "Adicione a pessoa como colaboradora do repositório de conteúdo (escrita = editor, admin / maintainer = admin).",
         "step2": "A pessoa cria o seu próprio token de acesso pessoal no GitHub / GitLab.",
         "step3": "Abre o admin e inicia sessão com esse token — o perfil é criado aqui automaticamente."
       }
-    },
-    "addUserModal": {
-      "title": "Adicionar um novo membro à equipa",
-      "intro": "Cria a conta diretamente na base de dados Flexweg SQLite Auth. O novo utilizador fica com a função editor por defeito; promova-o a partir da lista abaixo se precisar de acesso admin.",
-      "submit": "Criar utilizador",
-      "submitting": "A criar…"
     },
     "actions": {
       "editProfile": "Editar perfil",
@@ -571,76 +545,26 @@
   },
   "identity": {
     "brandTitle": "AgentCMS",
-    "brandSubtitle": "Publicador estático",
-    "login": {
-      "heading": "Iniciar sessão",
-      "intro": "Use o e-mail e a palavra-passe que o seu administrador lhe forneceu.",
-      "submit": "Iniciar sessão",
-      "submitting": "A iniciar sessão…"
-    },
-    "fields": {
-      "name": "Nome a apresentar (opcional)",
-      "namePlaceholder": "Maria Silva",
-      "email": "E-mail",
-      "password": "Palavra-passe",
-      "passwordHint": "Pelo menos 8 caracteres."
-    },
-    "footer": "As novas contas são criadas por um administrador a partir da página Utilizadores.",
-    "errors": {
-      "invalidEmail": "Introduza um endereço de e-mail válido.",
-      "missingPassword": "A palavra-passe é obrigatória.",
-      "passwordTooShort": "A palavra-passe deve ter pelo menos 8 caracteres."
-    }
+    "brandSubtitle": "Publicador estático"
   },
   "setup": {
     "title": "Bem-vindo ao AgentCMS",
     "subtitle": "Configuração inicial",
-    "intro": "Insira as suas credenciais Firebase, a conta de administrador inicial e a sua chave API Flexweg. Os valores são validados, guardados no seu projeto (Firestore + um ficheiro config.js no Flexweg) e o admin recarrega no fluxo de início de sessão normal. Só faz isto uma vez.",
-    "introFirebase": "Passo 1 — Firebase. Preencha as credenciais do seu projeto Firebase e a conta de administrador bootstrap. Iniciamos sessão, verificamos o e-mail e confirmamos que as suas regras Firestore reconhecem este admin antes de avançarmos para o passo Flexweg.",
-    "introFlexweg": "Passo 2 — Flexweg. Preencha a sua chave API Flexweg e o URL do site. Testamos a API, guardamos a configuração no Firestore, fazemos upload do config.js para o seu site e sincronizamos os ativos do tema.",
-    "continueToFlexweg": "Validar Firebase e continuar",
     "stepper": {
       "terms": "Condições",
-      "backend": "Backend",
-      "firebase": "Firebase",
-      "flexweg": "Flexweg",
-      "sqlite": "SQLite",
-      "docstore": "Conteúdo e publicação",
       "data": "Dados",
       "hosting": "Alojamento",
       "install": "Instalação"
     },
     "backend": {
-      "title": "Escolha um backend de dados",
-      "intro": "Escolha onde o CMS irá guardar os seus artigos, páginas, utilizadores e definições. Pode trocar depois nas Definições (os dados não são migrados).",
-      "sqliteTitle": "Flexweg SQLite (recomendado)",
-      "sqliteHint": "Todos os dados ficam no seu site Flexweg como um ficheiro SQLite. Sem serviço externo. A auth é fornecida pela API SQLite do Flexweg.",
-      "firebaseTitle": "Firebase",
-      "firebaseHint": "Use um projeto Firebase para Firestore + Auth. Gratuito no plano Spark. Atualizações em tempo real via onSnapshot.",
-      "continue": "Continuar",
-      "markdownGitTitle": "Ficheiros Markdown num repositório Git",
-      "markdownGitHint": "Posts como ficheiros .md no GitHub / GitLab (ou num clone local). Cada editor inicia sessão com o seu próprio token de acesso; cada alteração é um commit. Sem base de dados, funciona com vários editores e computadores.",
-      "localTitle": "Apenas este browser",
-      "localHint": "Um só utilizador, sem início de sessão, nada para configurar. O conteúdo fica neste browser (exporte-o a partir das Definições). Ideal para um admin a correr no seu próprio computador."
-    },
-    "sqlite": {
-      "heading": "Conectar o seu site Flexweg",
-      "intro": "Vamos usar a sua chave API mestre Flexweg UMA VEZ para criar um token de âmbito limitado para a base de dados SQLite. Após a instalação, a chave mestre é descartada e apenas o token limitado (restrito a este ficheiro SQLite) é guardado.",
-      "apiKeyHint": "Chave API mestre Flexweg. Usada apenas para instalar — nunca guardada depois.",
-      "detectedFromUrl": "Detetado do URL",
-      "advanced": "Definições avançadas (URL do site, caminho SQLite…)",
-      "pathHint": "Onde fica o ficheiro SQLite no seu site Flexweg. As pastas são criadas automaticamente.",
-      "adminHeading": "Conta de administrador",
-      "adminIntro": "Crie o primeiro utilizador — esta conta obtém direitos de admin automaticamente. Os membros seguintes são integrados a partir da página Utilizadores depois de ter sessão iniciada.",
-      "passwordHint": "Pelo menos 8 caracteres.",
-      "submit": "Instalar base de dados SQLite"
+      "continue": "Continuar"
     },
     "terms": {
       "title": "Condições de utilização",
       "intro": "Leia e aceite as condições abaixo antes de utilizar o AgentCMS. Estão escritas em linguagem clara para serem rápidas de ler.",
       "section1": {
         "title": "1. Serviço gratuito",
-        "body": "O AgentCMS é disponibilizado gratuitamente pelo Flexweg. Pode utilizá-lo sem limites com o seu alojamento Flexweg — o Flexweg nunca lhe vai cobrar pelo uso do CMS em si. As tarifas habituais do seu plano de alojamento Flexweg e do seu plano Firebase mantêm-se aplicáveis, cada uma na conta correspondente."
+        "body": "O AgentCMS é-lhe disponibilizado gratuitamente. Os custos habituais dos serviços que escolher (alojamento, armazenamento, Firebase…) continuam a aplicar-se nas suas próprias contas."
       },
       "section2": {
         "title": "2. Fornecido «tal como está», sem garantia",
@@ -648,39 +572,34 @@
       },
       "section3": {
         "title": "3. Os seus conteúdos, a sua responsabilidade",
-        "body": "É o único responsável pelos conteúdos que publica através do CMS — textos, imagens, vídeos, formulários, integrações de código e quaisquer outros media. Deve cumprir a lei aplicável na sua jurisdição (e nas que visa), os direitos de autor, os direitos de imagem e de personalidade, as regras de proteção de dados pessoais e as condições de quaisquer serviços de terceiros que utilize (fontes incorporadas, vídeos, etc.). O Flexweg não é responsável pelos conteúdos publicados pelos utilizadores do CMS."
+        "body": "É o único responsável pelo conteúdo que publica através do CMS — textos, imagens, vídeos, formulários, código incorporado e quaisquer outros conteúdos. Deve cumprir a lei aplicável na sua jurisdição (e nas jurisdições a que se dirige), os direitos de autor, de imagem e de personalidade, as regras de proteção de dados pessoais e os termos de terceiros (por exemplo, fontes ou vídeos incorporados). Os autores do AgentCMS não são responsáveis pelo conteúdo publicado pelos utilizadores do CMS."
       },
       "section4": {
         "title": "4. A sua conta Firebase, a sua segurança",
-        "body": "O CMS guarda os seus dados no seu próprio projeto Firebase. É responsável pela segurança desse projeto: escolha uma palavra-passe forte para a conta de administrador inicial, configure as regras de segurança do Firestore como documentado, faça rotação das suas chaves API quando necessário e verifique quem tem acesso. O Flexweg não pode em caso algum ser responsabilizado por acessos não autorizados, fugas de dados, ataques informáticos ou perdas resultantes de uma má configuração ou comprometimento da sua conta Firebase."
+        "body": "O CMS guarda os seus dados em locais que lhe pertencem (um repositório git, um ficheiro SQLite, um projeto Firebase, este navegador). É responsável por protegê-los: palavras-passe e frases-passe fortes, repositórios ou buckets privados quando necessário, regras de segurança do Firestore conforme documentado, rotação de tokens e revisão de quem tem acesso. Os autores do AgentCMS não podem ser responsabilizados por acessos não autorizados, fugas de dados, ataques ou perdas causados por má configuração ou comprometimento dessas contas."
       },
       "section5": {
         "title": "5. Limitação de responsabilidade",
-        "body": "O Flexweg não pode ser responsabilizado por qualquer perda de receitas, perda de dados, perda de oportunidade comercial, ou por quaisquer danos diretos ou indiretos decorrentes do uso, mau uso ou indisponibilidade do CMS. Quando a lei aplicável obrigar o Flexweg a assumir alguma responsabilidade, esta limita-se ao montante efetivamente pago ao Flexweg pelo CMS nos últimos 12 meses — ou seja, zero, uma vez que o CMS é gratuito."
+        "body": "Os autores do AgentCMS não podem ser responsabilizados por qualquer perda de receitas, perda de dados, perda de oportunidades de negócio, ou quaisquer danos diretos ou indiretos resultantes da utilização, má utilização ou indisponibilidade do CMS. Quando a lei aplicável lhes imponha alguma responsabilidade, esta limita-se ao montante efetivamente pago pelo CMS nos últimos 12 meses — ou seja, zero, uma vez que o CMS é gratuito."
       },
       "section6": {
         "title": "6. Os seus dados continuam seus",
-        "body": "Os conteúdos que cria com o CMS são guardados no seu próprio projeto Firebase (textos, definições, metadados dos media) e no seu próprio alojamento Flexweg (HTML publicado, imagens, assets de tema). O CMS em si não transmite os seus conteúdos a nenhum serviço de terceiros. Os plugins ou temas que escolher ativar podem ter o seu próprio comportamento — verifique o que fazem antes de os ativar."
+        "body": "O conteúdo que cria com o CMS é guardado onde escolheu (textos, definições, metadados dos media) e no seu próprio alojamento (HTML publicado, imagens, recursos do tema). O próprio CMS não transmite o seu conteúdo a nenhum serviço de terceiros. Os plugins ou temas que ativar podem ter o seu próprio comportamento — verifique o que fazem antes de os ativar."
       },
       "section7": {
         "title": "7. Bom uso",
-        "body": "A utilização do CMS para atividades ilegais, fraudulentas ou nocivas, ou de forma contrária às condições gerais de utilização do Flexweg, pode levar à suspensão do acesso ao alojamento Flexweg. Podemos também atualizar estas condições do CMS ao longo do tempo; as alterações significativas serão comunicadas através do admin ou por e-mail."
+        "body": "Não utilize o CMS para atividades ilegais, fraudulentas ou prejudiciais, nem de forma contrária aos termos dos serviços a que o liga. Estes termos podem mudar; as alterações importantes são indicadas nas notas de versão."
       },
       "accept": "Li e aceito as Condições de utilização.",
-      "continue": "Continuar para a configuração",
-      "back": "Voltar"
+      "continue": "Continuar para a configuração"
     },
     "sections": {
       "firebase": "Firebase",
-      "admin": "Administrador inicial",
-      "flexweg": "API Flexweg"
+      "admin": "Administrador inicial"
     },
     "help": {
       "firebase": "Encontre estes valores em Firebase Console → Definições do projeto → Geral → As suas apps → Configuração do SDK.",
-      "admin": "Use um utilizador existente em Firebase Authentication. Quem inicie sessão com este e-mail é tratado como administrador e ignora a verificação de registo de utilizador. Crie o utilizador em Firebase Console → Authentication se ainda não existir.",
-      "flexweg": "Gere uma chave API permanente na sua conta Flexweg → API. O URL do site é o endereço público do seu site Flexweg (ex. https://o-seu-site.flexweg.com).",
-      "flexwegApiKeyHint": "Obtenha a sua chave API nas definições da sua conta Flexweg.",
-      "flexwegApiKeyLink": "Abrir definições da conta"
+      "admin": "Use um utilizador existente em Firebase Authentication. Quem inicie sessão com este e-mail é tratado como administrador e ignora a verificação de registo de utilizador. Crie o utilizador em Firebase Console → Authentication se ainda não existir."
     },
     "fields": {
       "apiKey": "Chave API",
@@ -690,36 +609,20 @@
       "messagingSenderId": "ID de remetente de mensagens",
       "appId": "ID da app",
       "adminEmail": "E-mail",
-      "adminPassword": "Palavra-passe",
-      "flexwegApiKey": "Chave API",
-      "flexwegSiteUrl": "URL do site",
-      "flexwegApiBaseUrl": "URL base da API",
-      "sqlitePath": "Caminho SQLite"
+      "adminPassword": "Palavra-passe"
     },
-    "submit": "Guardar e continuar",
     "submitting": "A configurar…",
     "success": "Configuração concluída!",
     "reloadingHint": "O admin vai recarregar daqui a um instante — aguarde.",
-    "footer": "Estes valores são guardados no seu projeto (Firestore + Flexweg). Não são enviados para mais lado nenhum.",
+    "footer": "Estes valores são guardados no seu próprio projeto e neste navegador. Não são enviados para mais lado nenhum.",
     "steps": {
       "signInFirebase": "A iniciar sessão no Firebase…",
-      "testFlexweg": "A testar a API Flexweg…",
       "writeFirestore": "A guardar a configuração…",
-      "uploadConfig": "A carregar config.js para o Flexweg…",
-      "syncThemes": "A sincronizar assets do tema para o Flexweg…",
-      "sqliteInstall": "A criar token SQLite com âmbito limitado…",
-      "sqliteRegisterAdmin": "A registar a conta de admin…",
-      "sqliteSchema": "A inicializar o esquema SQLite…"
-    },
-    "stepsDone": {
-      "sqliteInstall": "Token SQLite com âmbito limitado emitido",
-      "sqliteRegisterAdmin": "Admin registado e com sessão iniciada",
-      "sqliteSchema": "Esquema SQLite pronto"
+      "uploadConfig": "A carregar config.js junto ao admin…",
+      "syncThemes": "A sincronizar os recursos do tema com o alojamento…"
     },
     "errors": {
       "missingFields": "Por favor, preencha todos os campos.",
-      "rootDeploymentTitle": "O admin deve estar numa subpasta, não na raiz do site.",
-      "rootDeploymentHint": "Mova os ficheiros do admin (index.html, config.js, runtime/, …) para uma subpasta no Flexweg — por exemplo /admin/ ou um nome aleatório como /erf34f654GH3/ por discrição. Em seguida recarregue o admin a partir do URL da subpasta e volte a executar a configuração.",
       "firebaseAuthGeneric": "Não foi possível iniciar sessão no Firebase.",
       "firebaseAuthInvalidCredential": "O Firebase rejeitou a combinação de e-mail e palavra-passe.",
       "firebaseAuthInvalidCredentialHint": "Os projetos Firebase recentes ativam por defeito a proteção contra enumeração de e-mails, que devolve o mesmo erro quer a palavra-passe esteja errada, o utilizador não exista, ou o utilizador inicie sessão com outro fornecedor. A verificar:\n• Reintroduza a palavra-passe — copie/cole de um gestor de palavras-passe para eliminar erros de digitação. O mínimo são 6 caracteres.\n• Abra Firebase Console → Authentication → Users e confirme que o e-mail existe. Verifique a coluna «Providers»: se mostrar apenas Google (ou outro fornecedor) sem «Email/Password», defina ou redefina a palavra-passe pelo menu da linha (⋮ → Repor palavra-passe).\n• Confirme que a ortografia do e-mail corresponde exatamente ao que está guardado no Firebase.",
@@ -733,13 +636,9 @@
       "wrongAdminEmail": "A conta Firebase com que iniciou sessão não corresponde ao e-mail de admin que escreveu. Tente novamente.",
       "rulesNotPinnedTitle": "As regras do Firestore ainda não o reconhecem como admin bootstrap.",
       "rulesNotPinnedHint": "Abra Firebase Console → Firestore → Rules e substitua o valor de `bootstrapAdminEmail()` por: {{email}} — depois clique em Publicar. O modelo de regras do README inclui um placeholder `you@example.com` que tem de ser substituído pelo seu e-mail de admin real. Depois de publicar as novas regras, clique novamente em Enviar aqui.",
-      "flexwegAuth": "Chave API Flexweg rejeitada. Verifique o valor na sua conta Flexweg → API.",
-      "flexwegNetwork": "Erro de rede ao contactar o Flexweg. Verifique o URL base da API e a sua ligação.",
-      "flexwegHttp": "Erro da API Flexweg ({{status}}): {{detail}}",
       "firestoreRulesTitle": "O Firestore rejeitou a escrita da configuração.",
       "firestoreRulesHint": "Abra Firebase Console → Firestore → Regras e confirme que o e-mail de admin de bootstrap está definido como '{{email}}'. O README inclui um modelo de regras pronto a copiar.",
       "firestoreOther": "Falha ao escrever no Firestore",
-      "uploadFailed": "Não foi possível carregar config.js para o Flexweg",
       "generic": "Algo correu mal."
     },
     "docstore": {
@@ -774,11 +673,7 @@
       "options": {
         "sqlite-file": {
           "title": "SQLite",
-          "hint": "Uma base de dados SQLite guardada no alojamento que escolher no passo seguinte (Flexweg, o seu servidor, S3, Git…). Sem contas de utilizador — ou o serviço SQLite da Flexweg, com contas, se alojar na Flexweg."
-        },
-        "flexweg-sqlite": {
-          "title": "SQLite (serviço Flexweg)",
-          "hint": "Uma base de dados SQLite gerida pelo serviço da Flexweg, com contas de utilizador integradas. Requer uma conta Flexweg, seja qual for o alojamento do site."
+          "hint": "Uma base de dados SQLite guardada no alojamento que escolher no passo seguinte (repositório git, bucket S3…) ou num local privado à parte, cifrada por predefinição. Sem contas de utilizador."
         },
         "firebase": {
           "title": "Firebase",
@@ -805,7 +700,7 @@
       "data": "Dados",
       "hosting": "Alojamento",
       "saveTarget": "A guardar o destino de publicação…",
-      "noteConfigJs": "A configuração do admin (config.js) é carregada junto ao admin no Flexweg quando possível; caso contrário, ser-lhe-á proposto descarregá-la.",
+      "noteConfigJs": "A configuração do admin (config.js) é guardada neste navegador; poderá descarregá-la para a pasta do admin.",
       "noteLocalConfig": "A configuração é guardada neste browser; ser-lhe-á proposto o config.js para colocar na pasta do admin, para que outros editores saltem esta configuração."
     },
     "sqliteFile": {
@@ -817,10 +712,7 @@
       "new": "nova base de dados",
       "dataNote": "Nada a configurar aqui: a base de dados será guardada no alojamento que escolher no passo seguinte.",
       "heading": "Base de dados SQLite",
-      "flexwegService": "Utilizar o serviço SQLite da Flexweg",
-      "flexwegServiceHint": "A base de dados é gerida pela Flexweg e inclui contas de utilizador integradas (e-mail + palavra-passe). Caso contrário, é um simples ficheiro neste alojamento, sem contas.",
       "summaryFile": "Ficheiro {{path}} neste alojamento",
-      "summaryService": "Serviço SQLite da Flexweg ({{path}})",
       "encrypt": "Cifrar a base de dados",
       "encryptHint": "Recomendado num alojamento público: o ficheiro fica ilegível sem a frase-passe. Cada novo navegador pede-a uma vez.",
       "passphrase": "Frase-passe",
@@ -849,7 +741,7 @@
       "continueHere": "Continuar neste admin"
     }
   },
-  "flexweg": {
+  "storage": {
     "actions": {
       "upload": "A carregar ficheiro",
       "delete": "A eliminar ficheiro",
@@ -859,11 +751,9 @@
       "createFolder": "A criar pasta",
       "renameFolder": "A renomear pasta",
       "deleteFolder": "A eliminar pasta",
-      "storageLimits": "A obter limites de armazenamento",
       "commit": "A publicar alterações"
     },
     "errors": {
-      "configMissing": "O destino de publicação não está configurado. Configure-o nas Definições antes de publicar.",
       "network": "{{action}}: erro de rede ou CORS bloqueado. Verifique a sua ligação.",
       "auth": "{{action}}: falha na autenticação. Verifique as credenciais do destino de publicação nas Definições.",
       "notFound": "{{action}}: não encontrado no destino de publicação.",
@@ -902,28 +792,7 @@
     "test": "Testar a ligação",
     "testOk": "Ligação OK",
     "testFailed": "Falha na ligação",
-    "names": {
-      "flexweg": "Flexweg",
-      "git-pages": "Repositório Git (GitHub Pages, Cloudflare Pages, GitLab Pages…)",
-      "s3": "Bucket compatível com S3 (AWS S3, Cloudflare R2, Backblaze B2, OVH…)",
-      "php-bridge": "O seu próprio servidor (bridge PHP)",
-      "browser-mirror": "Descarregar como ZIP",
-      "local-folder": "Pasta local neste computador"
-    },
-    "hints": {
-      "flexweg": "Envio através da API Files do Flexweg.",
-      "git-pages": "Cada publicação é um commit no repositório; o alojamento reconstrói o site a partir dele.",
-      "s3": "Requer uma regra CORS no bucket que permita a origem deste admin, e alojamento de site (ou uma CDN) para servir os ficheiros index.html.",
-      "php-bridge": "Envie external/bridges/php/flexweg-bridge.php para o seu servidor, defina a respetiva chave de API e depois preencha o URL aqui.",
-      "browser-mirror": "O site é guardado neste browser; descarregue o ZIP e envie-o manualmente para onde quiser.",
-      "local-folder": "Escreve o site diretamente numa pasta (Chrome / Edge). Sirva-o localmente ou envie-o com as suas próprias ferramentas."
-    },
     "fields": {
-      "flexweg": {
-        "apiKey": "Chave de API",
-        "siteUrl": "URL do site",
-        "apiBaseUrl": "URL base da API"
-      },
       "git-pages": {
         "host": "Alojamento",
         "provider": "Fornecedor Git",
@@ -947,11 +816,6 @@
         "forcePathStyle": "URLs do tipo caminho (MinIO, R2, a maioria dos compatíveis)",
         "publicRead": "Tornar públicos os ficheiros carregados (ACL public-read) — para buckets que não são públicos através de uma política (OVHcloud, Scaleway…). Deixe desativado em buckets AWS com «bucket owner enforced»."
       },
-      "php-bridge": {
-        "apiBaseUrl": "URL do bridge",
-        "apiKey": "Chave de API do bridge",
-        "siteUrl": "URL pública do site"
-      },
       "browser-mirror": {
         "siteUrl": "URL pública do site (opcional)"
       },
@@ -960,9 +824,6 @@
       }
     },
     "help": {
-      "flexweg": {
-        "apiKey": "Gerada a partir da sua conta Flexweg → API."
-      },
       "git-pages": {
         "host": "Cloudflare Pages: ligue o projeto a este repositório sem comando de build e com a pasta de saída abaixo. Funciona com repositórios privados.",
         "dir": "Deixe vazio para a raiz do repositório. GitHub Pages: \"\" ou \"docs\". GitLab Pages: \"public\".",
@@ -972,9 +833,6 @@
       "s3": {
         "endpoint": "Deixe vazio para AWS (deduzido da região). R2: https://<account-id>.r2.cloudflarestorage.com",
         "siteUrl": "O URL de alojamento do bucket ou o seu domínio CDN."
-      },
-      "php-bridge": {
-        "apiBaseUrl": "O URL completo de flexweg-bridge.php no seu servidor (HTTPS)."
       },
       "browser-mirror": {
         "siteUrl": "Onde vai enviar o ZIP — usado para os URLs absolutos (sitemaps, RSS, multimédia)."
@@ -1031,11 +889,6 @@
     "openFolder": "Abrir a pasta de conteúdo"
   },
   "hosting": {
-    "flexweg": {
-      "title": "Flexweg",
-      "short": "Alojamento Flexweg",
-      "hint": "Carrega através da Flexweg Files API. Chave API da sua conta Flexweg."
-    },
     "github-pages": {
       "title": "GitHub Pages",
       "short": "Gratuito, a partir de um repositório GitHub",
@@ -1060,11 +913,6 @@
       "title": "S3 / R2 / B2…",
       "short": "Bucket de armazenamento de objetos",
       "hint": "AWS S3, Cloudflare R2, Backblaze B2, OVH, Scaleway, MinIO… Requer uma regra CORS no bucket e alojamento de sites ou um CDN à frente."
-    },
-    "own-server": {
-      "title": "O seu próprio servidor (FTP / SFTP)",
-      "short": "Alojamento partilhado, VPS…",
-      "hint": "Os browsers não falam FTP nem SFTP: carregue uma vez a ponte PHP (external/bridges/php/flexweg-bridge.php) com o seu cliente FTP, defina a respetiva chave API e depois indique aqui o seu URL. Funciona em qualquer alojamento PHP."
     },
     "local-folder": {
       "title": "Pasta local",

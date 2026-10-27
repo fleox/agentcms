@@ -120,8 +120,8 @@
       "delete": "삭제",
       "deleting": "삭제 중…",
       "deletedCount": "{{ok}}개 삭제됨, {{failed}}개 실패.",
-      "confirmDelete_one": "게시물 {{count}}개를 삭제하시겠습니까? Flexweg에서 게시 취소되며 되돌릴 수 없습니다.",
-      "confirmDelete_other": "게시물 {{count}}개를 삭제하시겠습니까? Flexweg에서 게시 취소되며 되돌릴 수 없습니다.",
+      "confirmDelete_one": "글 {{count}}개를 삭제할까요? 사이트에서 게시가 취소되며 되돌릴 수 없습니다.",
+      "confirmDelete_other": "글 {{count}}개를 삭제할까요? 사이트에서 게시가 취소되며 되돌릴 수 없습니다.",
       "noDraftSelected": "선택된 초안 게시물이 없습니다.",
       "noOnlineSelected": "선택된 온라인 게시물이 없습니다.",
       "clear": "선택 해제"
@@ -331,7 +331,7 @@
     "titleTheme": "테마 설치",
     "labelPlugin": "플러그인",
     "labelTheme": "테마",
-    "intro": "{{label}} 번들이 들어 있는 ZIP 파일을 드롭하세요 (ZIP 루트에 manifest.json + bundle.js). 해당 {{label}}이(가) Flexweg 사이트에 업로드되고 새로고침 후 등록됩니다. 같은 manifest id의 ZIP을 다시 업로드하면 기존 항목이 그 자리에서 업그레이드됩니다 — 제거할 필요가 없습니다.",
+    "intro": "{{label}} 번들이 담긴 ZIP 파일을 놓으세요(ZIP 루트에 manifest.json + bundle.js). {{label}}은(는) 사이트 호스팅에 업로드되고 새로고침 후 등록됩니다. 같은 manifest id의 ZIP을 다시 올리면 기존 항목이 그대로 업그레이드되므로 제거할 필요가 없습니다.",
     "zipField": "번들 ZIP 파일",
     "install": "설치",
     "installing": "설치 중…",
@@ -344,14 +344,14 @@
     "bundledDefaultsRestored": "플러그인 {{plugins}}개, 테마 {{themes}}개가 복원되었습니다. 새로고침 중…",
     "uninstall": "제거",
     "uninstallSuccess": "{{id}} 제거됨. 새로고침 중…",
-    "confirmUninstall": "{{id}}을(를) 제거하시겠습니까? 파일이 Flexweg에서 삭제됩니다.",
+    "confirmUninstall": "{{id}}을(를) 제거할까요? 해당 파일이 호스팅에서 삭제됩니다.",
     "errors": {
       "no-manifest": "ZIP 루트에 manifest.json이 없습니다.",
       "invalid-manifest": "manifest.json이 유효하지 않습니다 (필수 필드 누락 또는 유효하지 않은 JSON).",
       "incompatible-api": "번들이 호환되지 않는 런타임 API 버전으로 빌드되었습니다.",
       "no-bundle": "ZIP에 manifest에 선언된 진입 파일이 없습니다.",
-      "fetch-manifest": "Flexweg에서 현재 external.json을 읽을 수 없습니다.",
-      "upload-failed": "업로드 실패 — Flexweg API 키와 연결 상태를 확인하세요."
+      "fetch-manifest": "호스팅의 현재 external.json을 읽을 수 없습니다.",
+      "upload-failed": "업로드 실패 — 게시 대상의 자격 증명과 연결을 확인하세요."
     }
   },
   "externalLoader": {
@@ -390,22 +390,12 @@
       "discourageIndexingHelp": "활성화하면 게시되는 모든 페이지에 noindex/nofollow 메타 태그가 추가되고 robots.txt가 모든 크롤러를 차단합니다. WordPress의 동작과 같으며 — 스테이징 사이트나 출시 전 검토에 유용합니다. 이 지시를 따르는 검색 엔진은 사이트를 색인하지 않습니다.",
       "discourageRegenerateHint": "색인 설정이 저장되었습니다. 테마에서 '모두 재생성'을 클릭하면 게시된 모든 페이지와 robots.txt에 변경 사항이 적용됩니다."
     },
-    "flexweg": {
-      "title": "Flexweg API",
-      "apiKey": "API 키",
-      "apiKeyHelp": "Flexweg 계정 → API에서 생성됩니다.",
-      "siteUrl": "사이트 URL",
-      "siteUrlHelp": "끝에 슬래시가 없는 Flexweg 사이트의 공개 URL.",
-      "apiBaseUrl": "API 기본 URL",
-      "storageHelpFirebase": "Firestore (config/flexweg)에 저장됩니다. 로그인한 팀원 누구나 읽을 수 있고, 관리자만 쓸 수 있습니다.",
-      "storageHelpSqlite": "로컬 SQLite의 config 테이블에 저장됩니다. 로그인한 팀원 누구나 읽을 수 있고, 관리자만 쓸 수 있습니다."
-    },
     "backend": {
       "title": "데이터 백엔드",
       "active": "활성 백엔드:",
       "switchButton": "백엔드 전환…",
       "confirmTitle": "현재의 모든 데이터가 사라집니다.",
-      "confirmBody": "전환하면 브라우저 내 구성이 지워지고 설정 양식이 다시 로드됩니다. 새 백엔드는 비어 있는 상태로 시작하며 — 이전 백엔드의 데이터는 그대로 남아 있지만 (Firestore 또는 Flexweg의 .sqlite 파일에) 다시 전환할 때까지 CMS가 그 데이터를 읽지 않습니다.",
+      "confirmBody": "전환하면 브라우저의 설정이 지워지고 설정 양식이 다시 로드됩니다. 새 백엔드는 비어 있는 상태로 시작하며, 이전 백엔드의 데이터는 원래 위치(Firestore, git 저장소 또는 .sqlite 파일)에 남아 있지만 다시 전환하기 전까지 CMS가 읽지 않습니다. 옮기려면 먼저 내보내세요.",
       "confirmYes": "예, 백엔드를 전환합니다",
       "downloadBackup": ".sqlite 파일 백업 다운로드",
       "downloadBackupHelp": "백엔드 전환 전에 수행하세요.",
@@ -491,15 +481,10 @@
     "editProfileTitle": "프로필 편집 — {{email}}",
     "profileSaved": "프로필이 저장되었습니다.",
     "descriptionFirebase": "팀을 관리하세요. 새 계정은 Firebase Console에서 만들어지며, 첫 로그인 시 여기에 동기화됩니다.",
-    "descriptionSqlite": "팀을 관리하세요. 아래의 +사용자 추가 버튼으로 계정을 직접 만들 수 있습니다.",
-    "addUser": "사용자 추가",
-    "addUserSuccess": "{{email}}을(를) 추가했습니다.",
     "removeConfirmFirebase": "{{email}}의 사용자 기록을 삭제하시겠습니까? CMS에서 프로필과 역할이 제거됩니다. 로그인 권한도 회수하려면 Firebase Console에서 계정도 삭제하세요.",
-    "removeConfirmSqlite": "{{email}}을(를) 영구적으로 삭제하시겠습니까? 로그인 권한이 회수되고 프로필과 역할도 제거됩니다. 이 작업은 되돌릴 수 없습니다.",
     "empty": {
       "title": "아직 팀원이 없습니다",
-      "descriptionFirebase": "Firebase Console에서 첫 계정을 만든 다음, 이곳에 한 번 로그인하여 프로필을 등록하세요.",
-      "descriptionSqlite": "위의 +사용자 추가를 눌러 첫 팀원을 초대하세요."
+      "descriptionFirebase": "Firebase Console에서 첫 계정을 만든 다음, 이곳에 한 번 로그인하여 프로필을 등록하세요."
     },
     "help": {
       "title": "새 팀원을 추가하는 방법",
@@ -509,22 +494,11 @@
         "step2": "이메일과 비밀번호를 설정해 새 팀원에게 전달하세요.",
         "step3": "여기에 한 번 로그인하도록 요청하세요 — 프로필이 위 목록에 나타나며 역할과 세부 정보를 편집할 수 있습니다."
       },
-      "sqlite": {
-        "step1": "위의 +사용자 추가 버튼을 누르세요.",
-        "step2": "이메일과 임시 비밀번호 (8자 이상)를 입력하세요.",
-        "step3": "자격 증명을 안전하게 공유하세요 — 로그인 후 프로필에서 비밀번호를 변경할 수 있습니다."
-      },
       "git": {
         "step1": "해당 사용자를 콘텐츠 저장소의 협업자로 추가하세요 (쓰기 권한 = 편집자, admin / maintainer = 관리자).",
         "step2": "해당 사용자가 GitHub / GitLab에서 자신의 개인 액세스 토큰을 생성합니다.",
         "step3": "관리자 화면을 열고 그 토큰으로 로그인하면 — 프로필이 여기에 자동으로 생성됩니다."
       }
-    },
-    "addUserModal": {
-      "title": "새 팀원 추가",
-      "intro": "Flexweg SQLite Auth 데이터베이스에 계정을 직접 만듭니다. 새 사용자는 기본적으로 editor 역할을 갖습니다. 관리자 권한이 필요하면 아래 목록에서 승격하세요.",
-      "submit": "사용자 만들기",
-      "submitting": "만드는 중…"
     },
     "actions": {
       "editProfile": "프로필 편집",
@@ -571,76 +545,26 @@
   },
   "identity": {
     "brandTitle": "AgentCMS",
-    "brandSubtitle": "정적 퍼블리셔",
-    "login": {
-      "heading": "로그인",
-      "intro": "관리자가 공유한 이메일과 비밀번호를 사용하세요.",
-      "submit": "로그인",
-      "submitting": "로그인 중…"
-    },
-    "fields": {
-      "name": "표시 이름 (선택)",
-      "namePlaceholder": "홍길동",
-      "email": "이메일",
-      "password": "비밀번호",
-      "passwordHint": "최소 8자 이상."
-    },
-    "footer": "새 계정은 관리자가 사용자 페이지에서 만듭니다.",
-    "errors": {
-      "invalidEmail": "유효한 이메일 주소를 입력하세요.",
-      "missingPassword": "비밀번호는 필수입니다.",
-      "passwordTooShort": "비밀번호는 최소 8자 이상이어야 합니다."
-    }
+    "brandSubtitle": "정적 퍼블리셔"
   },
   "setup": {
     "title": "AgentCMS에 오신 것을 환영합니다",
     "subtitle": "최초 설정",
-    "intro": "Firebase 자격 증명, 부트스트랩 관리자 계정, Flexweg API 키를 입력하세요. 값은 검증된 후 프로젝트에 저장되며(Firestore + Flexweg의 config.js 파일) 관리자가 일반 로그인 흐름으로 다시 로드됩니다. 한 번만 수행하면 됩니다.",
-    "introFirebase": "1단계 — Firebase. Firebase 프로젝트 자격 증명과 부트스트랩 관리자 계정을 입력하세요. 로그인하고 이메일을 확인하며 Firestore 규칙이 이 관리자를 인식하는지 확인한 후 Flexweg 단계로 넘어갑니다.",
-    "introFlexweg": "2단계 — Flexweg. Flexweg API 키와 사이트 URL을 입력하세요. API를 테스트하고 Firestore에 구성을 저장하며 사이트에 config.js를 업로드하고 테마 자산을 동기화합니다.",
-    "continueToFlexweg": "Firebase 확인 후 계속",
     "stepper": {
       "terms": "약관",
-      "backend": "백엔드",
-      "firebase": "Firebase",
-      "flexweg": "Flexweg",
-      "sqlite": "SQLite",
-      "docstore": "콘텐츠 및 게시",
       "data": "데이터",
       "hosting": "호스팅",
       "install": "설치"
     },
     "backend": {
-      "title": "데이터 백엔드 선택",
-      "intro": "CMS가 게시물, 페이지, 사용자, 설정을 어디에 저장할지 선택하세요. 나중에 설정에서 변경할 수 있습니다 (데이터는 마이그레이션되지 않습니다).",
-      "sqliteTitle": "Flexweg SQLite (권장)",
-      "sqliteHint": "모든 데이터가 Flexweg 사이트에 SQLite 파일로 저장됩니다. 외부 서비스 없음. 인증은 Flexweg SQLite API가 제공합니다.",
-      "firebaseTitle": "Firebase",
-      "firebaseHint": "Firestore + Auth를 위해 Firebase 프로젝트를 사용합니다. Spark 플랜 무료. onSnapshot을 통한 실시간 업데이트.",
-      "continue": "계속",
-      "markdownGitTitle": "Git 저장소의 Markdown 파일",
-      "markdownGitHint": "게시물을 GitHub / GitLab (또는 로컬 클론)의 .md 파일로 관리합니다. 각 편집자는 자신의 액세스 토큰으로 로그인하며, 모든 변경은 하나의 커밋이 됩니다. 데이터베이스가 필요 없고, 여러 편집자와 여러 컴퓨터에서 사용할 수 있습니다.",
-      "localTitle": "이 브라우저만",
-      "localHint": "단일 사용자, 로그인 없음, 설정할 것도 없습니다. 콘텐츠는 이 브라우저에 남습니다 (설정에서 내보내기 가능). 내 컴퓨터에서 실행하는 관리자에 가장 적합합니다."
-    },
-    "sqlite": {
-      "heading": "Flexweg 사이트 연결",
-      "intro": "Flexweg 마스터 API 키를 한 번만 사용해 SQLite 데이터베이스용으로 범위가 한정된 토큰을 생성합니다. 설치 후에는 마스터 키가 폐기되고 이 SQLite 파일 하나로 범위가 한정된 토큰만 저장됩니다.",
-      "apiKeyHint": "Flexweg 마스터 API 키. 설치에만 사용되며 — 이후에는 저장되지 않습니다.",
-      "detectedFromUrl": "URL에서 감지됨",
-      "advanced": "고급 설정 (사이트 URL, SQLite 경로…)",
-      "pathHint": "SQLite 파일이 Flexweg 사이트에 위치할 경로입니다. 폴더는 자동으로 생성됩니다.",
-      "adminHeading": "관리자 계정",
-      "adminIntro": "첫 사용자를 만드세요 — 이 계정은 자동으로 관리자 권한을 갖게 됩니다. 이후 멤버는 로그인한 후 사용자 페이지에서 온보딩합니다.",
-      "passwordHint": "최소 8자 이상.",
-      "submit": "SQLite 데이터베이스 설치"
+      "continue": "계속"
     },
     "terms": {
       "title": "이용 약관",
       "intro": "AgentCMS를 사용하기 전에 아래 약관을 읽고 동의해 주세요. 빠르게 읽을 수 있도록 평이한 언어로 작성되었습니다.",
       "section1": {
         "title": "1. 무료 서비스",
-        "body": "AgentCMS는 Flexweg가 무료로 제공합니다. Flexweg 호스팅과 함께 무제한으로 사용할 수 있으며 — Flexweg는 CMS 자체의 사용에 대해 결코 청구하지 않습니다. Flexweg 호스팅 요금제와 Firebase 요금제의 일반 요금은 각각 해당 계정에 적용됩니다."
+        "body": "AgentCMS는 무료로 제공됩니다. 선택한 서비스(호스팅, 스토리지, Firebase 등)의 일반 요금은 본인 계정에 그대로 적용됩니다."
       },
       "section2": {
         "title": "2. \"있는 그대로\" 제공, 무보증",
@@ -648,39 +572,34 @@
       },
       "section3": {
         "title": "3. 귀하의 콘텐츠, 귀하의 책임",
-        "body": "귀하는 CMS를 통해 게시하는 콘텐츠 — 텍스트, 이미지, 비디오, 양식, 코드 임베드 및 기타 미디어 — 에 대해 단독 책임을 집니다. 귀하의 관할권(및 대상으로 하는 관할권)에서 적용되는 법률, 저작권, 초상권 및 인격권, 개인정보 보호 규칙, 그리고 사용하는 모든 제3자 서비스의 약관(임베드된 폰트, 비디오 등)을 준수해야 합니다. Flexweg는 CMS 사용자가 게시한 콘텐츠에 대해 책임지지 않습니다."
+        "body": "CMS를 통해 게시하는 콘텐츠(텍스트, 이미지, 동영상, 양식, 삽입 코드 및 기타 모든 미디어)에 대한 책임은 전적으로 사용자에게 있습니다. 사용자는 해당 관할권(및 대상으로 하는 관할권)의 관련 법률, 저작권, 초상권 및 인격권, 개인정보 보호 규정, 그리고 제3자 약관(예: 삽입된 글꼴이나 동영상)을 준수해야 합니다. AgentCMS 개발자는 CMS 사용자가 게시한 콘텐츠에 대해 책임지지 않습니다."
       },
       "section4": {
         "title": "4. 귀하의 Firebase 계정, 귀하의 보안",
-        "body": "CMS는 데이터를 귀하의 Firebase 프로젝트에 저장합니다. 해당 프로젝트의 보안은 귀하의 책임입니다: 부트스트랩 관리자 계정에 강력한 비밀번호를 선택하고, 문서에 따라 Firestore 보안 규칙을 설정하고, 필요할 때 API 키를 교체하고, 누가 접근할 수 있는지 검토하세요. Flexweg는 어떠한 경우에도 귀하의 Firebase 계정의 잘못된 구성이나 침해로 인한 무단 접근, 데이터 유출, 해킹 또는 손실에 대해 책임지지 않습니다."
+        "body": "CMS는 사용자가 소유한 곳(git 저장소, SQLite 파일, Firebase 프로젝트, 이 브라우저)에 데이터를 저장합니다. 이를 안전하게 지키는 것은 사용자의 책임입니다: 강력한 비밀번호와 암호 문구, 필요한 경우 비공개 저장소나 버킷, 문서에 따른 Firestore 보안 규칙, 토큰 교체, 접근 권한 검토. AgentCMS 개발자는 잘못된 설정이나 해당 계정의 침해로 인한 무단 접근, 데이터 유출, 해킹 또는 손실에 대해 책임지지 않습니다."
       },
       "section5": {
         "title": "5. 책임의 제한",
-        "body": "Flexweg는 CMS의 사용, 오용 또는 사용 불가로 인한 수익 손실, 데이터 손실, 비즈니스 기회 손실 또는 직간접적인 손해에 대해 책임지지 않습니다. 적용 법률이 Flexweg에 일정 책임을 부과하는 경우, 그 책임은 지난 12개월 동안 CMS에 대해 Flexweg에 실제로 지불된 금액으로 제한됩니다 — CMS가 무료이므로 0입니다."
+        "body": "AgentCMS 개발자는 CMS의 사용, 오용 또는 이용 불가로 인해 발생하는 수익 손실, 데이터 손실, 사업 기회 상실 또는 직간접적 손해에 대해 책임지지 않습니다. 관련 법률에 따라 일부 책임을 져야 하는 경우, 그 책임은 지난 12개월 동안 CMS에 실제로 지불한 금액으로 제한되며, CMS가 무료이므로 이는 0입니다."
       },
       "section6": {
         "title": "6. 귀하의 데이터는 귀하의 것",
-        "body": "CMS로 만든 콘텐츠는 귀하의 Firebase 프로젝트(텍스트, 설정, 미디어 메타데이터)와 귀하의 Flexweg 호스팅(게시된 HTML, 이미지, 테마 에셋)에 저장됩니다. CMS 자체는 귀하의 콘텐츠를 어떤 제3자 서비스로도 전송하지 않습니다. 활성화하기로 선택한 플러그인이나 테마는 자체 동작을 가질 수 있습니다 — 활성화하기 전에 무엇을 하는지 확인하세요."
+        "body": "CMS로 만든 콘텐츠는 사용자가 선택한 곳(텍스트, 설정, 미디어 메타데이터)과 사용자 자신의 호스팅(게시된 HTML, 이미지, 테마 에셋)에 저장됩니다. CMS 자체는 콘텐츠를 제3자 서비스로 전송하지 않습니다. 활성화한 플러그인이나 테마는 자체 동작을 가질 수 있으니 활성화하기 전에 확인하세요."
       },
       "section7": {
         "title": "7. 공정한 사용",
-        "body": "CMS를 불법, 사기 또는 유해한 활동에 사용하거나 Flexweg의 일반 이용 약관에 위배되는 방식으로 사용하면 Flexweg 호스팅 액세스가 정지될 수 있습니다. 또한 시간이 지남에 따라 이러한 CMS 약관을 업데이트할 수 있으며, 중요한 변경 사항은 관리자 또는 이메일을 통해 전달됩니다."
+        "body": "불법적이거나 사기성 또는 유해한 활동에 CMS를 사용하거나, 연결한 서비스의 약관에 위배되는 방식으로 사용하지 마세요. 이 약관은 변경될 수 있으며, 중요한 변경 사항은 릴리스 노트에 기재됩니다."
       },
       "accept": "이용 약관을 읽고 동의합니다.",
-      "continue": "구성으로 계속",
-      "back": "뒤로"
+      "continue": "구성으로 계속"
     },
     "sections": {
       "firebase": "Firebase",
-      "admin": "부트스트랩 관리자",
-      "flexweg": "Flexweg API"
+      "admin": "부트스트랩 관리자"
     },
     "help": {
       "firebase": "이 값은 Firebase 콘솔 → 프로젝트 설정 → 일반 → 내 앱 → SDK 설정 및 구성에서 찾을 수 있습니다.",
-      "admin": "Firebase Authentication의 기존 사용자를 사용하세요. 이 이메일로 로그인하는 사람은 관리자로 처리되며 사용자 레코드 확인을 우회합니다. 사용자가 없으면 Firebase 콘솔 → Authentication에서 만드세요.",
-      "flexweg": "Flexweg 계정 → API에서 영구 API 키를 생성하세요. 사이트 URL은 Flexweg 사이트의 공개 주소입니다(예: https://your-site.flexweg.com).",
-      "flexwegApiKeyHint": "Flexweg 계정 설정에서 API 키를 받으세요.",
-      "flexwegApiKeyLink": "계정 설정 열기"
+      "admin": "Firebase Authentication의 기존 사용자를 사용하세요. 이 이메일로 로그인하는 사람은 관리자로 처리되며 사용자 레코드 확인을 우회합니다. 사용자가 없으면 Firebase 콘솔 → Authentication에서 만드세요."
     },
     "fields": {
       "apiKey": "API 키",
@@ -690,36 +609,20 @@
       "messagingSenderId": "메시징 발신자 ID",
       "appId": "앱 ID",
       "adminEmail": "이메일",
-      "adminPassword": "비밀번호",
-      "flexwegApiKey": "API 키",
-      "flexwegSiteUrl": "사이트 URL",
-      "flexwegApiBaseUrl": "API 기본 URL",
-      "sqlitePath": "SQLite 경로"
+      "adminPassword": "비밀번호"
     },
-    "submit": "저장하고 계속",
     "submitting": "설정 중…",
     "success": "설정 완료!",
     "reloadingHint": "잠시 후 관리자 페이지가 새로고침됩니다. 잠시만 기다려 주세요.",
-    "footer": "이 값은 프로젝트(Firestore + Flexweg)에 저장됩니다. 다른 곳으로 전송되지 않습니다.",
+    "footer": "이 값들은 사용자 자신의 프로젝트와 이 브라우저에 저장됩니다. 다른 곳으로 전송되지 않습니다.",
     "steps": {
       "signInFirebase": "Firebase에 로그인 중…",
-      "testFlexweg": "Flexweg API 테스트 중…",
       "writeFirestore": "구성 저장 중…",
-      "uploadConfig": "config.js를 Flexweg에 업로드 중…",
-      "syncThemes": "테마 에셋을 Flexweg에 동기화하는 중…",
-      "sqliteInstall": "범위가 한정된 SQLite 토큰 생성 중…",
-      "sqliteRegisterAdmin": "관리자 계정 등록 중…",
-      "sqliteSchema": "SQLite 스키마 초기화 중…"
-    },
-    "stepsDone": {
-      "sqliteInstall": "범위가 한정된 SQLite 토큰이 발급되었습니다",
-      "sqliteRegisterAdmin": "관리자가 등록되고 로그인되었습니다",
-      "sqliteSchema": "SQLite 스키마가 준비되었습니다"
+      "uploadConfig": "관리자 옆에 config.js 업로드 중…",
+      "syncThemes": "테마 에셋을 호스팅에 동기화하는 중…"
     },
     "errors": {
       "missingFields": "모든 필드를 입력해 주세요.",
-      "rootDeploymentTitle": "관리자는 사이트 루트가 아닌 하위 폴더에 있어야 합니다.",
-      "rootDeploymentHint": "관리자 파일(index.html, config.js, runtime/, …)을 Flexweg의 하위 폴더로 이동하세요 — 예를 들어 /admin/ 또는 보안을 위한 무작위 이름인 /erf34f654GH3/ 등으로. 그런 다음 해당 하위 폴더 URL에서 관리자를 다시 로드하고 설정을 다시 실행하세요.",
       "firebaseAuthGeneric": "Firebase 로그인에 실패했습니다.",
       "firebaseAuthInvalidCredential": "Firebase가 이메일과 비밀번호 조합을 거부했습니다.",
       "firebaseAuthInvalidCredentialHint": "최신 Firebase 프로젝트는 이메일 열거 방지가 기본으로 켜져 있어, 비밀번호가 틀렸을 때, 사용자가 존재하지 않을 때, 또는 사용자가 다른 제공업체로 로그인할 때 모두 같은 오류를 반환합니다. 확인 사항:\n• 비밀번호를 다시 입력하세요 — 오타를 배제하기 위해 비밀번호 관리자에서 복사/붙여넣기하세요. 최소 길이는 6자입니다.\n• Firebase 콘솔 → Authentication → Users를 열어 이메일이 존재하는지 확인하세요. 'Providers' 열을 확인하세요: 'Email/Password'가 없고 Google(또는 다른 제공업체)만 표시되면, 행 메뉴(⋮ → 비밀번호 재설정)에서 비밀번호를 설정하거나 재설정하세요.\n• 이메일 철자가 Firebase에 저장된 값과 정확히 일치하는지 확인하세요.",
@@ -733,13 +636,9 @@
       "wrongAdminEmail": "로그인한 Firebase 계정이 입력한 관리자 이메일과 일치하지 않습니다. 다시 시도하세요.",
       "rulesNotPinnedTitle": "Firestore 규칙이 아직 부트스트랩 관리자로 인식하지 못합니다.",
       "rulesNotPinnedHint": "Firebase 콘솔 → Firestore → 규칙을 열고 `bootstrapAdminEmail()`의 값을 다음으로 교체하세요: {{email}} — 그런 다음 게시를 클릭하세요. README의 규칙 템플릿에는 자리표시자 `you@example.com`이 있으며, 실제 관리자 이메일로 교체해야 합니다. 업데이트된 규칙을 게시한 후 여기에서 제출을 다시 클릭하세요.",
-      "flexwegAuth": "Flexweg API 키가 거부되었습니다. Flexweg 계정 → API에서 값을 확인하세요.",
-      "flexwegNetwork": "Flexweg에 연결하는 중 네트워크 오류가 발생했습니다. API 기본 URL과 연결을 확인하세요.",
-      "flexwegHttp": "Flexweg API 오류 ({{status}}): {{detail}}",
       "firestoreRulesTitle": "Firestore가 구성 쓰기를 거부했습니다.",
       "firestoreRulesHint": "Firebase 콘솔 → Firestore → 규칙을 열고 부트스트랩 관리자 이메일이 '{{email}}'로 설정되어 있는지 확인하세요. README에 복사해서 붙여 넣을 수 있는 규칙 템플릿이 있습니다.",
       "firestoreOther": "Firestore 쓰기 실패",
-      "uploadFailed": "config.js를 Flexweg에 업로드할 수 없습니다",
       "generic": "문제가 발생했습니다."
     },
     "docstore": {
@@ -774,11 +673,7 @@
       "options": {
         "sqlite-file": {
           "title": "SQLite",
-          "hint": "다음 단계에서 선택하는 호스팅(Flexweg, 자체 서버, S3, Git…)에 저장되는 SQLite 데이터베이스입니다. 사용자 계정이 없습니다 — Flexweg에서 호스팅한다면 계정이 포함된 Flexweg의 SQLite 서비스를 사용할 수도 있습니다."
-        },
-        "flexweg-sqlite": {
-          "title": "SQLite (Flexweg 서비스)",
-          "hint": "Flexweg 서비스가 운영하는 SQLite 데이터베이스로, 사용자 계정이 내장되어 있습니다. 사이트를 어디에서 호스팅하든 Flexweg 계정이 필요합니다."
+          "hint": "다음 단계에서 선택하는 호스팅(git 저장소, S3 버킷 등) 또는 별도의 비공개 위치에 저장되는 SQLite 데이터베이스로, 기본적으로 암호화됩니다. 사용자 계정은 없습니다."
         },
         "firebase": {
           "title": "Firebase",
@@ -805,7 +700,7 @@
       "data": "데이터",
       "hosting": "호스팅",
       "saveTarget": "게시 대상 저장 중…",
-      "noteConfigJs": "관리자 구성(config.js)은 가능하면 Flexweg의 관리자 옆에 업로드됩니다. 그렇지 않으면 다운로드하도록 안내됩니다.",
+      "noteConfigJs": "관리자 설정(config.js)은 이 브라우저에 저장되며, 관리자 폴더용으로 다운로드할 수 있습니다.",
       "noteLocalConfig": "구성은 이 브라우저에 저장됩니다. 다른 편집자가 이 설정을 건너뛸 수 있도록 관리자 폴더에 넣을 config.js가 제공됩니다."
     },
     "sqliteFile": {
@@ -817,10 +712,7 @@
       "new": "새 데이터베이스",
       "dataNote": "여기서는 설정할 것이 없습니다: 데이터베이스는 다음 단계에서 선택하는 호스팅에 저장됩니다.",
       "heading": "SQLite 데이터베이스",
-      "flexwegService": "Flexweg의 SQLite 서비스 사용",
-      "flexwegServiceHint": "데이터베이스는 Flexweg가 운영하며 사용자 계정(이메일 + 비밀번호)이 내장되어 있습니다. 그렇지 않으면 계정 없이 이 호스팅에 저장되는 일반 파일입니다.",
       "summaryFile": "이 호스팅의 파일 {{path}}",
-      "summaryService": "Flexweg SQLite 서비스 ({{path}})",
       "encrypt": "데이터베이스 암호화",
       "encryptHint": "공개 호스팅에서 권장: 암호 문구 없이는 파일을 읽을 수 없습니다. 새 브라우저마다 한 번 입력합니다.",
       "passphrase": "암호 문구",
@@ -849,7 +741,7 @@
       "continueHere": "이 관리자에서 계속하기"
     }
   },
-  "flexweg": {
+  "storage": {
     "actions": {
       "upload": "파일 업로드",
       "delete": "파일 삭제",
@@ -859,11 +751,9 @@
       "createFolder": "폴더 생성",
       "renameFolder": "폴더 이름 변경",
       "deleteFolder": "폴더 삭제",
-      "storageLimits": "저장 용량 한도 조회",
       "commit": "변경 사항 게시 중"
     },
     "errors": {
-      "configMissing": "게시 대상이 설정되지 않았습니다. 게시하기 전에 설정에서 구성하세요.",
       "network": "{{action}}: 네트워크 오류 또는 CORS가 차단되었습니다. 연결 상태를 확인하세요.",
       "auth": "{{action}}: 인증에 실패했습니다. 설정에서 게시 대상 자격 증명을 확인하세요.",
       "notFound": "{{action}}: 게시 대상에서 찾을 수 없습니다.",
@@ -902,28 +792,7 @@
     "test": "연결 테스트",
     "testOk": "연결 정상",
     "testFailed": "연결 실패",
-    "names": {
-      "flexweg": "Flexweg",
-      "git-pages": "Git 저장소 (GitHub Pages, Cloudflare Pages, GitLab Pages…)",
-      "s3": "S3 호환 버킷 (AWS S3, Cloudflare R2, Backblaze B2, OVH…)",
-      "php-bridge": "자체 서버 (PHP 브리지)",
-      "browser-mirror": "ZIP으로 다운로드",
-      "local-folder": "이 컴퓨터의 로컬 폴더"
-    },
-    "hints": {
-      "flexweg": "Flexweg Files API를 통해 업로드합니다.",
-      "git-pages": "게시할 때마다 저장소에 커밋 하나가 생성되며, 호스트가 이를 바탕으로 사이트를 다시 빌드합니다.",
-      "s3": "버킷에 이 관리자의 오리진을 허용하는 CORS 규칙이 필요하며, index.html 파일을 제공하려면 웹사이트 호스팅 (또는 CDN)이 필요합니다.",
-      "php-bridge": "external/bridges/php/flexweg-bridge.php를 서버에 업로드하고 API 키를 설정한 다음 여기에 URL을 입력하세요.",
-      "browser-mirror": "사이트는 이 브라우저에 보관됩니다. ZIP을 다운로드해 원하는 곳에 직접 업로드하세요.",
-      "local-folder": "사이트를 폴더에 바로 기록합니다 (Chrome / Edge). 로컬에서 제공하거나 자신의 도구로 푸시하세요."
-    },
     "fields": {
-      "flexweg": {
-        "apiKey": "API 키",
-        "siteUrl": "사이트 URL",
-        "apiBaseUrl": "API 기본 URL"
-      },
       "git-pages": {
         "host": "호스팅",
         "provider": "Git 제공자",
@@ -947,11 +816,6 @@
         "forcePathStyle": "경로 스타일 URL (MinIO, R2, 대부분의 호환 서비스)",
         "publicRead": "업로드한 파일을 공개로 설정(ACL public-read) — 버킷 정책으로 공개되지 않은 버킷용(OVHcloud, Scaleway 등). ‘bucket owner enforced’를 사용하는 AWS 버킷에서는 꺼 두세요."
       },
-      "php-bridge": {
-        "apiBaseUrl": "브리지 URL",
-        "apiKey": "브리지 API 키",
-        "siteUrl": "공개 사이트 URL"
-      },
       "browser-mirror": {
         "siteUrl": "공개 사이트 URL (선택 사항)"
       },
@@ -960,9 +824,6 @@
       }
     },
     "help": {
-      "flexweg": {
-        "apiKey": "Flexweg 계정 → API에서 생성합니다."
-      },
       "git-pages": {
         "host": "Cloudflare Pages: 빌드 명령 없이 아래 출력 폴더로 프로젝트를 이 저장소에 연결하세요. 비공개 저장소에서도 작동합니다.",
         "dir": "저장소 루트를 사용하려면 비워 두세요. GitHub Pages: \"\" 또는 \"docs\". GitLab Pages: \"public\".",
@@ -972,9 +833,6 @@
       "s3": {
         "endpoint": "AWS는 비워 두세요 (리전에서 자동 구성됨). R2: https://<account-id>.r2.cloudflarestorage.com",
         "siteUrl": "버킷 웹사이트 URL 또는 CDN 도메인."
-      },
-      "php-bridge": {
-        "apiBaseUrl": "서버에 있는 flexweg-bridge.php의 전체 URL (HTTPS)."
       },
       "browser-mirror": {
         "siteUrl": "ZIP을 업로드할 위치 — 절대 URL (사이트맵, RSS, 미디어)에 사용됩니다."
@@ -1031,11 +889,6 @@
     "openFolder": "콘텐츠 폴더 열기"
   },
   "hosting": {
-    "flexweg": {
-      "title": "Flexweg",
-      "short": "Flexweg 호스팅",
-      "hint": "Flexweg Files API를 통해 업로드합니다. Flexweg 계정의 API 키를 사용하세요."
-    },
     "github-pages": {
       "title": "GitHub Pages",
       "short": "무료, GitHub 저장소에서",
@@ -1060,11 +913,6 @@
       "title": "S3 / R2 / B2…",
       "short": "오브젝트 스토리지 버킷",
       "hint": "AWS S3, Cloudflare R2, Backblaze B2, OVH, Scaleway, MinIO… 버킷에 CORS 규칙과 웹사이트 호스팅 또는 앞단의 CDN이 필요합니다."
-    },
-    "own-server": {
-      "title": "자체 서버 (FTP / SFTP)",
-      "short": "공유 호스팅, VPS…",
-      "hint": "브라우저는 FTP나 SFTP를 사용할 수 없습니다: FTP 클라이언트로 PHP 브리지(external/bridges/php/flexweg-bridge.php)를 한 번 업로드하고 API 키를 설정한 다음, 여기에 해당 URL을 입력하세요. 모든 PHP 호스트에서 작동합니다."
     },
     "local-folder": {
       "title": "로컬 폴더",

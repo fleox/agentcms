@@ -24,7 +24,7 @@ import { useCmsData } from "../../context/CmsDataContext";
 import { useTheme } from "../../context/ThemeContext";
 import { getActiveTheme } from "../../themes";
 import { signOut } from "../../services/auth";
-import flexwegLogo from "../../assets/flexweg-logo.png";
+import agentcmsLogo from "../../assets/agentcms-logo.svg";
 
 interface NavItem {
   to: string;
@@ -104,7 +104,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
       >
       <div className="px-5 h-16 flex items-center gap-2.5 border-b border-surface-200 dark:border-surface-800">
         <img
-          src={flexwegLogo}
+          src={agentcmsLogo}
           alt="AgentCMS"
           className="h-8 w-8 rounded-lg shadow-card object-cover shrink-0"
         />

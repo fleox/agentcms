@@ -1,11 +1,11 @@
 // Runtime stub for "react-dom".
-const R = (typeof window !== "undefined" && window.__FLEXWEG_RUNTIME__)
-  ? window.__FLEXWEG_RUNTIME__.reactDom
+const R = (typeof window !== "undefined" && window.__AGENTCMS_RUNTIME__)
+  ? window.__AGENTCMS_RUNTIME__.reactDom
   : null;
 
 if (!R) {
   throw new Error(
-    "[flexweg] window.__FLEXWEG_RUNTIME__ is not initialised when react-dom was imported.",
+    "[agentcms] window.__AGENTCMS_RUNTIME__ is not initialised when react-dom was imported.",
   );
 }
 

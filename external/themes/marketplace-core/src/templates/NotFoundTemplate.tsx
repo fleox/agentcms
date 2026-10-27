@@ -1,5 +1,5 @@
-import type { NotFoundTemplateProps, SiteContext } from "@flexweg/cms-runtime";
-import { i18n, pickPublicLocale } from "@flexweg/cms-runtime";
+import type { NotFoundTemplateProps, SiteContext } from "@agent-cms/runtime";
+import { i18n, pickPublicLocale } from "@agent-cms/runtime";
 
 export function NotFoundTemplate({ site }: NotFoundTemplateProps & { site: SiteContext }) {
   const t = i18n.getFixedT(pickPublicLocale(site.settings.language), "theme-marketplace-core");

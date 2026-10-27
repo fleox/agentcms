@@ -5,7 +5,7 @@ import {
   getMissingFirebaseFields,
   getRuntimeConfig,
   resetRuntimeConfigCache,
-  type FlexwegRuntimeConfig,
+  type CmsRuntimeConfig,
 } from "../lib/runtimeConfig";
 
 export function getAdminEmail(): string {
@@ -17,7 +17,7 @@ export function getAdminEmail(): string {
 
 // Returns the env var names that would need to be filled in .env to boot
 // the admin without going through the in-app SetupForm. Returns [] when
-// the runtime config is already resolved (either from window.__FLEXWEG_CONFIG__
+// the runtime config is already resolved (either from window.__AGENTCMS_CONFIG__
 // or from baked-in import.meta.env values).
 export function getMissingFirebaseEnvVars(): string[] {
   return getMissingFirebaseFields();
@@ -63,14 +63,14 @@ export function getAuthClient(): Auth {
 
 // Initialises Firebase from a SetupForm payload before the runtime
 // config has been persisted. Used during first-run setup so we can
-// authenticate the admin and write config/flexweg to Firestore *before*
-// uploading the populated config.js to Flexweg.
+// authenticate the admin and write the publish target to Firestore
+// *before* config.js is persisted.
 //
 // After this returns, getDb() / getAuthClient() will reuse the same app
-// instance, and getRuntimeConfig() will resolve from window.__FLEXWEG_CONFIG__
+// instance, and getRuntimeConfig() will resolve from window.__AGENTCMS_CONFIG__
 // (which we set here as a side effect so the rest of the codebase stays
 // in sync without a reload).
-export function initFirebaseFromSetup(config: FlexwegRuntimeConfig): void {
+export function initFirebaseFromSetup(config: CmsRuntimeConfig): void {
   if (config.backend !== "firebase") {
     throw new Error(
       `initFirebaseFromSetup called with non-Firebase config (backend="${config.backend}"). Use the SQLite install helper for that backend.`,
@@ -85,7 +85,7 @@ export function initFirebaseFromSetup(config: FlexwegRuntimeConfig): void {
   // For users who need to genuinely swap Firebase creds (rare —
   // typo on the very first attempt), a page refresh resets cachedApp.
   if (typeof window !== "undefined") {
-    window.__FLEXWEG_CONFIG__ = config;
+    window.__AGENTCMS_CONFIG__ = config;
   }
   resetRuntimeConfigCache();
   if (cachedApp) return;
@@ -102,10 +102,8 @@ export const collections = {
 } as const;
 
 export const configDocs = {
-  flexweg: "flexweg",
   // Active publish connector `{ connectorId, settings }`. Absent on
-  // installs that predate connectors — the resolver then defaults to
-  // "flexweg" (whose credentials stay in `config/flexweg`).
+  // a fresh install — the resolver then defaults to "browser-mirror".
   storage: "storage",
   // Empty placeholder doc whose Firestore rules grant read ONLY to the
   // bootstrap admin (the email pinned in `bootstrapAdminEmail()` of the

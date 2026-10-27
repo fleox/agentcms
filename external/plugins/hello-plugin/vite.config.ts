@@ -8,7 +8,7 @@ import react from "@vitejs/plugin-react";
 //      file at boot.
 //
 //   2. Externalised dependencies: react, react-i18next and
-//      @flexweg/cms-runtime are NOT bundled — at runtime the import-map
+//      @agent-cms/runtime are NOT bundled — at runtime the import-map
 //      in /admin/index.html redirects each bare specifier to a stub
 //      under /admin/runtime/ that hands back the live admin instance.
 //      This is what guarantees a single React copy across admin and
@@ -46,7 +46,7 @@ export default defineConfig({
         "react-dom",
         "react-dom/client",
         "react-i18next",
-        "@flexweg/cms-runtime",
+        "@agent-cms/runtime",
       ],
       output: {
         inlineDynamicImports: true,

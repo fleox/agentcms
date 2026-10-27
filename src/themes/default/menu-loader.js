@@ -14,7 +14,7 @@
  *     so adding them doesn't force a full site republish.
  *
  * Failure mode is silent on purpose: if the fetch fails (network down,
- * 404 because Flexweg hasn't received the first publish yet), the
+ * 404 because the hosting hasn't received the first publish yet), the
  * containers stay empty. The user sees no menu rather than a panic-y
  * error, and the admin's logs/toasts surface the underlying issue.
  */
@@ -44,7 +44,7 @@
   }
 
   function fetchMenu() {
-    // Cache-busting via Date.now would invalidate Flexweg's CDN headers
+    // Cache-busting via Date.now would invalidate the host's CDN headers
     // for everyone — we instead rely on the browser's HTTP cache and
     // the user can hard-refresh if they updated the menu mid-session.
     // Path is `/data/menu.json` (grouped with other content snapshots

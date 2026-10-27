@@ -12,7 +12,7 @@ import { CategoryTemplate } from "./templates/CategoryTemplate";
 import { AuthorTemplate } from "./templates/AuthorTemplate";
 import { NotFoundTemplate } from "./templates/NotFoundTemplate";
 import { en, fr, de, es, nl, pt, ko } from "./i18n";
-import { i18n as runtimeI18n } from "@flexweg/cms-runtime";
+import { i18n as runtimeI18n } from "@agent-cms/runtime";
 import { transformBodyHtml } from "./blocks/transforms";
 import { encodeAttrs } from "./blocks/util";
 import type { MarketplaceThemeConfig } from "./config";
@@ -32,7 +32,7 @@ import { featureGridBlock } from "./blocks/featureGrid/manifest";
 import { featureRowBlock } from "./blocks/featureRow/manifest";
 import { statsBarBlock } from "./blocks/statsBar/manifest";
 import { ctaBannerBlock } from "./blocks/ctaBanner/manifest";
-import type { ThemeManifest } from "@flexweg/cms-runtime";
+import type { ThemeManifest } from "@agent-cms/runtime";
 
 // Seed markdown auto-inserted at the top of every new POST (not
 // pages — pages stay empty). User opens a new product post and sees

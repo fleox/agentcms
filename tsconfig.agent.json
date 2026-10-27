@@ -22,7 +22,7 @@
     "forceConsistentCasingInFileNames": true,
     "types": ["node", "vite/client", "vitest/globals"],
     "paths": {
-      "@flexweg/cms-runtime": ["./src/core/flexwegRuntime.ts"]
+      "@agent-cms/runtime": ["./src/core/cmsRuntime.ts"]
     }
   },
   "include": ["agent"]

@@ -48,7 +48,7 @@ export type MagazineBrandPosition = "centered" | "left";
 export interface MagazineHeaderConfig {
   brandPosition: MagazineBrandPosition;
   // Whether to show the search trigger button. Hidden when the
-  // flexweg-search plugin is disabled — though the trigger stays
+  // agentcms-search plugin is disabled — though the trigger stays
   // inert without the plugin, hiding it removes a non-functional
   // affordance from the UI.
   showSearch: boolean;

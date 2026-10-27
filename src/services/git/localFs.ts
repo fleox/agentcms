@@ -43,7 +43,7 @@ export async function pickLocalFolder(): Promise<FileSystemDirectoryHandle> {
   const picker = (window as unknown as {
     showDirectoryPicker: (opts?: { mode?: "readwrite"; id?: string }) => Promise<FileSystemDirectoryHandle>;
   }).showDirectoryPicker;
-  return picker({ mode: "readwrite", id: "flexweg-cms" });
+  return picker({ mode: "readwrite", id: "agentcms" });
 }
 
 // Browsers drop the grant on reload; re-asking also needs a user gesture.

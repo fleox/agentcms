@@ -1,5 +1,5 @@
-import type { NotFoundTemplateProps, SiteContext } from "@flexweg/cms-runtime";
-import { i18n, pickPublicLocale } from "@flexweg/cms-runtime";
+import type { NotFoundTemplateProps, SiteContext } from "@agent-cms/runtime";
+import { i18n, pickPublicLocale } from "@agent-cms/runtime";
 
 // Minimal 404 — centered serif headline + CTA back to home. Aligns
 // with the storefront aesthetic (sage primary CTA, off-white surface).

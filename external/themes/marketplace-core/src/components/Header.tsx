@@ -1,5 +1,5 @@
-import type { SiteContext } from "@flexweg/cms-runtime";
-import { i18n, pickPublicLocale } from "@flexweg/cms-runtime";
+import type { SiteContext } from "@agent-cms/runtime";
+import { i18n, pickPublicLocale } from "@agent-cms/runtime";
 import type { MarketplaceThemeConfig } from "../config";
 import { pickItemLabel } from "../lib/locale";
 
@@ -58,7 +58,7 @@ export function Header({
           ))}
         </nav>
         {/* Language switcher mount-point — filled at runtime by the
-            flexweg-multilang plugin's body-end script when the site
+            agentcms-multilang plugin's body-end script when the site
             has more than one locale enabled AND the plugin's
             "Show switcher in the site header" setting is on. When
             those conditions aren't met the container stays empty
@@ -72,7 +72,7 @@ export function Header({
           data-cms-langswitch-empty
         />
         {/* Search trigger — looks like an input but acts as a button.
-            The flexweg-search plugin attaches a click handler to every
+            The agentcms-search plugin attaches a click handler to every
             `[data-cms-search]` element and opens its modal. When the
             plugin is disabled the trigger stays inert. `readOnly` +
             `cursor: pointer` keeps the visible-input aesthetic

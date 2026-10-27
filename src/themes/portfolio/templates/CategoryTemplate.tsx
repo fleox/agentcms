@@ -1,4 +1,4 @@
-import type { CategoryTemplateProps, SiteContext } from "@flexweg/cms-runtime";
+import type { CategoryTemplateProps, SiteContext } from "@agent-cms/runtime";
 import { ProjectCard } from "../components/ProjectCard";
 import type { PortfolioThemeConfig } from "../config";
 import { DEFAULT_PORTFOLIO_HOME } from "../config";

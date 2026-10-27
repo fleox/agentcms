@@ -82,7 +82,7 @@ export function MarkdownEditor({
       // having to click the block and press Enter first.
       TrailingNode,
       Placeholder.configure({ placeholder: placeholder ?? t("posts.fields.content") }),
-      // html: true lets atom blocks (e.g. flexweg-embeds' YouTube /
+      // html: true lets atom blocks (e.g. agentcms-embeds' YouTube /
       // Twitter / Spotify nodes) round-trip through markdown as their
       // `<div data-cms-embed=…>` markers. The DOMPurify pass at
       // publish time strips anything dangerous before the marker is

@@ -32,7 +32,7 @@ export default defineConfig({
         "react-dom",
         "react-dom/client",
         "react-i18next",
-        "@flexweg/cms-runtime",
+        "@agent-cms/runtime",
       ],
       output: {
         inlineDynamicImports: true,

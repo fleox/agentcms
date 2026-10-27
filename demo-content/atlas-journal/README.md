@@ -41,8 +41,8 @@ All posts signed by `marco@atlas-journal.example` (fictional). The about page co
 ## How to use
 
 1. **Make sure the magazine theme is active** at `/admin/#/themes`
-2. **Enable Flexweg Import** in `/admin/#/plugins`
-3. Open `/admin/#/settings/plugin/flexweg-import` → Drag and drop mode
+2. **Enable the Import plugin (agentcms-import)** in `/admin/#/plugins`
+3. Open `/admin/#/settings/plugin/agentcms-import` → Drag and drop mode
 4. Drag the whole `atlas-journal/` folder (including `images/`) into the drop zone
 5. Click **Scan** → 9 posts + 2 pages, 4 categories (Destinations / Journeys / Essays / Guides), ~33 tags, 9 images
 6. Pick a status mode (recommended: **Always import as draft** so you can review before going live)

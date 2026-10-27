@@ -93,8 +93,8 @@ export function RegenerateMenu() {
         description: t("themes.regenerate.allHtmlHelp"),
         onSelect: () =>
           // Force a fresh terms read — the live React subscription
-          // can lag a recent term mutation (SQLite polls every ~4s,
-          // Firebase ~100ms). Without this, saving a category's
+          // can lag a recent term mutation (Firebase ~100ms, remote
+          // edits on polled backends even longer). Without this, saving a category's
           // SEO meta in the modal and immediately clicking
           // Regenerate would re-render the archive with the
           // pre-save term snapshot and the new tags wouldn't make
