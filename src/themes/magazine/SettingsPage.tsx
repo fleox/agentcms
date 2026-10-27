@@ -534,6 +534,39 @@ function HomeTab({
         {t("settings.home.help")}
       </p>
 
+      <section className="card p-4 space-y-2">
+        <div className="grid sm:grid-cols-3 gap-4">
+          <div>
+            <label className="label">{t("settings.home.featuredLabel")}</label>
+            <input
+              type="text"
+              className="input"
+              value={draft.featuredLabel ?? ""}
+              onChange={(e) => patch({ featuredLabel: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="label">{t("settings.home.latestHeading")}</label>
+            <input
+              type="text"
+              className="input"
+              value={draft.latestHeading ?? ""}
+              onChange={(e) => patch({ latestHeading: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="label">{t("settings.home.mostReadHeading")}</label>
+            <input
+              type="text"
+              className="input"
+              value={draft.mostReadHeading ?? ""}
+              onChange={(e) => patch({ mostReadHeading: e.target.value })}
+            />
+          </div>
+        </div>
+        <p className="text-xs text-surface-500 dark:text-surface-400">{t("settings.home.textsHelp")}</p>
+      </section>
+
       <section className="card p-4 space-y-4">
         <div className="grid sm:grid-cols-3 gap-4">
           <div>

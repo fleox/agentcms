@@ -62,6 +62,26 @@ export async function siteFromAdminUrl(opts: {
     if (hosting.connectorId === "git-pages" && hosting.settings.provider === git.provider && !opts.hostingCredential) {
       credentials.hosting = opts.dataCredential;
     }
+  } else if (runtime.backend === "firebase") {
+    // Sign in like the admin's login screen, then read the publish target
+    // from Firestore (config/storage).
+    if (opts.dataCredential) {
+      if (parseAccount(opts.dataCredential).type !== "firebase") throw new CliError("usage", "--data-credential must be a firebase:<name> account.", undefined, 2);
+      credentials.data = opts.dataCredential;
+      const { email, password } = requireCredential(opts.dataCredential).values;
+      const { resetRuntimeConfigCache } = await import("../../src/lib/runtimeConfig");
+      window.__AGENTCMS_CONFIG__ = runtime;
+      resetRuntimeConfigCache();
+      const { signIn } = await import("../../src/services/auth");
+      try {
+        await signIn(email, password);
+      } catch (err) {
+        throw new CliError("firebase-login", `Firebase sign-in failed for ${email}: ${(err as { code?: string }).code ?? (err as Error).message}.`);
+      }
+      const { getStorageConfig } = await import("../../src/services/storageConfig");
+      const stored = await getStorageConfig().catch(() => null);
+      if (stored?.connectorId) hosting = { connectorId: stored.connectorId, settings: splitSecrets(stored.settings ?? {}).clean };
+    }
   } else if (runtime.backend === "sqlite-file") {
     // Default: the database sits on the hosting itself.
     hosting = { connectorId: runtime.sqlite.connectorId, settings: { ...runtime.sqlite.settings, siteUrl } };

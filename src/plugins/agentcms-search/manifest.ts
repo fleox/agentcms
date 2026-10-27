@@ -59,7 +59,7 @@ async function regenerate(_post: Post, ctx: PublishContext): Promise<void> {
 export const manifest: PluginManifest<SearchConfig> = {
   id: PLUGIN_ID,
   name: "Search",
-  version: "1.0.0",
+  version: "1.0.1",
   author: "AgentCMS",
   description:
     "Generates /search-index.json + a search runtime that opens a modal anywhere a [data-cms-search] trigger is present in your theme.",

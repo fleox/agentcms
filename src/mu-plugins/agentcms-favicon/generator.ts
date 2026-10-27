@@ -9,6 +9,7 @@
 // input was already an SVG).
 
 import { deleteFile, deleteFolder, uploadFile } from "../../services/siteFiles";
+import { bytesToBase64 } from "../../services/git/encoding";
 import { encodeIco, type IcoImage } from "./icoEncoder";
 
 export const FAVICON_FOLDER = "favicon";
@@ -46,6 +47,28 @@ export interface FaviconUploadResult {
   hasManifest: boolean;
 }
 
+// ─── Raster injection point ────────────────────────────────────────
+
+// One square PNG to render from the source image: cover crop (centered
+// square of the source's short side) scaled to `size` × `size`, painted
+// over `background` (a CSS hex color) or kept transparent when null.
+export interface SquarePngRequest {
+  size: number;
+  background: string | null;
+}
+
+// Replacement for the canvas pipeline, for runtimes without
+// createImageBitmap / OffscreenCanvas (the agentcms CLI on Node, see
+// agent/ops/imageNode.ts). Returns one PNG blob per request, in order.
+export type FaviconRasterizer = (source: Blob, requests: SquarePngRequest[]) => Promise<Blob[]>;
+
+let rasterizer: FaviconRasterizer | null = null;
+
+// null restores the canvas pipeline.
+export function setFaviconRasterizer(impl: FaviconRasterizer | null): void {
+  rasterizer = impl;
+}
+
 // ─── Canvas helpers ────────────────────────────────────────────────
 
 function makeCanvas(width: number, height: number): HTMLCanvasElement | OffscreenCanvas {
@@ -73,6 +96,10 @@ async function canvasToBlob(
 }
 
 function blobToBase64(blob: Blob): Promise<string> {
+  // Node (the agentcms CLI) has Blob but no FileReader.
+  if (typeof FileReader === "undefined") {
+    return blob.arrayBuffer().then((buf) => bytesToBase64(new Uint8Array(buf)));
+  }
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -90,6 +117,7 @@ function blobToBase64(blob: Blob): Promise<string> {
 }
 
 async function blobToText(blob: Blob): Promise<string> {
+  if (typeof FileReader === "undefined") return blob.text();
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result ?? ""));
@@ -135,6 +163,17 @@ async function squareToPngBlob(
 ): Promise<Blob> {
   const canvas = renderSquare(bitmap, size, background);
   return canvasToBlob(canvas, "image/png");
+}
+
+async function renderWithCanvas(file: Blob, requests: SquarePngRequest[]): Promise<Blob[]> {
+  const bitmap = await createImageBitmap(file);
+  try {
+    const out: Blob[] = [];
+    for (const r of requests) out.push(await squareToPngBlob(bitmap, r.size, r.background));
+    return out;
+  } finally {
+    bitmap.close?.();
+  }
 }
 
 async function blobToBytes(blob: Blob): Promise<Uint8Array> {
@@ -186,21 +225,24 @@ export async function generateAndUploadFavicons(args: {
   pwa: PwaManifestInput;
 }): Promise<FaviconUploadResult> {
   const isSvgSource = args.file.type === "image/svg+xml";
-  const bitmap = await createImageBitmap(args.file);
 
   // PNG variants. The Apple touch icon gets a solid white fill
   // because Safari's older renderers darkened transparent corners.
   // The other variants stay transparent for cleaner integration.
-  const png96 = await squareToPngBlob(bitmap, 96, null);
-  const appleTouch = await squareToPngBlob(bitmap, 180, "#ffffff");
-  const manifest192 = await squareToPngBlob(bitmap, 192, null);
-  const manifest512 = await squareToPngBlob(bitmap, 512, null);
-
   // ICO multi-size — 16, 32 and 48 are enough for legacy browsers and
   // taskbar icons. Each entry is a PNG payload (Vista+ supports it).
-  const ico16 = await squareToPngBlob(bitmap, 16, null);
-  const ico32 = await squareToPngBlob(bitmap, 32, null);
-  const ico48 = await squareToPngBlob(bitmap, 48, null);
+  const requests: SquarePngRequest[] = [
+    { size: 96, background: null },
+    { size: 180, background: "#ffffff" },
+    { size: 192, background: null },
+    { size: 512, background: null },
+    { size: 16, background: null },
+    { size: 32, background: null },
+    { size: 48, background: null },
+  ];
+  const [png96, appleTouch, manifest192, manifest512, ico16, ico32, ico48] = rasterizer
+    ? await rasterizer(args.file, requests)
+    : await renderWithCanvas(args.file, requests);
   const icoEntries: IcoImage[] = [
     { size: 16, png: await blobToBytes(ico16) },
     { size: 32, png: await blobToBytes(ico32) },
@@ -209,8 +251,6 @@ export async function generateAndUploadFavicons(args: {
   const icoBytes = encodeIco(icoEntries);
   // Wrap in a Blob so we can run it through the same base64 helper.
   const icoBlob = new Blob([icoBytes as BlobPart], { type: "image/x-icon" });
-
-  bitmap.close?.();
 
   // Uploads — we run sequentially to avoid hammering the API.
   await uploadFile({

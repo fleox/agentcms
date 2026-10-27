@@ -19,6 +19,11 @@
 
 (function () {
   if (typeof document === "undefined") return;
+  // Load once: a page that ends up with two <script src="/search.js">
+  // tags (theme + plugin, hand-edited custom code…) must not attach two
+  // click handlers — each would open its own modal on top of the other.
+  if (window.__agentcmsSearchRuntime) return;
+  window.__agentcmsSearchRuntime = true;
 
   // ─── Base path ────────────────────────────────────────────────────
   // Sites served from a sub-folder (e.g. GitHub Pages project sites)
@@ -49,7 +54,12 @@
     ".cms-search-backdrop{position:absolute;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(4px)}",
     ".cms-search-panel{position:relative;width:100%;max-width:640px;background:#fff;color:#0f172a;border-radius:8px;box-shadow:0 25px 50px -12px rgba(0,0,0,.25);display:flex;flex-direction:column;max-height:80vh;overflow:hidden;font-family:inherit}",
     ".cms-search-header{display:flex;gap:8px;padding:12px 14px;border-bottom:1px solid #e2e8f0;align-items:center}",
-    ".cms-search-header input{flex:1;border:0;outline:0;font-size:18px;background:transparent;color:inherit;padding:8px 4px}",
+    ".cms-search-header input{flex:1;min-width:0;border:0;outline:0;font-size:18px;background:transparent;color:inherit;padding:8px 4px;-webkit-appearance:none;appearance:none}",
+    // type="search" gets a native clear "×" in WebKit/Blink (and ::-ms-clear
+    // in old Edge) — next to our close button that showed two "×" side
+    // by side. Hide the native one; Escape / the close button remain.
+    ".cms-search-header input::-webkit-search-cancel-button,.cms-search-header input::-webkit-search-decoration{-webkit-appearance:none;appearance:none;display:none}",
+    ".cms-search-header input::-ms-clear{display:none;width:0;height:0}",
     ".cms-search-header button{border:0;background:transparent;color:#64748b;font-size:24px;line-height:1;width:32px;height:32px;border-radius:4px;cursor:pointer}",
     ".cms-search-header button:hover{background:#f1f5f9;color:#0f172a}",
     ".cms-search-results{flex:1;overflow-y:auto;padding:4px 0}",
@@ -57,10 +67,33 @@
     ".cms-search-result:hover,.cms-search-result.is-active{background:#f8fafc}",
     ".cms-search-result-title{display:block;font-weight:600;font-size:15px;line-height:1.4;margin-bottom:2px}",
     ".cms-search-result-excerpt{display:block;font-size:13px;line-height:1.5;color:#475569}",
-    ".cms-search-result-category{display:inline-block;margin-top:6px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#64748b}",
+    ".cms-search-result-category{display:inline-block;margin-top:6px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--cms-search-accent,#64748b)}",
     ".cms-search-result mark{background:#fef08a;color:inherit;padding:0 1px;border-radius:2px}",
     ".cms-search-empty{padding:24px;text-align:center;color:#64748b;font-size:14px}",
   ].join("");
+
+  // Accent colour of the active theme, applied to the result's category
+  // label through --cms-search-accent. A theme can set that property
+  // itself; otherwise we borrow its --color-secondary (the colour every
+  // bundled theme uses for category eyebrows), then --color-primary.
+  // Tailwind themes store colours as bare RGB channels ("67 97 124") for
+  // their `rgb(var(--x) / <alpha>)` utilities, so those are wrapped in
+  // rgb(); hex / rgb() / named values pass through. "" = keep fallback.
+  var ACCENT_VARS = ["--cms-search-accent", "--color-secondary", "--color-primary"];
+  var RGB_CHANNELS = /^\d+(\.\d+)?%?(\s*,\s*|\s+)\d+(\.\d+)?%?(\s*,\s*|\s+)\d+(\.\d+)?%?(\s*\/\s*[\d.]+%?)?$/;
+  function themeAccent() {
+    try {
+      var cs = window.getComputedStyle(document.documentElement);
+      for (var i = 0; i < ACCENT_VARS.length; i++) {
+        var v = (cs.getPropertyValue(ACCENT_VARS[i]) || "").trim();
+        if (!v) continue;
+        return RGB_CHANNELS.test(v) ? "rgb(" + v + ")" : v;
+      }
+    } catch (e) {
+      // getComputedStyle unavailable — keep the fallback colour.
+    }
+    return "";
+  }
 
   var stylesInjected = false;
   function injectStyles() {
@@ -169,6 +202,9 @@
   }
 
   var modal = null;
+  // True while open() awaits the index: a second click in that window
+  // would otherwise build a second modal.
+  var opening = false;
   function close() {
     if (!modal) return;
     var m = modal;
@@ -189,9 +225,16 @@
   }
 
   async function open() {
-    if (modal) return;
+    if (modal || opening) return;
+    opening = true;
     injectStyles();
-    var data = await loadIndex();
+    var data;
+    try {
+      data = await loadIndex();
+    } finally {
+      opening = false;
+    }
+    if (modal) return;
     var meta = data.meta || {};
     var minQuery = typeof meta.minQueryLength === "number" ? meta.minQueryLength : 2;
     var maxResults = typeof meta.maxResults === "number" ? meta.maxResults : 20;
@@ -205,6 +248,8 @@
     m.setAttribute("role", "dialog");
     m.setAttribute("aria-modal", "true");
     m.setAttribute("aria-label", dialogLabel);
+    var accent = themeAccent();
+    if (accent) m.style.setProperty("--cms-search-accent", accent);
 
     m.innerHTML = ''
       + '<div class="cms-search-backdrop" data-cms-search-close></div>'

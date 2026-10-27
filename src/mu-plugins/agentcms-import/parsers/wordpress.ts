@@ -59,11 +59,22 @@ const NS = {
   dc: "http://purl.org/dc/elements/1.1/",
 };
 
+// Elements `tag` in `namespace`. Falls back to the qualified name with
+// the standard prefix (`wp:post_type`) for XML parsers that don't
+// resolve namespaces (the headless CLI's DOM) — WordPress always writes
+// these prefixes.
+function byNs(parent: Element, namespace: string, tag: string): Element[] {
+  const found = Array.from(parent.getElementsByTagNameNS(namespace, tag));
+  if (found.length) return found;
+  const prefix = (Object.keys(NS) as Array<keyof typeof NS>).find((k) => NS[k] === namespace);
+  return prefix ? Array.from(parent.getElementsByTagName(`${prefix}:${tag}`)) : [];
+}
+
 // Reads the text content of the first child element matching `tag`
 // in the given namespace. Returns "" if absent — WP exports are
 // notoriously inconsistent with optional fields.
 function readNs(parent: Element, namespace: string, tag: string): string {
-  const nodes = parent.getElementsByTagNameNS(namespace, tag);
+  const nodes = byNs(parent, namespace, tag);
   if (nodes.length === 0) return "";
   return (nodes[0].textContent ?? "").trim();
 }
@@ -130,7 +141,7 @@ export function parseWordPressXml(xml: string, sourceName: string): ParseResult 
   const terms: ParsedTerm[] = [];
   const channel = doc.querySelector("rss > channel") ?? doc.querySelector("channel");
   if (channel) {
-    const wpCategories = channel.getElementsByTagNameNS(NS.wp, "category");
+    const wpCategories = byNs(channel, NS.wp, "category");
     for (const cat of Array.from(wpCategories)) {
       const slug = readNs(cat, NS.wp, "category_nicename");
       const name = readNs(cat, NS.wp, "cat_name");
@@ -143,7 +154,7 @@ export function parseWordPressXml(xml: string, sourceName: string): ParseResult 
         type: "category",
       });
     }
-    const wpTags = channel.getElementsByTagNameNS(NS.wp, "tag");
+    const wpTags = byNs(channel, NS.wp, "tag");
     for (const tag of Array.from(wpTags)) {
       const slug = readNs(tag, NS.wp, "tag_slug");
       const name = readNs(tag, NS.wp, "tag_name");
@@ -294,7 +305,7 @@ export function parseWordPressXml(xml: string, sourceName: string): ParseResult 
     // Hero image is referenced via postmeta `_thumbnail_id` whose
     // value is the attachment's wpId. We resolve it in a second
     // pass after every <item> has been read.
-    const postMetas = item.getElementsByTagNameNS(NS.wp, "postmeta");
+    const postMetas = byNs(item, NS.wp, "postmeta");
     let thumbnailId: string | undefined;
     for (const meta of Array.from(postMetas)) {
       const key = readNs(meta, NS.wp, "meta_key");

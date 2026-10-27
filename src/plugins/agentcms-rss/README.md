@@ -11,6 +11,8 @@ Generates and maintains:
 
 Each feed is served alongside an XSL stylesheet so opening the URL in a browser shows a friendly preview rather than raw XML. Posts with a hero image get an `<enclosure>` element so feed readers display the artwork.
 
+Every published page also gets a `<link rel="alternate" type="application/rss+xml">` tag in its `<head>` pointing at the site feed (when enabled), so browsers and feed readers can discover it from any page URL. A category archive additionally advertises its own category feed once that feed has been uploaded. The links are absolute and follow the public site URL, sub-folder included — republish (Regenerate → All HTML) after enabling a feed so existing pages pick them up.
+
 Item descriptions use the post's excerpt when set, otherwise an automatic plain-text summary truncated to ~300 characters.
 
 The feeds re-publish only when an affected post changes — not on every publish action elsewhere on the site. A category feed only regenerates when one of its own posts is added/removed/edited.

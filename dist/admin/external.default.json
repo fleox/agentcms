@@ -8,31 +8,31 @@
     },
     {
       "id": "agentcms-sitemaps",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "apiVersion": "1.4.0",
       "entryPath": "plugins/agentcms-sitemaps/bundle.js"
     },
     {
       "id": "agentcms-rss",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "apiVersion": "1.4.0",
       "entryPath": "plugins/agentcms-rss/bundle.js"
     },
     {
       "id": "agentcms-archives",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "apiVersion": "1.4.0",
       "entryPath": "plugins/agentcms-archives/bundle.js"
     },
     {
       "id": "agentcms-search",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "apiVersion": "1.4.0",
       "entryPath": "plugins/agentcms-search/bundle.js"
     },
     {
       "id": "agentcms-multilang",
-      "version": "1.6.3",
+      "version": "1.6.4",
       "apiVersion": "1.4.0",
       "entryPath": "plugins/agentcms-multilang/bundle.js"
     }
@@ -40,7 +40,7 @@
   "themes": [
     {
       "id": "magazine",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "apiVersion": "1.4.0",
       "entryPath": "themes/magazine/bundle.js"
     },

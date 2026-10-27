@@ -26,6 +26,11 @@ export interface MagazineHomeLayoutConfig {
   promoEyebrow: string;
   promoTitle: string;
   promoHref: string;
+  // Fixed texts of the home page, overridable per site. Empty = the
+  // theme's translated default for the site language.
+  featuredLabel?: string;
+  latestHeading?: string;
+  mostReadHeading?: string;
 }
 
 export const DEFAULT_MAGAZINE_HOME_LAYOUT: MagazineHomeLayoutConfig = {
@@ -37,6 +42,9 @@ export const DEFAULT_MAGAZINE_HOME_LAYOUT: MagazineHomeLayoutConfig = {
   promoEyebrow: "",
   promoTitle: "",
   promoHref: "",
+  featuredLabel: "",
+  latestHeading: "",
+  mostReadHeading: "",
 };
 
 // Header silhouette. The mockup default is "centered" (wordmark

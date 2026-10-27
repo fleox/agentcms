@@ -2,8 +2,8 @@ import { canonicalUrl, type Post, type SiteSettings, type Term } from "@agent-cm
 import type { MultilangConfig } from "../types";
 import {
   buildLocalizedHomePath,
-  buildLocalizedPostUrl,
   buildLocalizedTermUrl,
+  buildPublishedLocalizedPath,
   getPostTranslation,
   getTermTranslation,
   postToPrimaryTranslation,
@@ -145,10 +145,15 @@ export function buildSitemapAlternatesXml(
 // Computes the alternates set for a single post — every language
 // where a usable translation exists. The primary language always
 // counts (the post's core fields ARE its primary translation).
+//
+// With `settings`, a page that drives a language's home resolves to that
+// home's path (`index.html`, `<lang>/index.html`) — where it is actually
+// published — instead of a `<slug>.html` that doesn't exist.
 export function postAlternates(
   post: Post,
   terms: Term[],
   config: MultilangConfig,
+  settings?: Pick<SiteSettings, "homeMode" | "homePageId"> | null,
 ): PathAlternates["alternates"] {
   const out: PathAlternates["alternates"] = [];
   for (const lang of [config.primaryLanguage, ...config.enabledLanguages]) {
@@ -170,13 +175,14 @@ export function postAlternates(
     // skip — don't fall back to the primary slug (would mix locales in
     // the URL).
     if (term && !termTrans && !isPrimaryLanguage(config, lang)) continue;
-    const path = buildLocalizedPostUrl({
+    const path = buildPublishedLocalizedPath({
       post,
       trans,
       primaryTermTrans: termTrans,
       primaryTermSlug: term?.slug,
       language: lang,
       config,
+      settings,
     });
     out.push({ language: lang, path });
   }

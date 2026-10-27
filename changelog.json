@@ -2,6 +2,37 @@
   "$comment": "Newest first. Read by agents (agentcms status) to tell users what changed and what to run. `breaking`: an older admin, skill or site setup stops working without action. `actions`: steps a hosted site needs after updating — deploy-admin, regenerate-all, sync-theme-assets. Keep every entry in English.",
   "versions": [
     {
+      "version": "0.3.0",
+      "date": "2026-10-27",
+      "breaking": false,
+      "changes": [
+        "Site administration from the CLI and the new agent skill agentcms-admin: everything the back office does — content (create, update, translations, publish / unpublish / delete, preview with screenshots, editor blocks), media upload (WebP variants made in Node), categories and tags, menus, settings, plugins (enable / disable / config / settings-page actions: favicon, sitemaps, RSS, search, import…), themes (activate, config, logo, sync assets), every Regenerate menu entry, users and author profiles, export / import and stats. Commands: content, media, terms, menus, settings, plugins, themes, regenerate, users, transfer, stats.",
+        "Firebase sites: `agentcms install` can install on Firebase, `site add` registers an existing Firebase site, and the sign-in is kept between commands (~/.agentcms/sessions, mode 0600) so bursts of commands no longer hit Firebase's sign-in rate limit.",
+        "`agentcms site screenshot [path…]` captures published pages (desktop + phone); `site list` shows each site's public URL.",
+        "Fix: republishing an entry, Repair URLs and Regenerate all no longer reset its publication date to now.",
+        "Fix: with a static home page, sitemaps, the search index, menus and posts.json no longer list or link `/<home-slug>.html` (a 404), and with agentcms-multilang a language's home page is no longer duplicated at `/<lang>/<slug>.html`. Regenerate everything now also deletes translation files a plugin stopped producing.",
+        "Fix: Columns and HTML blocks published from the CLI (or any headless publish) kept their raw markers and had no CSS; they are now transformed without a browser DOM.",
+        "Fix: the WordPress importer works headless (namespaced tags, CDATA).",
+        "Fix: `ext preview --screenshot-js` did nothing in the published CLI (the build dropped the branch).",
+        "Default robots.txt disallows the admin under the site's sub-folder; slugs spell out œ, æ, ß, ø… (oeuvre, not uvre); RSS regeneration reports what it uploaded.",
+        "`agentcms files list / put / delete`: other files on the hosting (a search-engine verification file, a stray old page); the CMS's own files are protected.",
+        "S3 sites served over plain http: `install`, `site list` and `doctor` give the admin's HTTPS address (the bucket's endpoint), where the admin can sign its requests.",
+        "RSS: pages link their feed in <head> (rel=alternate) so feed readers discover it; category archives also link their category feed.",
+        "Search: the modal no longer shows two close buttons and takes the theme's accent color.",
+        "Admin updates now refresh the version of the bundled plugins and themes in the site's registry, so browsers load the new bundles instead of a cached copy.",
+        "`users get me` works before the profile exists; `credentials list` shows which site uses a passphrase; `media` reports how each format is cut (`fit`) and which ones are admin-only; `site screenshot --max-height`; `settings set` warns when agentcms-multilang's primary language differs from the site language.",
+        "Categories: `terms delete --move-to <category>` moves the posts and republishes them in one go; `terms update --slug … --remove-archive` (or `--old-slug`) deletes the old archive; `menus update` edits one menu item; renames, moves and deletions warn about menu labels and about links stored in theme / plugin settings or menus that still point to the old page, with the exact fix.",
+        "Bundled plugin versions: agentcms-sitemaps 1.0.1, agentcms-rss 1.1.0, agentcms-search 1.0.1, agentcms-archives 1.0.1, agentcms-multilang 1.6.4.",
+        "Fix: published pages load the site's own images with root-relative URLs, so they show whatever address the visitor uses (an http S3 website opened over the bucket's https endpoint used to block them as mixed content). Regenerate everything to apply.",
+        "Magazine theme: the home page's fixed texts are now settings — featured badge, latest-posts heading and \"Most read\" heading (Theme settings → Home, or `themes config magazine --merge '{\"home\":{\"latestHeading\":\"…\"}}'`).",
+        "`agentcms doctor` no longer reports a non-AgentCMS page (README, previous site) as a working home page, and tells to wait for the Pages build before redeploying theme assets; `install` names the content folder of Markdown repos and lists the first settings of a new site."
+      ],
+      "actions": [
+        "deploy-admin",
+        "regenerate-all"
+      ]
+    },
+    {
       "version": "0.2.1",
       "date": "2026-10-27",
       "breaking": false,

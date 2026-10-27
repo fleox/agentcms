@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { installBrowserEnv } from "../browserEnv";
 import { CliError, printResult } from "../output";
-import { adminUrlOf } from "../remote";
+import { adminUrlOf, secureAdminUrlOf } from "../remote";
 import { getSite, lockSite, putSite } from "../sites";
 import type { Command } from "./types";
 
@@ -50,7 +50,9 @@ export const installCommand: Command = {
       data: plan.backend,
       hosting: plan.hostingType,
       siteUrl: plan.siteUrl,
-      adminUrl: adminUrlOf({ siteUrl: plan.siteUrl, adminFolder: plan.adminFolder }),
+      adminUrl:
+        secureAdminUrlOf({ siteUrl: plan.siteUrl, adminFolder: plan.adminFolder, hosting: plan.publicTarget }) ??
+        adminUrlOf({ siteUrl: plan.siteUrl, adminFolder: plan.adminFolder }),
       credentials: plan.credentials,
       checks,
     };
@@ -96,6 +98,8 @@ export const installCommand: Command = {
       else nextSteps.push("The admin was not copied to the hosting: run `agentcms serve` to use it locally.");
       if (plan.backend === "markdown-git") {
         nextSteps.push("Each browser asks once for the editor's own git token (Contents read/write on the content repository).");
+      } else if (plan.backend === "firebase") {
+        nextSteps.push("Editors sign in to the admin with their Firebase email + password (create their accounts in the Firebase console → Authentication).");
       } else {
         nextSteps.push(
           `Each new browser asks once for the ${plan.dataLocation && plan.dataLocation !== plan.target ? "data location" : "hosting"} keys${plan.passphraseAccount ? " and the database passphrase" : ""} (they stay in that browser). No login: protect the admin folder at the hosting level.`,
@@ -114,6 +118,11 @@ export const installCommand: Command = {
         nextSteps.push(`Publishing from a browser needs the hosting ${SECRET_FIELDS[plan.target.connectorId]} once: admin → Settings → Publish target.`);
       }
       if (plan.target.connectorId === "git-pages") nextSteps.push("Pages hosts take about a minute to serve new commits.");
+      if (!checks.data.existing) {
+        nextSteps.push(
+          `New sites start as "My site", in English, with the default theme and every plugin on (including agentcms-multilang): set the title, description and language (\`agentcms settings set --site ${plan.alias} --title … --language …\`), pick a theme, disable agentcms-multilang for a one-language site, and give the author a public name (\`agentcms users update me --site ${plan.alias} --first-name … --last-name …\`).`,
+        );
+      }
       nextSteps.push(`Check everything with \`agentcms doctor --site ${plan.alias}\`.`);
 
       printResult(io, { ...summary, installed: true, files: outcome.files, adminVersion: outcome.adminVersion, notices: outcome.notices, nextSteps }, () =>

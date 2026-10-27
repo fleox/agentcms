@@ -77,6 +77,13 @@ The runtime injects its own minimal `<style>` block on first open
 Themes override anything by writing rules with higher specificity, or
 by wrapping their own rules in `:where()`.
 
+The category label of each result takes the theme's accent colour: the
+runtime reads `--cms-search-accent` from `:root` when the theme defines
+it, else `--color-secondary`, else `--color-primary` (bare RGB channels
+such as `67 97 124`, as Tailwind themes store them, are wrapped in
+`rgb()`), and falls back to a neutral slate. The native clear button of
+the search input is hidden so the modal shows a single close button.
+
 ## Files written to your site
 
 - `/search-index.json` — the index. Re-uploaded on every corpus change.

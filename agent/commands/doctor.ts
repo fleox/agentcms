@@ -1,7 +1,7 @@
 import { getCredential } from "../credentials";
 import { printResult } from "../output";
 import { readVersionInfo } from "../paths";
-import { adminUrlOf, fetchHostedAdmin, fetchText, findSecretKeys, parseConfigJs } from "../remote";
+import { adminUrlOf, secureAdminUrlOf, fetchHostedAdmin, fetchText, findSecretKeys, parseConfigJs } from "../remote";
 import { compareVersions } from "../semver";
 import { resolveSite, type SiteRecord } from "../sites";
 import { installBrowserEnv } from "../browserEnv";
@@ -25,8 +25,11 @@ export async function runDoctor(site: SiteRecord, opts: { deep?: boolean; fetchI
   const info = readVersionInfo();
   const siteUrl = site.siteUrl.replace(/\/+$/, "");
 
+  const secureAdmin = secureAdminUrlOf(site);
   add(
-    siteUrl.startsWith("https://") || /^http:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?(\/|$)/.test(siteUrl)
+    secureAdmin && !siteUrl.startsWith("https://")
+      ? { id: "https", status: "ok", message: `The public site is plain HTTP; open the admin over HTTPS: ${secureAdmin}` }
+      : siteUrl.startsWith("https://") || /^http:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?(\/|$)/.test(siteUrl)
       ? { id: "https", status: "ok", message: siteUrl.startsWith("https://") ? "Site served over HTTPS." : "Local site (a secure context for browsers)." }
       : {
           id: "https",
@@ -36,10 +39,18 @@ export async function runDoctor(site: SiteRecord, opts: { deep?: boolean; fetchI
         },
   );
 
+  const pagesHost = site.hosting?.connectorId === "git-pages";
   const home = await fetchText(`${siteUrl}/`, f);
   add(
     home.ok
-      ? { id: "site", status: "ok", message: `Home page reachable (${home.status}).` }
+      ? /\/theme-assets\//.test(home.text ?? "")
+        ? { id: "site", status: "ok", message: `Home page reachable (${home.status}).` }
+        : {
+            id: "site",
+            status: "warn",
+            message: "The home page answers but isn't an AgentCMS page (no theme stylesheet): another site's page, a README, or a host that hasn't served the new files yet.",
+            fix: `${pagesHost ? "Pages hosts take a minute or two after a commit: wait, then re-run doctor. " : ""}Otherwise publish something or run \`agentcms regenerate everything --site ${site.alias}\`.`,
+          }
       : home.status === 404
         ? { id: "site", status: "warn", message: "No home page yet (404).", fix: "Publish a post or run Regenerate → Everything in the admin." }
         : { id: "site", status: "fail", message: `Site not reachable: ${home.error ?? `HTTP ${home.status}`}.`, fix: "Check siteUrl, DNS, and that the host serves the bucket / repo (GitHub Pages enabled, S3 website hosting on)." },
@@ -53,7 +64,7 @@ export async function runDoctor(site: SiteRecord, opts: { deep?: boolean; fetchI
           id: "theme-assets",
           status: "fail",
           message: css.ok ? `theme-assets/default.css has type "${css.contentType}".` : `theme-assets/default.css missing (${css.error ?? css.status}).`,
-          fix: `\`agentcms deploy-admin --site ${site.alias} --theme-assets --yes\` (after confirming with the user), or Themes → Sync theme assets in the admin.`,
+          fix: `${pagesHost && !css.ok ? "Just installed or deployed? Pages hosts take a minute or two after a commit: wait, then re-run doctor. If it persists: " : ""}\`agentcms deploy-admin --site ${site.alias} --theme-assets --yes\` (after confirming with the user), or Themes → Sync theme assets in the admin.`,
         },
   );
 

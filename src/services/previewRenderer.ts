@@ -7,6 +7,7 @@ import { buildMenuJson, type MenuFilterContext, type MenuJson } from "./menuPubl
 import { buildPostsJson } from "./postsJsonPublisher";
 import { buildAuthorsJson } from "./authorsJsonPublisher";
 import { applyFilters } from "../core/pluginRegistry";
+import { absoluteAssets } from "../core/basePath";
 
 interface RenderPostPreviewOpts {
   // The current editor draft. Required fields: id, type, title, slug,
@@ -128,7 +129,8 @@ async function postProcessForIframe(
     }
   }
 
-  let out = html;
+  // The iframe isn't served from the site: site assets need their origin.
+  let out = absoluteAssets(html, settings.baseUrl);
   // Replace the theme stylesheet link with an inline <style>.
   out = out.replace(
     /<link\s+rel="stylesheet"\s+href="[^"]*theme-assets\/[^"]*\.css[^"]*"[^>]*>/g,
@@ -202,8 +204,9 @@ async function buildPreviewBootstrap(ctx: PublishContext, settings: SiteSettings
   };
   const menuJson = await applyFilters<MenuJson>("menu.json.resolved", baseMenu, filterCtx);
 
+  // No baseUrl: hero URLs stay absolute (the iframe isn't on the site).
   const postsJson = buildPostsJson(
-    settings,
+    { ...settings, baseUrl: "" },
     ctx.posts,
     ctx.pages,
     ctx.terms,

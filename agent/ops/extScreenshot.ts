@@ -109,7 +109,7 @@ async function launch(chrome: string): Promise<{ proc: ChildProcess; cdp: Cdp; w
   return { proc, cdp: new Cdp(ws), ws, profile };
 }
 
-async function capture(cdp: Cdp, url: string, vp: (typeof VIEWPORTS)[keyof typeof VIEWPORTS], file: string, script?: string): Promise<void> {
+async function capture(cdp: Cdp, url: string, vp: (typeof VIEWPORTS)[keyof typeof VIEWPORTS], file: string, script: string | undefined, maxHeight: number): Promise<void> {
   const { targetId } = await cdp.send<{ targetId: string }>("Target.createTarget", { url: "about:blank" });
   const { sessionId } = await cdp.send<{ sessionId: string }>("Target.attachToTarget", { targetId, flatten: true });
   try {
@@ -119,30 +119,33 @@ async function capture(cdp: Cdp, url: string, vp: (typeof VIEWPORTS)[keyof typeo
     const loaded = cdp.once("Page.loadEventFired", sessionId, 15_000);
     await cdp.send("Page.navigate", { url }, sessionId);
     await loaded;
-    // Lazy images below the fold would stay blank in a full-page capture.
+    // Lazy images and iframes (embeds) below the fold would stay blank in
+    // a full-page capture.
     await cdp.send(
       "Runtime.evaluate",
       {
-        expression: `(async () => { for (const i of document.querySelectorAll('img[loading="lazy"]')) i.loading = "eager"; await Promise.all([...document.images].map((i) => i.complete ? 0 : new Promise((r) => { i.onload = i.onerror = r; setTimeout(r, 3000); }))); })()`,
+        expression: `(async () => { for (const i of document.querySelectorAll('img[loading="lazy"]')) i.loading = "eager"; for (const f of document.querySelectorAll('iframe[loading="lazy"]')) { f.loading = "eager"; f.src = f.src; } await Promise.all([...document.images].map((i) => i.complete ? 0 : new Promise((r) => { i.onload = i.onerror = r; setTimeout(r, 3000); }))); })()`,
         awaitPromise: true,
       },
       sessionId,
     );
-    // Fonts, runtime loaders (menus from data/menu.json…).
-    await new Promise((r) => setTimeout(r, 600));
+    // Fonts, runtime loaders (menus from data/menu.json…), embeds.
+    const { result: frames } = await cdp.send<{ result: { value?: number } }>("Runtime.evaluate", { expression: "document.querySelectorAll('iframe').length", returnByValue: true }, sessionId);
+    await new Promise((r) => setTimeout(r, frames.value ? 2500 : 600));
     if (script) {
       // Put the page in a given state first (click a button, open a menu…).
+      // The newline lets the script end with a line comment.
+      const expression = "(async () => { " + script + "\n})()";
       const res = await cdp.send<{ exceptionDetails?: { text: string; exception?: { description?: string } } }>(
         "Runtime.evaluate",
-        { expression: `(async () => { ${script}
-})()`, awaitPromise: true },
+        { expression, awaitPromise: true },
         sessionId,
       );
       if (res.exceptionDetails) throw new Error(`--screenshot-js failed: ${res.exceptionDetails.exception?.description ?? res.exceptionDetails.text}`);
       await new Promise((r) => setTimeout(r, 600));
     }
     const { cssContentSize } = await cdp.send<{ cssContentSize: { width: number; height: number } }>("Page.getLayoutMetrics", {}, sessionId);
-    const height = Math.min(Math.ceil(cssContentSize.height), 6000);
+    const height = Math.min(Math.ceil(cssContentSize.height), maxHeight);
     const { data } = await cdp.send<{ data: string }>(
       "Page.captureScreenshot",
       { format: "png", captureBeyondViewport: true, clip: { x: 0, y: 0, width: vp.width, height: Math.max(height, vp.height), scale: 1 } },
@@ -159,7 +162,24 @@ export async function screenshotPages(
   pages: Record<string, string | undefined>,
   outDir: string,
   script?: string,
+  maxHeight?: number,
 ): Promise<{ browser: string | null; shots: Screenshot[]; errors: string[] }> {
+  return shoot(baseUrl, pages, outDir, script, maxHeight);
+}
+
+// Separate from the exported screenshotPages on purpose: its callers
+// reach it through dynamic import(), which Rollup's parameter-value
+// tracking doesn't see. With screenshotFile as the only static caller
+// (no script), the build removed the --screenshot-js branch.
+async function shoot(
+  baseUrl: string,
+  pages: Record<string, string | undefined>,
+  outDir: string,
+  script: string | undefined,
+  maxHeight?: number,
+): Promise<{ browser: string | null; shots: Screenshot[]; errors: string[] }> {
+  // Full page, capped (CSS px; the viewport height at least).
+  const cap = maxHeight && maxHeight > 0 ? maxHeight : 6000;
   const chrome = findChrome();
   if (!chrome) return { browser: null, shots: [], errors: [] };
   if (typeof WebSocket === "undefined") return { browser: chrome, shots: [], errors: ["Screenshots need Node.js 22 or newer (global WebSocket)."] };
@@ -174,7 +194,7 @@ export async function screenshotPages(
       for (const [name, vp] of Object.entries(VIEWPORTS) as Array<[keyof typeof VIEWPORTS, (typeof VIEWPORTS)[keyof typeof VIEWPORTS]]>) {
         const file = join(outDir, `${label}-${name}.png`);
         try {
-          await capture(session.cdp, `${baseUrl}/${path}`, vp, file, script);
+          await capture(session.cdp, `${baseUrl}/${path}`, vp, file, script, cap);
           shots.push({ page: label, viewport: name, file });
         } catch (err) {
           errors.push(`${label} (${name}): ${(err as Error).message}`);
@@ -192,4 +212,13 @@ export async function screenshotPages(
     }
   }
   return { browser: chrome, shots, errors };
+}
+
+// Screenshots of one self-contained HTML file (e.g. a post preview).
+export async function screenshotFile(file: string, script?: string): Promise<{ browser: string | null; shots: Screenshot[]; errors: string[] }> {
+  const { dirname, basename, join } = await import("node:path");
+  const { pathToFileURL } = await import("node:url");
+  const dir = dirname(file);
+  const base = pathToFileURL(dir).href.replace(/\/$/, "");
+  return shoot(base, { [basename(file).replace(/\.html?$/, "")]: basename(file) }, join(dir, ".screenshots"), script);
 }

@@ -1,4 +1,5 @@
 import type { ImageFit, ImageFormat, ImageFormatConfig } from "../core/types";
+import { bytesToBase64 } from "./git/encoding";
 
 // Image-processing pipeline that runs entirely in the browser. Used by
 // services/media.ts on upload to produce the configured variants without
@@ -26,6 +27,19 @@ export interface ProcessImageOptions {
   // 0..1 quality passed to canvas.convertToBlob. Caller is responsible for
   // rescaling from the 0..100 user-facing scale.
   quality: number;
+}
+
+// Replacement for the browser pipeline below, for runtimes without
+// createImageBitmap / OffscreenCanvas (the agentcms CLI on Node, see
+// agent/ops/imageNode.ts). Same contract as processImage: variants in
+// the iteration order of `opts.formats`, dimensions from planFit.
+export type ImageProcessor = (file: Blob, opts: ProcessImageOptions) => Promise<ProcessedVariant[]>;
+
+let imageProcessor: ImageProcessor | null = null;
+
+// null restores the browser pipeline.
+export function setImageProcessor(impl: ImageProcessor | null): void {
+  imageProcessor = impl;
 }
 
 // Validates the file's extension against an allow-list. Returns null on
@@ -130,6 +144,7 @@ export async function processImage(
   file: File,
   opts: ProcessImageOptions,
 ): Promise<ProcessedVariant[]> {
+  if (imageProcessor) return imageProcessor(file, opts);
   const bitmap = await createImageBitmap(file);
   try {
     const globalQuality = normalizeQuality(opts.quality);
@@ -201,6 +216,10 @@ function canvasToBlob(canvas: AnyCanvas, type: string, quality: number): Promise
 // Identical to the helper in siteFiles.ts but kept here so the upload
 // pipeline can be unit-tested without dragging the API layer in.
 export function blobToBase64(blob: Blob): Promise<string> {
+  // Node (the agentcms CLI) has Blob but no FileReader.
+  if (typeof FileReader === "undefined") {
+    return blob.arrayBuffer().then((buf) => bytesToBase64(new Uint8Array(buf)));
+  }
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {

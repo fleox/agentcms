@@ -15,7 +15,9 @@
 import {
   applyFilters,
   applyFiltersSync,
+  basePathFromBaseUrl,
   buildPostUrl,
+  canonicalUrl,
   pathToPublicUrl,
   deleteFile,
   uploadFile,
@@ -84,7 +86,10 @@ export function defaultRobotsTxt(baseUrl: string, newsEnabled: boolean): string 
   // admin SPA, its config.js, or its asset bundle. The admin's index.html
   // also carries `<meta name="robots" content="noindex">` for crawlers
   // that ignore robots.txt — belt + braces.
-  const lines = ["User-agent: *", "Allow: /", "Disallow: /admin/", ""];
+  // On a site hosted in a sub-folder the admin sits under it too.
+  // (Crawlers only read robots.txt at the domain root, so there it is
+  // only useful when the sub-folder site owns the root as well.)
+  const lines = ["User-agent: *", "Allow: /", `Disallow: ${basePathFromBaseUrl(baseUrl)}/admin/`, ""];
   if (baseUrl) {
     lines.push(`Sitemap: ${pathToPublicUrl(baseUrl, SITEMAP_INDEX_PATH)}`);
     if (newsEnabled) lines.push(`Sitemap: ${pathToPublicUrl(baseUrl, SITEMAP_NEWS_PATH)}`);
@@ -155,11 +160,32 @@ export interface NewsLocaleEntry {
   entities: SitemapEntity[];
 }
 
-function entityFromPost(post: Post, terms: Term[]): SitemapEntity | null {
+// The page bound to the static home is published at index.html only (the
+// publisher never writes its `<slug>.html`), so it is listed once, as the
+// site root. Mirrors `isStaticHome` in services/publisher.ts.
+const STATIC_HOME_PATH = "index.html";
+export function isStaticHomePage(post: Post, settings: SiteSettings): boolean {
+  return (
+    post.type === "page" &&
+    settings.homeMode === "static-page" &&
+    !!settings.homePageId &&
+    settings.homePageId === post.id
+  );
+}
+
+// `<loc>` for a site path. canonicalUrl strips a trailing `index.html`
+// so directory landings (the static home, `/<lang>/`) are listed in the
+// same clean form as their `<link rel="canonical">`. Post / page paths
+// always end in `<slug>.html`, so they are unchanged.
+function locUrl(baseUrl: string, path: string): string {
+  return canonicalUrl(baseUrl, path);
+}
+
+function entityFromPost(post: Post, terms: Term[], settings: SiteSettings): SitemapEntity | null {
   let path: string;
   try {
     const term = post.primaryTermId ? terms.find((t) => t.id === post.primaryTermId) : undefined;
-    path = buildPostUrl({ post, primaryTerm: term });
+    path = isStaticHomePage(post, settings) ? STATIC_HOME_PATH : buildPostUrl({ post, primaryTerm: term });
   } catch {
     return null;
   }
@@ -178,18 +204,19 @@ function gatherEntities(
   posts: Post[],
   pages: Post[],
   terms: Term[],
+  settings: SiteSettings,
   config: SitemapsConfig,
 ): SitemapEntity[] {
   const out: SitemapEntity[] = [];
   for (const p of posts) {
     if (p.status !== "online") continue;
-    const e = entityFromPost(p, terms);
+    const e = entityFromPost(p, terms, settings);
     if (e) out.push(e);
   }
   if (config.contentTypes === "posts-pages") {
     for (const p of pages) {
       if (p.status !== "online") continue;
-      const e = entityFromPost(p, terms);
+      const e = entityFromPost(p, terms, settings);
       if (e) out.push(e);
     }
   }
@@ -245,6 +272,8 @@ function preamble(xslHref: string): string {
 
 function buildYearSitemap(
   entities: SitemapEntity[],
+  terms: Term[],
+  settings: SiteSettings,
   baseUrl: string,
   xslHref: string,
   extraUrls: SitemapExtraUrl[],
@@ -271,10 +300,12 @@ function buildYearSitemap(
     const extraInner = applyFiltersSync<string>(
       "sitemap.url.entry",
       "",
-      { entity: e.sourcePost, baseUrl, path: e.path, lastmodMs: e.updatedAtMs },
+      // `terms` + `settings` let handlers (multilang alternates) resolve
+      // localised paths without relying on module-level snapshots.
+      { entity: e.sourcePost, baseUrl, path: e.path, lastmodMs: e.updatedAtMs, terms, settings },
     );
     lines.push("  <url>");
-    lines.push(`    <loc>${escapeXml(pathToPublicUrl(baseUrl, e.path))}</loc>`);
+    lines.push(`    <loc>${escapeXml(locUrl(baseUrl, e.path))}</loc>`);
     lines.push(`    <lastmod>${isoDateOnly(e.updatedAtMs)}</lastmod>`);
     if (extraInner) lines.push(extraInner);
     lines.push("  </url>");
@@ -282,7 +313,7 @@ function buildYearSitemap(
   for (const extra of extraUrls) {
     const lastmod = extra.lastmodMs ?? Date.now();
     lines.push("  <url>");
-    lines.push(`    <loc>${escapeXml(pathToPublicUrl(baseUrl, extra.path))}</loc>`);
+    lines.push(`    <loc>${escapeXml(locUrl(baseUrl, extra.path))}</loc>`);
     lines.push(`    <lastmod>${isoDateOnly(lastmod)}</lastmod>`);
     if (extra.extraInnerXml) lines.push(extra.extraInnerXml);
     lines.push("  </url>");
@@ -348,7 +379,7 @@ function buildNewsSitemap(
   const safeLanguage = escapeXml((siteLanguage || "en").split("-")[0] || "en");
   for (const e of recent) {
     lines.push("  <url>");
-    lines.push(`    <loc>${escapeXml(pathToPublicUrl(baseUrl, e.path))}</loc>`);
+    lines.push(`    <loc>${escapeXml(locUrl(baseUrl, e.path))}</loc>`);
     lines.push("    <news:news>");
     lines.push("      <news:publication>");
     lines.push(`        <news:name>${safeSiteName}</news:name>`);
@@ -389,7 +420,7 @@ export async function regenerateSitemaps(args: {
   const baseUrl = (settings.baseUrl || "").replace(/\/+$/, "");
   if (!baseUrl) throw new Error("baseUrl is empty — cannot build sitemap URLs.");
 
-  const entities = gatherEntities(posts, pages, terms, config);
+  const entities = gatherEntities(posts, pages, terms, settings, config);
   const yearMap = groupByYear(entities);
   const allYears = [...yearMap.keys()];
   const targetYears = scope?.years ?? allYears;
@@ -450,7 +481,7 @@ export async function regenerateSitemaps(args: {
       }
       continue;
     }
-    const xml = buildYearSitemap(list, baseUrl, xslHref, extraUrls);
+    const xml = buildYearSitemap(list, terms, settings, baseUrl, xslHref, extraUrls);
     await uploadFile({ path, content: xml });
     uploaded.push(path);
   }

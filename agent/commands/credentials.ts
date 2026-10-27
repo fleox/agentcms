@@ -1,4 +1,5 @@
 import { copyToClipboard, fromAwsProfile, fromEnv, fromGh, promptHidden } from "../credentialSources";
+import { forgetFirebaseSession } from "../firebaseSession";
 import { CREDENTIAL_TYPES, listCredentials, parseAccount, removeCredential, requireCredential, setCredential } from "../credentials";
 import { generatePassphrase } from "../../src/services/docstore/sqliteCrypto";
 import { CliError, printResult } from "../output";
@@ -33,7 +34,7 @@ export const credentialsCommand: Command = {
       const { sites } = listSites();
       const list = listCredentials().map((c) => ({
         ...c,
-        usedBy: sites.filter((s) => s.credentials.data === c.account || s.credentials.hosting === c.account).map((s) => s.alias),
+        usedBy: sites.filter((s) => s.credentials.data === c.account || s.credentials.hosting === c.account || s.credentials.passphrase === c.account).map((s) => s.alias),
       }));
       printResult(io, list, () =>
         list.length
@@ -46,6 +47,7 @@ export const credentialsCommand: Command = {
     const { type } = parseAccount(account);
     if (action === "remove") {
       const removed = removeCredential(account);
+      forgetFirebaseSession(account);
       printResult(io, { account, removed }, () => (removed ? `Removed ${account}.` : `${account} was not stored.`));
       return;
     }
@@ -77,6 +79,7 @@ export const credentialsCommand: Command = {
       for (const field of spec.fields) values[field] = await promptHidden(`${field}: `);
     }
     const saved = setCredential(account, values);
+    forgetFirebaseSession(account);
     printResult(io, { account, type, fields: Object.keys(saved.values) }, () => `Stored ${account} (${Object.keys(saved.values).join(", ")}).`);
   },
 };

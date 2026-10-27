@@ -33,9 +33,11 @@ export interface MenuJson {
 // out simply leave `logoEnabled` falsy and get no branding object.
 function resolveBranding(settings: SiteSettings): MenuJsonBranding | undefined {
   const themeId = settings.activeThemeId;
-  const config = (settings.themeConfigs as Record<string, unknown> | undefined)?.[themeId] as
-    | { logoEnabled?: boolean; logoUpdatedAt?: number }
+  const raw = (settings.themeConfigs as Record<string, unknown> | undefined)?.[themeId] as
+    | { logoEnabled?: boolean; logoUpdatedAt?: number; brand?: { logoEnabled?: boolean; logoUpdatedAt?: number } }
     | undefined;
+  // Portfolio keeps its logo flags under `brand`.
+  const config = raw?.logoEnabled !== undefined ? raw : raw?.brand;
   if (!config?.logoEnabled) return undefined;
   const v = config.logoUpdatedAt ?? 0;
   return {
@@ -63,7 +65,7 @@ export function buildMenuJson(
   pages: Post[],
   terms: Term[],
 ): MenuJson {
-  const ctx = { posts, pages, terms };
+  const ctx = { posts, pages, terms, settings };
   return {
     header: resolveMenuItems(settings.menus.header ?? [], ctx),
     footer: resolveMenuItems(settings.menus.footer ?? [], ctx),

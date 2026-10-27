@@ -5,6 +5,18 @@ import { credentialsCommand } from "./credentials";
 import { deployAdminCommand } from "./deployAdmin";
 import { doctorCommand } from "./doctor";
 import { extCommand } from "./ext";
+import { contentCommand } from "./content";
+import { regenerateCommand } from "./regenerate";
+import { termsCommand } from "./terms";
+import { menusCommand } from "./menus";
+import { settingsCommand } from "./settingsCmd";
+import { pluginsCommand } from "./plugins";
+import { themesCommand } from "./themes";
+import { mediaCommand } from "./media";
+import { usersCommand } from "./users";
+import { transferCommand } from "./transfer";
+import { statsCommand } from "./stats";
+import { filesCommand } from "./files";
 import { installCommand } from "./install";
 import { optionsCommand } from "./options";
 import { serveCommand } from "./serve";
@@ -68,6 +80,18 @@ export const COMMANDS: Command[] = [
   doctorCommand,
   compactDataCommand,
   extCommand,
+  contentCommand,
+  regenerateCommand,
+  termsCommand,
+  menusCommand,
+  settingsCommand,
+  pluginsCommand,
+  themesCommand,
+  mediaCommand,
+  usersCommand,
+  transferCommand,
+  statsCommand,
+  filesCommand,
   serveCommand,
 ];
 

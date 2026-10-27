@@ -1,4 +1,4 @@
-import type { Post, Term } from "@agent-cms/runtime";
+import type { Post, SiteSettings, Term } from "@agent-cms/runtime";
 import type { MultilangConfig, PostTranslation, TermTranslation } from "../types";
 import { isPrimaryLanguage } from "./config";
 
@@ -48,6 +48,58 @@ export function buildLocalizedTermUrl(
 // for primary.
 export function buildLocalizedHomePath(language: string, config: MultilangConfig): string {
   return isPrimaryLanguage(config, language) ? "index.html" : `${language}/index.html`;
+}
+
+// Id of the page that drives the home of `language`, or undefined when
+// that home is a latest-posts listing. Mirrors what actually renders
+// each home:
+//   - primary language → the core publisher's static-page home
+//     (`settings.homeMode === "static-page"` + `settings.homePageId`);
+//   - secondary language → `config.homePages[lang]` when set (see
+//     renderLocalizedHome, which forces static-page mode for it), else
+//     the same global static home page as the primary.
+export function localeHomePageId(
+  settings: Pick<SiteSettings, "homeMode" | "homePageId">,
+  config: MultilangConfig,
+  language: string,
+): string | undefined {
+  if (!isPrimaryLanguage(config, language)) {
+    const override = config.homePages?.[language];
+    if (override) return override;
+  }
+  if (settings.homeMode === "static-page" && settings.homePageId) return settings.homePageId;
+  return undefined;
+}
+
+// True when `post` is the page rendered as the home of `language`. Such a
+// variant lives at that language's home path (`<lang>/index.html`, or
+// `index.html` for the primary — see buildLocalizedHomePath) and is never
+// published as a standalone `<lang>/<slug>.html`, exactly like the core
+// publisher never writes `<slug>.html` for the primary static home.
+export function isLocaleHomePage(
+  post: Pick<Post, "id" | "type">,
+  settings: Pick<SiteSettings, "homeMode" | "homePageId"> | null | undefined,
+  config: MultilangConfig,
+  language: string,
+): boolean {
+  if (!settings || post.type !== "page") return false;
+  const id = localeHomePageId(settings, config, language);
+  return !!id && id === post.id;
+}
+
+// Path at which `post`'s `language` variant is actually published: the
+// language's home path when the page drives that home, else the regular
+// localised post URL.
+export function buildPublishedLocalizedPath(
+  input: BuildLocalizedPostUrlInput & {
+    post: Pick<Post, "id" | "type">;
+    settings: Pick<SiteSettings, "homeMode" | "homePageId"> | null | undefined;
+  },
+): string {
+  if (isLocaleHomePage(input.post, input.settings, input.config, input.language)) {
+    return buildLocalizedHomePath(input.language, input.config);
+  }
+  return buildLocalizedPostUrl(input);
 }
 
 // Parses the leading language segment off a public path. Returns the

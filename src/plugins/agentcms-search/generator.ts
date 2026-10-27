@@ -19,6 +19,7 @@ import {
   i18n,
   pickPublicLocale,
   buildPostUrl,
+  canonicalPath,
   markdownToPlainText,
   sha256Hex,
   uploadFile,
@@ -103,6 +104,22 @@ function readRuntimeStrings(language: string | undefined): RuntimeStrings {
   };
 }
 
+// The page bound to the static home is published at index.html only —
+// its `<slug>.html` is never written (see `isStaticHome` in
+// services/publisher.ts) — so its result links to the home. `url` is the
+// canonical form (`""` → the runtime renders `href="/"`).
+function itemUrl(p: Post, primary: Term | undefined, settings: SiteSettings): string {
+  if (
+    p.type === "page" &&
+    settings.homeMode === "static-page" &&
+    !!settings.homePageId &&
+    settings.homePageId === p.id
+  ) {
+    return canonicalPath("index.html");
+  }
+  return buildPostUrl({ post: p, primaryTerm: primary?.type === "category" ? primary : undefined });
+}
+
 // Builds the in-memory index from the corpus. Pure — no IO, easy to
 // unit-test if needed later.
 export function buildIndex(env: BuildIndexEnv): SearchIndexFile {
@@ -137,7 +154,7 @@ export function buildIndex(env: BuildIndexEnv): SearchIndexFile {
     const item: IndexItem = {
       id: p.id,
       title: p.title,
-      url: buildPostUrl({ post: p, primaryTerm: primary?.type === "category" ? primary : undefined }),
+      url: itemUrl(p, primary, settings),
     };
     if (config.indexExcerpt) {
       // Fall back to a 200-char plain-text rendering of the body when

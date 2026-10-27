@@ -14,8 +14,17 @@ export const optionsCommand: Command = {
   name: "options",
   summary: "List data backends, hostings, credential types and the install plan format — ask the user about data first, then hosting.",
   usage: "options",
-  options: [],
-  async run({ io }) {
+  options: [
+    { name: "firebase-rules", type: "string", description: "Print the Firestore security rules to publish for a Firebase site, with this email pinned as bootstrap admin." },
+  ],
+  async run({ io, options }) {
+    if (options["firebase-rules"]) {
+      const { firestoreRules } = await import("../firestoreRules");
+      const email = String(options["firebase-rules"]);
+      const rules = firestoreRules(email);
+      printResult(io, { email, rules, where: "Firebase console → Firestore Database → Rules → paste → Publish (or `firebase deploy --only firestore:rules` with the rules in firestore.rules)." }, () => rules);
+      return;
+    }
     const data = {
       order: ["data", "hosting"],
       dataBackends: DATA_BACKENDS,

@@ -75,3 +75,21 @@ describe("resolveMenuItems", () => {
     expect(resolved[0].children?.[0].href).toBe("/about.html");
   });
 });
+
+describe("resolveMenuItems — static-page home", () => {
+  const items: MenuItem[] = [{ id: "i1", label: "About", ref: { kind: "post", id: "pg1" } }];
+  it("links the page bound to the static home to the home (it has no <slug>.html)", () => {
+    const withHome: MenuResolveContext = {
+      ...ctx,
+      settings: { homeMode: "static-page", homePageId: "pg1" },
+    };
+    expect(resolveMenuItems(items, withHome)[0].href).toBe("/index.html");
+  });
+  it("keeps the page URL when the home is the latest-posts listing", () => {
+    const latest: MenuResolveContext = {
+      ...ctx,
+      settings: { homeMode: "latest-posts", homePageId: "pg1" },
+    };
+    expect(resolveMenuItems(items, latest)[0].href).toBe("/about.html");
+  });
+});

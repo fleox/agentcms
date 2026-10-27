@@ -47,10 +47,12 @@ export function renderMostRead(attrs: MostReadAttrs, env: RenderEnv): MostReadRe
   if (!candidates.length) return { html: "", consumedPostIds: [] };
 
   const locale = pickPublicLocale(env.ctx.settings.language);
+  const headingLabelOverride = (env.ctx.settings.themeConfigs as Record<string, { home?: { mostReadHeading?: string } }> | undefined)?.magazine?.home?.mostReadHeading?.trim();
   const headingLabel =
-    (i18n.getResource(locale, "theme-magazine", "blocks.mostRead.heading") as
+    headingLabelOverride ||
+    ((i18n.getResource(locale, "theme-magazine", "blocks.mostRead.heading") as
       | string
-      | undefined) ?? "Most Read";
+      | undefined) ?? "Most Read");
 
   const items = candidates.map((post, idx) => {
     const term = post.primaryTermId

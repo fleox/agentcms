@@ -26,4 +26,14 @@ describe("dist/agent bundle", () => {
     }
     expect(offenders).toEqual([]);
   });
+
+  // Rollup tracks parameter values but not calls made through dynamic
+  // import(): a branch on a parameter that only dynamically-imported
+  // callers pass was silently removed (--screenshot-js did nothing).
+  it.skipIf(!existsSync(dir))("keeps the --screenshot-js branch", () => {
+    const chunks = readdirSync(join(dir, "chunks")).map((f) => readFileSync(join(dir, "chunks", f), "utf8"));
+    const shot = chunks.find((c) => c.includes("captureBeyondViewport"));
+    expect(shot).toBeDefined();
+    expect(shot).toContain("--screenshot-js failed");
+  });
 });

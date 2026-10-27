@@ -33,7 +33,7 @@ export function refreshPathRegistry(
   // entry pointing to the full set of alternates.
   for (const post of [...posts, ...pages]) {
     if (post.status !== "online") continue;
-    const alternates = postAlternates(post, terms, config);
+    const alternates = postAlternates(post, terms, config, settings);
     if (alternates.length === 0) continue;
     for (const alt of alternates) {
       const html = buildHreflangHtml(
@@ -93,11 +93,14 @@ export function refreshAlternatesCache(
   pages: Post[],
   terms: Term[],
   config: MultilangConfig,
+  // Optional for backwards compatibility; with it, static-home pages
+  // resolve to their home path (see postAlternates).
+  settings?: Pick<SiteSettings, "homeMode" | "homePageId"> | null,
 ): void {
   alternatesByPath.clear();
   for (const post of [...posts, ...pages]) {
     if (post.status !== "online") continue;
-    const alts = postAlternates(post, terms, config);
+    const alts = postAlternates(post, terms, config, settings);
     if (alts.length === 0) continue;
     for (const alt of alts) {
       alternatesByPath.set(alt.path, { language: alt.language, alternates: alts });

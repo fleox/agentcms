@@ -185,9 +185,16 @@ interface RegenerateForPostArgs extends ArchiveData {
   post: Post;
 }
 
-interface RegenerateResult {
+export interface RegenerateResult {
   uploaded: string[];
+  // Files actually deleted one by one (an emptied period page).
   deleted: string[];
+  // Folders wiped before a full rebuild (forceRegenerate only). Kept
+  // apart from `deleted`: the wipe is an unconditional, idempotent sweep
+  // (a no-op on an empty site) whose files are re-uploaded right after,
+  // so counting it as a removal made the log claim "1 removed" on every
+  // run.
+  wipedFolders?: string[];
 }
 
 // Computes the periods affected by `post` and the periods that are
@@ -360,7 +367,7 @@ function archiveLanguages(data: ArchiveData): { language: string; isPrimary: boo
 // between uploads to mirror the rest of the publisher's bulk pace.
 export async function forceRegenerate(args: ArchiveData): Promise<RegenerateResult> {
   const config = readConfig(args.settings);
-  const aggregate: RegenerateResult = { uploaded: [], deleted: [] };
+  const aggregate: RegenerateResult = { uploaded: [], deleted: [], wipedFolders: [] };
 
   const langs = archiveLanguages(args);
   for (const { language, isPrimary } of langs) {
@@ -374,7 +381,7 @@ export async function forceRegenerate(args: ArchiveData): Promise<RegenerateResu
     // for FR it's `fr/archives/`. Best-effort — 404 is swallowed
     // inside deleteFolder.
     await deleteFolder(root);
-    aggregate.deleted.push(`${root}/`);
+    aggregate.wipedFolders!.push(`${root}/`);
 
     const result = await forceRegenerateOneLocale({
       data: localData,
@@ -725,4 +732,14 @@ export function resolveArchivesLink(
     href,
     label: t("page.seeFullArchives"),
   };
+}
+
+// Log line for a forced rebuild. Only per-file deletions count as
+// "removed"; the folder wipe that precedes the rebuild is mentioned as
+// such, since its files are re-uploaded in the same run.
+export function forceRegenerateSummary(result: RegenerateResult): string {
+  const folders = result.wipedFolders ?? [];
+  const rebuilt = folders.length ? ` (rebuilt ${folders.join(", ")})` : "";
+  const removed = result.deleted.length ? `, ${result.deleted.length} removed` : "";
+  return `Archives: ${result.uploaded.length} page(s) uploaded${removed}${rebuilt}.`;
 }

@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import type { ComponentType, ReactElement } from "react";
-import { applyBasePathToHtml, basePathFromBaseUrl } from "./basePath";
+import { applyBasePathToHtml, basePathFromBaseUrl, siteRelativeAssets } from "./basePath";
 import { applyFiltersSync } from "./pluginRegistry";
 import type { BaseLayoutProps } from "../themes/types";
 
@@ -70,6 +70,7 @@ export function renderPageToHtml<TInner extends object>(
   // Sub-folder deployments: prefix every root-absolute URL with the
   // base path derived from settings.baseUrl (no-op at the domain root).
   // Runs after sentinel replacement so plugin-injected tags are covered.
-  html = applyBasePathToHtml(html, basePathFromBaseUrl(opts.baseProps.site.settings.baseUrl));
+  const baseUrl = opts.baseProps.site.settings.baseUrl;
+  html = applyBasePathToHtml(siteRelativeAssets(html, baseUrl), basePathFromBaseUrl(baseUrl));
   return "<!doctype html>" + html;
 }

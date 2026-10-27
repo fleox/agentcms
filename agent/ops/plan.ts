@@ -23,6 +23,7 @@ export interface InstallPlan {
   alias: string;
   data:
     | { backend: "markdown-git"; git: Partial<MarkdownGitRuntimeConfig["git"]>; credential: string }
+    | { backend: "firebase"; firebase: Record<string, string>; credential: string }
     | {
         backend: "sqlite-file";
         path: string;
@@ -41,7 +42,9 @@ export interface InstallPlan {
 
 export interface ResolvedPlan {
   alias: string;
-  backend: "markdown-git" | "sqlite-file";
+  backend: "markdown-git" | "sqlite-file" | "firebase";
+  // Firebase: the admin login used for the install.
+  firebaseLogin?: { email: string; password: string };
   // config.js content — no secrets.
   runtime: CmsRuntimeConfig;
   // Per-browser secrets the stores read from localStorage.
@@ -128,6 +131,8 @@ export function resolvePlan(plan: InstallPlan): ResolvedPlan {
   const credentials: ResolvedPlan["credentials"] = {};
   let gitToken: string | undefined;
   let gitCfg: MarkdownGitRuntimeConfig["git"] | undefined;
+  let firebaseCfg: Record<string, string> | undefined;
+  let firebaseLogin: ResolvedPlan["firebaseLogin"];
   if (plan.data.backend === "markdown-git") {
     const g = plan.data.git ?? {};
     const provider = g.provider;
@@ -148,7 +153,19 @@ export function resolvePlan(plan: InstallPlan): ResolvedPlan {
       contentDir: cleanFolder(str(g.contentDir)),
       apiBaseUrl: str(g.apiBaseUrl) || undefined,
     };
-  } else if (!SQLITE_PATH_RE.test(str(plan.data.path))) {
+  } else if (plan.data.backend === "firebase") {
+    const fb = (plan.data.firebase ?? {}) as Record<string, unknown>;
+    for (const k of ["apiKey", "authDomain", "projectId", "appId"]) if (!str(fb[k])) fail(`data.firebase.${k} is required (Firebase console → Project settings → Your apps → config).`);
+    const account = str(plan.data.credential);
+    if (!account) fail("data.credential is required (e.g. firebase:my-project).");
+    if (parseAccount(account).type !== "firebase") fail("data.credential must be a firebase account (email + password).");
+    const v = requireCredential(account).values;
+    firebaseLogin = { email: v.email, password: v.password };
+    credentials.data = account;
+    firebaseCfg = Object.fromEntries(
+      ["apiKey", "authDomain", "projectId", "storageBucket", "messagingSenderId", "appId", "measurementId"].filter((k) => str(fb[k])).map((k) => [k, str(fb[k])]),
+    );
+  } else if (!SQLITE_PATH_RE.test(str((plan.data as { path?: string }).path))) {
     fail("data.path must be a relative file path ending in .sqlite or .db, e.g. data/site.sqlite.");
   }
 
@@ -171,6 +188,8 @@ export function resolvePlan(plan: InstallPlan): ResolvedPlan {
   let passphrase: string | undefined;
   if (gitCfg) {
     runtime = { backend: "markdown-git", git: gitCfg };
+  } else if (firebaseCfg) {
+    runtime = { backend: "firebase", firebase: firebaseCfg } as CmsRuntimeConfig;
   } else {
     const data = plan.data as Extract<InstallPlan["data"], { backend: "sqlite-file" }>;
     if (data.location) {
@@ -219,6 +238,7 @@ export function resolvePlan(plan: InstallPlan): ResolvedPlan {
     backend: runtime.backend as ResolvedPlan["backend"],
     runtime,
     gitToken,
+    firebaseLogin,
     sqliteSecrets,
     passphraseAccount,
     passphrase,

@@ -61,10 +61,10 @@ const EXTERNAL_DEPS = [
 //      the install-side artefacts (manifest.json + external.json).
 const PLUGINS = [
   { id: "core-seo", name: "Core SEO", version: "1.0.0" },
-  { id: "agentcms-sitemaps", name: "Sitemaps", version: "1.0.0" },
-  { id: "agentcms-rss", name: "RSS", version: "1.0.0" },
-  { id: "agentcms-archives", name: "Archives", version: "1.0.0" },
-  { id: "agentcms-search", name: "Search", version: "1.0.0" },
+  { id: "agentcms-sitemaps", name: "Sitemaps", version: "1.0.1" },
+  { id: "agentcms-rss", name: "RSS", version: "1.1.0" },
+  { id: "agentcms-archives", name: "Archives", version: "1.0.1" },
+  { id: "agentcms-search", name: "Search", version: "1.0.1" },
   // External-source plugins that we still bundle into the admin
   // distribution so a fresh install ships with them pre-installed.
   // `srcDir` is resolved relative to repo root; absent → falls back
@@ -72,13 +72,13 @@ const PLUGINS = [
   {
     id: "agentcms-multilang",
     name: "Multi-language",
-    version: "1.6.3",
+    version: "1.6.4",
     srcDir: "external/plugins/agentcms-multilang/src",
   },
 ];
 
 const THEMES = [
-  { id: "magazine", name: "Magazine", version: "1.0.0" },
+  { id: "magazine", name: "Magazine", version: "1.1.0" },
   { id: "corporate", name: "Corporate", version: "1.0.0" },
   { id: "storefront", name: "Storefront", version: "0.1.0" },
   { id: "portfolio", name: "Portfolio", version: "0.1.0" },

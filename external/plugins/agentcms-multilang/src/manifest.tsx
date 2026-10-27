@@ -37,6 +37,7 @@ import {
   indexExtra,
   newsLocales,
   setLatestConfig,
+  setLatestSettings,
   setLatestTerms,
   urlEntry,
   urlsetNamespaces,
@@ -65,8 +66,9 @@ async function onPublishComplete(_post: Post, ctx: PublishContext): Promise<void
   // receive terms/config via args.
   setLatestConfig(config);
   setLatestTerms(ctx.terms);
+  setLatestSettings(ctx.settings);
   refreshPathRegistry(ctx.posts, ctx.pages, ctx.terms, ctx.settings, config);
-  refreshAlternatesCache(ctx.posts, ctx.pages, ctx.terms, config);
+  refreshAlternatesCache(ctx.posts, ctx.pages, ctx.terms, config, ctx.settings);
   await cleanupLegacyLocalizedFeeds(ctx);
   await publishLocalizedDataJson(ctx);
 }
@@ -75,8 +77,9 @@ async function onPostUnpublishedOrDeleted(_post: Post, ctx: PublishContext): Pro
   const config = getMultilangConfig(ctx.settings);
   setLatestConfig(config);
   setLatestTerms(ctx.terms);
+  setLatestSettings(ctx.settings);
   refreshPathRegistry(ctx.posts, ctx.pages, ctx.terms, ctx.settings, config);
-  refreshAlternatesCache(ctx.posts, ctx.pages, ctx.terms, config);
+  refreshAlternatesCache(ctx.posts, ctx.pages, ctx.terms, config, ctx.settings);
   await cleanupLegacyLocalizedFeeds(ctx);
   await publishLocalizedDataJson(ctx);
 }
@@ -100,7 +103,7 @@ async function warmRegistry(): Promise<void> {
       fetchAllPosts({ type: "page" }),
     ]);
     refreshPathRegistry(posts, pages, [], settings as never, cfg);
-    refreshAlternatesCache(posts, pages, [], cfg);
+    refreshAlternatesCache(posts, pages, [], cfg, settings as never);
   } catch {
     // best-effort
   }
@@ -109,7 +112,7 @@ async function warmRegistry(): Promise<void> {
 const manifest: PluginManifest<MultilangConfig> = {
   id: "agentcms-multilang",
   name: "Multi-language",
-  version: "1.6.3",
+  version: "1.6.4",
   description:
     "Multi-language site support — translated posts/pages/terms, hreflang SEO, per-language sitemap entries, per-language RSS feeds.",
   author: "AgentCMS",
@@ -151,7 +154,7 @@ const manifest: PluginManifest<MultilangConfig> = {
       const c = ctx as PublishContext;
       const config = getMultilangConfig(c.settings);
       refreshPathRegistry(c.posts, c.pages, c.terms, c.settings, config);
-      refreshAlternatesCache(c.posts, c.pages, c.terms, config);
+      refreshAlternatesCache(c.posts, c.pages, c.terms, config, c.settings);
     });
     // Stand-alone listings regeneration (theme menu → "Regenerate
     // home" / "Regenerate all listings" without a publish ahead).
@@ -161,7 +164,7 @@ const manifest: PluginManifest<MultilangConfig> = {
       const c = ctx as PublishContext;
       const config = getMultilangConfig(c.settings);
       refreshPathRegistry(c.posts, c.pages, c.terms, c.settings, config);
-      refreshAlternatesCache(c.posts, c.pages, c.terms, config);
+      refreshAlternatesCache(c.posts, c.pages, c.terms, config, c.settings);
     });
     api.addAction("publish.complete", async (post, ctx) => {
       await onPublishComplete(post as Post, ctx as PublishContext);

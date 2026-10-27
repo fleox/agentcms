@@ -1,8 +1,8 @@
-import { pickPublicLocale as ce, uploadFile as U, pathToPublicUrl as S, deleteFile as v, buildRssFeedXml as I, applyFilters as ue, buildTermUrl as O, buildPostUrl as ge, markdownToPlainText as pe, useCmsData as he, EntityCombobox as fe, fetchAllPosts as N, publishMenuJson as H, toast as x, updatePluginConfig as B, i18n as $ } from "@agent-cms/runtime";
-import { jsxs as g, jsx as l, Fragment as me } from "react/jsx-runtime";
-import { forwardRef as K, createElement as z, useState as T, useEffect as be, useMemo as ye } from "react";
-import { useTranslation as Se } from "react-i18next";
-const V = {
+import { pickPublicLocale as ge, uploadFile as N, pathToPublicUrl as y, deleteFile as R, buildRssFeedXml as H, applyFilters as pe, buildTermUrl as q, buildPostUrl as he, markdownToPlainText as fe, useCmsData as me, EntityCombobox as be, fetchAllPosts as U, publishMenuJson as z, toast as x, updatePluginConfig as V, i18n as G } from "@agent-cms/runtime";
+import { jsxs as g, jsx as l, Fragment as ye } from "react/jsx-runtime";
+import { forwardRef as _, createElement as E, useState as T, useEffect as Se, useMemo as xe } from "react";
+import { useTranslation as Fe } from "react-i18next";
+const J = {
   title: "RSS feeds",
   description: "Generates an RSS 2.0 feed at /rss.xml plus optional per-category feeds. Each feed can be added to the site footer.",
   regenerationTarget: {
@@ -52,7 +52,7 @@ const V = {
     category: "RSS — {{name}}"
   },
   baseUrlMissing: "Set the public site URL in Settings → General before regenerating feeds."
-}, xe = {
+}, ve = {
   title: "Flux RSS",
   description: "Génère un flux RSS 2.0 à /rss.xml ainsi que des flux par catégorie optionnels. Chaque flux peut être ajouté au pied de page du site.",
   regenerationTarget: {
@@ -101,7 +101,7 @@ const V = {
     category: "RSS — {{name}}"
   },
   baseUrlMissing: "Définissez l'URL publique du site dans Réglages → Général avant de régénérer les flux."
-}, Fe = {
+}, Re = {
   title: "RSS-Feeds",
   description: "Erzeugt einen RSS-2.0-Feed unter /rss.xml sowie optionale Feeds pro Kategorie. Jeder Feed kann zur Fußzeile der Website hinzugefügt werden.",
   regenerationTarget: {
@@ -150,7 +150,7 @@ const V = {
     category: "RSS — {{name}}"
   },
   baseUrlMissing: "Legen Sie die öffentliche Website-URL unter Einstellungen → Allgemein fest, bevor Sie Feeds neu erzeugen."
-}, ve = {
+}, we = {
   title: "Feeds RSS",
   description: "Genera un feed RSS 2.0 en /rss.xml más feeds opcionales por categoría. Cada feed se puede añadir al pie del sitio.",
   regenerationTarget: {
@@ -199,7 +199,7 @@ const V = {
     category: "RSS — {{name}}"
   },
   baseUrlMissing: "Define la URL pública del sitio en Ajustes → General antes de regenerar los feeds."
-}, Re = {
+}, Ce = {
   title: "RSS-feeds",
   description: "Genereert een RSS 2.0-feed op /rss.xml plus optionele feeds per categorie. Elke feed kan aan de footer van de site worden toegevoegd.",
   regenerationTarget: {
@@ -248,7 +248,7 @@ const V = {
     category: "RSS — {{name}}"
   },
   baseUrlMissing: "Stel de publieke site-URL in via Instellingen → Algemeen voordat je feeds regenereert."
-}, we = {
+}, ke = {
   title: "Feeds RSS",
   description: "Gera um feed RSS 2.0 em /rss.xml mais feeds opcionais por categoria. Cada feed pode ser adicionado ao rodapé do site.",
   regenerationTarget: {
@@ -297,7 +297,7 @@ const V = {
     category: "RSS — {{name}}"
   },
   baseUrlMissing: "Define o URL público do site em Definições → Geral antes de regenerar feeds."
-}, Ce = {
+}, Te = {
   title: "RSS 피드",
   description: "/rss.xml에 RSS 2.0 피드와 선택적 카테고리별 피드를 생성합니다. 각 피드는 사이트 푸터에 추가할 수 있습니다.",
   regenerationTarget: {
@@ -346,7 +346,7 @@ const V = {
     category: "RSS — {{name}}"
   },
   baseUrlMissing: "피드를 재생성하기 전에 설정 → 일반에서 공개 사이트 URL을 설정하세요."
-}, q = "rss.xsl", ke = {
+}, Q = "rss.xsl", Pe = {
   en: {
     pageTitle: "RSS feed",
     heading: "RSS feed",
@@ -418,10 +418,10 @@ const V = {
     columnDescription: "설명"
   }
 };
-function Te(e) {
-  return ce(e);
+function Le(e) {
+  return ge(e);
 }
-const Pe = `
+const Ue = `
 body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; color: #1f2937; margin: 0; padding: 32px 16px; background: #ffffff; }
 main { max-width: 1024px; margin: 0 auto; }
 h1 { font-size: 22px; margin: 0 0 8px; font-weight: 600; }
@@ -438,8 +438,8 @@ a:hover { text-decoration: underline; }
 .pubdate { white-space: nowrap; color: #4b5563; width: 200px; }
 .description { color: #4b5563; }
 `;
-function Le(e) {
-  const a = Te(e), t = ke[a];
+function Ne(e) {
+  const a = Le(e), t = Pe[a];
   return `<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -453,7 +453,7 @@ function Le(e) {
         <meta charset="utf-8"/>
         <meta name="robots" content="noindex,follow"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
-        <style type="text/css">${Pe}</style>
+        <style type="text/css">${Ue}</style>
       </head>
       <body>
         <main>
@@ -484,7 +484,7 @@ function Le(e) {
   </xsl:template>
 </xsl:stylesheet>`;
 }
-const R = "rss.xml", _ = {
+const F = "rss.xml", j = {
   site: {
     enabled: !1,
     itemCount: 20,
@@ -493,10 +493,10 @@ const R = "rss.xml", _ = {
   },
   categoryFeeds: []
 };
-function D(e) {
+function A(e) {
   return `${e}/${e}.xml`;
 }
-function Ne(e, a) {
+function Ae(e, a) {
   if (!e.heroMediaId) return null;
   const t = a.get(e.heroMediaId);
   if (!t) return null;
@@ -506,72 +506,72 @@ function Ne(e, a) {
       return {
         url: n.url,
         length: n.bytes ?? 0,
-        type: t.contentType || G(n.url)
+        type: t.contentType || W(n.url)
       };
   }
   return t.url ? {
     url: t.url,
     length: t.size ?? 0,
-    type: t.contentType || G(t.url)
+    type: t.contentType || W(t.url)
   } : null;
 }
-function G(e) {
+function W(e) {
   const a = e.toLowerCase();
   return a.endsWith(".webp") ? "image/webp" : a.endsWith(".png") ? "image/png" : a.endsWith(".gif") ? "image/gif" : a.endsWith(".avif") ? "image/avif" : (a.endsWith(".jpg") || a.endsWith(".jpeg"), "image/jpeg");
 }
-function J(e, a, t, n) {
-  var c, m, b, C, y, k;
+function Z(e, a, t, n) {
+  var c, f, m, C, S, k;
   const s = e.primaryTermId ? a.find((P) => P.id === e.primaryTermId && P.type === "category") : void 0;
-  let i;
+  let r;
   try {
-    i = ge({ post: e, primaryTerm: s });
+    r = he({ post: e, primaryTerm: s });
   } catch {
     return null;
   }
-  const d = S(n, i), r = (e.excerpt && e.excerpt.trim().length > 0 ? e.excerpt : pe(e.contentMarkdown, 300)).trim(), p = ((m = (c = e.publishedAt) == null ? void 0 : c.toMillis) == null ? void 0 : m.call(c)) ?? ((C = (b = e.updatedAt) == null ? void 0 : b.toMillis) == null ? void 0 : C.call(b)) ?? ((k = (y = e.createdAt) == null ? void 0 : y.toMillis) == null ? void 0 : k.call(y)) ?? Date.now();
+  const d = y(n, r), i = (e.excerpt && e.excerpt.trim().length > 0 ? e.excerpt : fe(e.contentMarkdown, 300)).trim(), p = ((f = (c = e.publishedAt) == null ? void 0 : c.toMillis) == null ? void 0 : f.call(c)) ?? ((C = (m = e.updatedAt) == null ? void 0 : m.toMillis) == null ? void 0 : C.call(m)) ?? ((k = (S = e.createdAt) == null ? void 0 : S.toMillis) == null ? void 0 : k.call(S)) ?? Date.now();
   return {
     title: e.title || e.slug,
     link: d,
     guid: d,
-    description: r,
+    description: i,
     pubDateMs: p,
     category: s == null ? void 0 : s.name,
-    enclosure: Ne(e, t) ?? void 0
+    enclosure: Ae(e, t) ?? void 0
   };
 }
-function Ue(e, a, t, n, s) {
-  const i = new Set(n.site.excludedTermIds);
-  return e.filter((d) => d.status === "online").filter((d) => !d.primaryTermId || !i.has(d.primaryTermId)).map((d) => J(d, a, t, s)).filter((d) => d !== null).sort((d, r) => r.pubDateMs - d.pubDateMs).slice(0, Math.max(1, Math.min(100, n.site.itemCount)));
+function Me(e, a, t, n, s) {
+  const r = new Set(n.site.excludedTermIds);
+  return e.filter((d) => d.status === "online").filter((d) => !d.primaryTermId || !r.has(d.primaryTermId)).map((d) => Z(d, a, t, s)).filter((d) => d !== null).sort((d, i) => i.pubDateMs - d.pubDateMs).slice(0, Math.max(1, Math.min(100, n.site.itemCount)));
 }
-function Ae(e, a, t, n, s) {
-  return e.filter((i) => i.status === "online" && i.primaryTermId === n.termId).map((i) => J(i, a, t, s)).filter((i) => i !== null).sort((i, d) => d.pubDateMs - i.pubDateMs).slice(0, Math.max(1, Math.min(100, n.itemCount)));
+function Ie(e, a, t, n, s) {
+  return e.filter((r) => r.status === "online" && r.primaryTermId === n.termId).map((r) => Z(r, a, t, s)).filter((r) => r !== null).sort((r, d) => d.pubDateMs - r.pubDateMs).slice(0, Math.max(1, Math.min(100, n.itemCount)));
 }
-function Me(e) {
+function He(e) {
   return e instanceof Map ? e : new Map(e.map((a) => [a.id, a]));
 }
-function Q(e) {
+function Y(e) {
   const a = (e.settings.baseUrl || "").replace(/\/+$/, "");
   if (!a) throw new Error("baseUrl is empty — cannot build feed URLs.");
   return {
     posts: e.posts,
     terms: e.terms,
-    mediaMap: Me(e.media),
+    mediaMap: He(e.media),
     settings: e.settings,
     baseUrl: a,
-    xslHref: S(a, q)
+    xslHref: y(a, Q)
   };
 }
-async function Z(e, a) {
+async function ee(e, a) {
   const t = [], n = [];
   if (!a.site.enabled) {
     if (a.site.lastPublishedPath)
       try {
-        await v(a.site.lastPublishedPath), n.push(a.site.lastPublishedPath);
+        await R(a.site.lastPublishedPath), n.push(a.site.lastPublishedPath);
       } catch {
       }
     for (const c of a.site.lastLocalePaths ?? [])
       try {
-        await v(c), n.push(c);
+        await R(c), n.push(c);
       } catch {
       }
     return {
@@ -580,17 +580,17 @@ async function Z(e, a) {
       nextSite: { ...a.site, lastPublishedPath: void 0, lastLocalePaths: [] }
     };
   }
-  const s = Ue(e.posts, e.terms, e.mediaMap, a, e.baseUrl), i = I({
+  const s = Me(e.posts, e.terms, e.mediaMap, a, e.baseUrl), r = H({
     title: e.settings.title || "Site",
-    link: S(e.baseUrl, ""),
+    link: y(e.baseUrl, ""),
     description: e.settings.description || e.settings.title || "",
-    feedUrl: S(e.baseUrl, R),
+    feedUrl: y(e.baseUrl, F),
     language: e.settings.language || "en",
     items: s,
     xslHref: e.xslHref
   });
-  await U({ path: R, content: i }), t.push(R);
-  const d = await ue(
+  await N({ path: F, content: r }), t.push(F);
+  const d = await pe(
     "rss.site.locales",
     [],
     {
@@ -602,25 +602,25 @@ async function Z(e, a) {
       baseUrl: e.baseUrl,
       xslHref: e.xslHref
     }
-  ), r = [];
+  ), i = [];
   for (const c of d) {
     if (!c.path || !c.language) continue;
-    const m = I({
+    const f = H({
       title: c.channelTitle,
       link: c.channelLink,
       description: c.channelDescription,
-      feedUrl: S(e.baseUrl, c.path),
+      feedUrl: y(e.baseUrl, c.path),
       language: c.language,
       items: c.items,
       xslHref: e.xslHref
     });
-    await U({ path: c.path, content: m }), t.push(c.path), r.push(c.path);
+    await N({ path: c.path, content: f }), t.push(c.path), i.push(c.path);
   }
-  const p = new Set(r);
+  const p = new Set(i);
   for (const c of a.site.lastLocalePaths ?? [])
     if (!p.has(c))
       try {
-        await v(c), n.push(c);
+        await R(c), n.push(c);
       } catch {
       }
   return {
@@ -628,91 +628,91 @@ async function Z(e, a) {
     deleted: n,
     nextSite: {
       ...a.site,
-      lastPublishedPath: R,
-      lastLocalePaths: r
+      lastPublishedPath: F,
+      lastLocalePaths: i
     }
   };
 }
-async function Y(e, a) {
-  const t = [], n = [], s = e.terms.find((m) => m.id === a.termId && m.type === "category");
+async function te(e, a) {
+  const t = [], n = [], s = e.terms.find((f) => f.id === a.termId && f.type === "category");
   if (!s) {
     if (a.lastPublishedPath)
       try {
-        await v(a.lastPublishedPath), n.push(a.lastPublishedPath);
+        await R(a.lastPublishedPath), n.push(a.lastPublishedPath);
       } catch {
       }
     return { uploaded: t, deleted: n, nextFeed: null };
   }
-  const i = D(s.slug);
-  if (a.lastPublishedPath && a.lastPublishedPath !== i)
+  const r = A(s.slug);
+  if (a.lastPublishedPath && a.lastPublishedPath !== r)
     try {
-      await v(a.lastPublishedPath), n.push(a.lastPublishedPath);
+      await R(a.lastPublishedPath), n.push(a.lastPublishedPath);
     } catch {
     }
-  const d = Ae(e.posts, e.terms, e.mediaMap, a, e.baseUrl), r = S(e.baseUrl, O(s)), p = `${e.settings.title || "Site"} — ${s.name}`, c = I({
+  const d = Ie(e.posts, e.terms, e.mediaMap, a, e.baseUrl), i = y(e.baseUrl, q(s)), p = `${e.settings.title || "Site"} — ${s.name}`, c = H({
     title: p,
-    link: r,
+    link: i,
     description: s.description || s.name,
-    feedUrl: S(e.baseUrl, i),
+    feedUrl: y(e.baseUrl, r),
     language: e.settings.language || "en",
     items: d,
     xslHref: e.xslHref
   });
-  return await U({ path: i, content: c }), t.push(i), {
+  return await N({ path: r, content: c }), t.push(r), {
     uploaded: t,
     deleted: n,
-    nextFeed: { ...a, lastPublishedPath: i }
+    nextFeed: { ...a, lastPublishedPath: r }
   };
 }
-async function ee(e) {
-  const a = Q(e), t = [], n = [], s = await Z(a, e.config);
+async function ae(e) {
+  const a = Y(e), t = [], n = [], s = await ee(a, e.config);
   t.push(...s.uploaded), n.push(...s.deleted);
-  const i = [];
+  const r = [];
   for (const d of e.config.categoryFeeds) {
-    const r = await Y(a, d);
-    t.push(...r.uploaded), n.push(...r.deleted), r.nextFeed && i.push(r.nextFeed);
+    const i = await te(a, d);
+    t.push(...i.uploaded), n.push(...i.deleted), i.nextFeed && r.push(i.nextFeed);
   }
   return {
     result: { uploaded: t, deleted: n },
-    nextConfig: { site: s.nextSite, categoryFeeds: i }
+    nextConfig: { site: s.nextSite, categoryFeeds: r }
   };
 }
-async function Ie(e) {
-  const a = Q(e), t = [], n = [];
+async function ze(e) {
+  const a = Y(e), t = [], n = [];
   let s = e.config.site;
-  const i = [...e.config.categoryFeeds];
+  const r = [...e.config.categoryFeeds];
   if (e.config.site.enabled) {
     const d = new Set(e.config.site.excludedTermIds);
     if (!e.post.primaryTermId || !d.has(e.post.primaryTermId)) {
-      const r = await Z(a, e.config);
-      t.push(...r.uploaded), n.push(...r.deleted), s = r.nextSite;
+      const i = await ee(a, e.config);
+      t.push(...i.uploaded), n.push(...i.deleted), s = i.nextSite;
     }
   }
   if (e.post.primaryTermId) {
-    const d = i.findIndex((r) => r.termId === e.post.primaryTermId);
+    const d = r.findIndex((i) => i.termId === e.post.primaryTermId);
     if (d >= 0) {
-      const r = await Y(a, i[d]);
-      t.push(...r.uploaded), n.push(...r.deleted), r.nextFeed ? i[d] = r.nextFeed : i.splice(d, 1);
+      const i = await te(a, r[d]);
+      t.push(...i.uploaded), n.push(...i.deleted), i.nextFeed ? r[d] = i.nextFeed : r.splice(d, 1);
     }
   }
   return {
     result: { uploaded: t, deleted: n },
-    nextConfig: { site: s, categoryFeeds: i }
+    nextConfig: { site: s, categoryFeeds: r }
   };
 }
-async function E(e) {
-  await U({
-    path: q,
-    content: Le(e.settings.language)
+async function D(e) {
+  await N({
+    path: Q,
+    content: Ne(e.settings.language)
   });
 }
-async function W(e) {
+async function O(e) {
   const a = [];
   let t = e.nextConfig.site;
   if (!e.nextConfig.site.enabled) {
-    const s = e.prevConfig.site.lastPublishedPath ?? R;
+    const s = e.prevConfig.site.lastPublishedPath ?? F;
     try {
-      await v(s), a.push(s);
+      await R(s), a.push(s);
     } catch {
     }
     t = { ...t, lastPublishedPath: void 0 };
@@ -721,7 +721,7 @@ async function W(e) {
   for (const s of e.prevConfig.categoryFeeds)
     if (!n.has(s.termId) && s.lastPublishedPath)
       try {
-        await v(s.lastPublishedPath), a.push(s.lastPublishedPath);
+        await R(s.lastPublishedPath), a.push(s.lastPublishedPath);
       } catch {
       }
   return {
@@ -729,20 +729,44 @@ async function W(e) {
     nextConfig: { site: t, categoryFeeds: e.nextConfig.categoryFeeds }
   };
 }
+const Ee = "agentcms-rss";
+function B(e) {
+  return e.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function K(e, a) {
+  return `<link rel="alternate" type="application/rss+xml" title="${B(e)}" href="${B(a)}" />`;
+}
+function De(e) {
+  var p;
+  const a = e.site.settings, t = (a.baseUrl || "").replace(/\/+$/, "");
+  if (!t) return "";
+  const n = (a.pluginConfigs ?? {})[Ee], s = { ...j, ...n ?? {} }, r = a.title || "Site", d = [];
+  (p = s.site) != null && p.enabled && d.push(K(r, y(t, F)));
+  const i = /^([a-z0-9-]+)\/index\.html$/.exec(e.currentPath || "");
+  if (i) {
+    const c = A(i[1]);
+    if ((s.categoryFeeds ?? []).some((m) => m.lastPublishedPath === c)) {
+      const m = e.pageTitle || i[1];
+      d.push(K(`${r} — ${m}`, y(t, c)));
+    }
+  }
+  return d.join(`
+`);
+}
 /**
  * @license lucide-react v0.460.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const He = (e) => e.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), te = (...e) => e.filter((a, t, n) => !!a && a.trim() !== "" && n.indexOf(a) === t).join(" ").trim();
+const je = (e) => e.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), ne = (...e) => e.filter((a, t, n) => !!a && a.trim() !== "" && n.indexOf(a) === t).join(" ").trim();
 /**
  * @license lucide-react v0.460.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-var ze = {
+var $e = {
   xmlns: "http://www.w3.org/2000/svg",
   width: 24,
   height: 24,
@@ -759,31 +783,31 @@ var ze = {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Ee = K(
+const Xe = _(
   ({
     color: e = "currentColor",
     size: a = 24,
     strokeWidth: t = 2,
     absoluteStrokeWidth: n,
     className: s = "",
-    children: i,
+    children: r,
     iconNode: d,
-    ...r
-  }, p) => z(
+    ...i
+  }, p) => E(
     "svg",
     {
       ref: p,
-      ...ze,
+      ...$e,
       width: a,
       height: a,
       stroke: e,
       strokeWidth: n ? Number(t) * 24 / Number(a) : t,
-      className: te("lucide", s),
-      ...r
+      className: ne("lucide", s),
+      ...i
     },
     [
-      ...d.map(([c, m]) => z(c, m)),
-      ...Array.isArray(i) ? i : [i]
+      ...d.map(([c, f]) => E(c, f)),
+      ...Array.isArray(r) ? r : [r]
     ]
   )
 );
@@ -794,11 +818,11 @@ const Ee = K(
  * See the LICENSE file in the root directory of this source tree.
  */
 const w = (e, a) => {
-  const t = K(
-    ({ className: n, ...s }, i) => z(Ee, {
-      ref: i,
+  const t = _(
+    ({ className: n, ...s }, r) => E(Xe, {
+      ref: r,
       iconNode: a,
-      className: te(`lucide-${He(e)}`, n),
+      className: ne(`lucide-${je(e)}`, n),
       ...s
     })
   );
@@ -810,7 +834,7 @@ const w = (e, a) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const De = w("FileCode2", [
+const Ge = w("FileCode2", [
   ["path", { d: "M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4", key: "1pf5j1" }],
   ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
   ["path", { d: "m5 12-3 3 3 3", key: "oke12k" }],
@@ -822,7 +846,7 @@ const De = w("FileCode2", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const A = w("LoaderCircle", [
+const M = w("LoaderCircle", [
   ["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]
 ]);
 /**
@@ -831,7 +855,7 @@ const A = w("LoaderCircle", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const je = w("Plus", [
+const We = w("Plus", [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "M12 5v14", key: "s699le" }]
 ]);
@@ -841,7 +865,7 @@ const je = w("Plus", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Xe = w("RefreshCw", [
+const Oe = w("RefreshCw", [
   ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
   ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
   ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
@@ -853,7 +877,7 @@ const Xe = w("RefreshCw", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const $e = w("Save", [
+const Be = w("Save", [
   [
     "path",
     {
@@ -870,95 +894,95 @@ const $e = w("Save", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Ge = w("Trash2", [
+const Ke = w("Trash2", [
   ["path", { d: "M3 6h18", key: "d0wm0j" }],
   ["path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6", key: "4alrt4" }],
   ["path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2", key: "v07s0e" }],
   ["line", { x1: "10", x2: "10", y1: "11", y2: "17", key: "1uufr5" }],
   ["line", { x1: "14", x2: "14", y1: "11", y2: "17", key: "xtxkd" }]
 ]);
-function We({ config: e, save: a }) {
-  const { t } = Se("agentcms-rss"), { settings: n, terms: s, categories: i, media: d } = he(), [r, p] = T(e);
-  be(() => p(e), [e]);
-  const [c, m] = T(!1), [b, C] = T(!1), [y, k] = T(!1), P = ye(() => {
-    const o = new Set(r.categoryFeeds.map((u) => u.termId));
-    return i.filter((u) => !o.has(u.id)).map((u) => ({ id: u.id, label: u.name, subtitle: `/${u.slug}` }));
-  }, [i, r.categoryFeeds]);
+function qe({ config: e, save: a }) {
+  const { t } = Fe("agentcms-rss"), { settings: n, terms: s, categories: r, media: d } = me(), [i, p] = T(e);
+  Se(() => p(e), [e]);
+  const [c, f] = T(!1), [m, C] = T(!1), [S, k] = T(!1), P = xe(() => {
+    const o = new Set(i.categoryFeeds.map((u) => u.termId));
+    return r.filter((u) => !o.has(u.id)).map((u) => ({ id: u.id, label: u.name, subtitle: `/${u.slug}` }));
+  }, [r, i.categoryFeeds]);
   function L(o) {
     p((u) => ({ ...u, site: { ...u.site, ...o } }));
   }
   function X(o, u) {
-    p((f) => ({
-      ...f,
-      categoryFeeds: f.categoryFeeds.map((h) => h.termId === o ? { ...h, ...u } : h)
+    p((b) => ({
+      ...b,
+      categoryFeeds: b.categoryFeeds.map((h) => h.termId === o ? { ...h, ...u } : h)
     }));
   }
-  function ae(o) {
+  function se(o) {
     p((u) => ({
       ...u,
-      categoryFeeds: u.categoryFeeds.filter((f) => f.termId !== o)
+      categoryFeeds: u.categoryFeeds.filter((b) => b.termId !== o)
     }));
   }
-  function ne(o) {
-    o && (r.categoryFeeds.some((u) => u.termId === o) || p((u) => ({
+  function ie(o) {
+    o && (i.categoryFeeds.some((u) => u.termId === o) || p((u) => ({
       ...u,
       categoryFeeds: [...u.categoryFeeds, { termId: o, itemCount: 20, addToFooter: !1 }]
     })));
   }
-  function se(o) {
-    const u = new Set(r.site.excludedTermIds);
+  function re(o) {
+    const u = new Set(i.site.excludedTermIds);
     u.has(o) ? u.delete(o) : u.add(o), L({ excludedTermIds: [...u] });
   }
-  async function ie() {
-    m(!0);
+  async function oe() {
+    f(!0);
     try {
-      const o = await W({ prevConfig: e, nextConfig: r });
+      const o = await O({ prevConfig: e, nextConfig: i });
       await a(o.nextConfig);
       const u = {
         ...n,
         pluginConfigs: { ...n.pluginConfigs, "agentcms-rss": o.nextConfig }
       };
       try {
-        const [f, h] = await Promise.all([
-          N({ type: "post" }),
-          N({ type: "page" })
+        const [b, h] = await Promise.all([
+          U({ type: "post" }),
+          U({ type: "page" })
         ]);
-        await H(u, f, h, s);
-      } catch (f) {
-        console.error("[agentcms-rss] menu.json republish failed:", f);
+        await z(u, b, h, s);
+      } catch (b) {
+        console.error("[agentcms-rss] menu.json republish failed:", b);
       }
       x.success(t("actions.saved"));
     } finally {
-      m(!1);
+      f(!1);
     }
   }
-  async function re() {
+  async function le() {
     if (!n.baseUrl) {
       x.error(t("baseUrlMissing"));
       return;
     }
     C(!0);
     try {
-      await E({ settings: n }), x.success(t("actions.xslUploaded"));
+      await D({ settings: n }), x.success(t("actions.xslUploaded"));
     } catch (o) {
       console.error("[agentcms-rss] xsl upload failed:", o), x.error(t("actions.xslFailed"));
     } finally {
       C(!1);
     }
   }
-  async function oe() {
+  async function de() {
     if (!n.baseUrl) {
       x.error(t("baseUrlMissing"));
       return;
     }
     k(!0);
     try {
-      const o = await W({ prevConfig: e, nextConfig: r });
-      await a(o.nextConfig), await E({ settings: n });
-      const [u, f] = await Promise.all([
-        N({ type: "post" }),
-        N({ type: "page" })
-      ]), h = await ee({
+      const o = await O({ prevConfig: e, nextConfig: i });
+      await a(o.nextConfig), await D({ settings: n });
+      const [u, b] = await Promise.all([
+        U({ type: "post" }),
+        U({ type: "page" })
+      ]), h = await ae({
         posts: u,
         terms: s,
         media: d,
@@ -966,14 +990,14 @@ function We({ config: e, save: a }) {
         config: o.nextConfig
       });
       await a(h.nextConfig);
-      const le = {
+      const ce = {
         ...n,
         pluginConfigs: { ...n.pluginConfigs, "agentcms-rss": h.nextConfig }
       };
       try {
-        await H(le, u, f, s);
-      } catch (de) {
-        console.error("[agentcms-rss] menu.json republish failed:", de);
+        await z(ce, u, b, s);
+      } catch (ue) {
+        console.error("[agentcms-rss] menu.json republish failed:", ue);
       }
       x.success(
         t("actions.regenerated", { count: h.result.uploaded.length + 1 })
@@ -993,14 +1017,14 @@ function We({ config: e, save: a }) {
           "input",
           {
             type: "checkbox",
-            checked: r.site.enabled,
+            checked: i.site.enabled,
             onChange: (o) => L({ enabled: o.target.checked })
           }
         ),
         /* @__PURE__ */ l("span", { className: "text-sm font-medium", children: t("site.enabled") })
       ] }),
       /* @__PURE__ */ l("p", { className: "text-xs text-surface-500 dark:text-surface-400", children: t("site.enabledHelp") }),
-      r.site.enabled && /* @__PURE__ */ g(me, { children: [
+      i.site.enabled && /* @__PURE__ */ g(ye, { children: [
         /* @__PURE__ */ g("div", { children: [
           /* @__PURE__ */ l("label", { className: "label", children: t("site.itemCount") }),
           /* @__PURE__ */ l(
@@ -1010,7 +1034,7 @@ function We({ config: e, save: a }) {
               className: "input max-w-xs",
               min: 1,
               max: 100,
-              value: r.site.itemCount,
+              value: i.site.itemCount,
               onChange: (o) => L({
                 itemCount: Math.max(1, Math.min(100, Number.parseInt(o.target.value, 10) || 20))
               })
@@ -1021,13 +1045,13 @@ function We({ config: e, save: a }) {
         /* @__PURE__ */ g("div", { children: [
           /* @__PURE__ */ l("p", { className: "label", children: t("site.excluded") }),
           /* @__PURE__ */ l("p", { className: "text-xs text-surface-500 mb-2 dark:text-surface-400", children: t("site.excludedHelp") }),
-          i.length === 0 ? /* @__PURE__ */ l("p", { className: "text-xs italic text-surface-500 dark:text-surface-400", children: t("category.none") }) : /* @__PURE__ */ l("ul", { className: "space-y-1", children: i.map((o) => /* @__PURE__ */ l("li", { children: /* @__PURE__ */ g("label", { className: "flex items-center gap-2", children: [
+          r.length === 0 ? /* @__PURE__ */ l("p", { className: "text-xs italic text-surface-500 dark:text-surface-400", children: t("category.none") }) : /* @__PURE__ */ l("ul", { className: "space-y-1", children: r.map((o) => /* @__PURE__ */ l("li", { children: /* @__PURE__ */ g("label", { className: "flex items-center gap-2", children: [
             /* @__PURE__ */ l(
               "input",
               {
                 type: "checkbox",
-                checked: r.site.excludedTermIds.includes(o.id),
-                onChange: () => se(o.id)
+                checked: i.site.excludedTermIds.includes(o.id),
+                onChange: () => re(o.id)
               }
             ),
             /* @__PURE__ */ l("span", { className: "text-sm", children: o.name }),
@@ -1042,7 +1066,7 @@ function We({ config: e, save: a }) {
             "input",
             {
               type: "checkbox",
-              checked: r.site.addToFooter,
+              checked: i.site.addToFooter,
               onChange: (o) => L({ addToFooter: o.target.checked })
             }
           ),
@@ -1052,8 +1076,8 @@ function We({ config: e, save: a }) {
     ] }),
     /* @__PURE__ */ g("section", { className: "card p-4 space-y-4", children: [
       /* @__PURE__ */ l("h2", { className: "font-semibold", children: t("sections.categoryFeeds") }),
-      r.categoryFeeds.length === 0 ? /* @__PURE__ */ l("p", { className: "text-sm italic text-surface-500 dark:text-surface-400", children: t("category.none") }) : /* @__PURE__ */ l("ul", { className: "space-y-3", children: r.categoryFeeds.map((o) => {
-        const u = i.find((h) => h.id === o.termId), f = u ? D(u.slug) : o.lastPublishedPath ?? "";
+      i.categoryFeeds.length === 0 ? /* @__PURE__ */ l("p", { className: "text-sm italic text-surface-500 dark:text-surface-400", children: t("category.none") }) : /* @__PURE__ */ l("ul", { className: "space-y-3", children: i.categoryFeeds.map((o) => {
+        const u = r.find((h) => h.id === o.termId), b = u ? A(u.slug) : o.lastPublishedPath ?? "";
         return /* @__PURE__ */ g(
           "li",
           {
@@ -1062,16 +1086,16 @@ function We({ config: e, save: a }) {
               /* @__PURE__ */ g("div", { className: "flex items-center justify-between gap-2", children: [
                 /* @__PURE__ */ g("div", { className: "min-w-0", children: [
                   /* @__PURE__ */ l("p", { className: "font-medium", children: u ? u.name : `(missing: ${o.termId})` }),
-                  f && /* @__PURE__ */ l("p", { className: "text-xs text-surface-500 dark:text-surface-400", children: t("category.pathHint", { path: f }) })
+                  b && /* @__PURE__ */ l("p", { className: "text-xs text-surface-500 dark:text-surface-400", children: t("category.pathHint", { path: b }) })
                 ] }),
                 /* @__PURE__ */ g(
                   "button",
                   {
                     type: "button",
                     className: "btn-ghost",
-                    onClick: () => ae(o.termId),
+                    onClick: () => se(o.termId),
                     children: [
-                      /* @__PURE__ */ l(Ge, { className: "h-4 w-4" }),
+                      /* @__PURE__ */ l(Ke, { className: "h-4 w-4" }),
                       t("category.remove")
                     ]
                   }
@@ -1117,12 +1141,12 @@ function We({ config: e, save: a }) {
       /* @__PURE__ */ g("div", { className: "pt-2 border-t border-surface-200 dark:border-surface-700", children: [
         /* @__PURE__ */ l("p", { className: "label", children: t("category.addLabel") }),
         /* @__PURE__ */ l(
-          Oe,
+          Ve,
           {
             options: P,
             placeholder: t("category.placeholder"),
             addLabel: t("category.add"),
-            onAdd: ne
+            onAdd: ie
           }
         )
       ] })
@@ -1130,9 +1154,9 @@ function We({ config: e, save: a }) {
     /* @__PURE__ */ g("section", { className: "card p-4 space-y-3", children: [
       /* @__PURE__ */ l("h2", { className: "font-semibold", children: t("sections.actions") }),
       /* @__PURE__ */ g("div", { className: "flex flex-wrap gap-2", children: [
-        /* @__PURE__ */ g("button", { type: "button", className: "btn-primary", onClick: ie, disabled: c, children: [
-          /* @__PURE__ */ l(A, { className: c ? "h-4 w-4 animate-spin" : "hidden" }),
-          /* @__PURE__ */ l($e, { className: c ? "hidden" : "h-4 w-4" }),
+        /* @__PURE__ */ g("button", { type: "button", className: "btn-primary", onClick: oe, disabled: c, children: [
+          /* @__PURE__ */ l(M, { className: c ? "h-4 w-4 animate-spin" : "hidden" }),
+          /* @__PURE__ */ l(Be, { className: c ? "hidden" : "h-4 w-4" }),
           /* @__PURE__ */ l("span", { children: t(c ? "actions.saving" : "actions.save") })
         ] }),
         /* @__PURE__ */ l(
@@ -1140,12 +1164,12 @@ function We({ config: e, save: a }) {
           {
             type: "button",
             className: "btn-ghost",
-            onClick: re,
-            disabled: b,
+            onClick: le,
+            disabled: m,
             children: /* @__PURE__ */ g("span", { className: "inline-flex items-center justify-center gap-1.5", children: [
-              /* @__PURE__ */ l(A, { className: "h-4 w-4 animate-spin " + (b ? "" : "hidden") }),
-              /* @__PURE__ */ l(De, { className: "h-4 w-4 " + (b ? "hidden" : "") }),
-              /* @__PURE__ */ l("span", { children: t(b ? "actions.uploadingXsl" : "actions.uploadXsl") })
+              /* @__PURE__ */ l(M, { className: "h-4 w-4 animate-spin " + (m ? "" : "hidden") }),
+              /* @__PURE__ */ l(Ge, { className: "h-4 w-4 " + (m ? "hidden" : "") }),
+              /* @__PURE__ */ l("span", { children: t(m ? "actions.uploadingXsl" : "actions.uploadXsl") })
             ] })
           }
         ),
@@ -1154,12 +1178,12 @@ function We({ config: e, save: a }) {
           {
             type: "button",
             className: "btn-secondary",
-            onClick: oe,
-            disabled: y,
+            onClick: de,
+            disabled: S,
             children: /* @__PURE__ */ g("span", { className: "inline-flex items-center justify-center gap-1.5", children: [
-              /* @__PURE__ */ l(A, { className: "h-4 w-4 animate-spin " + (y ? "" : "hidden") }),
-              /* @__PURE__ */ l(Xe, { className: "h-4 w-4 " + (y ? "hidden" : "") }),
-              /* @__PURE__ */ l("span", { children: t(y ? "actions.forceRegenerating" : "actions.forceRegenerate") })
+              /* @__PURE__ */ l(M, { className: "h-4 w-4 animate-spin " + (S ? "" : "hidden") }),
+              /* @__PURE__ */ l(Oe, { className: "h-4 w-4 " + (S ? "hidden" : "") }),
+              /* @__PURE__ */ l("span", { children: t(S ? "actions.forceRegenerating" : "actions.forceRegenerate") })
             ] })
           }
         )
@@ -1167,21 +1191,21 @@ function We({ config: e, save: a }) {
     ] })
   ] });
 }
-function Oe({
+function Ve({
   options: e,
   placeholder: a,
   addLabel: t,
   onAdd: n
 }) {
-  const [s, i] = T(null);
+  const [s, r] = T(null);
   return /* @__PURE__ */ g("div", { className: "flex flex-wrap items-start gap-2", children: [
     /* @__PURE__ */ l(
-      fe,
+      be,
       {
         className: "flex-1 min-w-[260px]",
         options: e,
         value: s,
-        onSelect: i,
+        onSelect: r,
         placeholder: a
       }
     ),
@@ -1192,17 +1216,17 @@ function Oe({
         className: "btn-secondary",
         disabled: !s,
         onClick: () => {
-          s && (n(s), i(null));
+          s && (n(s), r(null));
         },
         children: [
-          /* @__PURE__ */ l(je, { className: "h-4 w-4" }),
+          /* @__PURE__ */ l(We, { className: "h-4 w-4" }),
           t
         ]
       }
     )
   ] });
 }
-const Be = `# RSS
+const _e = `# RSS
 
 Publishes RSS 2.0 feeds so readers can follow your site in any feed reader (Feedly, NetNewsWire, Inoreader, …).
 
@@ -1214,6 +1238,8 @@ Generates and maintains:
 - **Optional per-category feeds** at \`/<category-slug>/<category-slug>.xml\` — each contains only posts whose primary category matches.
 
 Each feed is served alongside an XSL stylesheet so opening the URL in a browser shows a friendly preview rather than raw XML. Posts with a hero image get an \`<enclosure>\` element so feed readers display the artwork.
+
+Every published page also gets a \`<link rel="alternate" type="application/rss+xml">\` tag in its \`<head>\` pointing at the site feed (when enabled), so browsers and feed readers can discover it from any page URL. A category archive additionally advertises its own category feed once that feed has been uploaded. The links are absolute and follow the public site URL, sub-folder included — republish (Regenerate → All HTML) after enabling a feed so existing pages pick them up.
 
 Item descriptions use the post's excerpt when set, otherwise an automatic plain-text summary truncated to ~300 characters.
 
@@ -1238,20 +1264,20 @@ Feeds with *Add to footer* checked appear at the end of the existing footer menu
 ## When to disable it
 
 Disable if your site doesn't have a blog cadence (RSS only makes sense for chronologically updated content), or if you're publishing through a separate platform (Substack, Medium, …) that already provides feeds.
-`, F = "agentcms-rss";
-function j(e) {
-  const a = (e.pluginConfigs ?? {})[F];
-  return { ..._, ...a ?? {} };
+`, v = "agentcms-rss";
+function $(e) {
+  const a = (e.pluginConfigs ?? {})[v];
+  return { ...j, ...a ?? {} };
 }
-async function M(e, a) {
+async function I(e, a) {
   if (!a.settings.baseUrl) {
     console.warn("[agentcms-rss] skipping regeneration — baseUrl not configured");
     return;
   }
-  const t = j(a.settings);
+  const t = $(a.settings);
   if (!(!t.site.enabled && t.categoryFeeds.length === 0))
     try {
-      const n = await Ie({
+      const n = await ze({
         post: e,
         posts: a.posts,
         terms: a.terms,
@@ -1259,61 +1285,67 @@ async function M(e, a) {
         settings: a.settings,
         config: t
       });
-      JSON.stringify(n.nextConfig) !== JSON.stringify(t) && await B(F, n.nextConfig);
+      JSON.stringify(n.nextConfig) !== JSON.stringify(t) && await V(v, n.nextConfig);
     } catch (n) {
       console.error("[agentcms-rss] regeneration failed:", n);
     }
 }
-function Ke(e, a) {
-  const t = j(a.settings), n = (a.settings.baseUrl || "").replace(/\/+$/, "");
+function Je(e, a) {
+  const t = $(a.settings), n = (a.settings.baseUrl || "").replace(/\/+$/, "");
   if (!n) return e;
-  const s = [], i = $.getResource($.language, F, "footerLabels") ?? V.footerLabels;
+  const s = [], r = G.getResource(G.language, v, "footerLabels") ?? J.footerLabels;
   t.site.enabled && t.site.addToFooter && s.push({
     id: "rss-site",
-    label: i.site,
-    href: S(n, R)
+    label: r.site,
+    href: y(n, F)
   });
   for (const d of t.categoryFeeds) {
     if (!d.addToFooter) continue;
-    const r = a.terms.find((c) => c.id === d.termId && c.type === "category");
-    if (!r) continue;
-    const p = S(n, D(r.slug));
-    O(r), s.push({
-      id: `rss-cat-${r.id}`,
+    const i = a.terms.find((c) => c.id === d.termId && c.type === "category");
+    if (!i) continue;
+    const p = y(n, A(i.slug));
+    q(i), s.push({
+      id: `rss-cat-${i.id}`,
       // i18next interpolation is only available through t(), and at this
       // point we don't hold a t() instance — so a tiny manual replace
       // keeps the dependency footprint flat.
-      label: i.category.replace("{{name}}", r.name),
+      label: r.category.replace("{{name}}", i.name),
       href: p
     });
   }
   return s.length === 0 ? e : { ...e, footer: [...e.footer, ...s] };
 }
-const Qe = {
-  id: F,
+const tt = {
+  id: v,
   name: "RSS",
-  version: "1.0.0",
+  version: "1.1.0",
   author: "AgentCMS",
   description: "Generates an RSS 2.0 feed at /rss.xml plus optional per-category feeds, and can list them in the site footer.",
-  readme: Be,
-  i18n: { en: V, fr: xe, de: Fe, es: ve, nl: Re, pt: we, ko: Ce },
+  readme: _e,
+  i18n: { en: J, fr: ve, de: Re, es: we, nl: Ce, pt: ke, ko: Te },
   settings: {
     navLabelKey: "title",
-    defaultConfig: _,
-    component: We
+    defaultConfig: j,
+    component: qe
   },
   register(e) {
     e.addAction("publish.complete", async (a, t) => {
-      await M(a, t);
+      await I(a, t);
     }), e.addAction("post.unpublished", async (a, t) => {
-      await M(a, t);
+      await I(a, t);
     }), e.addAction("post.deleted", async (a, t) => {
-      await M(a, t);
+      await I(a, t);
     }), e.addFilter("menu.json.resolved", (a, ...t) => {
       const n = t[0];
-      return n ? Ke(a, n) : a;
+      return n ? Je(a, n) : a;
+    }), e.addFilter("page.head.extra", (a, ...t) => {
+      const n = t[0];
+      if (!(n != null && n.site)) return a;
+      const s = De(n);
+      return s ? a ? `${a}
+${s}` : s : a;
     }), e.registerRegenerationTarget({
-      id: F,
+      id: v,
       labelKey: "regenerationTarget.label",
       descriptionKey: "regenerationTarget.description",
       priority: 210,
@@ -1322,33 +1354,34 @@ const Qe = {
           t({ level: "warn", message: "[agentcms-rss] skipped — site URL not set." });
           return;
         }
-        const n = j(a.settings);
-        t({ level: "info", message: "Regenerating RSS stylesheet…" }), await E({ settings: a.settings }), t({ level: "info", message: "Regenerating RSS feeds…" });
-        const s = await ee({
+        const n = $(a.settings);
+        t({ level: "info", message: "Regenerating RSS stylesheet…" }), await D({ settings: a.settings }), t({ level: "info", message: "Regenerating RSS feeds…" });
+        const s = await ae({
           posts: a.posts,
           terms: a.terms,
           media: a.media,
           settings: a.settings,
           config: n
         });
-        JSON.stringify(s.nextConfig) !== JSON.stringify(n) && await B(F, s.nextConfig);
+        JSON.stringify(s.nextConfig) !== JSON.stringify(n) && await V(v, s.nextConfig);
         try {
           const i = {
             ...a.settings,
-            pluginConfigs: { ...a.settings.pluginConfigs, [F]: s.nextConfig }
+            pluginConfigs: { ...a.settings.pluginConfigs, [v]: s.nextConfig }
           };
-          await H(i, a.posts, a.pages, a.terms);
+          await z(i, a.posts, a.pages, a.terms);
         } catch (i) {
           t({ level: "warn", message: `menu.json republish failed: ${i.message}` });
         }
+        const r = s.result.uploaded.length, d = s.result.deleted.length;
         t({
           level: "success",
-          message: `RSS: ${s.result.uploaded.length + 1} file(s) uploaded.`
+          message: (r ? `RSS: stylesheet + ${r} feed(s) uploaded` : "RSS: stylesheet uploaded; no feed is enabled") + (d ? `, ${d} disabled feed(s) removed.` : ".")
         });
       }
     });
   }
 };
 export {
-  Qe as manifest
+  tt as manifest
 };

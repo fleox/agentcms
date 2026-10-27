@@ -1,5 +1,5 @@
 import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
-import { getFirestore, type Firestore } from "firebase/firestore";
+import { getFirestore, initializeFirestore, type Firestore } from "firebase/firestore";
 import { getAuth, type Auth } from "firebase/auth";
 import {
   getMissingFirebaseFields,
@@ -51,7 +51,16 @@ function getApp(): FirebaseApp {
 
 export function getDb(): Firestore {
   if (cachedDb) return cachedDb;
-  cachedDb = getFirestore(getApp());
+  // ignoreUndefinedProperties: plugin configs often carry optional
+  // fields left undefined (e.g. RSS's lastPublishedPath); Firestore
+  // would otherwise reject the whole write. Same semantics as the
+  // document-store backends, which drop undefined keys.
+  try {
+    cachedDb = initializeFirestore(getApp(), { ignoreUndefinedProperties: true });
+  } catch {
+    // Already initialised (e.g. by the setup wizard) — reuse it.
+    cachedDb = getFirestore(getApp());
+  }
   return cachedDb;
 }
 

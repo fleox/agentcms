@@ -72,3 +72,52 @@ export function applyBasePathToHtml(html: string, basePath: string): string {
   out = out.replace(/<head(\s[^>]*)?>/i, (head) => head + meta);
   return out;
 }
+
+// The site's own assets as root-relative URLs. Media URLs are stored
+// absolute (`<site URL>/media/…`), so a page opened from another address
+// of the same site — the https endpoint of an http site, a custom domain
+// in front — would load them from the stored origin, and browsers block
+// http images on an https page. Links (href) and meta values stay
+// absolute: canonical, hreflang and og:image need the full URL.
+export function siteRelativeUrl(url: string, baseUrl: string | undefined | null): string {
+  const origin = siteOrigin(baseUrl);
+  return origin && url.startsWith(origin + "/") ? url.slice(origin.length) : url;
+}
+
+function siteOrigin(baseUrl: string | undefined | null): string {
+  if (!baseUrl) return "";
+  try {
+    const u = new URL(baseUrl);
+    return u.protocol === "http:" || u.protocol === "https:" ? u.origin : "";
+  } catch {
+    return "";
+  }
+}
+
+const ASSET_ATTR_RE = /(\s(?:src|poster|data-src)=)(["'])([^"']*)\2/gi;
+const ASSET_SRCSET_RE = /(\s(?:srcset|imagesrcset)=)(["'])([^"']*)\2/gi;
+
+export function siteRelativeAssets(html: string, baseUrl: string | undefined | null): string {
+  const origin = siteOrigin(baseUrl);
+  if (!origin || !html.includes(origin + "/")) return html;
+  const rel = (v: string) => siteRelativeUrl(v, baseUrl);
+  return html
+    .replace(ASSET_ATTR_RE, (_, attr: string, q: string, v: string) => `${attr}${q}${rel(v)}${q}`)
+    .replace(ASSET_SRCSET_RE, (_, attr: string, q: string, v: string) =>
+      `${attr}${q}${v.split(",").map((c) => c.replace(/^(\s*)(\S+)/, (_m, sp: string, u: string) => sp + rel(u))).join(",")}${q}`,
+    );
+}
+
+// The reverse, for the admin's preview iframe (served from the admin's
+// address, not the site's): root-relative asset URLs go back to the
+// site's origin so preview images keep loading.
+export function absoluteAssets(html: string, baseUrl: string | undefined | null): string {
+  const origin = siteOrigin(baseUrl);
+  if (!origin) return html;
+  const abs = (v: string) => (v.startsWith("/") && !v.startsWith("//") ? origin + v : v);
+  return html
+    .replace(ASSET_ATTR_RE, (_, attr: string, q: string, v: string) => `${attr}${q}${abs(v)}${q}`)
+    .replace(ASSET_SRCSET_RE, (_, attr: string, q: string, v: string) =>
+      `${attr}${q}${v.split(",").map((c) => c.replace(/^(\s*)(\S+)/, (_m, sp: string, u: string) => sp + abs(u))).join(",")}${q}`,
+    );
+}

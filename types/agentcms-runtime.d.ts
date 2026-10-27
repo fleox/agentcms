@@ -1183,6 +1183,8 @@ export interface CreatePostInput {
 
 /** Patch of `updatePost`. `null` clears a field; `undefined` leaves it untouched. */
 export interface UpdatePostInput {
+  /** Reassign the post to another user id. */
+  authorId?: string;
   title?: string;
   slug?: string;
   contentMarkdown?: string;

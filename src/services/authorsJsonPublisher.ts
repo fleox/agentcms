@@ -1,8 +1,9 @@
 import { mediaToView, pickFormat } from "../core/media";
 import { buildAuthorUrl } from "../core/slug";
+import { siteRelativeUrl } from "../core/basePath";
 import type { Media, Post, SocialNetwork, UserRecord } from "../core/types";
 import { SOCIAL_NETWORKS } from "../core/types";
-import { uploadFile } from "./siteFiles";
+import { publicUrlFor, uploadFile } from "./siteFiles";
 import { resolvePublicDisplayName } from "./users";
 
 // Site path of the public-side authors snapshot. Grouped under
@@ -51,6 +52,8 @@ export function buildAuthorsJson(
   media: Map<string, Media> | Media[],
   posts: Post[],
   pages: Post[],
+  // Site URL: avatars become root-relative (see siteRelativeUrl).
+  baseUrl?: string,
 ): AuthorsJson {
   const mediaMap =
     media instanceof Map ? media : new Map(media.map((m) => [m.id, m]));
@@ -75,7 +78,7 @@ export function buildAuthorsJson(
     const heroView = user.avatarMediaId
       ? mediaToView(mediaMap.get(user.avatarMediaId))
       : undefined;
-    const avatar = heroView ? pickFormat(heroView, "medium") : "";
+    const avatar = heroView ? siteRelativeUrl(pickFormat(heroView, "medium"), baseUrl) : "";
     // Filter socials down to visible entries with a non-empty URL,
     // ordered by SOCIAL_NETWORKS so the public payload is stable.
     const socials: { network: SocialNetwork; url: string }[] = [];
@@ -116,7 +119,7 @@ export async function publishAuthorsJson(
   pages: Post[],
   pathOverride?: string,
 ): Promise<void> {
-  const blob = buildAuthorsJson(users, media, posts, pages);
+  const blob = buildAuthorsJson(users, media, posts, pages, await publicUrlFor(""));
   await uploadFile({
     path: pathOverride ?? AUTHORS_JSON_PATH,
     content: JSON.stringify(blob),

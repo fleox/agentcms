@@ -30,7 +30,7 @@ Ask this first; hosting comes after. Run `npx -y @agent-cms/agentcms@0.2.1 optio
 
 - **SQLite file** - one owner, simplest, no other account. Encrypted with a passphrase by default (a static host serves the file like any page); can also live in a separate private bucket / repo. No login screen: anyone with the admin URL, the keys and the passphrase can edit.
 - **Markdown in a Git repo** (GitHub / GitLab) - several editors or computers, full history; each editor uses their own token.
-- **Firebase** - real-time, email/password logins. Wizard only (see "Wizard fallback").
+- **Firebase** - real-time, several editors with email/password logins (Google account needed). Setup guide: [references/firebase.md](references/firebase.md).
 - **This browser** - quick try on one computer. Wizard only.
 
 ## Step 2 - Ask where the site is hosted
@@ -43,11 +43,11 @@ Present the entries of `data.hostings` with `cli: true` that fit the data choice
 | GitLab Pages | [references/gitlab.md](references/gitlab.md) |
 | S3-compatible bucket (AWS, OVHcloud, Scaleway, R2...) | [references/s3.md](references/s3.md) |
 
-Markdown content on GitHub/GitLab also needs the content repository: [references/github.md](references/github.md) / [references/gitlab.md](references/gitlab.md).
+Markdown content on GitHub/GitLab also needs the content repository: [references/github.md](references/github.md) / [references/gitlab.md](references/gitlab.md). Firebase content: [references/firebase.md](references/firebase.md).
 
 ## Step 3 - Credentials (never through the chat)
 
-Secrets are stored per **account** (`github:<login>`, `gitlab:<name>`, `s3:<name>`, `passphrase:<alias>`), not per site - check `npx -y @agent-cms/agentcms@0.2.1 credentials list --json` first and reuse an account that is already there.
+Secrets are stored per **account** (`github:<login>`, `gitlab:<name>`, `s3:<name>`, `firebase:<name>` (email + password of the admin), `passphrase:<alias>`), not per site - check `npx -y @agent-cms/agentcms@0.2.1 credentials list --json` first and reuse an account that is already there.
 
 To add one, use the first option that applies:
 
@@ -74,6 +74,7 @@ Write `agentcms-plan.json` (no secrets - only account ids), following `data.plan
 
 - `alias`: short name for this site (lower-case, dashes). Ask the user if they manage several sites.
 - SQLite: `"data": { "backend": "sqlite-file", "path": "data/site.sqlite" }` - the file is encrypted and lives on the hosting (on git hostings: on the unpublished branch `agentcms-data` of the same repo). Add `"location": { "type": "s3", "settings": { ... }, "credential": "s3:<name>" }` to keep it in a separate private bucket (or a private GitHub repo with `"type": "git-other"`), see [references/s3.md](references/s3.md). Only set `"encryption": false` if the user insists and the file is not publicly served.
+- Markdown content in a sub-folder of the repo (e.g. `content/`): add `"contentDir": "content"` to `data.git` (default: the repo root). The dry run's `data.detail` names the folder.
 - `hosting.credential` can be omitted when the hosting is on the same git provider as the content.
 - Keep `"admin": { "folder": "admin" }` so the admin is reachable at `<site URL>/admin/` from any computer.
 
@@ -94,13 +95,15 @@ npx -y @agent-cms/agentcms@0.2.1 install --plan agentcms-plan.json --json
 npx -y @agent-cms/agentcms@0.2.1 doctor --site <alias> --json
 ```
 
-- Relay `data.notices` (for example "GitHub Pages enabled" or how to enable it) and `data.nextSteps`.
+- Relay `data.notices` (for example "GitHub Pages enabled" or how to enable it; none when Pages was already on) and `data.nextSteps`.
 - For every doctor check with `status: "fail"`, propose its `fix`. Pages hosts need about a minute before the admin URL answers - re-run doctor after waiting.
+- A new site starts as "My site", in English, with the default theme and every plugin on: follow the first-steps item of `nextSteps` (title, language, theme, multilang off for one language, author name).
+- Once installed, content and settings are managed with the `agentcms-admin` skill (posts, media, menus, themes, plugins, regeneration).
 - Give the user the site URL and the admin URL, and remind them each new browser asks once for its access token or hosting keys (they are stored per browser, never online).
 - **Encrypted SQLite**: the passphrase is the only key to the content. Before finishing, run `npx -y @agent-cms/agentcms@0.2.1 credentials copy passphrase:<alias> --json` (it goes to the clipboard, never to the chat) and ask the user to save it in their password manager now; the admin asks for it once per browser.
 - The plan file holds no secrets; offer to delete it or keep it for reference.
 
-## Wizard fallback (Firebase, this browser, local folder, ZIP)
+## Wizard fallback (this browser, local folder, ZIP)
 
 ```bash
 npx -y @agent-cms/agentcms@0.2.1 serve --json

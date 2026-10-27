@@ -5,6 +5,8 @@ export interface OptionSpec {
   type: "string" | "boolean";
   description: string;
   default?: string | boolean;
+  // Can be given several times (values joined with a space).
+  multiple?: boolean;
 }
 
 export interface CommandContext {

@@ -91,6 +91,24 @@ export function bootExtensionHost(): Promise<HostModules> {
       url: "http://localhost/",
       settings: { disableJavaScriptEvaluation: true, disableJavaScriptFileLoading: true, disableCSSFileLoading: true, disableIframePageLoading: true },
     });
+    // Parsers some plugins use at publish / import time (e.g. the
+    // WordPress importer's DOMParser on the export XML). Node has none;
+    // the admin's own window globals stay untouched otherwise.
+    const globals = globalThis as Record<string, unknown>;
+    const W = win as unknown as { DOMParser: new () => { parseFromString(s: string, type: string): unknown }; XMLSerializer: unknown };
+    if (typeof globals.DOMParser === "undefined") {
+      // happy-dom's XML parser rejects CDATA sections (WordPress exports
+      // are full of them): turn them into the equivalent escaped text.
+      globals.DOMParser = class {
+        parseFromString(source: string, type: string): unknown {
+          const xml = /xml/.test(type)
+            ? source.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, (_m, t: string) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"))
+            : source;
+          return new W.DOMParser().parseFromString(xml, type);
+        }
+      };
+    }
+    if (typeof globals.XMLSerializer === "undefined") globals.XMLSerializer = W.XMLSerializer;
     const mods = await loadModules();
     mods.markdown.setSanitizerWindow(win);
     return mods;

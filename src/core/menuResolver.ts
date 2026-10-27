@@ -1,5 +1,5 @@
-import { buildPostUrl, buildTermUrl } from "./slug";
-import type { MenuItem, Post, Term } from "./types";
+import { buildPostUrl, buildTermUrl, isStaticHomePage } from "./slug";
+import type { MenuItem, Post, SiteSettings, Term } from "./types";
 
 // Pure shape produced by `resolveMenuItems` — each entry already carries
 // its computed public href so callers (theme components AND the dynamic
@@ -26,6 +26,9 @@ export interface MenuResolveContext {
   posts: Pick<Post, "id" | "type" | "slug" | "primaryTermId">[];
   pages: Pick<Post, "id" | "type" | "slug">[];
   terms: Pick<Term, "id" | "type" | "slug">[];
+  // Optional: when given, a link to the page bound to the static home
+  // resolves to the home (that page has no `<slug>.html` of its own).
+  settings?: Pick<SiteSettings, "homeMode" | "homePageId">;
 }
 
 // Recursively resolves a tree of MenuItem (with internal refs) into the
@@ -73,6 +76,7 @@ function resolveMenuHref(item: MenuItem, ctx: MenuResolveContext): string {
   if (item.ref.kind === "post") {
     const post = [...ctx.posts, ...ctx.pages].find((p) => p.id === item.ref?.id);
     if (!post) return "#";
+    if (isStaticHomePage(post, ctx.settings)) return "/index.html";
     const primaryTermId = "primaryTermId" in post ? post.primaryTermId : undefined;
     const term = primaryTermId ? ctx.terms.find((t) => t.id === primaryTermId) : undefined;
     return `/${buildPostUrl({ post, primaryTerm: term })}`;

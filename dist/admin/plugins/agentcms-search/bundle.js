@@ -1,7 +1,7 @@
-import { sha256Hex as E, uploadFile as H, buildPostUrl as Z, markdownToPlainText as W, pickPublicLocale as $, i18n as C, useCmsData as V, formatDateTime as X, toast as S, fetchAllPosts as z, updatePluginConfig as B } from "@agent-cms/runtime";
-import { jsxs as d, jsx as s } from "react/jsx-runtime";
-import { forwardRef as O, createElement as j, useState as I, useEffect as Y } from "react";
-import { useTranslation as ee } from "react-i18next";
+import { sha256Hex as j, uploadFile as N, markdownToPlainText as W, canonicalPath as Z, buildPostUrl as $, pickPublicLocale as V, i18n as C, useCmsData as X, formatDateTime as Y, toast as S, fetchAllPosts as z, updatePluginConfig as U } from "@agent-cms/runtime";
+import { jsxs as l, jsx as s } from "react/jsx-runtime";
+import { forwardRef as O, createElement as E, useState as A, useEffect as ee } from "react";
+import { useTranslation as ne } from "react-i18next";
 const Q = {
   title: "Search",
   description: "Builds a public search-index.json over your posts (and optionally pages) and ships a runtime that opens a search modal anywhere a [data-cms-search] trigger appears in your theme.",
@@ -55,7 +55,7 @@ const Q = {
     noResults: "No results",
     dialogLabel: "Search"
   }
-}, ne = {
+}, te = {
   title: "Recherche",
   description: "Génère un fichier search-index.json public à partir de vos articles (et optionnellement pages) et installe un runtime qui ouvre une modale de recherche partout où un déclencheur [data-cms-search] est présent dans votre thème.",
   regenerationTarget: {
@@ -106,7 +106,7 @@ const Q = {
     noResults: "Aucun résultat",
     dialogLabel: "Recherche"
   }
-}, te = {
+}, ae = {
   title: "Suche",
   description: "Erstellt eine öffentliche search-index.json über Ihre Beiträge (und optional Seiten) und liefert eine Laufzeit, die ein Suchfenster überall dort öffnet, wo ein [data-cms-search]-Trigger im Theme vorhanden ist.",
   regenerationTarget: {
@@ -157,7 +157,7 @@ const Q = {
     noResults: "Keine Ergebnisse",
     dialogLabel: "Suche"
   }
-}, ae = {
+}, se = {
   title: "Búsqueda",
   description: "Genera un archivo público search-index.json sobre tus artículos (y opcionalmente páginas) y entrega un runtime que abre una modal de búsqueda en cualquier disparador [data-cms-search] presente en tu tema.",
   regenerationTarget: {
@@ -208,7 +208,7 @@ const Q = {
     noResults: "Sin resultados",
     dialogLabel: "Búsqueda"
   }
-}, se = {
+}, re = {
   title: "Zoeken",
   description: "Bouwt een openbare search-index.json over je berichten (en optioneel pagina's) en levert een runtime die een zoekvenster opent overal waar een [data-cms-search]-trigger in je thema staat.",
   regenerationTarget: {
@@ -259,7 +259,7 @@ const Q = {
     noResults: "Geen resultaten",
     dialogLabel: "Zoeken"
   }
-}, re = {
+}, ie = {
   title: "Pesquisa",
   description: "Gera um arquivo público search-index.json sobre seus posts (e opcionalmente páginas) e entrega um runtime que abre um modal de pesquisa em qualquer gatilho [data-cms-search] do seu tema.",
   regenerationTarget: {
@@ -310,7 +310,7 @@ const Q = {
     noResults: "Sem resultados",
     dialogLabel: "Pesquisa"
   }
-}, ie = {
+}, oe = {
   title: "검색",
   description: "게시물(선택적으로 페이지 포함)에 대한 공개 search-index.json을 빌드하고 테마의 [data-cms-search] 트리거가 있는 곳에서 검색 모달을 여는 런타임을 제공합니다.",
   regenerationTarget: {
@@ -369,7 +369,7 @@ const Q = {
   excludedTermIds: [],
   minQueryLength: 2,
   maxResults: 20
-}, R = "agentcms-search", D = "search-index.json", q = "search.js", N = `/*
+}, R = "agentcms-search", _ = "search-index.json", q = "search.js", H = `/*
  * agentcms-search runtime — public-site code.
  *
  * Auto-attaches to every \`[data-cms-search]\` element at DOMContentLoaded.
@@ -390,6 +390,11 @@ const Q = {
 
 (function () {
   if (typeof document === "undefined") return;
+  // Load once: a page that ends up with two <script src="/search.js">
+  // tags (theme + plugin, hand-edited custom code…) must not attach two
+  // click handlers — each would open its own modal on top of the other.
+  if (window.__agentcmsSearchRuntime) return;
+  window.__agentcmsSearchRuntime = true;
 
   // ─── Base path ────────────────────────────────────────────────────
   // Sites served from a sub-folder (e.g. GitHub Pages project sites)
@@ -420,7 +425,12 @@ const Q = {
     ".cms-search-backdrop{position:absolute;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(4px)}",
     ".cms-search-panel{position:relative;width:100%;max-width:640px;background:#fff;color:#0f172a;border-radius:8px;box-shadow:0 25px 50px -12px rgba(0,0,0,.25);display:flex;flex-direction:column;max-height:80vh;overflow:hidden;font-family:inherit}",
     ".cms-search-header{display:flex;gap:8px;padding:12px 14px;border-bottom:1px solid #e2e8f0;align-items:center}",
-    ".cms-search-header input{flex:1;border:0;outline:0;font-size:18px;background:transparent;color:inherit;padding:8px 4px}",
+    ".cms-search-header input{flex:1;min-width:0;border:0;outline:0;font-size:18px;background:transparent;color:inherit;padding:8px 4px;-webkit-appearance:none;appearance:none}",
+    // type="search" gets a native clear "×" in WebKit/Blink (and ::-ms-clear
+    // in old Edge) — next to our close button that showed two "×" side
+    // by side. Hide the native one; Escape / the close button remain.
+    ".cms-search-header input::-webkit-search-cancel-button,.cms-search-header input::-webkit-search-decoration{-webkit-appearance:none;appearance:none;display:none}",
+    ".cms-search-header input::-ms-clear{display:none;width:0;height:0}",
     ".cms-search-header button{border:0;background:transparent;color:#64748b;font-size:24px;line-height:1;width:32px;height:32px;border-radius:4px;cursor:pointer}",
     ".cms-search-header button:hover{background:#f1f5f9;color:#0f172a}",
     ".cms-search-results{flex:1;overflow-y:auto;padding:4px 0}",
@@ -428,10 +438,33 @@ const Q = {
     ".cms-search-result:hover,.cms-search-result.is-active{background:#f8fafc}",
     ".cms-search-result-title{display:block;font-weight:600;font-size:15px;line-height:1.4;margin-bottom:2px}",
     ".cms-search-result-excerpt{display:block;font-size:13px;line-height:1.5;color:#475569}",
-    ".cms-search-result-category{display:inline-block;margin-top:6px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#64748b}",
+    ".cms-search-result-category{display:inline-block;margin-top:6px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--cms-search-accent,#64748b)}",
     ".cms-search-result mark{background:#fef08a;color:inherit;padding:0 1px;border-radius:2px}",
     ".cms-search-empty{padding:24px;text-align:center;color:#64748b;font-size:14px}",
   ].join("");
+
+  // Accent colour of the active theme, applied to the result's category
+  // label through --cms-search-accent. A theme can set that property
+  // itself; otherwise we borrow its --color-secondary (the colour every
+  // bundled theme uses for category eyebrows), then --color-primary.
+  // Tailwind themes store colours as bare RGB channels ("67 97 124") for
+  // their \`rgb(var(--x) / <alpha>)\` utilities, so those are wrapped in
+  // rgb(); hex / rgb() / named values pass through. "" = keep fallback.
+  var ACCENT_VARS = ["--cms-search-accent", "--color-secondary", "--color-primary"];
+  var RGB_CHANNELS = /^\\d+(\\.\\d+)?%?(\\s*,\\s*|\\s+)\\d+(\\.\\d+)?%?(\\s*,\\s*|\\s+)\\d+(\\.\\d+)?%?(\\s*\\/\\s*[\\d.]+%?)?$/;
+  function themeAccent() {
+    try {
+      var cs = window.getComputedStyle(document.documentElement);
+      for (var i = 0; i < ACCENT_VARS.length; i++) {
+        var v = (cs.getPropertyValue(ACCENT_VARS[i]) || "").trim();
+        if (!v) continue;
+        return RGB_CHANNELS.test(v) ? "rgb(" + v + ")" : v;
+      }
+    } catch (e) {
+      // getComputedStyle unavailable — keep the fallback colour.
+    }
+    return "";
+  }
 
   var stylesInjected = false;
   function injectStyles() {
@@ -540,6 +573,9 @@ const Q = {
   }
 
   var modal = null;
+  // True while open() awaits the index: a second click in that window
+  // would otherwise build a second modal.
+  var opening = false;
   function close() {
     if (!modal) return;
     var m = modal;
@@ -560,9 +596,16 @@ const Q = {
   }
 
   async function open() {
-    if (modal) return;
+    if (modal || opening) return;
+    opening = true;
     injectStyles();
-    var data = await loadIndex();
+    var data;
+    try {
+      data = await loadIndex();
+    } finally {
+      opening = false;
+    }
+    if (modal) return;
     var meta = data.meta || {};
     var minQuery = typeof meta.minQueryLength === "number" ? meta.minQueryLength : 2;
     var maxResults = typeof meta.maxResults === "number" ? meta.maxResults : 20;
@@ -576,6 +619,8 @@ const Q = {
     m.setAttribute("role", "dialog");
     m.setAttribute("aria-modal", "true");
     m.setAttribute("aria-label", dialogLabel);
+    var accent = themeAccent();
+    if (accent) m.style.setProperty("--cms-search-accent", accent);
 
     m.innerHTML = ''
       + '<div class="cms-search-backdrop" data-cms-search-close></div>'
@@ -642,8 +687,8 @@ const Q = {
   }
 })();
 `;
-function oe(t) {
-  const n = $(t), e = R, r = Q.runtime;
+function ce(t) {
+  const n = V(t), e = R, r = Q.runtime;
   return {
     placeholder: C.getResource(n, e, "runtime.placeholder") ?? r.placeholder,
     close: C.getResource(n, e, "runtime.close") ?? r.close,
@@ -651,66 +696,69 @@ function oe(t) {
     dialogLabel: C.getResource(n, e, "runtime.dialogLabel") ?? r.dialogLabel
   };
 }
+function le(t, n, e) {
+  return t.type === "page" && e.homeMode === "static-page" && e.homePageId && e.homePageId === t.id ? Z("index.html") : $({ post: t, primaryTerm: (n == null ? void 0 : n.type) === "category" ? n : void 0 });
+}
 function G(t) {
-  const { posts: n, pages: e, terms: r, settings: m, config: u } = t, k = new Set(u.excludedTermIds), b = [];
+  const { posts: n, pages: e, terms: r, settings: d, config: u } = t, k = new Set(u.excludedTermIds), b = [];
   for (const i of n)
     i.status === "online" && (i.primaryTermId && k.has(i.primaryTermId) || b.push(i));
   if (u.includePages)
     for (const i of e)
       i.status === "online" && b.push(i);
-  b.sort((i, c) => {
+  b.sort((i, h) => {
     var g, w, p, a, o, L, x, P;
-    const f = ((w = (g = c.publishedAt) == null ? void 0 : g.toMillis) == null ? void 0 : w.call(g)) ?? ((a = (p = c.updatedAt) == null ? void 0 : p.toMillis) == null ? void 0 : a.call(p)) ?? 0, h = ((L = (o = i.publishedAt) == null ? void 0 : o.toMillis) == null ? void 0 : L.call(o)) ?? ((P = (x = i.updatedAt) == null ? void 0 : x.toMillis) == null ? void 0 : P.call(x)) ?? 0;
-    return f - h;
+    const f = ((w = (g = h.publishedAt) == null ? void 0 : g.toMillis) == null ? void 0 : w.call(g)) ?? ((a = (p = h.updatedAt) == null ? void 0 : p.toMillis) == null ? void 0 : a.call(p)) ?? 0, m = ((L = (o = i.publishedAt) == null ? void 0 : o.toMillis) == null ? void 0 : L.call(o)) ?? ((P = (x = i.updatedAt) == null ? void 0 : x.toMillis) == null ? void 0 : P.call(x)) ?? 0;
+    return f - m;
   });
-  const l = /* @__PURE__ */ new Map();
-  for (const i of r) l.set(i.id, i);
+  const c = /* @__PURE__ */ new Map();
+  for (const i of r) c.set(i.id, i);
   const v = b.map((i) => {
     var g, w, p, a;
-    const c = i.primaryTermId ? l.get(i.primaryTermId) : void 0, f = {
+    const h = i.primaryTermId ? c.get(i.primaryTermId) : void 0, f = {
       id: i.id,
       title: i.title,
-      url: Z({ post: i, primaryTerm: (c == null ? void 0 : c.type) === "category" ? c : void 0 })
+      url: le(i, h, d)
     };
     if (u.indexExcerpt) {
       const o = i.excerpt && i.excerpt.trim() || W(i.contentMarkdown ?? "", 200);
       o && (f.excerpt = o);
     }
-    if (u.indexCategory && (c == null ? void 0 : c.type) === "category" && (f.category = c.name), u.indexTags && i.termIds && i.termIds.length) {
+    if (u.indexCategory && (h == null ? void 0 : h.type) === "category" && (f.category = h.name), u.indexTags && i.termIds && i.termIds.length) {
       const o = [];
       for (const L of i.termIds) {
-        const x = l.get(L);
+        const x = c.get(L);
         x && x.type === "tag" && o.push(x.name);
       }
       o.length && (f.tags = o);
     }
-    const h = ((w = (g = i.publishedAt) == null ? void 0 : g.toMillis) == null ? void 0 : w.call(g)) ?? ((a = (p = i.updatedAt) == null ? void 0 : p.toMillis) == null ? void 0 : a.call(p));
-    return typeof h == "number" && (f.publishedAt = h), f;
+    const m = ((w = (g = i.publishedAt) == null ? void 0 : g.toMillis) == null ? void 0 : w.call(g)) ?? ((a = (p = i.updatedAt) == null ? void 0 : p.toMillis) == null ? void 0 : a.call(p));
+    return typeof m == "number" && (f.publishedAt = m), f;
   });
   return { meta: {
     minQueryLength: u.minQueryLength,
     maxResults: u.maxResults,
-    ...oe(m.language),
+    ...ce(d.language),
     generatedAt: Date.now()
   }, items: v };
 }
-function _(t) {
+function D(t) {
   const n = {
     meta: { ...t.meta, generatedAt: 0 },
     items: t.items
   };
-  return E(JSON.stringify(n));
+  return j(JSON.stringify(n));
 }
-async function le(t) {
+async function de(t) {
   const n = G({
     posts: t.posts,
     pages: t.pages,
     terms: t.terms,
     settings: t.settings,
     config: t.config
-  }), e = await _(n), r = { ...T, ...t.config };
-  return r.lastIndexHash === e ? { nextConfig: r, uploaded: !1 } : (await H({
-    path: D,
+  }), e = await D(n), r = { ...T, ...t.config };
+  return r.lastIndexHash === e ? { nextConfig: r, uploaded: !1 } : (await N({
+    path: _,
     content: JSON.stringify(n),
     encoding: "utf-8"
   }), {
@@ -718,11 +766,11 @@ async function le(t) {
     uploaded: !0
   });
 }
-async function ce(t) {
-  const n = await E(N), e = { ...T, ...t };
-  return e.lastRuntimeHash === n ? { nextConfig: e, uploaded: !1 } : (await H({
+async function ue(t) {
+  const n = await j(H), e = { ...T, ...t };
+  return e.lastRuntimeHash === n ? { nextConfig: e, uploaded: !1 } : (await N({
     path: q,
-    content: N,
+    content: H,
     encoding: "utf-8"
   }), { nextConfig: { ...e, lastRuntimeHash: n }, uploaded: !0 });
 }
@@ -733,14 +781,14 @@ async function F(t) {
     terms: t.terms,
     settings: t.settings,
     config: t.config
-  }), e = await _(n), r = await E(N);
-  return await H({
-    path: D,
+  }), e = await D(n), r = await j(H);
+  return await N({
+    path: _,
     content: JSON.stringify(n),
     encoding: "utf-8"
-  }), await H({
+  }), await N({
     path: q,
-    content: N,
+    content: H,
     encoding: "utf-8"
   }), {
     nextConfig: {
@@ -759,14 +807,14 @@ async function F(t) {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const de = (t) => t.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), K = (...t) => t.filter((n, e, r) => !!n && n.trim() !== "" && r.indexOf(n) === e).join(" ").trim();
+const he = (t) => t.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), K = (...t) => t.filter((n, e, r) => !!n && n.trim() !== "" && r.indexOf(n) === e).join(" ").trim();
 /**
  * @license lucide-react v0.460.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-var ue = {
+var me = {
   xmlns: "http://www.w3.org/2000/svg",
   width: 24,
   height: 24,
@@ -783,30 +831,30 @@ var ue = {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const me = O(
+const ge = O(
   ({
     color: t = "currentColor",
     size: n = 24,
     strokeWidth: e = 2,
     absoluteStrokeWidth: r,
-    className: m = "",
+    className: d = "",
     children: u,
     iconNode: k,
     ...b
-  }, l) => j(
+  }, c) => E(
     "svg",
     {
-      ref: l,
-      ...ue,
+      ref: c,
+      ...me,
       width: n,
       height: n,
       stroke: t,
       strokeWidth: r ? Number(e) * 24 / Number(n) : e,
-      className: K("lucide", m),
+      className: K("lucide", d),
       ...b
     },
     [
-      ...k.map(([v, y]) => j(v, y)),
+      ...k.map(([v, y]) => E(v, y)),
       ...Array.isArray(u) ? u : [u]
     ]
   )
@@ -819,11 +867,11 @@ const me = O(
  */
 const M = (t, n) => {
   const e = O(
-    ({ className: r, ...m }, u) => j(me, {
+    ({ className: r, ...d }, u) => E(ge, {
       ref: u,
       iconNode: n,
-      className: K(`lucide-${de(t)}`, r),
-      ...m
+      className: K(`lucide-${he(t)}`, r),
+      ...d
     })
   );
   return e.displayName = `${t}`, e;
@@ -834,7 +882,7 @@ const M = (t, n) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const U = M("LoaderCircle", [
+const B = M("LoaderCircle", [
   ["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]
 ]);
 /**
@@ -843,7 +891,7 @@ const U = M("LoaderCircle", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const he = M("RefreshCw", [
+const pe = M("RefreshCw", [
   ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
   ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
   ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
@@ -855,7 +903,7 @@ const he = M("RefreshCw", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ge = M("Save", [
+const xe = M("Save", [
   [
     "path",
     {
@@ -866,24 +914,24 @@ const ge = M("Save", [
   ["path", { d: "M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7", key: "1ydtos" }],
   ["path", { d: "M7 3v4a1 1 0 0 0 1 1h7", key: "t51u73" }]
 ]);
-function pe({
+function fe({
   config: t,
   save: n
 }) {
-  const { t: e, i18n: r } = ee("agentcms-search"), { settings: m, terms: u, categories: k } = V(), b = r.resolvedLanguage ?? r.language, [l, v] = I(t);
-  Y(() => v(t), [t]);
-  const [y, i] = I(!1), [c, f] = I(!1);
-  function h(a) {
+  const { t: e, i18n: r } = ne("agentcms-search"), { settings: d, terms: u, categories: k } = X(), b = r.resolvedLanguage ?? r.language, [c, v] = A(t);
+  ee(() => v(t), [t]);
+  const [y, i] = A(!1), [h, f] = A(!1);
+  function m(a) {
     v((o) => ({ ...o, ...a }));
   }
   function g(a) {
-    const o = new Set(l.excludedTermIds);
-    o.has(a) ? o.delete(a) : o.add(a), h({ excludedTermIds: [...o] });
+    const o = new Set(c.excludedTermIds);
+    o.has(a) ? o.delete(a) : o.add(a), m({ excludedTermIds: [...o] });
   }
   async function w() {
     i(!0);
     try {
-      await n(l), S.success(e("actions.saved"));
+      await n(c), S.success(e("actions.saved"));
     } catch (a) {
       console.error("[agentcms-search] save failed:", a), S.error(e("actions.failed"));
     } finally {
@@ -891,7 +939,7 @@ function pe({
     }
   }
   async function p() {
-    if (!m.baseUrl) {
+    if (!d.baseUrl) {
       S.error(e("baseUrlMissing"));
       return;
     }
@@ -904,8 +952,8 @@ function pe({
         posts: a,
         pages: o,
         terms: u,
-        settings: m,
-        config: l
+        settings: d,
+        config: c
       });
       await n(x.nextConfig), v(x.nextConfig), S.success(e("actions.regenerated"));
     } catch (a) {
@@ -914,81 +962,81 @@ function pe({
       f(!1);
     }
   }
-  return /* @__PURE__ */ d("div", { className: "space-y-6", children: [
+  return /* @__PURE__ */ l("div", { className: "space-y-6", children: [
     /* @__PURE__ */ s("p", { className: "text-sm text-surface-600 dark:text-surface-300", children: e("description") }),
-    /* @__PURE__ */ d("section", { className: "card p-4 space-y-4", children: [
+    /* @__PURE__ */ l("section", { className: "card p-4 space-y-4", children: [
       /* @__PURE__ */ s("h2", { className: "font-semibold", children: e("index.title") }),
-      /* @__PURE__ */ d("label", { className: "flex items-start gap-2", children: [
+      /* @__PURE__ */ l("label", { className: "flex items-start gap-2", children: [
         /* @__PURE__ */ s(
           "input",
           {
             type: "checkbox",
             className: "mt-1",
-            checked: l.indexExcerpt,
-            onChange: (a) => h({ indexExcerpt: a.target.checked })
+            checked: c.indexExcerpt,
+            onChange: (a) => m({ indexExcerpt: a.target.checked })
           }
         ),
-        /* @__PURE__ */ d("span", { children: [
+        /* @__PURE__ */ l("span", { children: [
           /* @__PURE__ */ s("span", { className: "text-sm font-medium block", children: e("index.indexExcerpt") }),
           /* @__PURE__ */ s("span", { className: "text-xs text-surface-500 dark:text-surface-400", children: e("index.indexExcerptHelp") })
         ] })
       ] }),
-      /* @__PURE__ */ d("label", { className: "flex items-center gap-2", children: [
+      /* @__PURE__ */ l("label", { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ s(
           "input",
           {
             type: "checkbox",
-            checked: l.indexCategory,
-            onChange: (a) => h({ indexCategory: a.target.checked })
+            checked: c.indexCategory,
+            onChange: (a) => m({ indexCategory: a.target.checked })
           }
         ),
         /* @__PURE__ */ s("span", { className: "text-sm font-medium", children: e("index.indexCategory") })
       ] }),
-      /* @__PURE__ */ d("label", { className: "flex items-center gap-2", children: [
+      /* @__PURE__ */ l("label", { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ s(
           "input",
           {
             type: "checkbox",
-            checked: l.indexTags,
-            onChange: (a) => h({ indexTags: a.target.checked })
+            checked: c.indexTags,
+            onChange: (a) => m({ indexTags: a.target.checked })
           }
         ),
         /* @__PURE__ */ s("span", { className: "text-sm font-medium", children: e("index.indexTags") })
       ] }),
-      /* @__PURE__ */ d("label", { className: "flex items-center gap-2 pt-2 border-t border-surface-200 dark:border-surface-700", children: [
+      /* @__PURE__ */ l("label", { className: "flex items-center gap-2 pt-2 border-t border-surface-200 dark:border-surface-700", children: [
         /* @__PURE__ */ s(
           "input",
           {
             type: "checkbox",
-            checked: l.includePages,
-            onChange: (a) => h({ includePages: a.target.checked })
+            checked: c.includePages,
+            onChange: (a) => m({ includePages: a.target.checked })
           }
         ),
         /* @__PURE__ */ s("span", { className: "text-sm font-medium", children: e("index.includePages") })
       ] }),
-      /* @__PURE__ */ d("div", { children: [
+      /* @__PURE__ */ l("div", { children: [
         /* @__PURE__ */ s("p", { className: "label", children: e("index.excludedTerms") }),
         /* @__PURE__ */ s("p", { className: "text-xs text-surface-500 mb-2 dark:text-surface-400", children: e("index.excludedTermsHelp") }),
-        k.length === 0 ? /* @__PURE__ */ s("p", { className: "text-xs italic text-surface-500 dark:text-surface-400", children: e("index.none") }) : /* @__PURE__ */ s("ul", { className: "space-y-1", children: k.map((a) => /* @__PURE__ */ s("li", { children: /* @__PURE__ */ d("label", { className: "flex items-center gap-2", children: [
+        k.length === 0 ? /* @__PURE__ */ s("p", { className: "text-xs italic text-surface-500 dark:text-surface-400", children: e("index.none") }) : /* @__PURE__ */ s("ul", { className: "space-y-1", children: k.map((a) => /* @__PURE__ */ s("li", { children: /* @__PURE__ */ l("label", { className: "flex items-center gap-2", children: [
           /* @__PURE__ */ s(
             "input",
             {
               type: "checkbox",
-              checked: l.excludedTermIds.includes(a.id),
+              checked: c.excludedTermIds.includes(a.id),
               onChange: () => g(a.id)
             }
           ),
           /* @__PURE__ */ s("span", { className: "text-sm", children: a.name }),
-          /* @__PURE__ */ d("span", { className: "text-xs text-surface-400", children: [
+          /* @__PURE__ */ l("span", { className: "text-xs text-surface-400", children: [
             "/",
             a.slug
           ] })
         ] }) }, a.id)) })
       ] })
     ] }),
-    /* @__PURE__ */ d("section", { className: "card p-4 space-y-4", children: [
+    /* @__PURE__ */ l("section", { className: "card p-4 space-y-4", children: [
       /* @__PURE__ */ s("h2", { className: "font-semibold", children: e("behavior.title") }),
-      /* @__PURE__ */ d("div", { children: [
+      /* @__PURE__ */ l("div", { children: [
         /* @__PURE__ */ s("label", { className: "label", children: e("behavior.minQueryLength") }),
         /* @__PURE__ */ s(
           "input",
@@ -997,8 +1045,8 @@ function pe({
             className: "input max-w-xs",
             min: 1,
             max: 10,
-            value: l.minQueryLength,
-            onChange: (a) => h({
+            value: c.minQueryLength,
+            onChange: (a) => m({
               minQueryLength: Math.max(
                 1,
                 Math.min(10, Number.parseInt(a.target.value, 10) || 2)
@@ -1008,7 +1056,7 @@ function pe({
         ),
         /* @__PURE__ */ s("p", { className: "text-xs text-surface-500 mt-1 dark:text-surface-400", children: e("behavior.minQueryLengthHelp") })
       ] }),
-      /* @__PURE__ */ d("div", { children: [
+      /* @__PURE__ */ l("div", { children: [
         /* @__PURE__ */ s("label", { className: "label", children: e("behavior.maxResults") }),
         /* @__PURE__ */ s(
           "input",
@@ -1017,8 +1065,8 @@ function pe({
             className: "input max-w-xs",
             min: 1,
             max: 100,
-            value: l.maxResults,
-            onChange: (a) => h({
+            value: c.maxResults,
+            onChange: (a) => m({
               maxResults: Math.max(
                 1,
                 Math.min(100, Number.parseInt(a.target.value, 10) || 20)
@@ -1029,32 +1077,32 @@ function pe({
         /* @__PURE__ */ s("p", { className: "text-xs text-surface-500 mt-1 dark:text-surface-400", children: e("behavior.maxResultsHelp") })
       ] })
     ] }),
-    /* @__PURE__ */ d("section", { className: "card p-4 flex flex-wrap items-center gap-3", children: [
-      /* @__PURE__ */ s("p", { className: "text-xs text-surface-500 dark:text-surface-400 flex-1 min-w-0", children: l.lastIndexedAt ? e("status.lastIndexed", { date: X(l.lastIndexedAt, b) }) : e("status.notIndexed") }),
+    /* @__PURE__ */ l("section", { className: "card p-4 flex flex-wrap items-center gap-3", children: [
+      /* @__PURE__ */ s("p", { className: "text-xs text-surface-500 dark:text-surface-400 flex-1 min-w-0", children: c.lastIndexedAt ? e("status.lastIndexed", { date: Y(c.lastIndexedAt, b) }) : e("status.notIndexed") }),
       /* @__PURE__ */ s(
         "button",
         {
           type: "button",
           className: "btn btn-secondary",
           onClick: p,
-          disabled: c || y,
-          children: /* @__PURE__ */ d("span", { className: "inline-flex items-center justify-center gap-1.5", children: [
-            /* @__PURE__ */ s(U, { className: "w-4 h-4 animate-spin " + (c ? "" : "hidden") }),
-            /* @__PURE__ */ s(he, { className: "w-4 h-4 " + (c ? "hidden" : "") }),
-            /* @__PURE__ */ s("span", { children: e(c ? "actions.regenerating" : "actions.forceRegenerate") })
+          disabled: h || y,
+          children: /* @__PURE__ */ l("span", { className: "inline-flex items-center justify-center gap-1.5", children: [
+            /* @__PURE__ */ s(B, { className: "w-4 h-4 animate-spin " + (h ? "" : "hidden") }),
+            /* @__PURE__ */ s(pe, { className: "w-4 h-4 " + (h ? "hidden" : "") }),
+            /* @__PURE__ */ s("span", { children: e(h ? "actions.regenerating" : "actions.forceRegenerate") })
           ] })
         }
       ),
-      /* @__PURE__ */ d(
+      /* @__PURE__ */ l(
         "button",
         {
           type: "button",
           className: "btn btn-primary",
           onClick: w,
-          disabled: y || c,
+          disabled: y || h,
           children: [
-            /* @__PURE__ */ s(U, { className: y ? "w-4 h-4 animate-spin" : "hidden" }),
-            /* @__PURE__ */ s(ge, { className: y ? "hidden" : "w-4 h-4" }),
+            /* @__PURE__ */ s(B, { className: y ? "w-4 h-4 animate-spin" : "hidden" }),
+            /* @__PURE__ */ s(xe, { className: y ? "hidden" : "w-4 h-4" }),
             /* @__PURE__ */ s("span", { children: e(y ? "actions.saving" : "actions.save") })
           ]
         }
@@ -1062,7 +1110,7 @@ function pe({
     ] })
   ] });
 }
-const xe = `# Search
+const be = `# Search
 
 A theme-agnostic search plugin for AgentCMS. Builds a static
 \`/search-index.json\` over your published content and ships a tiny
@@ -1141,6 +1189,13 @@ The runtime injects its own minimal \`<style>\` block on first open
 Themes override anything by writing rules with higher specificity, or
 by wrapping their own rules in \`:where()\`.
 
+The category label of each result takes the theme's accent colour: the
+runtime reads \`--cms-search-accent\` from \`:root\` when the theme defines
+it, else \`--color-secondary\`, else \`--color-primary\` (bare RGB channels
+such as \`67 97 124\`, as Tailwind themes store them, are wrapped in
+\`rgb()\`), and falls back to a neutral slate. The native clear button of
+the search input is hidden so the modal shows a single close button.
+
 ## Files written to your site
 
 - \`/search-index.json\` — the index. Re-uploaded on every corpus change.
@@ -1169,47 +1224,47 @@ function J(t) {
   const n = (t.pluginConfigs ?? {})[R];
   return { ...T, ...n ?? {} };
 }
-async function A(t, n) {
+async function I(t, n) {
   if (!n.settings.baseUrl) {
     console.warn("[agentcms-search] skipping regeneration — baseUrl not configured");
     return;
   }
   let e = J(n.settings);
   try {
-    const r = await ce(e);
+    const r = await ue(e);
     e = r.nextConfig;
-    const m = await le({
+    const d = await de({
       posts: n.posts,
       pages: n.pages,
       terms: n.terms,
       settings: n.settings,
       config: e
     });
-    e = m.nextConfig, (r.uploaded || m.uploaded) && await B(R, e);
+    e = d.nextConfig, (r.uploaded || d.uploaded) && await U(R, e);
   } catch (r) {
     console.error("[agentcms-search] regeneration failed:", r);
   }
 }
-const we = {
+const Re = {
   id: R,
   name: "Search",
-  version: "1.0.0",
+  version: "1.0.1",
   author: "AgentCMS",
   description: "Generates /search-index.json + a search runtime that opens a modal anywhere a [data-cms-search] trigger is present in your theme.",
-  readme: xe,
-  i18n: { en: Q, fr: ne, de: te, es: ae, nl: se, pt: re, ko: ie },
+  readme: be,
+  i18n: { en: Q, fr: te, de: ae, es: se, nl: re, pt: ie, ko: oe },
   settings: {
     navLabelKey: "title",
     defaultConfig: T,
-    component: pe
+    component: fe
   },
   register(t) {
     t.addAction("publish.complete", async (n, e) => {
-      await A(n, e);
+      await I(n, e);
     }), t.addAction("post.unpublished", async (n, e) => {
-      await A(n, e);
+      await I(n, e);
     }), t.addAction("post.deleted", async (n, e) => {
-      await A(n, e);
+      await I(n, e);
     }), t.addFilter("page.body.end", (n, ...e) => {
       e[0];
       const r = `<script src="/${q}" defer><\/script>`;
@@ -1226,18 +1281,18 @@ const we = {
         }
         const r = J(n.settings);
         e({ level: "info", message: "Regenerating search runtime + index…" });
-        const m = await F({
+        const d = await F({
           posts: n.posts,
           pages: n.pages,
           terms: n.terms,
           settings: n.settings,
           config: r
         });
-        JSON.stringify(m.nextConfig) !== JSON.stringify(r) && await B(R, m.nextConfig), e({ level: "success", message: "Search: runtime + index uploaded." });
+        JSON.stringify(d.nextConfig) !== JSON.stringify(r) && await U(R, d.nextConfig), e({ level: "success", message: "Search: runtime + index uploaded." });
       }
     });
   }
 };
 export {
-  we as manifest
+  Re as manifest
 };

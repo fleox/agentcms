@@ -7,6 +7,7 @@ import {
   buildPostUrl,
   buildTermUrl,
   HOME_PATH,
+  isStaticHomePage,
   NOT_FOUND_PATH,
   pathToPublicUrl,
 } from "../core/slug";
@@ -26,6 +27,7 @@ import type {
 } from "../themes/types";
 import type { Media, Post, SiteSettings, Term, UserRecord } from "../core/types";
 import { deleteFile, uploadFile, withStorageBatch } from "./siteFiles";
+import { uploadAdditionalRenders } from "./additionalRenders";
 import { listAllMedia } from "./media";
 import { publishMenuJson } from "./menuPublisher";
 import { publishPostsJson } from "./postsJsonPublisher";
@@ -91,11 +93,7 @@ const THEME_CSS_PREFIX = "theme-assets";
 // per-page <slug>.html mirror — because the home regen pass writes
 // the actual file via the theme's home template.
 function isStaticHome(post: Post, settings: SiteSettings): boolean {
-  return (
-    post.type === "page" &&
-    settings.homeMode === "static-page" &&
-    settings.homePageId === post.id
-  );
+  return isStaticHomePage(post, settings);
 }
 
 function themeCssPath(themeId: string): string {
@@ -845,36 +843,24 @@ async function publishPostUnbatched(
     post,
     ctx,
   );
-  const newAdditionalPaths: string[] = [];
-  for (const entry of additional) {
-    if (!entry.path || entry.path === newPath) continue;
-    log({ level: "info", message: `Uploading ${entry.path}…` });
-    await uploadFile({ path: entry.path, content: entry.html });
-    newAdditionalPaths.push(entry.path);
-  }
   // Plugins that wrote additional paths last time but skipped them this
   // time (e.g. user disabled a language) are detected by diffing
-  // `lastPublishedPathsByLocale` against the new set. Any orphan goes
-  // into `failedDeletions` so the publisher cleanup pipeline retries it
-  // on the next publish.
-  const previousByLocale = post.lastPublishedPathsByLocale ?? {};
-  for (const orphan of Object.values(previousByLocale)) {
-    if (!orphan || orphan === newPath) continue;
-    if (newAdditionalPaths.includes(orphan)) continue;
-    try {
-      await deleteFile(orphan);
-      log({ level: "info", message: `Deleted stale additional ${orphan}` });
-    } catch (err) {
-      log({ level: "warn", message: `Could not delete ${orphan}: ${(err as Error).message}` });
-      failedDeletions.push(orphan);
-    }
-  }
+  // `lastPublishedPathsByLocale` against the new set. Any orphan whose
+  // deletion fails goes into `failedDeletions` so the publisher cleanup
+  // pipeline retries it on the next publish.
+  const extra = await uploadAdditionalRenders({
+    additional,
+    primaryPath: newPath,
+    previousByLocale: post.lastPublishedPathsByLocale,
+    log,
+  });
+  failedDeletions.push(...extra.failedDeletions);
 
   await markPostOnline(post.id, {
     lastPublishedPath: newPath,
     lastPublishedHash: hash,
     previousPublishedPaths: failedDeletions,
-    publishedAt: options?.publishedAt,
+    publishedAt: options?.publishedAt ?? keptPublishedAt(post),
   });
   // Reflect the transition locally so the listings regenerated below
   // include this post. Without this, renderHome would still see status
@@ -1096,6 +1082,7 @@ async function repairPublishPathsUnbatched(
       lastPublishedPath: expectedPath,
       lastPublishedHash: hash,
       previousPublishedPaths: failedDeletions,
+      publishedAt: keptPublishedAt(post),
     });
     repaired++;
     await new Promise((r) => setTimeout(r, 75));
@@ -1158,21 +1145,30 @@ async function regenerateAllUnbatched(ctx: PublishContext, log: PublishLogger): 
     // language variant too. Without this, "Regenerate all" only
     // refreshes primary-language pages and leaves localised variants
     // pinned at their last manually-published state.
+    // Orphans (variants the plugin no longer returns — e.g. a
+    // translation of the page now bound to a per-locale home) are
+    // deleted here too, same as publishPost: the plugin rewrites
+    // `lastPublishedPathsByLocale` during the filter call, so a full
+    // regeneration that skipped this diff would leave them on the
+    // public site with nothing tracking them any more.
     const additional = await applyFilters<AdditionalRender[]>(
       "publish.additional",
       [],
       post,
       ctx,
     );
-    for (const entry of additional) {
-      if (!entry.path || entry.path === path) continue;
-      log({ level: "info", message: `Uploading ${entry.path}…` });
-      await uploadFile({ path: entry.path, content: entry.html });
-    }
+    const extra = await uploadAdditionalRenders({
+      additional,
+      primaryPath: path,
+      previousByLocale: post.lastPublishedPathsByLocale,
+      log,
+    });
+    failedDeletions.push(...extra.failedDeletions);
     await markPostOnline(post.id, {
       lastPublishedPath: path,
       lastPublishedHash: hash,
       previousPublishedPaths: failedDeletions,
+      publishedAt: keptPublishedAt(post),
     });
     // Soft throttle: avoid bursting the API with hundreds of uploads in a tight loop.
     await new Promise((r) => setTimeout(r, 75));
@@ -1304,6 +1300,15 @@ export function publishAuthorArchive(
   ...args: Parameters<typeof publishAuthorArchiveUnbatched>
 ): ReturnType<typeof publishAuthorArchiveUnbatched> {
   return withStorageBatch(() => publishAuthorArchiveUnbatched(...args));
+}
+
+// The publication date is set by the first publish only. Republishing
+// (an edit of an online entry, Repair URLs, Regenerate all) keeps it, so
+// a back-dated or original date survives — markPostOnline otherwise
+// stamps "now".
+function keptPublishedAt(post: Post): Date | undefined {
+  const ms = post.publishedAt?.toMillis?.();
+  return typeof ms === "number" && Number.isFinite(ms) ? new Date(ms) : undefined;
 }
 
 export function publishPost(

@@ -195,6 +195,7 @@ export async function createPost(input: CreatePostInput): Promise<string> {
 }
 
 export interface UpdatePostInput {
+  authorId?: string;
   title?: string;
   slug?: string;
   contentMarkdown?: string;
@@ -211,6 +212,7 @@ export interface UpdatePostInput {
 
 const UPDATABLE_FIELDS: ReadonlyArray<keyof UpdatePostInput> = [
   "title",
+  "authorId",
   "slug",
   "contentMarkdown",
   "excerpt",

@@ -24,7 +24,7 @@ export async function computeExtraListings(
   // Same registry refresh as `computeAdditional` — `page.head.extra`
   // reads from this cache during the home / category render below.
   refreshPathRegistry(ctx.posts, ctx.pages, ctx.terms, ctx.settings, config);
-  refreshAlternatesCache(ctx.posts, ctx.pages, ctx.terms, config);
+  refreshAlternatesCache(ctx.posts, ctx.pages, ctx.terms, config, ctx.settings);
 
   const out: AdditionalListingRender[] = [...existing];
 

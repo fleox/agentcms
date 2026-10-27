@@ -25,7 +25,7 @@ import {
   type ExternalEntry,
   type ExternalManifest,
 } from "./externalRegistry";
-import { readRegistry, writeRegistry } from "./externalRegistryStore";
+import { readDefaults, readRegistry, writeRegistry } from "./externalRegistryStore";
 import {
   loadExternalPluginTranslations,
   type PluginManifest,
@@ -212,6 +212,16 @@ export async function loadAllExternalEntries(): Promise<{
   failed: number;
   pruned: number;
 }> {
+  // Sites made before 0.2.0 reference "flexweg-*" bundles that can't
+  // load anymore: switch them to the bundled "agentcms-*" ones first.
+  try {
+    const { migrateLegacyIds } = await import("./legacyIds");
+    const { getSettings, updateSettings } = await import("./settings");
+    await migrateLegacyIds({ readRegistry, writeRegistry, defaults: await readDefaults(), getSettings, updateSettings });
+  } catch (err) {
+    // Editors may not be allowed to write: the admin still boots.
+    console.warn("[external] legacy id migration skipped:", err);
+  }
   const manifest = await readRegistry();
   clearExternalPlugins();
   clearExternalThemes();

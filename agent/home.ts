@@ -6,6 +6,7 @@ import { dirname, join, resolve } from "node:path";
 // agent session on this computer.
 //   sites.json        registered sites — never secrets
 //   credentials.json  access tokens / keys per account, mode 0600
+//   sessions/         Firebase sign-in sessions per account, mode 0600
 //   locks/<alias>     one running write operation per site
 
 export function homeDir(): string {

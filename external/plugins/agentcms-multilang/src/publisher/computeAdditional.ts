@@ -9,6 +9,7 @@ import {
   buildLocalizedPostUrl,
   getPostTranslation,
   getTermTranslation,
+  isLocaleHomePage,
 } from "../core/urls";
 import { renderLocalizedSingle } from "./render";
 import { refreshAlternatesCache, refreshPathRegistry } from "../core/pathRegistry";
@@ -36,7 +37,7 @@ export async function computeAdditional(
   // translation would produce a page without hreflang because the
   // cache hasn't been touched since the last publish.complete.
   refreshPathRegistry(ctx.posts, ctx.pages, ctx.terms, ctx.settings, config);
-  refreshAlternatesCache(ctx.posts, ctx.pages, ctx.terms, config);
+  refreshAlternatesCache(ctx.posts, ctx.pages, ctx.terms, config, ctx.settings);
 
   const out: AdditionalRender[] = [...existing];
   const newPaths: Record<string, string> = {};
@@ -46,6 +47,15 @@ export async function computeAdditional(
 
   for (const language of config.enabledLanguages) {
     if (isPrimaryLanguage(config, language)) continue;
+    // The page that drives this language's home is rendered at
+    // `<lang>/index.html` by the listings pass (computeExtraListings →
+    // renderLocalizedHome). Publishing it a second time at
+    // `<lang>/<slug>.html` would create a duplicate with its own
+    // canonical — the core publisher likewise never writes `<slug>.html`
+    // for the primary static home. Leaving it out of `newPaths` also
+    // makes the publisher delete a previously-published standalone copy
+    // (orphan diff on `lastPublishedPathsByLocale`).
+    if (isLocaleHomePage(post, ctx.settings, config, language)) continue;
     const trans = getPostTranslation(post, language);
     if (!trans) continue;
     // A post with a category but no category translation in this

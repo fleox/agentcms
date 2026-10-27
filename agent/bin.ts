@@ -7,5 +7,7 @@ if (major < 20) {
 }
 
 main(process.argv.slice(2)).then((code) => {
-  process.exitCode = code;
+  // Firebase / network clients keep sockets open: exit once stdout is
+  // flushed rather than waiting for them.
+  process.stdout.write("", () => process.exit(code));
 });

@@ -15,7 +15,7 @@ import {
   resolveBaseUrl,
 } from "../core/hreflang";
 import {
-  buildLocalizedPostUrl,
+  buildPublishedLocalizedPath,
   getPostTranslation,
   getTermTranslation,
 } from "../core/urls";
@@ -33,7 +33,15 @@ export function urlsetNamespaces(
 // entity. The sitemap builder concatenates this just before `</url>`.
 export function urlEntry(
   current: string,
-  args: { entity?: Post; baseUrl: string; path: string },
+  args: {
+    entity?: Post;
+    baseUrl: string;
+    path: string;
+    // Passed by agentcms-sitemaps ≥ the static-home fix; older versions
+    // only give the three fields above, hence the module-level fallback.
+    terms?: Term[];
+    settings?: SiteSettings;
+  },
 ): string {
   if (!args.entity) return current;
   // We don't know which Term list / SiteSettings the sitemap builder
@@ -44,10 +52,11 @@ export function urlEntry(
   // snapshot. The plugin keeps a reference to the live config via
   // setLatestConfig() called on every publish; below is a soft
   // dependency on that helper.
-  const config = getLatestConfig();
-  const terms = getLatestTerms();
+  const config = args.settings ? getMultilangConfig(args.settings) : getLatestConfig();
+  const terms = args.terms ?? getLatestTerms();
   if (!config || !terms) return current;
-  const alternates = postAlternates(args.entity, terms, config);
+  if (config.enabledLanguages.length === 0) return current;
+  const alternates = postAlternates(args.entity, terms, config, args.settings ?? latestSettings);
   if (alternates.length === 0) return current;
   const baseUrl = args.baseUrl.replace(/\/+$/, "");
   return (
@@ -83,7 +92,10 @@ export function urlsExtra(
       post.publishedAt?.toMillis?.() ??
       Date.now();
     if (new Date(createdMs).getUTCFullYear() !== args.year) continue;
-    const alternates = postAlternates(post, args.terms, config);
+    // With settings, a page driving a language's home resolves to that
+    // home (`fr/index.html` → listed as `/fr/`) instead of a standalone
+    // `fr/<slug>.html` that is never published.
+    const alternates = postAlternates(post, args.terms, config, args.settings);
     if (alternates.length === 0) continue;
     for (const alt of alternates) {
       // The primary-language URL is already in the core sitemap.
@@ -181,13 +193,14 @@ export function newsLocales(
         : undefined;
       const primaryTermTrans =
         primaryTerm ? getTermTranslation(primaryTerm, language) ?? undefined : undefined;
-      const path = buildLocalizedPostUrl({
+      const path = buildPublishedLocalizedPath({
         post,
         trans,
         primaryTermTrans,
         primaryTermSlug: primaryTerm?.slug,
         language,
         config: mlConfig,
+        settings: args.settings,
       });
       entities.push({
         path,
@@ -210,11 +223,15 @@ export function newsLocales(
 // publish lifecycle handlers.
 let latestConfig: ReturnType<typeof getMultilangConfig> | null = null;
 let latestTerms: Term[] | null = null;
+let latestSettings: SiteSettings | null = null;
 export function setLatestConfig(c: ReturnType<typeof getMultilangConfig>): void {
   latestConfig = c;
 }
 export function setLatestTerms(t: Term[]): void {
   latestTerms = t;
+}
+export function setLatestSettings(s: SiteSettings): void {
+  latestSettings = s;
 }
 function getLatestConfig() {
   return latestConfig;

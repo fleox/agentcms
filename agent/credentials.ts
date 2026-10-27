@@ -32,6 +32,11 @@ export const CREDENTIAL_TYPES: Record<string, CredentialType> = {
     howTo:
       "AWS IAM user with s3:GetObject/PutObject/DeleteObject/ListBucket on the bucket, or OVHcloud Public Cloud → Object Storage → S3 users. Import an existing aws CLI profile with --from-aws-profile.",
   },
+  firebase: {
+    fields: ["email", "password"],
+    label: "Firebase admin login (email + password)",
+    howTo: "The email and password of an administrator of the site's Firebase project (the account used to sign in to the admin). The CLI signs in with Firebase Auth exactly like the admin login screen.",
+  },
   passphrase: {
     fields: ["passphrase"],
     label: "SQLite database passphrase",

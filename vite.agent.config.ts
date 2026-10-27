@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { defineConfig, type Plugin } from "vite";
+import { JSQUASH_WASM } from "./agent/vendor/jsquashWasm";
 
 // Builds the `agentcms` CLI (agent/bin.ts) into ONE self-contained Node
 // entry, dist/agent/agentcms.mjs (+ lazy chunks) — every dependency is
@@ -29,8 +30,26 @@ function vendorSqlJs(): Plugin {
   };
 }
 
+// Image codecs for agent/ops/imageNode.ts: their WASM is loaded from
+// dist/agent/vendor/wasm/ (readFileSync + WebAssembly.compile), so it is
+// copied verbatim under fixed names (no hash, reproducible).
+function vendorJsquashWasm(): Plugin {
+  return {
+    name: "agentcms-vendor-jsquash-wasm",
+    generateBundle() {
+      for (const [name, spec] of Object.entries(JSQUASH_WASM)) {
+        this.emitFile({
+          type: "asset",
+          fileName: `vendor/wasm/${name}`,
+          source: readFileSync(fileURLToPath(new URL(`./node_modules/${spec}`, import.meta.url))),
+        });
+      }
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [vendorSqlJs()],
+  plugins: [vendorSqlJs(), vendorJsquashWasm()],
   // public/ belongs to the admin build — keep it out of dist/agent/.
   publicDir: false,
   define: {

@@ -75,7 +75,7 @@ export async function checkPlan(plan: ResolvedPlan): Promise<CheckReport> {
         }
         data = {
           ok: true,
-          detail: `${perms.login} → ${transport.label}`,
+          detail: `${perms.login} → ${transport.label}${git.contentDir ? `, folder "${git.contentDir}"` : " (repository root)"}`,
           existing: tree.entries.some((e) => e.path.startsWith(joinRepoPath(git.contentDir, ".cms/"))),
           storedTarget,
         };
@@ -83,6 +83,8 @@ export async function checkPlan(plan: ResolvedPlan): Promise<CheckReport> {
     } catch (err) {
       data = { ok: false, detail: (err as Error).message, existing: false };
     }
+  } else if (plan.runtime.backend === "firebase") {
+    data = await checkFirebase(plan);
   } else {
     // The database lives on the hosting, or in its separate location.
     const location = plan.dataLocation ?? plan.target;
@@ -111,6 +113,66 @@ export async function checkPlan(plan: ResolvedPlan): Promise<CheckReport> {
     }
   }
   return { hosting, data };
+}
+
+// The setup wizard's verifyFirebase: sign in, then the rules-pinned
+// config/admin probe proves the rules are published for this email.
+async function checkFirebase(plan: ResolvedPlan): Promise<CheckReport["data"]> {
+  activate(plan.runtime);
+  const login = plan.firebaseLogin!;
+  try {
+    const { signIn } = await import("../../src/services/auth");
+    await signIn(login.email, login.password);
+  } catch (err) {
+    const code = (err as { code?: string }).code ?? "";
+    const hint = /invalid-credential|wrong-password|user-not-found/.test(code)
+      ? "wrong email or password"
+      : /operation-not-allowed/.test(code)
+        ? "Email/Password sign-in is disabled (Firebase console → Authentication → Sign-in method)"
+        : code || (err as Error).message;
+    return { ok: false, detail: `Firebase sign-in failed for ${login.email}: ${hint}`, existing: false };
+  }
+  const { doc, getDoc } = await import("firebase/firestore");
+  const { collections, configDocs, getDb } = await import("../../src/services/firebaseClient");
+  try {
+    await getDoc(doc(getDb(), collections.config, configDocs.admin));
+  } catch (err) {
+    const code = (err as { code?: string }).code ?? "";
+    if (code === "permission-denied") {
+      // The rules require a verified email for the bootstrap admin.
+      const { getAuthClient } = await import("../../src/services/firebaseClient");
+      const user = getAuthClient().currentUser;
+      if (user && !user.emailVerified) {
+        const { sendEmailVerification } = await import("firebase/auth");
+        await sendEmailVerification(user).catch(() => {});
+        return {
+          ok: false,
+          detail: `${login.email} is not verified yet: a verification email was just sent — the user clicks its link, then retry. (If it still fails afterwards, publish the rules: \`agentcms options --firebase-rules ${login.email}\`.)`,
+          existing: false,
+        };
+      }
+      return {
+        ok: false,
+        detail: `Firestore refused the admin probe: publish the AgentCMS rules with ${login.email} pinned (\`agentcms options --firebase-rules ${login.email}\` prints them; Firebase console → Firestore → Rules).`,
+        existing: false,
+      };
+    }
+    return {
+      ok: false,
+      detail: `Firestore unreachable: ${code || (err as Error).message} (is Firestore created in this project?)`,
+      existing: false,
+    };
+  }
+  const { getStorageConfig } = await import("../../src/services/storageConfig");
+  const stored = await getStorageConfig().catch(() => null);
+  const { getDoc: gd } = await import("firebase/firestore");
+  const settingsSnap = await gd(doc(getDb(), collections.settings, "site")).catch(() => null);
+  return {
+    ok: true,
+    detail: `${login.email} → Firebase project ${String((plan.runtime as { firebase: { projectId: string } }).firebase.projectId)}`,
+    existing: !!settingsSnap?.exists?.() || !!stored,
+    storedTarget: stored?.connectorId ? { connectorId: stored.connectorId, settings: stored.settings ?? {} } : null,
+  };
 }
 
 function activate(runtime: CmsRuntimeConfig): void {
@@ -147,8 +209,14 @@ export async function runInstall(plan: ResolvedPlan, onStep: (label: string) => 
       await ensurePublishBranch(plan.target);
     }
 
-    onStep("Opening the content store");
-    await getDocStore().ready();
+    if (plan.runtime.backend === "firebase") {
+      onStep("Signing in to Firebase");
+      const { signIn } = await import("../../src/services/auth");
+      await signIn(plan.firebaseLogin!.email, plan.firebaseLogin!.password);
+    } else {
+      onStep("Opening the content store");
+      await getDocStore().ready();
+    }
     onStep("Saving the publish target and site URL");
     await savePublishTarget(plan.target, { siteUrl: "always" });
 

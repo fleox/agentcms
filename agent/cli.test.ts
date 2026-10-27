@@ -50,6 +50,18 @@ describe("agentcms cli", () => {
       "doctor",
       "compact-data",
       "ext",
+      "content",
+      "regenerate",
+      "terms",
+      "menus",
+      "settings",
+      "plugins",
+      "themes",
+      "media",
+      "users",
+      "transfer",
+      "stats",
+      "files",
       "serve",
     ]);
   });

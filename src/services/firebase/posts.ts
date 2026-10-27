@@ -108,6 +108,8 @@ export async function createPost(input: CreatePostInput): Promise<string> {
 
 export interface UpdatePostInput {
   title?: string;
+  // Reassign the post (no picker in the editor yet; the CLI uses it).
+  authorId?: string;
   slug?: string;
   contentMarkdown?: string;
   excerpt?: string | null;

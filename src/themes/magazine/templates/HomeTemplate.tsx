@@ -56,7 +56,7 @@ export function HomeTemplate({
           <div className={latestColSpan}>
             <div className="flex items-center justify-between mb-stack-md pb-2 border-b border-on-surface">
               <h3 className="font-serif text-2xl italic text-on-surface">
-                {t("publicBaked.latestListHeading")}
+                {(site.themeConfig as { home?: { latestHeading?: string } } | undefined)?.home?.latestHeading?.trim() || t("publicBaked.latestListHeading")}
               </h3>
             </div>
             <div dangerouslySetInnerHTML={{ __html: listHtml }} />

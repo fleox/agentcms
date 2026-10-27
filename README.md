@@ -20,7 +20,7 @@ The fastest way: let your coding agent install the site for you. It asks where t
   /plugin marketplace add fleox/agentcms
   /plugin install agentcms@agentcms
   ```
-  then ask: *"Install a new AgentCMS site"*.
+  then ask: *"Install a new AgentCMS site"* — and later *"write and publish an article about…"*, *"switch to the magazine theme with an orange accent"*, *"add a favicon and enable the RSS feed"*… Everything the back office does is available to the agent.
 - **Any other agent** (Codex, Cursor, Windsurf…): ask it to follow [AGENTS.md](AGENTS.md).
 - **Without an agent**: `npx -y @agent-cms/agentcms serve` (Node.js 20+) starts the admin on your computer — open the printed URL and follow the setup wizard.
 
@@ -36,6 +36,15 @@ The same `agentcms` CLI works by hand (`npx -y @agent-cms/agentcms help`):
 | `doctor --site <alias>` | Health check with a fix for each problem |
 | `deploy-admin --site <alias>` | Updates the hosted admin to this release (prints the plan; `--yes` applies) |
 | `serve` | Runs the admin locally for the setup wizard |
+| `content list \| get \| create \| update \| publish \| unpublish \| delete \| preview \| blocks` | Posts and pages, like the editor (Markdown, blocks, images, SEO, translations) |
+| `media list \| upload \| update \| delete` | Media library (the admin's image pipeline, in Node) |
+| `terms`, `menus`, `settings`, `users` | Categories & tags, menus, Settings → General, users and author profiles |
+| `plugins list \| enable \| disable \| config \| action` | Plugins and their settings-page buttons (sitemaps, RSS, search, favicon, import…) |
+| `themes list \| activate \| config \| logo` | Themes, their settings, logo |
+| `regenerate home \| all \| repair \| assets \| everything \| <target>` | The admin's Regenerate menu |
+| `transfer export \| import`, `stats` | Content export / import, dashboard numbers |
+
+Site commands sign in to the site like the admin does (Firebase account, git token, SQLite keys) and run the admin's own code headless — same rules, same published output.
 
 ## Build a plugin or theme
 

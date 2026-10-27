@@ -1,8 +1,8 @@
-import { pickPublicLocale as re, deleteFile as U, uploadFile as A, pathToPublicUrl as v, applyFiltersSync as X, applyFilters as de, buildPostUrl as pe, useCmsData as ce, toast as L, fetchAllPosts as W } from "@agent-cms/runtime";
-import { jsxs as u, jsx as d } from "react/jsx-runtime";
-import { forwardRef as K, createElement as G, useState as C, useEffect as me } from "react";
-import { useTranslation as ue } from "react-i18next";
-const ge = {
+import { pickPublicLocale as de, deleteFile as U, uploadFile as T, pathToPublicUrl as A, applyFiltersSync as X, applyFilters as pe, basePathFromBaseUrl as ce, buildPostUrl as me, canonicalUrl as ue, useCmsData as ge, toast as S, fetchAllPosts as Y } from "@agent-cms/runtime";
+import { jsxs as g, jsx as p } from "react/jsx-runtime";
+import { forwardRef as Z, createElement as G, useState as C, useEffect as he } from "react";
+import { useTranslation as fe } from "react-i18next";
+const we = {
   title: "Sitemaps",
   description: "Generates sitemaps/sitemap-<year>.xml files, a sitemaps/sitemap-index.xml referencing them, an optional sitemaps/sitemap-news.xml, and a customizable robots.txt at the site root.",
   regenerationTarget: {
@@ -48,7 +48,7 @@ const ge = {
   regenerateFailed: "Sitemap regeneration failed.",
   baseUrlMissing: "Set the public site URL in Settings → General before regenerating sitemaps.",
   uploaded: "Uploaded {{count}} files."
-}, he = {
+}, be = {
   title: "Sitemaps",
   description: "Génère les fichiers sitemaps/sitemap-<année>.xml, un sitemaps/sitemap-index.xml qui les référence, un sitemaps/sitemap-news.xml optionnel, et un robots.txt personnalisable à la racine du site.",
   regenerationTarget: {
@@ -94,7 +94,7 @@ const ge = {
   regenerateFailed: "Échec de la régénération des sitemaps.",
   baseUrlMissing: "Définissez l'URL publique du site dans Réglages → Général avant de régénérer les sitemaps.",
   uploaded: "{{count}} fichiers envoyés."
-}, fe = {
+}, xe = {
   title: "Sitemaps",
   description: "Erzeugt sitemaps/sitemap-<Jahr>.xml-Dateien, eine sitemaps/sitemap-index.xml, die darauf verweist, eine optionale sitemaps/sitemap-news.xml und eine anpassbare robots.txt im Site-Root.",
   regenerationTarget: {
@@ -140,7 +140,7 @@ const ge = {
   regenerateFailed: "Sitemap-Neuerzeugung fehlgeschlagen.",
   baseUrlMissing: "Legen Sie die öffentliche Website-URL unter Einstellungen → Allgemein fest, bevor Sie Sitemaps neu erzeugen.",
   uploaded: "{{count}} Dateien hochgeladen."
-}, we = {
+}, ye = {
   title: "Sitemaps",
   description: "Genera archivos sitemaps/sitemap-<año>.xml, un sitemaps/sitemap-index.xml que los referencia, un sitemaps/sitemap-news.xml opcional y un robots.txt personalizable en la raíz del sitio.",
   regenerationTarget: {
@@ -186,7 +186,7 @@ const ge = {
   regenerateFailed: "La regeneración de sitemaps falló.",
   baseUrlMissing: "Define la URL pública del sitio en Ajustes → General antes de regenerar los sitemaps.",
   uploaded: "{{count}} archivos subidos."
-}, be = {
+}, ve = {
   title: "Sitemaps",
   description: "Genereert sitemaps/sitemap-<jaar>.xml-bestanden, een sitemaps/sitemap-index.xml die ernaar verwijst, een optionele sitemaps/sitemap-news.xml en een aanpasbare robots.txt in de site-root.",
   regenerationTarget: {
@@ -232,7 +232,7 @@ const ge = {
   regenerateFailed: "Sitemap-regeneratie mislukt.",
   baseUrlMissing: "Stel de publieke site-URL in via Instellingen → Algemeen voordat je sitemaps regenereert.",
   uploaded: "{{count}} bestanden geüpload."
-}, xe = {
+}, Se = {
   title: "Sitemaps",
   description: "Gera ficheiros sitemaps/sitemap-<ano>.xml, um sitemaps/sitemap-index.xml que os referencia, um sitemaps/sitemap-news.xml opcional e um robots.txt personalizável na raiz do site.",
   regenerationTarget: {
@@ -278,7 +278,7 @@ const ge = {
   regenerateFailed: "Falha na regeneração de sitemaps.",
   baseUrlMissing: "Define o URL público do site em Definições → Geral antes de regenerar sitemaps.",
   uploaded: "{{count}} ficheiros enviados."
-}, ye = {
+}, Le = {
   title: "사이트맵",
   description: "sitemaps/sitemap-<연도>.xml 파일, 이를 참조하는 sitemaps/sitemap-index.xml, 선택적 sitemaps/sitemap-news.xml 및 사이트 루트의 사용자 정의 가능한 robots.txt를 생성합니다.",
   regenerationTarget: {
@@ -324,7 +324,7 @@ const ge = {
   regenerateFailed: "사이트맵 재생성에 실패했습니다.",
   baseUrlMissing: "사이트맵을 재생성하기 전에 설정 → 일반에서 공개 사이트 URL을 설정하세요.",
   uploaded: "{{count}}개의 파일을 업로드했습니다."
-}, z = "sitemaps/sitemap.xsl", M = "sitemaps/sitemap-news.xsl", Z = {
+}, z = "sitemaps/sitemap.xsl", M = "sitemaps/sitemap-news.xsl", Q = {
   en: {
     pageTitle: "XML Sitemap",
     heading: "XML Sitemap",
@@ -452,10 +452,10 @@ const ge = {
     columnPubdate: "게시일"
   }
 };
-function Q(t) {
-  return re(t);
+function ee(t) {
+  return de(t);
 }
-const ee = `
+const te = `
 body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; color: #1f2937; margin: 0; padding: 32px 16px; background: #ffffff; }
 main { max-width: 1024px; margin: 0 auto; }
 h1 { font-size: 22px; margin: 0 0 8px; font-weight: 600; }
@@ -471,8 +471,8 @@ a:hover { text-decoration: underline; }
 .url { word-break: break-all; }
 .lastmod, .pubdate { white-space: nowrap; color: #4b5563; width: 220px; }
 `;
-function ve(t) {
-  const s = Q(t), e = Z[s];
+function Te(t) {
+  const s = ee(t), e = Q[s];
   return `<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -487,7 +487,7 @@ function ve(t) {
         <meta charset="utf-8"/>
         <meta name="robots" content="noindex,follow"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
-        <style type="text/css">${ee}</style>
+        <style type="text/css">${te}</style>
       </head>
       <body>
         <main>
@@ -529,8 +529,8 @@ function ve(t) {
   </xsl:template>
 </xsl:stylesheet>`;
 }
-function Se(t) {
-  const s = Q(t), e = Z[s];
+function Ae(t) {
+  const s = ee(t), e = Q[s];
   return `<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -546,7 +546,7 @@ function Se(t) {
         <meta charset="utf-8"/>
         <meta name="robots" content="noindex,follow"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
-        <style type="text/css">${ee}</style>
+        <style type="text/css">${te}</style>
       </head>
       <body>
         <main>
@@ -570,68 +570,75 @@ function Se(t) {
   </xsl:template>
 </xsl:stylesheet>`;
 }
-const te = {
+const se = {
   newsEnabled: !1,
   newsWindowDays: 2,
   contentTypes: "posts-pages",
   robotsTxt: ""
-}, O = "sitemaps", j = `${O}/sitemap-index.xml`, R = `${O}/sitemap-news.xml`, Le = "robots.txt";
-function se(t) {
+}, O = "sitemaps", j = `${O}/sitemap-index.xml`, R = `${O}/sitemap-news.xml`, Re = "robots.txt";
+function ae(t) {
   return `${O}/sitemap-${t}.xml`;
 }
-const ae = [
+const ne = [
   "sitemap-index.xml",
   "sitemap-news.xml",
   "sitemap.xsl",
   "sitemap-news.xsl"
 ];
-function Te(t) {
+function Ne(t) {
   return `sitemap-${t}.xml`;
 }
-function F(t, s) {
-  const e = ["User-agent: *", "Allow: /", "Disallow: /admin/", ""];
-  return t && (e.push(`Sitemap: ${v(t, j)}`), s && e.push(`Sitemap: ${v(t, R)}`)), e.join(`
+function H(t, s) {
+  const e = ["User-agent: *", "Allow: /", `Disallow: ${ce(t)}/admin/`, ""];
+  return t && (e.push(`Sitemap: ${A(t, j)}`), s && e.push(`Sitemap: ${A(t, R)}`)), e.join(`
 `) + `
 `;
 }
-function Y(t, s) {
-  var n, a, o, l, p, g;
-  let e;
+const Ce = "index.html";
+function Me(t, s) {
+  return t.type === "page" && s.homeMode === "static-page" && !!s.homePageId && s.homePageId === t.id;
+}
+function F(t, s) {
+  return ue(t, s);
+}
+function V(t, s, e) {
+  var i, l, o, d, c, m;
+  let a;
   try {
-    const m = t.primaryTermId ? s.find((w) => w.id === t.primaryTermId) : void 0;
-    e = pe({ post: t, primaryTerm: m });
+    const w = t.primaryTermId ? s.find((y) => y.id === t.primaryTermId) : void 0;
+    a = Me(t, e) ? Ce : me({ post: t, primaryTerm: w });
   } catch {
     return null;
   }
-  const i = ((a = (n = t.createdAt) == null ? void 0 : n.toMillis) == null ? void 0 : a.call(n)) ?? ((l = (o = t.publishedAt) == null ? void 0 : o.toMillis) == null ? void 0 : l.call(o)) ?? Date.now(), r = ((g = (p = t.updatedAt) == null ? void 0 : p.toMillis) == null ? void 0 : g.call(p)) ?? i;
+  const r = ((l = (i = t.createdAt) == null ? void 0 : i.toMillis) == null ? void 0 : l.call(i)) ?? ((d = (o = t.publishedAt) == null ? void 0 : o.toMillis) == null ? void 0 : d.call(o)) ?? Date.now(), n = ((m = (c = t.updatedAt) == null ? void 0 : c.toMillis) == null ? void 0 : m.call(c)) ?? r;
   return {
-    path: e,
-    createdAtMs: i,
-    updatedAtMs: r,
+    path: a,
+    createdAtMs: r,
+    updatedAtMs: n,
     title: t.title || t.slug,
     sourcePost: t
   };
 }
-function Ae(t, s, e, i) {
-  const r = [];
-  for (const n of t) {
-    if (n.status !== "online") continue;
-    const a = Y(n, e);
-    a && r.push(a);
+function Ue(t, s, e, a, r) {
+  const n = [];
+  for (const i of t) {
+    if (i.status !== "online") continue;
+    const l = V(i, e, a);
+    l && n.push(l);
   }
-  if (i.contentTypes === "posts-pages")
-    for (const n of s) {
-      if (n.status !== "online") continue;
-      const a = Y(n, e);
-      a && r.push(a);
+  if (r.contentTypes === "posts-pages")
+    for (const i of s) {
+      if (i.status !== "online") continue;
+      const l = V(i, e, a);
+      l && n.push(l);
     }
-  return r;
+  return n;
 }
-function Re(t) {
+function De(t) {
   const s = /* @__PURE__ */ new Map();
   for (const e of t) {
-    const i = new Date(e.createdAtMs).getUTCFullYear(), r = s.get(i) ?? [];
-    r.push(e), s.set(i, r);
+    const a = new Date(e.createdAtMs).getUTCFullYear(), r = s.get(a) ?? [];
+    r.push(e), s.set(a, r);
   }
   return s;
 }
@@ -651,172 +658,174 @@ function x(t) {
     }
   });
 }
-function Ne(t) {
+function Xe(t) {
   return new Date(t).toISOString();
 }
 function k(t) {
   return new Date(t).toISOString().slice(0, 10);
 }
-function _(t) {
+function q(t) {
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',
     `<?xml-stylesheet type="text/xsl" href="${x(t)}"?>`
   ].join(`
 `);
 }
-function Ce(t, s, e, i) {
-  const r = X(
+function ke(t, s, e, a, r, n) {
+  const i = X(
     "sitemap.urlset.namespaces",
     {},
-    { kind: "year", baseUrl: s }
-  ), n = Object.entries(r).map(([o, l]) => ` ${x(o)}="${x(l)}"`).join(""), a = [
-    _(e),
-    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"${n}>`
+    { kind: "year", baseUrl: a }
+  ), l = Object.entries(i).map(([d, c]) => ` ${x(d)}="${x(c)}"`).join(""), o = [
+    q(r),
+    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"${l}>`
   ];
-  for (const o of t) {
-    const l = X(
+  for (const d of t) {
+    const c = X(
       "sitemap.url.entry",
       "",
-      { entity: o.sourcePost, baseUrl: s, path: o.path, lastmodMs: o.updatedAtMs }
+      // `terms` + `settings` let handlers (multilang alternates) resolve
+      // localised paths without relying on module-level snapshots.
+      { entity: d.sourcePost, baseUrl: a, path: d.path, lastmodMs: d.updatedAtMs, terms: s, settings: e }
     );
-    a.push("  <url>"), a.push(`    <loc>${x(v(s, o.path))}</loc>`), a.push(`    <lastmod>${k(o.updatedAtMs)}</lastmod>`), l && a.push(l), a.push("  </url>");
+    o.push("  <url>"), o.push(`    <loc>${x(F(a, d.path))}</loc>`), o.push(`    <lastmod>${k(d.updatedAtMs)}</lastmod>`), c && o.push(c), o.push("  </url>");
   }
-  for (const o of i) {
-    const l = o.lastmodMs ?? Date.now();
-    a.push("  <url>"), a.push(`    <loc>${x(v(s, o.path))}</loc>`), a.push(`    <lastmod>${k(l)}</lastmod>`), o.extraInnerXml && a.push(o.extraInnerXml), a.push("  </url>");
+  for (const d of n) {
+    const c = d.lastmodMs ?? Date.now();
+    o.push("  <url>"), o.push(`    <loc>${x(F(a, d.path))}</loc>`), o.push(`    <lastmod>${k(c)}</lastmod>`), d.extraInnerXml && o.push(d.extraInnerXml), o.push("  </url>");
   }
-  return a.push("</urlset>"), a.join(`
+  return o.push("</urlset>"), o.join(`
 `);
 }
-function Me(t, s, e, i, r, n) {
-  const a = [
-    _(r),
+function Pe(t, s, e, a, r, n) {
+  const i = [
+    q(r),
     '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-  ], o = k(i);
-  for (const l of [...t].sort((p, g) => p - g))
-    a.push("  <sitemap>"), a.push(`    <loc>${x(v(e, se(l)))}</loc>`), a.push(`    <lastmod>${o}</lastmod>`), a.push("  </sitemap>");
-  s && (a.push("  <sitemap>"), a.push(`    <loc>${x(v(e, R))}</loc>`), a.push(`    <lastmod>${o}</lastmod>`), a.push("  </sitemap>"));
-  for (const l of n) {
-    const p = l.lastmodMs ?? i;
-    a.push("  <sitemap>"), a.push(`    <loc>${x(v(e, l.path))}</loc>`), a.push(`    <lastmod>${k(p)}</lastmod>`), a.push("  </sitemap>");
+  ], l = k(a);
+  for (const o of [...t].sort((d, c) => d - c))
+    i.push("  <sitemap>"), i.push(`    <loc>${x(A(e, ae(o)))}</loc>`), i.push(`    <lastmod>${l}</lastmod>`), i.push("  </sitemap>");
+  s && (i.push("  <sitemap>"), i.push(`    <loc>${x(A(e, R))}</loc>`), i.push(`    <lastmod>${l}</lastmod>`), i.push("  </sitemap>"));
+  for (const o of n) {
+    const d = o.lastmodMs ?? a;
+    i.push("  <sitemap>"), i.push(`    <loc>${x(A(e, o.path))}</loc>`), i.push(`    <lastmod>${k(d)}</lastmod>`), i.push("  </sitemap>");
   }
-  return a.push("</sitemapindex>"), a.join(`
+  return i.push("</sitemapindex>"), i.join(`
 `);
 }
-function V(t, s, e, i, r, n) {
-  const a = Date.now() - r * 24 * 60 * 60 * 1e3, o = t.filter((m) => m.updatedAtMs >= a).sort((m, w) => w.updatedAtMs - m.updatedAtMs), l = [
-    _(n),
+function J(t, s, e, a, r, n) {
+  const i = Date.now() - r * 24 * 60 * 60 * 1e3, l = t.filter((m) => m.updatedAtMs >= i).sort((m, w) => w.updatedAtMs - m.updatedAtMs), o = [
+    q(n),
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"',
     '        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">'
-  ], p = x(s || "Site"), g = x((e || "en").split("-")[0] || "en");
-  for (const m of o)
-    l.push("  <url>"), l.push(`    <loc>${x(v(i, m.path))}</loc>`), l.push("    <news:news>"), l.push("      <news:publication>"), l.push(`        <news:name>${p}</news:name>`), l.push(`        <news:language>${g}</news:language>`), l.push("      </news:publication>"), l.push(`      <news:publication_date>${Ne(m.updatedAtMs)}</news:publication_date>`), l.push(`      <news:title>${x(m.title)}</news:title>`), l.push("    </news:news>"), l.push("  </url>");
-  return l.push("</urlset>"), l.join(`
+  ], d = x(s || "Site"), c = x((e || "en").split("-")[0] || "en");
+  for (const m of l)
+    o.push("  <url>"), o.push(`    <loc>${x(F(a, m.path))}</loc>`), o.push("    <news:news>"), o.push("      <news:publication>"), o.push(`        <news:name>${d}</news:name>`), o.push(`        <news:language>${c}</news:language>`), o.push("      </news:publication>"), o.push(`      <news:publication_date>${Xe(m.updatedAtMs)}</news:publication_date>`), o.push(`      <news:title>${x(m.title)}</news:title>`), o.push("    </news:news>"), o.push("  </url>");
+  return o.push("</urlset>"), o.join(`
 `);
 }
-async function q(t) {
-  const { posts: s, pages: e, terms: i, settings: r, config: n, scope: a } = t, o = (r.baseUrl || "").replace(/\/+$/, "");
-  if (!o) throw new Error("baseUrl is empty — cannot build sitemap URLs.");
-  const l = Ae(s, e, i, n), p = Re(l), g = [...p.keys()], m = (a == null ? void 0 : a.years) ?? g, w = [], S = [];
-  if (!a) {
-    const y = [
-      ...ae,
-      ...g.map((h) => Te(h))
+async function W(t) {
+  const { posts: s, pages: e, terms: a, settings: r, config: n, scope: i } = t, l = (r.baseUrl || "").replace(/\/+$/, "");
+  if (!l) throw new Error("baseUrl is empty — cannot build sitemap URLs.");
+  const o = Ue(s, e, a, r, n), d = De(o), c = [...d.keys()], m = (i == null ? void 0 : i.years) ?? c, w = [], y = [];
+  if (!i) {
+    const v = [
+      ...ne,
+      ...c.map((h) => Ne(h))
     ];
-    for (const h of y)
+    for (const h of v)
       try {
-        await U(h), S.push(h);
+        await U(h), y.push(h);
       } catch {
       }
   }
-  const N = v(o, z), T = v(o, M);
-  for (const y of m) {
-    const h = p.get(y) ?? [], f = X(
+  const N = A(l, z), L = A(l, M);
+  for (const v of m) {
+    const h = d.get(v) ?? [], f = X(
       "sitemap.urls.extra",
       [],
-      { posts: s, pages: e, terms: i, settings: r, year: y, scope: "year" }
-    ), b = se(y);
+      { posts: s, pages: e, terms: a, settings: r, year: v, scope: "year" }
+    ), b = ae(v);
     if (h.length === 0 && f.length === 0) {
       try {
-        await U(b), S.push(b);
+        await U(b), y.push(b);
       } catch {
       }
       continue;
     }
-    const $ = Ce(h, o, N, f);
-    await A({ path: b, content: $ }), w.push(b);
+    const $ = ke(h, a, r, l, N, f);
+    await T({ path: b, content: $ }), w.push(b);
   }
-  if ((a == null ? void 0 : a.index) !== !1) {
-    const y = [...p.entries()].filter(([, b]) => b.length > 0).map(([b]) => b), h = X(
+  if ((i == null ? void 0 : i.index) !== !1) {
+    const v = [...d.entries()].filter(([, b]) => b.length > 0).map(([b]) => b), h = X(
       "sitemap.index.extra",
       [],
       { settings: r }
-    ), f = Me(
-      y,
+    ), f = Pe(
+      v,
       n.newsEnabled,
-      o,
+      l,
       Date.now(),
       N,
       h
     );
-    await A({ path: j, content: f }), w.push(j);
+    await T({ path: j, content: f }), w.push(j);
   }
-  if ((a == null ? void 0 : a.news) !== !1)
+  if ((i == null ? void 0 : i.news) !== !1)
     if (n.newsEnabled) {
-      const y = V(
-        l,
+      const v = J(
+        o,
         r.title,
         r.language,
-        o,
+        l,
         n.newsWindowDays,
-        T
+        L
       );
-      await A({ path: R, content: y }), w.push(R);
-      const h = await de(
+      await T({ path: R, content: v }), w.push(R);
+      const h = await pe(
         "sitemap.news.locales",
         [],
-        { posts: s, pages: e, terms: i, settings: r, config: n }
+        { posts: s, pages: e, terms: a, settings: r, config: n }
       );
       for (const f of h) {
         if (!f.path || !f.language) continue;
-        const b = V(
+        const b = J(
           f.entities,
           r.title,
           f.language,
-          o,
+          l,
           n.newsWindowDays,
-          T
+          L
         );
-        await A({ path: f.path, content: b }), w.push(f.path);
+        await T({ path: f.path, content: b }), w.push(f.path);
       }
     } else
       try {
-        await U(R), S.push(R);
+        await U(R), y.push(R);
       } catch {
       }
-  return { uploaded: w, deleted: S };
+  return { uploaded: w, deleted: y };
 }
-async function H(t) {
+async function B(t) {
   const s = (t.baseUrl || "").replace(/\/+$/, "");
   let e;
   t.discourageIndexing ? e = `User-agent: *
 Disallow: /
-` : t.config.robotsTxt && t.config.robotsTxt.trim().length > 0 ? e = t.config.robotsTxt : e = F(s, t.config.newsEnabled), await A({ path: Le, content: e });
+` : t.config.robotsTxt && t.config.robotsTxt.trim().length > 0 ? e = t.config.robotsTxt : e = H(s, t.config.newsEnabled), await T({ path: Re, content: e });
 }
-async function B(t) {
+async function _(t) {
   const s = [], e = [];
-  for (const i of ae)
+  for (const a of ne)
     try {
-      await U(i), e.push(i);
+      await U(a), e.push(a);
     } catch {
     }
-  if (await A({
+  if (await T({
     path: z,
-    content: ve(t.settings.language)
+    content: Te(t.settings.language)
   }), s.push(z), t.config.newsEnabled)
-    await A({
+    await T({
       path: M,
-      content: Se(t.settings.language)
+      content: Ae(t.settings.language)
     }), s.push(M);
   else
     try {
@@ -825,10 +834,10 @@ async function B(t) {
     }
   return { uploaded: s, deleted: e };
 }
-async function Ue(t) {
-  var i, r, n, a, o, l;
-  const s = ((r = (i = t.post.createdAt) == null ? void 0 : i.toMillis) == null ? void 0 : r.call(i)) ?? ((a = (n = t.post.publishedAt) == null ? void 0 : n.toMillis) == null ? void 0 : a.call(n)) ?? ((l = (o = t.post.updatedAt) == null ? void 0 : o.toMillis) == null ? void 0 : l.call(o)) ?? Date.now(), e = new Date(s).getUTCFullYear();
-  return q({
+async function $e(t) {
+  var a, r, n, i, l, o;
+  const s = ((r = (a = t.post.createdAt) == null ? void 0 : a.toMillis) == null ? void 0 : r.call(a)) ?? ((i = (n = t.post.publishedAt) == null ? void 0 : n.toMillis) == null ? void 0 : i.call(n)) ?? ((o = (l = t.post.updatedAt) == null ? void 0 : l.toMillis) == null ? void 0 : o.call(l)) ?? Date.now(), e = new Date(s).getUTCFullYear();
+  return W({
     posts: t.posts,
     pages: t.pages,
     terms: t.terms,
@@ -843,14 +852,14 @@ async function Ue(t) {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const De = (t) => t.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), ne = (...t) => t.filter((s, e, i) => !!s && s.trim() !== "" && i.indexOf(s) === e).join(" ").trim();
+const Ee = (t) => t.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), ie = (...t) => t.filter((s, e, a) => !!s && s.trim() !== "" && a.indexOf(s) === e).join(" ").trim();
 /**
  * @license lucide-react v0.460.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-var Xe = {
+var Ie = {
   xmlns: "http://www.w3.org/2000/svg",
   width: 24,
   height: 24,
@@ -867,30 +876,30 @@ var Xe = {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ke = K(
+const Ge = Z(
   ({
     color: t = "currentColor",
     size: s = 24,
     strokeWidth: e = 2,
-    absoluteStrokeWidth: i,
+    absoluteStrokeWidth: a,
     className: r = "",
     children: n,
-    iconNode: a,
-    ...o
-  }, l) => G(
+    iconNode: i,
+    ...l
+  }, o) => G(
     "svg",
     {
-      ref: l,
-      ...Xe,
+      ref: o,
+      ...Ie,
       width: s,
       height: s,
       stroke: t,
-      strokeWidth: i ? Number(e) * 24 / Number(s) : e,
-      className: ne("lucide", r),
-      ...o
+      strokeWidth: a ? Number(e) * 24 / Number(s) : e,
+      className: ie("lucide", r),
+      ...l
     },
     [
-      ...a.map(([p, g]) => G(p, g)),
+      ...i.map(([d, c]) => G(d, c)),
       ...Array.isArray(n) ? n : [n]
     ]
   )
@@ -902,11 +911,11 @@ const ke = K(
  * See the LICENSE file in the root directory of this source tree.
  */
 const P = (t, s) => {
-  const e = K(
-    ({ className: i, ...r }, n) => G(ke, {
+  const e = Z(
+    ({ className: a, ...r }, n) => G(Ge, {
       ref: n,
       iconNode: s,
-      className: ne(`lucide-${De(t)}`, i),
+      className: ie(`lucide-${Ee(t)}`, a),
       ...r
     })
   );
@@ -918,7 +927,7 @@ const P = (t, s) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Pe = P("FileCode2", [
+const ze = P("FileCode2", [
   ["path", { d: "M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4", key: "1pf5j1" }],
   ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
   ["path", { d: "m5 12-3 3 3 3", key: "oke12k" }],
@@ -939,7 +948,7 @@ const D = P("LoaderCircle", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const $e = P("RefreshCw", [
+const je = P("RefreshCw", [
   ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
   ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
   ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
@@ -951,7 +960,7 @@ const $e = P("RefreshCw", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const J = P("Save", [
+const K = P("Save", [
   [
     "path",
     {
@@ -962,123 +971,123 @@ const J = P("Save", [
   ["path", { d: "M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7", key: "1ydtos" }],
   ["path", { d: "M7 3v4a1 1 0 0 0 1 1h7", key: "t51u73" }]
 ]);
-function Ee({ config: t, save: s }) {
-  const { t: e } = ue("agentcms-sitemaps"), { settings: i, terms: r } = ce(), [n, a] = C(t);
-  me(() => a(t), [t]);
-  const [o, l] = C(!1), [p, g] = C(!1), [m, w] = C(!1), [S, N] = C(!1);
-  function T(c) {
-    a((E) => ({ ...E, ...c }));
+function He({ config: t, save: s }) {
+  const { t: e } = fe("agentcms-sitemaps"), { settings: a, terms: r } = ge(), [n, i] = C(t);
+  he(() => i(t), [t]);
+  const [l, o] = C(!1), [d, c] = C(!1), [m, w] = C(!1), [y, N] = C(!1);
+  function L(u) {
+    i((E) => ({ ...E, ...u }));
   }
-  async function y() {
-    l(!0);
+  async function v() {
+    o(!0);
     try {
-      await s(n), L.success(e("saved"));
+      await s(n), S.success(e("saved"));
     } finally {
-      l(!1);
+      o(!1);
     }
   }
   async function h() {
-    if (!i.baseUrl) {
-      L.error(e("baseUrlMissing"));
+    if (!a.baseUrl) {
+      S.error(e("baseUrlMissing"));
       return;
     }
-    g(!0);
+    c(!0);
     try {
-      await s(n), await H({
+      await s(n), await B({
         config: n,
-        baseUrl: i.baseUrl,
-        discourageIndexing: i.discourageIndexing === !0
-      }), L.success(e("robots.saved"));
+        baseUrl: a.baseUrl,
+        discourageIndexing: a.discourageIndexing === !0
+      }), S.success(e("robots.saved"));
     } finally {
-      g(!1);
+      c(!1);
     }
   }
   async function f() {
-    if (!i.baseUrl) {
-      L.error(e("baseUrlMissing"));
+    if (!a.baseUrl) {
+      S.error(e("baseUrlMissing"));
       return;
     }
     w(!0);
     try {
       await s(n);
-      const c = await B({ settings: i, config: n }), [E, oe] = await Promise.all([
-        W({ type: "post" }),
-        W({ type: "page" })
-      ]), le = await q({
+      const u = await _({ settings: a, config: n }), [E, le] = await Promise.all([
+        Y({ type: "post" }),
+        Y({ type: "page" })
+      ]), re = await W({
         posts: E,
-        pages: oe,
+        pages: le,
         terms: r,
-        settings: i,
+        settings: a,
         config: n
       });
-      await H({
+      await B({
         config: n,
-        baseUrl: i.baseUrl,
-        discourageIndexing: i.discourageIndexing === !0
-      }), L.success(
-        e("uploaded", { count: c.uploaded.length + le.uploaded.length + 1 })
+        baseUrl: a.baseUrl,
+        discourageIndexing: a.discourageIndexing === !0
+      }), S.success(
+        e("uploaded", { count: u.uploaded.length + re.uploaded.length + 1 })
       );
-    } catch (c) {
-      console.error("[agentcms-sitemaps] regeneration failed:", c), L.error(e("regenerateFailed"));
+    } catch (u) {
+      console.error("[agentcms-sitemaps] regeneration failed:", u), S.error(e("regenerateFailed"));
     } finally {
       w(!1);
     }
   }
   async function b() {
-    if (!i.baseUrl) {
-      L.error(e("baseUrlMissing"));
+    if (!a.baseUrl) {
+      S.error(e("baseUrlMissing"));
       return;
     }
     N(!0);
     try {
       await s(n);
-      const c = await B({ settings: i, config: n });
-      L.success(e("xsl.uploaded", { count: c.uploaded.length }));
-    } catch (c) {
-      console.error("[agentcms-sitemaps] xsl upload failed:", c), L.error(e("xsl.failed"));
+      const u = await _({ settings: a, config: n });
+      S.success(e("xsl.uploaded", { count: u.uploaded.length }));
+    } catch (u) {
+      console.error("[agentcms-sitemaps] xsl upload failed:", u), S.error(e("xsl.failed"));
     } finally {
       N(!1);
     }
   }
   function $() {
-    T({ robotsTxt: F(i.baseUrl, n.newsEnabled) });
+    L({ robotsTxt: H(a.baseUrl, n.newsEnabled) });
   }
-  return /* @__PURE__ */ u("div", { className: "space-y-6", children: [
-    /* @__PURE__ */ d("p", { className: "text-sm text-surface-600 dark:text-surface-300", children: e("description") }),
-    /* @__PURE__ */ u("section", { className: "card p-4 space-y-4", children: [
-      /* @__PURE__ */ d("h2", { className: "font-semibold", children: e("sections.general") }),
-      /* @__PURE__ */ u("div", { children: [
-        /* @__PURE__ */ d("label", { className: "label", children: e("contentTypes.label") }),
-        /* @__PURE__ */ u(
+  return /* @__PURE__ */ g("div", { className: "space-y-6", children: [
+    /* @__PURE__ */ p("p", { className: "text-sm text-surface-600 dark:text-surface-300", children: e("description") }),
+    /* @__PURE__ */ g("section", { className: "card p-4 space-y-4", children: [
+      /* @__PURE__ */ p("h2", { className: "font-semibold", children: e("sections.general") }),
+      /* @__PURE__ */ g("div", { children: [
+        /* @__PURE__ */ p("label", { className: "label", children: e("contentTypes.label") }),
+        /* @__PURE__ */ g(
           "select",
           {
             className: "input max-w-xs",
             value: n.contentTypes,
-            onChange: (c) => T({ contentTypes: c.target.value }),
+            onChange: (u) => L({ contentTypes: u.target.value }),
             children: [
-              /* @__PURE__ */ d("option", { value: "posts", children: e("contentTypes.posts") }),
-              /* @__PURE__ */ d("option", { value: "posts-pages", children: e("contentTypes.postsPages") })
+              /* @__PURE__ */ p("option", { value: "posts", children: e("contentTypes.posts") }),
+              /* @__PURE__ */ p("option", { value: "posts-pages", children: e("contentTypes.postsPages") })
             ]
           }
         )
       ] }),
-      /* @__PURE__ */ u("div", { children: [
-        /* @__PURE__ */ u("label", { className: "flex items-center gap-2", children: [
-          /* @__PURE__ */ d(
+      /* @__PURE__ */ g("div", { children: [
+        /* @__PURE__ */ g("label", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ p(
             "input",
             {
               type: "checkbox",
               checked: n.newsEnabled,
-              onChange: (c) => T({ newsEnabled: c.target.checked })
+              onChange: (u) => L({ newsEnabled: u.target.checked })
             }
           ),
-          /* @__PURE__ */ d("span", { className: "text-sm font-medium", children: e("news.enabled") })
+          /* @__PURE__ */ p("span", { className: "text-sm font-medium", children: e("news.enabled") })
         ] }),
-        /* @__PURE__ */ d("p", { className: "text-xs text-surface-500 mt-1 dark:text-surface-400", children: e("news.enabledHelp") })
+        /* @__PURE__ */ p("p", { className: "text-xs text-surface-500 mt-1 dark:text-surface-400", children: e("news.enabledHelp") })
       ] }),
-      n.newsEnabled && /* @__PURE__ */ u("div", { children: [
-        /* @__PURE__ */ d("label", { className: "label", children: e("news.windowDays") }),
-        /* @__PURE__ */ d(
+      n.newsEnabled && /* @__PURE__ */ g("div", { children: [
+        /* @__PURE__ */ p("label", { className: "label", children: e("news.windowDays") }),
+        /* @__PURE__ */ p(
           "input",
           {
             className: "input max-w-xs",
@@ -1086,87 +1095,87 @@ function Ee({ config: t, save: s }) {
             min: 1,
             max: 30,
             value: n.newsWindowDays,
-            onChange: (c) => T({
-              newsWindowDays: Math.max(1, Math.min(30, Number.parseInt(c.target.value, 10) || 2))
+            onChange: (u) => L({
+              newsWindowDays: Math.max(1, Math.min(30, Number.parseInt(u.target.value, 10) || 2))
             })
           }
         ),
-        /* @__PURE__ */ d("p", { className: "text-xs text-surface-500 mt-1 dark:text-surface-400", children: e("news.windowDaysHelp") })
+        /* @__PURE__ */ p("p", { className: "text-xs text-surface-500 mt-1 dark:text-surface-400", children: e("news.windowDaysHelp") })
       ] }),
-      /* @__PURE__ */ u(
+      /* @__PURE__ */ g(
         "button",
         {
           type: "button",
           className: "btn-primary",
-          onClick: y,
-          disabled: o,
+          onClick: v,
+          disabled: l,
           children: [
-            /* @__PURE__ */ d(D, { className: o ? "h-4 w-4 animate-spin" : "hidden" }),
-            /* @__PURE__ */ d(J, { className: o ? "hidden" : "h-4 w-4" }),
-            /* @__PURE__ */ d("span", { children: e(o ? "robots.saving" : "saveSettings") })
+            /* @__PURE__ */ p(D, { className: l ? "h-4 w-4 animate-spin" : "hidden" }),
+            /* @__PURE__ */ p(K, { className: l ? "hidden" : "h-4 w-4" }),
+            /* @__PURE__ */ p("span", { children: e(l ? "robots.saving" : "saveSettings") })
           ]
         }
       )
     ] }),
-    /* @__PURE__ */ u("section", { className: "card p-4 space-y-3", children: [
-      /* @__PURE__ */ u("div", { className: "flex items-center justify-between gap-3", children: [
-        /* @__PURE__ */ d("h2", { className: "font-semibold", children: e("sections.robots") }),
-        /* @__PURE__ */ d("button", { type: "button", className: "btn-ghost", onClick: $, children: e("robots.resetDefault") })
+    /* @__PURE__ */ g("section", { className: "card p-4 space-y-3", children: [
+      /* @__PURE__ */ g("div", { className: "flex items-center justify-between gap-3", children: [
+        /* @__PURE__ */ p("h2", { className: "font-semibold", children: e("sections.robots") }),
+        /* @__PURE__ */ p("button", { type: "button", className: "btn-ghost", onClick: $, children: e("robots.resetDefault") })
       ] }),
-      /* @__PURE__ */ d("p", { className: "text-xs text-surface-500 dark:text-surface-400", children: e("robots.help") }),
-      /* @__PURE__ */ d(
+      /* @__PURE__ */ p("p", { className: "text-xs text-surface-500 dark:text-surface-400", children: e("robots.help") }),
+      /* @__PURE__ */ p(
         "textarea",
         {
           className: "input font-mono text-xs min-h-[180px]",
           value: n.robotsTxt,
-          onChange: (c) => T({ robotsTxt: c.target.value }),
-          placeholder: F(i.baseUrl, n.newsEnabled)
+          onChange: (u) => L({ robotsTxt: u.target.value }),
+          placeholder: H(a.baseUrl, n.newsEnabled)
         }
       ),
-      /* @__PURE__ */ u(
+      /* @__PURE__ */ g(
         "button",
         {
           type: "button",
           className: "btn-primary",
           onClick: h,
-          disabled: p,
+          disabled: d,
           children: [
-            /* @__PURE__ */ d(D, { className: p ? "h-4 w-4 animate-spin" : "hidden" }),
-            /* @__PURE__ */ d(J, { className: p ? "hidden" : "h-4 w-4" }),
-            /* @__PURE__ */ d("span", { children: e(p ? "robots.saving" : "robots.saveAndRegenerate") })
+            /* @__PURE__ */ p(D, { className: d ? "h-4 w-4 animate-spin" : "hidden" }),
+            /* @__PURE__ */ p(K, { className: d ? "hidden" : "h-4 w-4" }),
+            /* @__PURE__ */ p("span", { children: e(d ? "robots.saving" : "robots.saveAndRegenerate") })
           ]
         }
       )
     ] }),
-    /* @__PURE__ */ u("section", { className: "card p-4 space-y-3", children: [
-      /* @__PURE__ */ d("h2", { className: "font-semibold", children: e("sections.actions") }),
-      /* @__PURE__ */ d("p", { className: "text-xs text-surface-500 dark:text-surface-400", children: e("xsl.help") }),
-      /* @__PURE__ */ u("div", { className: "flex flex-wrap gap-2", children: [
-        /* @__PURE__ */ d(
+    /* @__PURE__ */ g("section", { className: "card p-4 space-y-3", children: [
+      /* @__PURE__ */ p("h2", { className: "font-semibold", children: e("sections.actions") }),
+      /* @__PURE__ */ p("p", { className: "text-xs text-surface-500 dark:text-surface-400", children: e("xsl.help") }),
+      /* @__PURE__ */ g("div", { className: "flex flex-wrap gap-2", children: [
+        /* @__PURE__ */ p(
           "button",
           {
             type: "button",
             className: "btn-ghost",
             onClick: b,
-            disabled: S,
-            children: /* @__PURE__ */ u("span", { className: "inline-flex items-center justify-center gap-1.5", children: [
-              /* @__PURE__ */ d(D, { className: "h-4 w-4 animate-spin " + (S ? "" : "hidden") }),
-              /* @__PURE__ */ d(Pe, { className: "h-4 w-4 " + (S ? "hidden" : "") }),
-              /* @__PURE__ */ d("span", { children: e(S ? "xsl.uploading" : "xsl.upload") })
+            disabled: y,
+            children: /* @__PURE__ */ g("span", { className: "inline-flex items-center justify-center gap-1.5", children: [
+              /* @__PURE__ */ p(D, { className: "h-4 w-4 animate-spin " + (y ? "" : "hidden") }),
+              /* @__PURE__ */ p(ze, { className: "h-4 w-4 " + (y ? "hidden" : "") }),
+              /* @__PURE__ */ p("span", { children: e(y ? "xsl.uploading" : "xsl.upload") })
             ] })
           }
         ),
-        /* @__PURE__ */ d(
+        /* @__PURE__ */ p(
           "button",
           {
             type: "button",
             className: "btn-secondary",
             onClick: f,
             disabled: m,
-            children: /* @__PURE__ */ u("span", { className: "inline-flex items-center justify-center gap-1.5", children: [
-              /* @__PURE__ */ d(D, { className: "h-4 w-4 animate-spin " + (m ? "" : "hidden") }),
-              /* @__PURE__ */ d($e, { className: "h-4 w-4 " + (m ? "hidden" : "") }),
-              /* @__PURE__ */ d("span", { children: e(m ? "forceRegenerating" : "forceRegenerate") })
+            children: /* @__PURE__ */ g("span", { className: "inline-flex items-center justify-center gap-1.5", children: [
+              /* @__PURE__ */ p(D, { className: "h-4 w-4 animate-spin " + (m ? "" : "hidden") }),
+              /* @__PURE__ */ p(je, { className: "h-4 w-4 " + (m ? "hidden" : "") }),
+              /* @__PURE__ */ p("span", { children: e(m ? "forceRegenerating" : "forceRegenerate") })
             ] })
           }
         )
@@ -1174,7 +1183,7 @@ function Ee({ config: t, save: s }) {
     ] })
   ] });
 }
-const Ie = `# Sitemaps
+const Fe = `# Sitemaps
 
 Generates and maintains XML sitemaps for search engine discovery. Also produces a customizable \`robots.txt\` so crawlers know what they can index.
 
@@ -1212,10 +1221,10 @@ The plugin needs \`Settings → Site → Public site URL\` to be set — sitemap
 
 Disable if you maintain sitemaps externally (e.g. a separate static-site generator running alongside the CMS) or if your site is private and you don't want it indexed. Disabling stops new generation but does **not** delete already-uploaded sitemap files — clean those up by hand on your hosting if needed.
 `;
-function ie(t) {
+function oe(t) {
   var e;
   const s = (e = t.settings.pluginConfigs) == null ? void 0 : e["agentcms-sitemaps"];
-  return { ...te, ...s ?? {} };
+  return { ...se, ...s ?? {} };
 }
 async function I(t, s) {
   if (!s.settings.baseUrl) {
@@ -1223,30 +1232,30 @@ async function I(t, s) {
     return;
   }
   try {
-    await Ue({
+    await $e({
       post: t,
       posts: s.posts,
       pages: s.pages,
       terms: s.terms,
       settings: s.settings,
-      config: ie(s)
+      config: oe(s)
     });
   } catch (e) {
     console.error("[agentcms-sitemaps] regeneration failed:", e);
   }
 }
-const He = {
+const We = {
   id: "agentcms-sitemaps",
   name: "Sitemaps",
-  version: "1.0.0",
+  version: "1.0.1",
   author: "AgentCMS",
   description: "Generates sitemap-index.xml, per-year sitemaps, an optional Google News sitemap, and a robots.txt that points to them.",
-  readme: Ie,
-  i18n: { en: ge, fr: he, de: fe, es: we, nl: be, pt: xe, ko: ye },
+  readme: Fe,
+  i18n: { en: we, fr: be, de: xe, es: ye, nl: ve, pt: Se, ko: Le },
   settings: {
     navLabelKey: "title",
-    defaultConfig: te,
-    component: Ee
+    defaultConfig: se,
+    component: He
   },
   register(t) {
     t.addAction("publish.complete", async (s, e) => {
@@ -1265,19 +1274,19 @@ const He = {
           e({ level: "warn", message: "[agentcms-sitemaps] skipped — site URL not set." });
           return;
         }
-        const i = ie(s);
+        const a = oe(s);
         e({ level: "info", message: "Regenerating sitemap stylesheets…" });
-        const r = await B({ settings: s.settings, config: i });
+        const r = await _({ settings: s.settings, config: a });
         e({ level: "info", message: "Regenerating sitemaps…" });
-        const n = await q({
+        const n = await W({
           posts: s.posts,
           pages: s.pages,
           terms: s.terms,
           settings: s.settings,
-          config: i
+          config: a
         });
-        e({ level: "info", message: "Regenerating robots.txt…" }), await H({
-          config: i,
+        e({ level: "info", message: "Regenerating robots.txt…" }), await B({
+          config: a,
           baseUrl: s.settings.baseUrl,
           discourageIndexing: s.settings.discourageIndexing === !0
         }), e({
@@ -1289,5 +1298,5 @@ const He = {
   }
 };
 export {
-  He as manifest
+  We as manifest
 };

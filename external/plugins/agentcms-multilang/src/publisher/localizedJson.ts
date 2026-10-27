@@ -10,6 +10,7 @@ import { getMultilangConfig, isPrimaryLanguage } from "../core/config";
 import {
   getPostTranslation,
   getTermTranslation,
+  isLocaleHomePage,
   postToPrimaryTranslation,
   termToPrimaryTranslation,
 } from "../core/urls";
@@ -47,10 +48,18 @@ function buildLocalizedDataCtx(
       : getPostTranslation(p, language);
     if (!trans) return null;
     const isUncategorized = p.type !== "post" || !p.primaryTermId;
+    // The page driving this language's home is published at
+    // `<lang>/index.html` only — slug `<lang>/index` makes the core
+    // buildPostUrl emit exactly that path.
+    const slug = isLocaleHomePage(p, ctx.settings, config, language)
+      ? `${langPrefix}index`
+      : isUncategorized
+        ? `${langPrefix}${trans.slug}`
+        : trans.slug;
     return {
       ...p,
       title: trans.title,
-      slug: isUncategorized ? `${langPrefix}${trans.slug}` : trans.slug,
+      slug,
       contentMarkdown: trans.contentMarkdown,
       excerpt: trans.excerpt,
       seo: trans.seo,
@@ -77,7 +86,10 @@ export async function publishLocalizedDataJson(ctx: PublishContext): Promise<voi
   for (const language of config.enabledLanguages) {
     if (isPrimaryLanguage(config, language)) continue;
     const shadow = buildLocalizedDataCtx(ctx, language, config);
-    const localisedSettings = { ...ctx.settings, language };
+    // homePageId cleared: the core's own static-home mapping (→ the
+    // primary `index.html`) must not apply to the localised view — the
+    // locale home page already carries its `<lang>/index` slug above.
+    const localisedSettings = { ...ctx.settings, language, homePageId: undefined };
     const postsPath = `${language}/data/posts.json`;
     const authorsPath = `${language}/data/authors.json`;
     try {

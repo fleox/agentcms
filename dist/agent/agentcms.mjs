@@ -6,8 +6,8 @@ const require2 = __acmsRequire(import.meta.url);
 const __filename = __acmsPath(import.meta.url);
 const __dirname = __acmsDirname(__filename);
 import { parseArgs } from "node:util";
-import { existsSync, readFileSync, mkdirSync, writeFileSync, chmodSync, renameSync, statSync, openSync, writeSync, closeSync, unlinkSync, createReadStream } from "node:fs";
-import { join, resolve, dirname, basename, sep, extname, normalize } from "node:path";
+import { existsSync, readFileSync, mkdirSync, writeFileSync, chmodSync, renameSync, statSync, openSync, writeSync, closeSync, unlinkSync, rmSync, readdirSync, createReadStream } from "node:fs";
+import { join, resolve, dirname, basename, extname, sep, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 import { homedir, tmpdir } from "node:os";
 import { spawnSync, execFileSync } from "node:child_process";
@@ -133,6 +133,11 @@ const CREDENTIAL_TYPES = {
     label: "S3 access key pair",
     howTo: "AWS IAM user with s3:GetObject/PutObject/DeleteObject/ListBucket on the bucket, or OVHcloud Public Cloud → Object Storage → S3 users. Import an existing aws CLI profile with --from-aws-profile."
   },
+  firebase: {
+    fields: ["email", "password"],
+    label: "Firebase admin login (email + password)",
+    howTo: "The email and password of an administrator of the site's Firebase project (the account used to sign in to the admin). The CLI signs in with Firebase Auth exactly like the admin login screen."
+  },
   passphrase: {
     fields: ["passphrase"],
     label: "SQLite database passphrase",
@@ -208,6 +213,16 @@ function listCredentials() {
     updatedAt: c.updatedAt
   }));
 }
+const credentials = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  CREDENTIAL_TYPES,
+  getCredential,
+  listCredentials,
+  parseAccount,
+  removeCredential,
+  requireCredential,
+  setCredential
+}, Symbol.toStringTag, { value: "Module" }));
 const ALIAS_RE = /^[a-z0-9][a-z0-9-]{0,62}$/;
 function file() {
   return homePath("sites.json");
@@ -355,7 +370,7 @@ const compactDataCommand = {
     if (!account) throw new CliError("credential-required", `No credential recorded for the data of ${site.alias}.`);
     const token = requireCredential(account).values.token;
     installBrowserEnv();
-    const { createRemoteGitTransport, joinRepoPath } = await import("./chunks/index-BVQJP7xk.mjs").then((n) => n.r);
+    const { createRemoteGitTransport, joinRepoPath } = await import("./chunks/index-BA9sR5p-.mjs").then((n) => n.i);
     const transport = createRemoteGitTransport({
       provider: "github",
       owner: s.owner ?? "",
@@ -505,6 +520,75 @@ function copyToClipboard(text) {
   }
   throw new CliError("no-clipboard", "No clipboard tool found (pbcopy, clip, wl-copy, xclip or xsel).", "Install one, or read the value from ~/.agentcms/credentials.json yourself.");
 }
+function sessionFile(account) {
+  return homePath("sessions", `${account.replace(/[^a-z0-9._-]+/gi, "_")}.json`);
+}
+function forgetFirebaseSession(account) {
+  const f = sessionFile(account);
+  if (existsSync(f)) rmSync(f, { force: true });
+}
+function filePersistence(account, email) {
+  const file2 = sessionFile(account);
+  const saved = readJsonFile(file2, null);
+  const items = saved && saved.email === email ? { ...saved.items } : {};
+  const flush = () => {
+    if (Object.keys(items).length) writeJsonFile(file2, { email, items }, 384);
+    else forgetFirebaseSession(account);
+  };
+  return class FileSessionPersistence {
+    static type = "LOCAL";
+    type = "LOCAL";
+    async _isAvailable() {
+      return true;
+    }
+    async _set(key, value) {
+      items[key] = value;
+      flush();
+    }
+    async _get(key) {
+      return items[key] ?? null;
+    }
+    async _remove(key) {
+      delete items[key];
+      flush();
+    }
+    _addListener() {
+    }
+    _removeListener() {
+    }
+  };
+}
+async function signInFirebase(account, email, password) {
+  const { getRuntimeConfig } = await import("./chunks/runtimeConfig-2M2d2Pbu.mjs");
+  const config = getRuntimeConfig();
+  if (config?.backend !== "firebase") throw new Error("signInFirebase: the active backend is not Firebase.");
+  const { getApps, initializeApp } = await import("./chunks/index-B4MbpTF6.mjs");
+  const { initializeAuth, getAuth, signInWithEmailAndPassword, signOut } = await import("./chunks/index-BzGlTM6h.mjs");
+  const app = getApps()[0] ?? initializeApp(config.firebase);
+  let auth;
+  try {
+    auth = initializeAuth(app, { persistence: filePersistence(account, email.trim()) });
+  } catch {
+    auth = getAuth(app);
+  }
+  await auth.authStateReady();
+  const current = auth.currentUser;
+  if (current && current.email?.toLowerCase() === email.trim().toLowerCase()) {
+    try {
+      await current.getIdToken();
+      return;
+    } catch {
+    }
+  }
+  if (current) await signOut(auth).catch(() => {
+  });
+  await signInWithEmailAndPassword(auth, email.trim(), password);
+}
+const firebaseSession = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  forgetFirebaseSession,
+  signInFirebase
+}, Symbol.toStringTag, { value: "Module" }));
 const MAGIC = new TextEncoder().encode("ACMSENC1");
 const HEADER = MAGIC.length + 4 + 16 + 12;
 const PBKDF2_ITERATIONS = 6e5;
@@ -606,7 +690,7 @@ const credentialsCommand = {
       const { sites } = listSites();
       const list2 = listCredentials().map((c) => ({
         ...c,
-        usedBy: sites.filter((s) => s.credentials.data === c.account || s.credentials.hosting === c.account).map((s) => s.alias)
+        usedBy: sites.filter((s) => s.credentials.data === c.account || s.credentials.hosting === c.account || s.credentials.passphrase === c.account).map((s) => s.alias)
       }));
       printResult(
         io,
@@ -619,6 +703,7 @@ const credentialsCommand = {
     const { type } = parseAccount(account);
     if (action === "remove") {
       const removed = removeCredential(account);
+      forgetFirebaseSession(account);
       printResult(io, { account, removed }, () => removed ? `Removed ${account}.` : `${account} was not stored.`);
       return;
     }
@@ -649,6 +734,7 @@ const credentialsCommand = {
       for (const field of spec.fields) values[field] = await promptHidden(`${field}: `);
     }
     const saved = setCredential(account, values);
+    forgetFirebaseSession(account);
     printResult(io, { account, type, fields: Object.keys(saved.values) }, () => `Stored ${account} (${Object.keys(saved.values).join(", ")}).`);
   }
 };
@@ -679,11 +765,29 @@ async function fetchText(url, fetchImpl = fetch) {
     return { ok: false, status: 0, contentType: "", text: "", error: err.message };
   }
 }
+function publicUrlOf(site) {
+  const target = site.hosting?.settings?.siteUrl;
+  return (typeof target === "string" && /^https?:\/\//.test(target) ? target : site.siteUrl).replace(/\/+$/, "");
+}
+function secureAdminUrlOf(site) {
+  const admin = adminUrlOf(site);
+  if (!admin || site.hosting?.connectorId !== "s3") return null;
+  if (admin.startsWith("https://")) return admin.endsWith("/") ? `${admin}index.html` : admin;
+  if (/^http:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?\//.test(admin)) return null;
+  const s = site.hosting.settings ?? {};
+  if (!s.bucket) return null;
+  const endpoint = (s.endpoint || (s.region ? `https://s3.${s.region}.amazonaws.com` : "https://s3.amazonaws.com")).replace(/\/+$/, "");
+  if (!endpoint.startsWith("https://")) return null;
+  const path = [String(s.prefix ?? "").replace(/^\/+|\/+$/g, ""), site.adminFolder].filter(Boolean).join("/");
+  const pathStyle = s.bucket.includes(".");
+  const base = pathStyle ? `${endpoint}/${s.bucket}` : endpoint.replace("https://", `https://${s.bucket}.`);
+  return `${base}/${path}/index.html`;
+}
 function adminUrlOf(site) {
   return site.adminFolder ? `${site.siteUrl.replace(/\/+$/, "")}/${site.adminFolder}/` : null;
 }
 function parseConfigJs(source) {
-  const m = /window\.__AGENTCMS_CONFIG__\s*=\s*([\s\S]*?);?\s*$/.exec(source.trim());
+  const m = /window\.__(?:AGENTCMS|FLEXWEG)_CONFIG__\s*=\s*([\s\S]*?);?\s*$/.exec(source.trim());
   if (!m) throw new Error("config.js does not set window.__AGENTCMS_CONFIG__");
   const value = JSON.parse(m[1].trim().replace(/;$/, ""));
   return value && typeof value === "object" ? value : null;
@@ -733,6 +837,18 @@ function changesBetween(entries, from, to) {
     actions: [...new Set(list2.flatMap((e) => e.actions))]
   };
 }
+const remote = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  adminUrlOf,
+  changesBetween,
+  fetchHostedAdmin,
+  fetchText,
+  findSecretKeys,
+  parseConfigJs,
+  publicUrlOf,
+  readChangelog,
+  secureAdminUrlOf
+}, Symbol.toStringTag, { value: "Module" }));
 const deployAdminCommand = {
   name: "deploy-admin",
   summary: "Update a site's hosted admin (and optionally its theme assets) to this release. Prints the plan unless --yes is given; refuses downgrades below the stored data format.",
@@ -749,8 +865,8 @@ const deployAdminCommand = {
     const sites = options.all ? listSites().sites.filter((s) => s.adminFolder) : [resolveSite(options.site)];
     if (sites.length === 0) throw new CliError("no-sites", "No registered site has a hosted admin.");
     installBrowserEnv();
-    const { adminOps, applyOps, hostingConnector, themeAssetOps } = await import("./chunks/hosting-DLKOgr4B.mjs");
-    const { collectToasts, settleHosting } = await import("./chunks/install-TJYbfY0q.mjs");
+    const { adminOps, applyOps, hostingConnector, themeAssetOps } = await import("./chunks/hosting-DOA72TE4.mjs");
+    const { collectToasts, settleHosting } = await import("./chunks/install-CjhmTX67.mjs");
     const plans = [];
     for (const site of sites) {
       const adminUrl = adminUrlOf(site);
@@ -828,17 +944,24 @@ async function runDoctor(site, opts = {}) {
   const add = (c) => checks.push(c);
   const info = readVersionInfo();
   const siteUrl = site.siteUrl.replace(/\/+$/, "");
+  const secureAdmin = secureAdminUrlOf(site);
   add(
-    siteUrl.startsWith("https://") || /^http:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?(\/|$)/.test(siteUrl) ? { id: "https", status: "ok", message: siteUrl.startsWith("https://") ? "Site served over HTTPS." : "Local site (a secure context for browsers)." } : {
+    secureAdmin && !siteUrl.startsWith("https://") ? { id: "https", status: "ok", message: `The public site is plain HTTP; open the admin over HTTPS: ${secureAdmin}` } : siteUrl.startsWith("https://") || /^http:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?(\/|$)/.test(siteUrl) ? { id: "https", status: "ok", message: siteUrl.startsWith("https://") ? "Site served over HTTPS." : "Local site (a secure context for browsers)." } : {
       id: "https",
       status: "warn",
       message: `${siteUrl} is plain HTTP.`,
       fix: "Use the host's HTTPS URL (S3: the bucket's https endpoint) — the admin can't sign requests on http pages."
     }
   );
+  const pagesHost = site.hosting?.connectorId === "git-pages";
   const home = await fetchText(`${siteUrl}/`, f);
   add(
-    home.ok ? { id: "site", status: "ok", message: `Home page reachable (${home.status}).` } : home.status === 404 ? { id: "site", status: "warn", message: "No home page yet (404).", fix: "Publish a post or run Regenerate → Everything in the admin." } : { id: "site", status: "fail", message: `Site not reachable: ${home.error ?? `HTTP ${home.status}`}.`, fix: "Check siteUrl, DNS, and that the host serves the bucket / repo (GitHub Pages enabled, S3 website hosting on)." }
+    home.ok ? /\/theme-assets\//.test(home.text ?? "") ? { id: "site", status: "ok", message: `Home page reachable (${home.status}).` } : {
+      id: "site",
+      status: "warn",
+      message: "The home page answers but isn't an AgentCMS page (no theme stylesheet): another site's page, a README, or a host that hasn't served the new files yet.",
+      fix: `${pagesHost ? "Pages hosts take a minute or two after a commit: wait, then re-run doctor. " : ""}Otherwise publish something or run \`agentcms regenerate everything --site ${site.alias}\`.`
+    } : home.status === 404 ? { id: "site", status: "warn", message: "No home page yet (404).", fix: "Publish a post or run Regenerate → Everything in the admin." } : { id: "site", status: "fail", message: `Site not reachable: ${home.error ?? `HTTP ${home.status}`}.`, fix: "Check siteUrl, DNS, and that the host serves the bucket / repo (GitHub Pages enabled, S3 website hosting on)." }
   );
   const css = await fetchText(`${siteUrl}/theme-assets/default.css`, f);
   add(
@@ -846,7 +969,7 @@ async function runDoctor(site, opts = {}) {
       id: "theme-assets",
       status: "fail",
       message: css.ok ? `theme-assets/default.css has type "${css.contentType}".` : `theme-assets/default.css missing (${css.error ?? css.status}).`,
-      fix: `\`agentcms deploy-admin --site ${site.alias} --theme-assets --yes\` (after confirming with the user), or Themes → Sync theme assets in the admin.`
+      fix: `${pagesHost && !css.ok ? "Just installed or deployed? Pages hosts take a minute or two after a commit: wait, then re-run doctor. If it persists: " : ""}\`agentcms deploy-admin --site ${site.alias} --theme-assets --yes\` (after confirming with the user), or Themes → Sync theme assets in the admin.`
     }
   );
   const adminUrl = adminUrlOf(site);
@@ -944,7 +1067,7 @@ async function runDoctor(site, opts = {}) {
       add({ id: "hosting-access", status: "skip", message: "No hosting credential to test." });
     } else {
       installBrowserEnv();
-      const { testStorageConnection } = await import("./chunks/registry-DClFwwHa.mjs").then((n) => n.q);
+      const { testStorageConnection } = await import("./chunks/registry-0V3j22df.mjs").then((n) => n.v);
       const res = await testStorageConnection(site.hosting.connectorId, { ...site.hosting.settings, ...hostingCred.values });
       add(
         res.ok ? { id: "hosting-access", status: "ok", message: `Hosting writable: ${res.detail}.` } : { id: "hosting-access", status: "fail", message: `Hosting access failed: ${res.detail}.`, fix: "Check the credential's permissions / expiry, then `agentcms credentials set` it again." }
@@ -993,7 +1116,7 @@ function list(value) {
 async function loadAll(paths2) {
   const [{ readExtensionPackage, bundleSource }, { importExtensionBundle }] = await Promise.all([
     import("./chunks/extPackage-4FSerswt.mjs"),
-    import("./chunks/extHost-C1s5fNiy.mjs")
+    import("./chunks/extHost-DkoO4UQC.mjs")
   ]);
   const out = [];
   for (const p of paths2) {
@@ -1013,7 +1136,7 @@ async function check({ io, options, positionals }) {
   const kind = options.kind;
   if (kind && kind !== "plugin" && kind !== "theme") throw new CliError("usage", "--kind is plugin or theme.", void 0, 2);
   const { readExtensionPackage } = await import("./chunks/extPackage-4FSerswt.mjs");
-  const { checkExtension } = await import("./chunks/extCheck-DU12uj8R.mjs");
+  const { checkExtension } = await import("./chunks/extCheck-7zFIIv6j.mjs");
   const pkg = await readExtensionPackage(target);
   const report = await checkExtension(pkg, {
     kind,
@@ -1060,14 +1183,14 @@ async function check({ io, options, positionals }) {
 async function preview({ io, options, positionals }) {
   const paths2 = positionals.slice(1);
   const exts = await loadAll(paths2);
-  const { renderPreview } = await import("./chunks/extPreview-Dkzz4WZ0.mjs");
+  const { renderPreview } = await import("./chunks/extPreview-2oFu_arB.mjs");
   const port = Number(options.port ?? 4321);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new CliError("usage", `Invalid port: ${options.port}`, void 0, 2);
   const outDir = resolve(String(options.out ?? join(tmpdir(), `agentcms-preview-${exts.map((e) => e.id).join("+") || "default"}`)));
   let content;
   let siteAlias;
   if (options.site) {
-    const { snapshotSiteContent } = await import("./chunks/extSiteContent-DP5gC6c4.mjs");
+    const { snapshotSiteContent } = await import("./chunks/extSiteContent-XGbRmA7n.mjs");
     const snap = await snapshotSiteContent(String(options.site));
     content = snap.content;
     siteAlias = snap.alias;
@@ -1106,7 +1229,7 @@ async function preview({ io, options, positionals }) {
     }
   }
   if (options.screenshots) {
-    const { screenshotPages } = await import("./chunks/extScreenshot-D5CCgm5-.mjs");
+    const { screenshotPages } = await import("./chunks/extScreenshot-g4iC5NB5.mjs");
     screenshots = await screenshotPages(baseUrl, res.pages, join(res.outDir, ".screenshots"), options["screenshot-js"] ? String(options["screenshot-js"]) : void 0);
   }
   const data = {
@@ -1157,7 +1280,7 @@ async function scaffold({ io, options, positionals }) {
   const [, kind, id] = positionals;
   if (kind !== "plugin" && kind !== "theme") throw new CliError("usage", "ext new needs plugin or theme, then an id: ext new theme my-theme", void 0, 2);
   if (!id) throw new CliError("usage", `ext new ${kind} needs an id (lower-case, dashes), e.g. ext new ${kind} my-${kind}.`, void 0, 2);
-  const { scaffoldExtension } = await import("./chunks/extScaffold-CWU1HCsR.mjs");
+  const { scaffoldExtension } = await import("./chunks/extScaffold-CKeroE9t.mjs");
   const dir = resolve(String(options.dir ?? id));
   if (existsSync(dir) && (await import("node:fs")).readdirSync(dir).length > 0 && !options.force) {
     throw new CliError("dir-not-empty", `${dir} already exists and is not empty.`, "Pick another --dir (or --force to write into it).", 2);
@@ -1174,7 +1297,7 @@ async function scaffold({ io, options, positionals }) {
   printResult(io, res, () => [`Created ${kind} "${id}" in ${dir}:`, ...res.files.map((f) => `  ${f}`), "", ...res.next].join("\n"));
 }
 async function install(ctx) {
-  const { installExtensionCommand } = await import("./chunks/extInstall-BiYwdEsp.mjs");
+  const { installExtensionCommand } = await import("./chunks/extInstall-CLCVKAAj.mjs");
   return installExtensionCommand(ctx);
 }
 const extCommand = {
@@ -1227,6 +1350,3037 @@ const extCommand = {
     }
   }
 };
+function kindOption(v, fallback) {
+  if (v === void 0) return fallback;
+  if (v === "post" || v === "page") return v;
+  throw new CliError("usage", `--type is post or page (got "${String(v)}").`, void 0, 2);
+}
+async function allEntries$3() {
+  const { fetchAllPosts, invalidateAllPostsCache } = await import("./chunks/posts-CtjqzF5o.mjs");
+  invalidateAllPostsCache();
+  const [posts, pages2] = await Promise.all([fetchAllPosts({ type: "post" }), fetchAllPosts({ type: "page" })]);
+  return [...posts, ...pages2];
+}
+async function summarize$3(p, terms) {
+  const { iso } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+  const cat = p.primaryTermId ? terms.find((t) => t.id === p.primaryTermId) : void 0;
+  return {
+    id: p.id,
+    type: p.type,
+    title: p.title,
+    slug: p.slug,
+    status: p.status,
+    category: cat ? cat.slug : null,
+    tags: p.termIds.map((id) => terms.find((t) => t.id === id)).filter((t) => !!t && t.type === "tag").map((t) => t.slug),
+    path: p.lastPublishedPath ?? null,
+    // Translations (agentcms-multilang): published path per language.
+    ...p.lastPublishedPathsByLocale && Object.keys(p.lastPublishedPathsByLocale).length ? { localePaths: p.lastPublishedPathsByLocale } : {},
+    updatedAt: iso(p.updatedAt),
+    publishedAt: iso(p.publishedAt)
+  };
+}
+async function readFields$1(options) {
+  const { readTextOption, readJsonOption, listOption, dateOption } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+  const data = readJsonOption(options.data, "data") ?? {};
+  if (typeof data !== "object" || Array.isArray(data)) throw new CliError("usage", "--data must be a JSON object.", void 0, 2);
+  const str = (v) => typeof v === "string" ? v : void 0;
+  const f = {
+    title: str(options.title) ?? str(data.title),
+    slug: str(options.slug) ?? str(data.slug),
+    body: readTextOption(options.body, "body") ?? str(data.body) ?? str(data.contentMarkdown),
+    author: str(options.author) ?? str(data.author) ?? str(data.authorId)
+  };
+  const excerpt = options.excerpt !== void 0 ? String(options.excerpt) : data.excerpt;
+  if (excerpt !== void 0) f.excerpt = excerpt === null || excerpt === "" ? null : String(excerpt);
+  const category = options.category !== void 0 ? String(options.category) : data.category;
+  if (category !== void 0) f.category = category === null || category === "" ? null : String(category);
+  const tags = listOption(options.tags) ?? (Array.isArray(data.tags) ? data.tags.map(String) : void 0);
+  if (tags) f.tags = tags;
+  const hero = options.hero !== void 0 ? String(options.hero) : data.hero ?? data.heroMediaId;
+  if (hero !== void 0) f.hero = hero === null || hero === "" ? null : String(hero);
+  const seo = { ...data.seo ?? {} };
+  if (options["seo-title"] !== void 0) seo.title = String(options["seo-title"]);
+  if (options["seo-description"] !== void 0) seo.description = String(options["seo-description"]);
+  if (options["seo-image"] !== void 0) seo.ogImage = String(options["seo-image"]);
+  if (Object.keys(seo).length) f.seo = Object.fromEntries(Object.entries(seo).filter(([, v]) => v !== "" && v != null));
+  f.createdAt = dateOption(options["created-at"] ?? data.createdAt, "created-at");
+  f.publishedAt = dateOption(options["published-at"] ?? data.publishedAt, "published-at");
+  return f;
+}
+async function resolveTerms(f, existing, createMissing, type) {
+  const { fetchAllTerms, createTerm } = await import("./chunks/taxonomies-6tEnuGYN.mjs");
+  const { findTerm } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+  const { slugify, findAvailableSlug } = await import("./chunks/slug-CZzRNKy4.mjs");
+  let terms = await fetchAllTerms();
+  const createdTerms = [];
+  const ensure = async (ref, t) => {
+    const found = findTerm(terms, ref, t);
+    if (found) return found;
+    if (!createMissing) {
+      throw new CliError("not-found", `No ${t} "${ref}".`, `Create it (\`agentcms terms create --type ${t} --name "${ref}"\`) or pass --create-terms.`, 2);
+    }
+    const base = slugify(ref) || t;
+    const slug = findAvailableSlug(base, (s) => terms.some((x) => x.type === t && x.slug === s));
+    await createTerm({ type: t, name: ref, slug });
+    createdTerms.push({ type: t, name: ref, slug });
+    terms = await fetchAllTerms();
+    return findTerm(terms, slug, t);
+  };
+  if (type === "page" && (f.category || f.tags && f.tags.length)) {
+    throw new CliError("usage", "Pages have no category or tags.", void 0, 2);
+  }
+  let primary = existing?.primaryTermId ?? void 0;
+  let tagIds = (existing?.termIds ?? []).filter((id) => terms.find((t) => t.id === id)?.type === "tag");
+  if (f.category !== void 0) primary = f.category === null ? void 0 : (await ensure(f.category, "category")).id;
+  if (f.tags !== void 0) {
+    tagIds = [];
+    for (const tag of f.tags) tagIds.push((await ensure(tag, "tag")).id);
+  }
+  const termIds = primary ? [primary, ...tagIds.filter((id) => id !== primary)] : tagIds;
+  return { primaryTermId: primary, termIds, terms, createdTerms };
+}
+async function checkSlug$1(slug, type, primaryTermId, ignoreId, all, terms) {
+  const { isValidSlug, buildPostUrl, detectPathCollision } = await import("./chunks/slug-CZzRNKy4.mjs");
+  if (!isValidSlug(slug)) throw new CliError("invalid-slug", `Invalid slug "${slug}".`, "Lower-case letters, digits and single dashes (e.g. my-post).", 2);
+  const term = primaryTermId ? terms.find((t) => t.id === primaryTermId) : void 0;
+  const path = buildPostUrl({ post: { type, slug }, primaryTerm: term });
+  const owner = detectPathCollision(path, all.filter((p) => p.type === "post"), all.filter((p) => p.type === "page"), terms, ignoreId);
+  if (owner) throw new CliError("slug-taken", `${path} is already used by ${owner.kind} "${owner.label}".`, "Pick another --slug.", 2);
+}
+async function resolveMediaId(ref) {
+  const { listAllMedia } = await import("./chunks/media-D9y7Q4-j.mjs").then((n) => n.n);
+  const media = await listAllMedia();
+  const m = media.find((x) => x.id === ref) ?? media.find((x) => x.name === ref);
+  if (!m) throw new CliError("not-found", `No media "${ref}".`, "Upload it first (`agentcms media upload <file>`) and use its id.", 2);
+  return m.id;
+}
+async function resolveAuthor(ref) {
+  const { subscribeToUsers } = await import("./chunks/users-CWcF8Vrg.mjs").then((n) => n.u);
+  const users = await new Promise((res, rej) => {
+    const un = subscribeToUsers((u2) => {
+      res(u2);
+      queueMicrotask(() => un());
+    }, rej);
+  });
+  const u = users.find((x) => x.id === ref) ?? users.find((x) => x.email?.toLowerCase() === ref.toLowerCase());
+  if (!u) throw new CliError("not-found", `No user "${ref}".`, "List them with `agentcms users list`.", 2);
+  return u.id;
+}
+function decodeB64Json(v) {
+  try {
+    return JSON.parse(Buffer.from(v, "base64").toString("utf8"));
+  } catch {
+    return null;
+  }
+}
+function encodeB64Json(v) {
+  return Buffer.from(JSON.stringify(v), "utf8").toString("base64");
+}
+async function run$c({ io, options, positionals }) {
+  const [action, ...refs] = positionals;
+  const { runAdmin, findPost, currentUserId, menuReferences, menuRemoveHints, pathMoves, reportStaleLinks } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+  const alias = options.site;
+  const type = kindOption(options.type);
+  switch (action) {
+    case "list":
+      return runAdmin(io, alias, {}, async () => {
+        const terms = await (await import("./chunks/taxonomies-6tEnuGYN.mjs")).fetchAllTerms();
+        let all = await allEntries$3();
+        if (type) all = all.filter((p) => p.type === type);
+        if (options.status) all = all.filter((p) => p.status === options.status);
+        if (options.category) {
+          const { requireTerm } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+          const cat = requireTerm(terms, String(options.category), "category");
+          all = all.filter((p) => p.primaryTermId === cat.id);
+        }
+        if (options.search) {
+          const tokens = String(options.search).toLowerCase().split(/\s+/).filter(Boolean);
+          all = all.filter((p) => tokens.every((t) => `${p.title} ${p.slug} ${p.excerpt ?? ""}`.toLowerCase().includes(t)));
+        }
+        return Promise.all(all.map((p) => summarize$3(p, terms)));
+      }, (rows) => rows.length ? rows.map((r) => `${r.id}  ${r.type.padEnd(4)} ${r.status.padEnd(6)} ${r.title}${r.path ? `  → ${r.path}` : ""}`).join("\n") : "No entries.");
+    case "get": {
+      if (!refs[0]) throw new CliError("usage", "content get needs an id or slug.", void 0, 2);
+      return runAdmin(io, alias, {}, async () => {
+        const terms = await (await import("./chunks/taxonomies-6tEnuGYN.mjs")).fetchAllTerms();
+        const p = findPost(await allEntries$3(), refs[0], type);
+        const { iso } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+        return {
+          ...await summarize$3(p, terms),
+          excerpt: p.excerpt ?? null,
+          heroMediaId: p.heroMediaId ?? null,
+          authorId: p.authorId,
+          seo: p.seo ?? null,
+          createdAt: iso(p.createdAt),
+          translations: p.translations ?? null,
+          body: p.contentMarkdown
+        };
+      }, (r) => `${r.title} (${r.type}, ${r.status})
+
+${r.body}`);
+    }
+    case "create": {
+      const kind = kindOption(options.type, "post");
+      const f = await readFields$1(options);
+      if (!f.title) throw new CliError("usage", "content create needs --title.", void 0, 2);
+      return runAdmin(io, alias, { write: true, hosting: !!options.publish, extensions: !!options.publish, lock: true }, async (s) => {
+        const { slugify, findAvailableSlug, buildPostUrl } = await import("./chunks/slug-CZzRNKy4.mjs");
+        const all = await allEntries$3();
+        const { primaryTermId, termIds, terms, createdTerms } = await resolveTerms(f, null, !!options["create-terms"], kind);
+        let slug = f.slug;
+        if (slug) await checkSlug$1(slug, kind, primaryTermId, void 0, all, terms);
+        else {
+          const term = primaryTermId ? terms.find((t) => t.id === primaryTermId) : void 0;
+          const { detectPathCollision } = await import("./chunks/slug-CZzRNKy4.mjs");
+          slug = findAvailableSlug(
+            slugify(f.title) || kind,
+            (cand) => !!detectPathCollision(buildPostUrl({ post: { type: kind, slug: cand }, primaryTerm: term }), all.filter((p) => p.type === "post"), all.filter((p) => p.type === "page"), terms)
+          );
+        }
+        const { createPost } = await import("./chunks/posts-CtjqzF5o.mjs");
+        const id = await createPost({
+          type: kind,
+          title: f.title,
+          slug,
+          contentMarkdown: f.body ?? "",
+          excerpt: f.excerpt ?? void 0,
+          heroMediaId: f.hero ? await resolveMediaId(f.hero) : void 0,
+          authorId: f.author ? await resolveAuthor(f.author) : await currentUserId(),
+          termIds,
+          primaryTermId,
+          seo: f.seo,
+          createdAt: f.createdAt,
+          publishedAt: f.publishedAt
+        });
+        let published = null;
+        if (options.publish) {
+          const ctx = await s.context();
+          await s.host.publisher.publishPost(id, ctx, s.log, f.publishedAt ? { publishedAt: f.publishedAt } : void 0);
+          published = (await allEntries$3()).find((p) => p.id === id)?.lastPublishedPath ?? null;
+        }
+        return { id, type: kind, slug, status: options.publish ? "online" : "draft", path: published, createdTerms };
+      }, (r) => `Created ${r.type} ${r.id} (${r.slug}) — ${r.status}${r.path ? ` at ${r.path}` : ""}`);
+    }
+    case "update": {
+      if (!refs[0]) throw new CliError("usage", "content update needs an id or slug.", void 0, 2);
+      const f = await readFields$1(options);
+      const lang = options.lang;
+      return runAdmin(io, alias, { write: true, hosting: true, extensions: true, lock: true }, async (s) => {
+        const all = await allEntries$3();
+        const p = findPost(all, refs[0], type);
+        const { updatePost } = await import("./chunks/posts-CtjqzF5o.mjs");
+        let createdTerms = [];
+        if (lang) {
+          const tr = { ...p.translations?.[lang] ?? {} };
+          if (f.title !== void 0) tr.title = f.title;
+          if (f.slug !== void 0) tr.slug = f.slug;
+          if (f.body !== void 0) tr.contentMarkdown = f.body;
+          if (f.excerpt !== void 0) tr.excerpt = f.excerpt ?? void 0;
+          if (f.seo !== void 0) tr.seo = f.seo;
+          if (!tr.title) throw new CliError("usage", `The ${lang} translation needs a --title.`, void 0, 2);
+          const { isValidSlug, slugify } = await import("./chunks/slug-CZzRNKy4.mjs");
+          if (!tr.slug) tr.slug = slugify(String(tr.title));
+          if (!isValidSlug(String(tr.slug))) throw new CliError("invalid-slug", `Invalid slug "${tr.slug}".`, void 0, 2);
+          await updatePost(p.id, { translations: { ...p.translations ?? {}, [lang]: tr } });
+        } else {
+          const resolved = await resolveTerms(f, p, !!options["create-terms"], p.type);
+          createdTerms = resolved.createdTerms;
+          const { primaryTermId, termIds, terms } = resolved;
+          const slug = f.slug ?? p.slug;
+          if (f.slug !== void 0 || f.category !== void 0) await checkSlug$1(slug, p.type, primaryTermId, p.id, all, terms);
+          await updatePost(p.id, {
+            title: f.title,
+            slug: f.slug,
+            contentMarkdown: f.body,
+            excerpt: f.excerpt,
+            heroMediaId: f.hero === void 0 ? void 0 : f.hero === null ? null : await resolveMediaId(f.hero),
+            termIds: f.category !== void 0 || f.tags !== void 0 ? termIds : void 0,
+            primaryTermId: f.category !== void 0 ? primaryTermId ?? null : void 0,
+            seo: f.seo ? { ...p.seo ?? {}, ...f.seo } : void 0,
+            authorId: f.author ? await resolveAuthor(f.author) : void 0,
+            createdAt: f.createdAt,
+            publishedAt: f.publishedAt
+          });
+        }
+        let republished = false;
+        if (p.status === "online" && !options["no-publish"]) {
+          const ctx = await s.context();
+          await s.host.publisher.publishPost(p.id, ctx, s.log, f.publishedAt && !lang ? { publishedAt: f.publishedAt } : void 0);
+          republished = true;
+        }
+        const fresh = await allEntries$3();
+        const after = fresh.find((x) => x.id === p.id);
+        const staleLinks = reportStaleLinks(s, pathMoves([p], fresh));
+        return { id: p.id, type: p.type, status: after.status, republished, path: after.lastPublishedPath ?? null, localePaths: after.lastPublishedPathsByLocale ?? {}, lang: lang ?? null, createdTerms, staleLinks };
+      }, (r) => `Updated ${r.type} ${r.id}${r.lang ? ` (${r.lang})` : ""}${r.republished ? ` — republished at ${r.path}` : ""}`);
+    }
+    case "publish":
+    case "unpublish": {
+      if (!refs.length) throw new CliError("usage", `content ${action} needs one or more ids / slugs.`, void 0, 2);
+      return runAdmin(io, alias, { write: true, hosting: true, extensions: true, lock: true }, async (s) => {
+        const all = await allEntries$3();
+        const targets = refs.map((r) => findPost(all, r, type));
+        const ctx = await s.context();
+        const pub = s.host.publisher;
+        const done = [];
+        const one = async (p) => {
+          try {
+            if (action === "publish") await pub.publishPost(p.id, ctx, s.log, options["published-at"] ? { publishedAt: new Date(String(options["published-at"])) } : void 0);
+            else await pub.unpublishPost(p.id, ctx, s.log);
+            done.push({ id: p.id, title: p.title, ok: true });
+          } catch (err) {
+            done.push({ id: p.id, title: p.title, ok: false, error: err.message });
+          }
+        };
+        if (targets.length === 1) await one(targets[0]);
+        else {
+          const { withStorageBatch } = await import("./chunks/siteFiles-CIBz6FxK.mjs").then((n) => n.s);
+          await withStorageBatch(async () => {
+            ctx.bulkMode = true;
+            for (const p of targets) await one(p);
+            const { listRegenerationTargets } = await import("./chunks/regenerationTargetRegistry-3NmN64mg.mjs");
+            await pub.flushBulkRegeneration(ctx, s.log, listRegenerationTargets());
+          });
+        }
+        const fresh = await allEntries$3();
+        reportStaleLinks(s, pathMoves(targets, fresh));
+        return done.map((d) => {
+          const p = fresh.find((x) => x.id === d.id);
+          return { ...d, status: p?.status, path: p?.lastPublishedPath ?? null, localePaths: p?.lastPublishedPathsByLocale ?? {} };
+        });
+      }, (rows) => rows.map((r) => `${r.ok ? "✓" : "✗"} ${r.title} — ${r.ok ? r.status + (r.path ? ` at ${r.path}` : "") : r.error}`).join("\n"));
+    }
+    case "delete": {
+      if (!refs.length) throw new CliError("usage", "content delete needs one or more ids / slugs.", void 0, 2);
+      if (!options.yes) {
+        return runAdmin(io, alias, {}, async (s) => {
+          const all = await allEntries$3();
+          const targets = refs.map((r) => findPost(all, r, type));
+          const menuItems = menuReferences(s.settings(), "post", targets.map((p) => p.id));
+          return {
+            needsConfirmation: true,
+            delete: targets.map((p) => ({ id: p.id, type: p.type, title: p.title, status: p.status, path: p.lastPublishedPath ?? null })),
+            menuItems,
+            notes: menuRemoveHints(s.site.alias, menuItems)
+          };
+        }, (r) => [`Would delete ${r.delete.length} entr${r.delete.length === 1 ? "y" : "ies"}: ${r.delete.map((d) => d.title).join(", ")} (published files removed too).`, ...r.notes, "Nothing changed — re-run with --yes once the user agrees."].join(" "));
+      }
+      return runAdmin(io, alias, { write: true, hosting: true, extensions: true, lock: true }, async (s) => {
+        const all = await allEntries$3();
+        const targets = refs.map((r) => findPost(all, r, type));
+        const ctx = await s.context();
+        const { deletePost } = await import("./chunks/posts-CtjqzF5o.mjs");
+        const many = targets.length > 1;
+        if (many) ctx.bulkMode = true;
+        const out = [];
+        for (const p of targets) {
+          try {
+            await s.host.publisher.deletePostAndUnpublish(p.id, ctx, s.log);
+            await deletePost(p.id);
+            const removedPaths = [p.lastPublishedPath, ...p.previousPublishedPaths ?? [], ...Object.values(p.lastPublishedPathsByLocale ?? {})].filter((x) => !!x);
+            out.push({ id: p.id, title: p.title, ok: true, removedPaths });
+          } catch (err) {
+            out.push({ id: p.id, title: p.title, ok: false, error: err.message });
+          }
+        }
+        if (many) {
+          const { listRegenerationTargets } = await import("./chunks/regenerationTargetRegistry-3NmN64mg.mjs");
+          await s.host.publisher.flushBulkRegeneration(ctx, s.log, listRegenerationTargets());
+        }
+        reportStaleLinks(s, pathMoves(targets.filter((p) => out.some((o) => o.id === p.id && o.ok)), await allEntries$3()));
+        return out;
+      }, (rows) => rows.map((r) => `${r.ok ? "✓ deleted" : "✗"} ${r.title}${r.error ? ` — ${r.error}` : ""}`).join("\n"));
+    }
+    case "preview": {
+      if (!refs[0]) throw new CliError("usage", "content preview needs an id or slug.", void 0, 2);
+      const out = resolve(
+        options.out !== void 0 ? String(options.out) : join(tmpdir(), "agentcms-preview", `preview-${refs[0].replace(/[^a-z0-9-]/gi, "_")}.html`)
+      );
+      return runAdmin(io, alias, { extensions: true }, async (s) => {
+        const all = await allEntries$3();
+        const p = findPost(all, refs[0], type);
+        const f = await readFields$1(options);
+        const draft = {
+          ...p,
+          ...f.title !== void 0 ? { title: f.title } : {},
+          ...f.body !== void 0 ? { contentMarkdown: f.body } : {},
+          ...f.excerpt !== void 0 ? { excerpt: f.excerpt ?? void 0 } : {}
+        };
+        const { renderPostPreview } = await import("./chunks/previewRenderer-XtfQ5M1v.mjs");
+        const [terms, users, media] = await Promise.all([s.terms(), s.users(), s.media()]);
+        const html = await renderPostPreview({
+          draft,
+          posts: all.filter((x) => x.type === "post"),
+          pages: all.filter((x) => x.type === "page"),
+          terms,
+          media,
+          settings: s.settings(),
+          users,
+          authorLookup: s.host.users.buildAuthorLookup(users, media)
+        });
+        const siteUrl = (s.settings().baseUrl || s.site.siteUrl || "").replace(/\/+$/, "");
+        const file2 = siteUrl && !/<base\s/i.test(html) ? html.replace(/<head([^>]*)>/i, `<head$1><base href="${siteUrl}/">`) : html;
+        mkdirSync(dirname(out), { recursive: true });
+        writeFileSync(out, file2);
+        let screenshots = null;
+        if (options.screenshots) {
+          const m = await import("./chunks/extScreenshot-g4iC5NB5.mjs");
+          screenshots = await m.screenshotFile(out);
+          screenshots = { ...screenshots, shots: screenshots.shots.map((sh) => ({ ...sh, file: resolve(sh.file) })) };
+        }
+        return {
+          id: p.id,
+          file: out,
+          bytes: file2.length,
+          screenshotsDir: options.screenshots ? join(dirname(out), ".screenshots") : null,
+          screenshots,
+          note: "Styles, images and the logo load from the live site; menus and other runtime widgets may stay empty in a file preview (the browser blocks their requests from file://). Check the published page with `agentcms site screenshot <path>`."
+        };
+      }, (r) => [`Preview of ${r.id}: ${r.file}`, ...(r.screenshots?.shots ?? []).map((sh) => `  ${sh.viewport}: ${sh.file}`), ...(r.screenshots?.errors ?? []).map((e) => `  screenshot error: ${e}`)].join("\n"));
+    }
+    case "blocks": {
+      return runAdmin(io, alias, { extensions: true }, async (s) => {
+        const { tryBlocks } = await import("./chunks/extBlocks-BM6tQ2F9.mjs");
+        const all = s.host.blocks.listBlocks();
+        const wanted = refs[0] ? all.filter((b) => b.id === refs[0]) : all;
+        if (refs[0] && !wanted.length) throw new CliError("not-found", `No block "${refs[0]}" on this site.`, "List them with `agentcms content blocks`.", 2);
+        const harbor = (await s.media())[0];
+        const trials = await tryBlocks(wanted, harbor ? { id: harbor.id, url: s.host.cmsRuntime.pickMediaUrl(harbor), alt: harbor.alt ?? "" } : void 0);
+        const rawAttrs = options.attrs === void 0 ? null : (await import("./chunks/adminCommon-BdDL1hcG.mjs")).readJsonOption(options.attrs, "attrs");
+        if (rawAttrs !== null && (typeof rawAttrs !== "object" || Array.isArray(rawAttrs))) throw new CliError("usage", "--attrs must be a JSON object.", void 0, 2);
+        const custom = rawAttrs;
+        return wanted.map((b) => {
+          const t = trials.find((x) => x.id === b.id);
+          let markdown = t?.markdown ?? null;
+          const enc = markdown ? /data-attrs="([^"]*)"/.exec(markdown)?.[1] : void 0;
+          let attrs = enc ? decodeB64Json(enc) : null;
+          if (custom && markdown && enc) {
+            attrs = { ...attrs, ...custom };
+            markdown = markdown.replace(`data-attrs="${enc}"`, `data-attrs="${encodeB64Json(attrs)}"`);
+          }
+          return {
+            id: b.id,
+            category: b.category,
+            title: s.host.cmsRuntime.i18n.t(b.titleKey, { ns: b.namespace }),
+            markdown,
+            attrs,
+            ...t?.issues.length ? { issues: t.issues } : {}
+          };
+        });
+      }, (rows) => rows.map((r) => `${r.id} (${r.category}) — ${r.title}
+  ${r.markdown ?? "(inserts nothing by default)"}`).join("\n"));
+    }
+    default:
+      throw new CliError("usage", action ? `Unknown content action "${action}".` : "content needs an action.", "Actions: list, get, create, update, publish, unpublish, delete, preview, blocks.", 2);
+  }
+}
+const contentCommand = {
+  name: "content",
+  summary: "Posts and pages, like the admin's editor: list, get <id|slug>, create (draft; --publish to put it online), update <id|slug> (an online entry is republished, like Save; warnings name theme / plugin settings and menu URLs that still link to a moved page, with the fixing command), publish / unpublish <id|slug…> (several = bulk mode, one cascade), delete <id|slug…> (plan first, --yes), preview <id|slug> (HTML file: --out <file>, default in the system temp folder; --screenshots = desktop + phone PNGs in .screenshots/ next to it, absolute paths in the result), blocks [<block id>] (the editor blocks this site offers, as the Markdown to write; --attrs <json> fills a block's attributes).",
+  usage: "content <list|get|create|update|publish|unpublish|delete|preview|blocks> [ids…] --site <alias> [--type post|page] [--status draft|online] [--search <q>] [--title <t>] [--slug <s>] [--body <md>|@file|-] [--excerpt <t>] [--category <slug|name>] [--tags a,b] [--create-terms] [--hero <media id>] [--author <user id|email>] [--seo-title <t>] [--seo-description <t>] [--seo-image <url>] [--created-at <iso>] [--published-at <iso>] [--data <json>|@file] [--lang <code>] [--publish] [--no-publish] [--out <file>] [--screenshots] [--attrs <json>] [--yes]",
+  options: [
+    { name: "site", type: "string", description: "Site alias." },
+    { name: "type", type: "string", description: "post or page (create: default post)." },
+    { name: "status", type: "string", description: "list: draft or online." },
+    { name: "search", type: "string", description: "list: words that must all appear in title, slug or excerpt." },
+    { name: "category", type: "string", description: `list: filter. create/update: the post's category (slug, name or id; "" removes it).` },
+    { name: "title", type: "string", description: "Title." },
+    { name: "slug", type: "string", description: "Slug (default: from the title, made unique)." },
+    { name: "body", type: "string", description: "Markdown body: text, @file.md, or - for stdin." },
+    { name: "excerpt", type: "string", description: 'Excerpt ("" clears it).' },
+    { name: "tags", type: "string", description: "Comma-separated tags (slug, name or id); replaces the post's tags." },
+    { name: "create-terms", type: "boolean", description: "Create missing categories / tags instead of failing." },
+    { name: "hero", type: "string", description: 'Featured image: media id ("" removes it).' },
+    { name: "author", type: "string", description: "Author: user id or email (default on create: the signed-in user)." },
+    { name: "seo-title", type: "string", description: "SEO title." },
+    { name: "seo-description", type: "string", description: "SEO description." },
+    { name: "seo-image", type: "string", description: "og:image URL." },
+    { name: "created-at", type: "string", description: "Creation date (ISO 8601) — drives the ordering." },
+    { name: "published-at", type: "string", description: "Publication date (ISO 8601)." },
+    { name: "data", type: "string", description: "All fields as JSON (or @file.json): title, slug, body, excerpt, category, tags[], hero, author, seo{title,description,ogImage}, createdAt, publishedAt. Flags override it." },
+    { name: "lang", type: "string", description: "update: edit the translation in this language (agentcms-multilang) instead of the main text." },
+    { name: "publish", type: "boolean", description: "create: publish right away." },
+    { name: "no-publish", type: "boolean", description: "update: don't republish an online entry (its public page stays as it was)." },
+    { name: "out", type: "string", description: "preview: output HTML file (default: <temp>/agentcms-preview/preview-<ref>.html)." },
+    { name: "screenshots", type: "boolean", description: "preview: desktop + phone PNGs with a local Chrome, written to .screenshots/ next to the --out file (absolute paths in the result)." },
+    { name: "yes", type: "boolean", description: "delete: apply (otherwise only the plan)." },
+    { name: "attrs", type: "string", description: "blocks <id>: JSON merged into the block's default attributes; prints the Markdown marker with them encoded." }
+  ],
+  run: run$c
+};
+async function run$b({ io, options, positionals }) {
+  const what = positionals[0];
+  if (!what) throw new CliError("usage", "regenerate needs what to regenerate.", "home, all, repair, assets, everything, targets, or a target id (see `regenerate targets`).", 2);
+  const { runAdmin } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+  const alias = options.site;
+  const readOnly = what === "targets";
+  return runAdmin(io, alias, readOnly ? { extensions: true } : { write: true, hosting: true, extensions: true, lock: true }, async (s) => (
+    // One storage batch: one commit on git hostings, everything written
+    // before the command returns.
+    (await import("./chunks/siteFiles-CIBz6FxK.mjs").then((n) => n.s)).withStorageBatch(async () => {
+      const { listRegenerationTargets } = await import("./chunks/regenerationTargetRegistry-3NmN64mg.mjs");
+      const targets = listRegenerationTargets();
+      const pub = s.host.publisher;
+      const started = Date.now();
+      const runTargets = async (list2, ctx) => {
+        for (const t of list2) {
+          try {
+            await t.run(ctx, s.log);
+          } catch (err) {
+            s.log({ level: "error", message: `Plugin "${t.id}" regen failed: ${err.message}` });
+          }
+        }
+      };
+      const syncAssets = async () => {
+        const { syncThemeAssets } = await import("./chunks/themeSync-Dhezra5s.mjs");
+        await syncThemeAssets(s.host.themes.listThemes(), s.settings().themeConfigs, s.log);
+      };
+      switch (what) {
+        case "targets":
+          return { targets: targets.map((t) => ({ id: t.id, priority: t.priority ?? 100 })) };
+        case "home": {
+          await pub.regenerateHomeOnly(await s.context(), s.log);
+          break;
+        }
+        case "all": {
+          await pub.regenerateAll(await s.context({ refreshTerms: true }), s.log);
+          break;
+        }
+        case "repair": {
+          const ctx = await s.context({ refreshTerms: true });
+          const before = [...ctx.posts, ...ctx.pages].map((p) => ({ ...p }));
+          const res = await pub.repairPublishPaths(ctx, s.log);
+          const { fetchAllPosts, invalidateAllPostsCache } = await import("./chunks/posts-CtjqzF5o.mjs");
+          invalidateAllPostsCache();
+          const after = [...await fetchAllPosts({ type: "post" }), ...await fetchAllPosts({ type: "page" })];
+          const m = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+          const staleLinks = m.reportStaleLinks(s, m.pathMoves(before, after));
+          return { what, ...res, staleLinks, seconds: Math.round((Date.now() - started) / 1e3) };
+        }
+        case "assets": {
+          await syncAssets();
+          break;
+        }
+        case "everything": {
+          await syncAssets();
+          const ctx = await s.context({ refreshTerms: true });
+          await pub.regenerateAll(ctx, s.log);
+          await runTargets(targets, ctx);
+          break;
+        }
+        default: {
+          const t = targets.find((x) => x.id === what);
+          if (!t) {
+            throw new CliError("unknown-target", `"${what}" is not a regeneration of this site.`, `Use home, all, repair, assets, everything${targets.length ? ` or one of: ${targets.map((x) => x.id).join(", ")}` : ""}.`, 2);
+          }
+          await runTargets([t], await s.context());
+        }
+      }
+      return { what, seconds: Math.round((Date.now() - started) / 1e3) };
+    })
+  ), (r) => "targets" in r && r.targets ? r.targets.length ? r.targets.map((t) => `${t.id}`).join("\n") : "No plugin regeneration target." : `Regenerated ${"what" in r ? r.what : ""} in ${"seconds" in r ? r.seconds : 0}s.`);
+}
+const regenerateCommand = {
+  name: "regenerate",
+  summary: "The admin's Regenerate menu: home (home page), all (every HTML page), repair (fix moved URLs), assets (theme CSS/JS), everything (assets + all pages + every plugin target), <target-id> (one plugin's files, e.g. agentcms-sitemaps), targets (list them). Needed after changing settings, menus, terms, plugins or themes — saving those doesn't republish pages.",
+  usage: "regenerate <home|all|repair|assets|everything|targets|<target-id>> --site <alias>",
+  options: [{ name: "site", type: "string", description: "Site alias." }],
+  run: run$b
+};
+function typeOption(v) {
+  if (v === void 0) return void 0;
+  if (v === "category" || v === "tag") return v;
+  throw new CliError("usage", `--type is category or tag (got "${String(v)}").`, void 0, 2);
+}
+async function allEntries$2() {
+  const { fetchAllPosts, invalidateAllPostsCache } = await import("./chunks/posts-CtjqzF5o.mjs");
+  invalidateAllPostsCache();
+  const [posts, pages2] = await Promise.all([fetchAllPosts({ type: "post" }), fetchAllPosts({ type: "page" })]);
+  return [...posts, ...pages2];
+}
+async function freshTerms() {
+  return (await import("./chunks/taxonomies-6tEnuGYN.mjs")).fetchAllTerms();
+}
+function archivePath(t) {
+  return t.type === "category" && t.slug ? `${t.slug}/index.html` : null;
+}
+function usage(t, all) {
+  const using = all.filter((p) => p.primaryTermId === t.id || p.termIds.includes(t.id));
+  return using.map((p) => ({ id: p.id, title: p.title, status: p.status, primary: p.primaryTermId === t.id, path: p.lastPublishedPath ?? null }));
+}
+async function summarize$2(t, terms, all) {
+  const { iso } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+  const parent = t.parentId ? terms.find((x) => x.id === t.parentId) : void 0;
+  return {
+    id: t.id,
+    type: t.type,
+    name: t.name,
+    slug: t.slug,
+    description: t.description ?? null,
+    parent: parent ? parent.slug : t.parentId ?? null,
+    seo: t.seo ?? null,
+    translations: t.translations ?? null,
+    archivePath: archivePath(t),
+    posts: usage(t, all).length,
+    updatedAt: iso(t.updatedAt)
+  };
+}
+async function readFields(options) {
+  const { readJsonOption, readTextOption } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+  const data = readJsonOption(options.data, "data") ?? {};
+  if (typeof data !== "object" || Array.isArray(data)) throw new CliError("usage", "--data must be a JSON object.", void 0, 2);
+  const str = (flag, key) => typeof flag === "string" ? flag : typeof data[key] === "string" ? data[key] : void 0;
+  const f = {
+    name: str(options.name, "name"),
+    slug: str(options.slug, "slug"),
+    description: readTextOption(options.description, "description") ?? (typeof data.description === "string" ? data.description : void 0),
+    parent: str(options.parent, "parent")
+  };
+  const seoData = data.seo && typeof data.seo === "object" ? data.seo : {};
+  const seo = {};
+  for (const [flag, key] of [["seo-title", "title"], ["seo-description", "description"], ["seo-image", "ogImage"]]) {
+    const v = options[flag] !== void 0 ? options[flag] : seoData[key];
+    if (v !== void 0 && v !== null && v !== false) seo[key] = String(v);
+  }
+  if (Object.keys(seo).length) f.seo = seo;
+  return f;
+}
+function mergeSeo(current, patch) {
+  const next = { ...current ?? {} };
+  for (const [k, v] of Object.entries(patch)) {
+    const t = String(v ?? "").trim();
+    if (t) next[k] = t;
+    else delete next[k];
+  }
+  return next;
+}
+async function checkSlug(slug, type, terms, ignoreId) {
+  const { isValidSlug, detectTermSlugCollision } = await import("./chunks/slug-CZzRNKy4.mjs");
+  if (!isValidSlug(slug)) throw new CliError("invalid-slug", `Invalid slug "${slug}".`, "Lower-case letters, digits and single dashes (e.g. travel-tips).", 2);
+  const owner = detectTermSlugCollision({ type, slug }, terms, ignoreId);
+  if (owner) throw new CliError("slug-taken", `The ${type} slug "${slug}" is already used by "${owner.label}".`, "Pick another --slug (or leave it out on create to get a unique one).", 2);
+}
+function resolveParent(ref, type, terms, self) {
+  if (type !== "category") throw new CliError("usage", "Only categories have a parent.", void 0, 2);
+  const { findTerm } = requireCommon;
+  const parent = findTerm(terms, ref, "category");
+  if (!parent) throw new CliError("not-found", `No category "${ref}" to use as parent.`, "List them with `agentcms terms list --type category`.", 2);
+  if (self) {
+    let cur = parent;
+    for (let i = 0; cur && i < terms.length + 1; i++) {
+      if (cur.id === self.id) throw new CliError("usage", `"${parent.name}" can't be the parent of "${self.name}" (cycle).`, void 0, 2);
+      cur = cur.parentId ? terms.find((t) => t.id === cur.parentId) : void 0;
+    }
+  }
+  return parent.id;
+}
+let requireCommon;
+function multilangLanguages(settings) {
+  const cfg = settings.pluginConfigs?.["agentcms-multilang"];
+  if (!cfg || settings.enabledPlugins?.["agentcms-multilang"] === false) return null;
+  return Array.isArray(cfg.enabledLanguages) ? cfg.enabledLanguages.filter((l) => typeof l === "string") : [];
+}
+async function run$a({ io, options, positionals }) {
+  const [action, ref] = positionals;
+  requireCommon = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+  const { runAdmin, requireTerm, findTerm, menuReferences, menuRemoveHints, menuLabelHints, reportStaleLinks, pathMoves } = requireCommon;
+  const alias = options.site;
+  const type = typeOption(options.type);
+  switch (action) {
+    case "list":
+      return runAdmin(io, alias, {}, async () => {
+        const [terms, all] = await Promise.all([freshTerms(), allEntries$2()]);
+        const pool = type ? terms.filter((t) => t.type === type) : terms;
+        return Promise.all(pool.map((t) => summarize$2(t, terms, all)));
+      }, (rows) => rows.length ? rows.map((r) => `${r.id}  ${r.type.padEnd(8)} ${r.slug.padEnd(24)} ${r.name}  (${r.posts} post${r.posts === 1 ? "" : "s"})`).join("\n") : "No terms.");
+    case "get": {
+      if (!ref) throw new CliError("usage", "terms get needs an id, slug or name.", void 0, 2);
+      return runAdmin(io, alias, {}, async () => {
+        const [terms, all] = await Promise.all([freshTerms(), allEntries$2()]);
+        const t = requireTerm(terms, ref, type);
+        return { ...await summarize$2(t, terms, all), usedBy: usage(t, all) };
+      }, (r) => [`${r.name} (${r.type}, ${r.slug})${r.archivePath ? ` — archive ${r.archivePath}` : ""}`, ...r.usedBy.map((p) => `  ${p.primary ? "*" : " "} ${p.title} (${p.status})`)].join("\n"));
+    }
+    case "create": {
+      if (!type) throw new CliError("usage", "terms create needs --type category|tag.", void 0, 2);
+      const f = await readFields(options);
+      const name = f.name?.trim();
+      if (!name) throw new CliError("usage", "terms create needs --name.", void 0, 2);
+      return runAdmin(io, alias, { write: true, lock: true }, async () => {
+        const { slugify, findAvailableSlug, detectTermSlugCollision } = await import("./chunks/slug-CZzRNKy4.mjs");
+        const { createTerm, updateTerm } = await import("./chunks/taxonomies-6tEnuGYN.mjs");
+        const terms = await freshTerms();
+        let slug = f.slug?.trim();
+        if (slug) await checkSlug(slug, type, terms);
+        else slug = findAvailableSlug(slugify(name) || "term", (s) => Boolean(detectTermSlugCollision({ type, slug: s }, terms)));
+        const parentId = f.parent ? resolveParent(f.parent, type, terms) : void 0;
+        const id = await createTerm({ type, name, slug, description: f.description?.trim() || void 0, parentId });
+        if (f.seo) await updateTerm(id, { seo: mergeSeo(void 0, f.seo) });
+        return {
+          id,
+          type,
+          name,
+          slug,
+          archivePath: archivePath({ type, slug }),
+          next: ["Nothing is published yet: the archive appears once a post of this category is published, or with `agentcms regenerate all`."]
+        };
+      }, (r) => `Created ${r.type} ${r.id} (${r.slug}).`);
+    }
+    case "update": {
+      if (!ref) throw new CliError("usage", "terms update needs an id, slug or name.", void 0, 2);
+      const f = await readFields(options);
+      const lang = typeof options.lang === "string" ? options.lang.trim() : void 0;
+      const remove = !!options.remove;
+      const removeArchive = !!options["remove-archive"];
+      const oldSlug = typeof options["old-slug"] === "string" ? options["old-slug"].trim() : void 0;
+      if (remove && !lang) throw new CliError("usage", "--remove deletes a translation: it needs --lang.", void 0, 2);
+      if (lang && (removeArchive || oldSlug !== void 0)) throw new CliError("usage", "--remove-archive / --old-slug don't go with --lang.", void 0, 2);
+      return runAdmin(io, alias, { write: true, hosting: removeArchive, lock: true }, async (s) => {
+        const { updateTerm } = await import("./chunks/taxonomies-6tEnuGYN.mjs");
+        const { isValidSlug, slugify } = await import("./chunks/slug-CZzRNKy4.mjs");
+        const terms = await freshTerms();
+        const t = requireTerm(terms, ref, type);
+        const next = [];
+        if (lang) {
+          const langs = multilangLanguages(s.settings());
+          if (langs === null) s.warnings.push("agentcms-multilang is not configured on this site: the translation is stored but nothing renders it.");
+          else if (!langs.includes(lang)) s.warnings.push(`"${lang}" is not one of the site's enabled languages (${langs.join(", ") || "none"}): the translation is stored but not published.`);
+          const current = { ...t.translations ?? {} };
+          if (remove) {
+            if (!current[lang]) throw new CliError("not-found", `${t.name} has no ${lang} translation.`, void 0, 2);
+            delete current[lang];
+          } else {
+            const tr = { slug: "", name: "", description: "", ...current[lang] ?? {} };
+            if (f.name !== void 0) tr.name = f.name.trim();
+            if (f.slug !== void 0) tr.slug = f.slug.trim();
+            if (f.description !== void 0) tr.description = f.description.trim();
+            if (f.seo) {
+              const seo = mergeSeo(tr.seo, f.seo);
+              if (Object.keys(seo).length) tr.seo = seo;
+              else delete tr.seo;
+            }
+            if (!tr.name) throw new CliError("usage", `The ${lang} translation needs a --name.`, void 0, 2);
+            if (!tr.slug) tr.slug = slugify(String(tr.name));
+            if (!isValidSlug(String(tr.slug))) throw new CliError("invalid-slug", `Invalid slug "${tr.slug}".`, "Lower-case letters, digits and single dashes.", 2);
+            const clash = terms.find((x) => x.id !== t.id && x.type === t.type && x.translations?.[lang]?.slug === tr.slug);
+            if (clash) throw new CliError("slug-taken", `The ${lang} slug "${tr.slug}" is already used by "${clash.name}".`, "Pick another --slug.", 2);
+            current[lang] = tr;
+          }
+          await updateTerm(t.id, { translations: current });
+          next.push(t.type === "category" ? "Run `agentcms regenerate everything` to publish the translated archive and post URLs (and the plugin files that list them: sitemaps, RSS feeds, search index)." : "Run `agentcms regenerate everything` so the published pages and plugin files show the translated tag.");
+          if (!remove && f.name !== void 0) {
+            for (const m of menuLabelHints(s.settings(), "term", t.id, String(current[lang].name), s.site.alias, lang)) {
+              next.push(`Menu item ${m.id} (${m.menu}) has ${m.label ? `the ${lang} label "${m.label}"` : `no ${lang} label`}: \`${m.fix}\`.`);
+            }
+          }
+          return { id: t.id, type: t.type, lang, translation: remove ? null : current[lang], next };
+        }
+        const patch = {};
+        if (f.name !== void 0) {
+          if (!f.name.trim()) throw new CliError("usage", "--name can't be empty.", void 0, 2);
+          patch.name = f.name.trim();
+        }
+        if (f.slug !== void 0 && f.slug.trim() !== t.slug) {
+          await checkSlug(f.slug.trim(), t.type, terms, t.id);
+          patch.slug = f.slug.trim();
+        }
+        if (f.description !== void 0) patch.description = f.description.trim();
+        if (f.parent !== void 0) patch.parentId = f.parent === "" ? "" : resolveParent(f.parent, t.type, terms, t);
+        if (f.seo) patch.seo = mergeSeo(t.seo, f.seo);
+        let staleArchive = null;
+        if (t.type === "category" && patch.slug) staleArchive = archivePath(t);
+        else if (oldSlug !== void 0) {
+          if (t.type !== "category") throw new CliError("usage", "--old-slug names an old category archive: tags have none.", void 0, 2);
+          if (!isValidSlug(oldSlug)) throw new CliError("invalid-slug", `Invalid --old-slug "${oldSlug}".`, void 0, 2);
+          const owner = terms.find((x) => x.type === "category" && x.slug === oldSlug);
+          if (owner) throw new CliError("usage", `${oldSlug}/index.html is the live archive of "${owner.name}": nothing to remove.`, void 0, 2);
+          staleArchive = `${oldSlug}/index.html`;
+        }
+        if (oldSlug !== void 0 && !removeArchive) throw new CliError("usage", "--old-slug goes with --remove-archive.", void 0, 2);
+        if (!Object.keys(patch).length && !(removeArchive && staleArchive)) {
+          throw new CliError("usage", "Nothing to update.", "Pass --name, --slug, --description, --parent, --seo-title, --seo-description, --seo-image or --lang (or --remove-archive --old-slug <slug> to delete an old archive).", 2);
+        }
+        if (removeArchive && !staleArchive) throw new CliError("usage", "--remove-archive deletes the archive left by a slug change: pass a new --slug (or --old-slug <old slug>).", void 0, 2);
+        const moves = [];
+        if (t.type === "category" && patch.slug) {
+          const { buildPostUrl } = await import("./chunks/slug-CZzRNKy4.mjs");
+          const renamed = { ...t, slug: patch.slug };
+          for (const p of await allEntries$2()) {
+            if (p.status !== "online" || p.primaryTermId !== t.id || !p.lastPublishedPath) continue;
+            const to = buildPostUrl({ post: p, primaryTerm: renamed });
+            if (to !== p.lastPublishedPath) moves.push({ from: p.lastPublishedPath, to });
+          }
+          moves.push({ from: archivePath(t), to: archivePath(renamed) });
+        } else if (staleArchive) moves.push({ from: staleArchive, to: archivePath(t) });
+        if (Object.keys(patch).length) await updateTerm(t.id, patch);
+        let archiveRemoved = false;
+        if (removeArchive && staleArchive) {
+          const { deleteFile, withStorageBatch } = await import("./chunks/siteFiles-CIBz6FxK.mjs").then((n) => n.s);
+          await withStorageBatch(() => deleteFile(staleArchive));
+          archiveRemoved = true;
+        }
+        const after = (await freshTerms()).find((x) => x.id === t.id);
+        if (patch.slug && t.type === "category") {
+          next.push("Run `agentcms regenerate repair` to move this category's posts to their new URLs, then `agentcms regenerate everything` so the archives, listings and plugin files (sitemaps, RSS feeds, search index) use the new URLs.");
+          if (!archiveRemoved) next.push(`The old archive ${staleArchive} is still published: delete it with \`agentcms terms update ${after.slug} --type category --remove-archive --old-slug ${t.slug} --site ${s.site.alias}\` (or pass --remove-archive with --slug).`);
+        } else if (Object.keys(patch).length) {
+          next.push("Run `agentcms regenerate everything` so published pages and plugin files (sitemaps, RSS feeds, search index) show the change (saving a term republishes nothing).");
+        }
+        const menuLabels = patch.name ? menuLabelHints(s.settings(), "term", t.id, patch.name, s.site.alias) : [];
+        for (const m of menuLabels) next.push(`Menu item "${m.label}" (${m.menu}) points to this ${t.type} under its old label: \`${m.fix}\`.`);
+        const links = reportStaleLinks(s, moves);
+        return { id: t.id, type: t.type, name: after.name, slug: after.slug, seo: after.seo ?? null, archivePath: archivePath(after), staleArchive, archiveRemoved, menuLabels, staleLinks: links, next };
+      }, (r) => [`Updated ${r.type} ${r.id}${"lang" in r ? ` (${r.lang})` : ""}.`, ...r.next.map((n) => `  next: ${n}`)].join("\n"));
+    }
+    case "delete": {
+      if (!ref) throw new CliError("usage", "terms delete needs an id, slug or name.", void 0, 2);
+      const detach = !!options.detach;
+      const removeArchive = !!options["remove-archive"];
+      const moveToRef = typeof options["move-to"] === "string" ? options["move-to"].trim() : void 0;
+      if (moveToRef !== void 0 && detach) throw new CliError("usage", "--move-to and --detach don't go together: --move-to already removes the term from its posts.", void 0, 2);
+      if (moveToRef === "") throw new CliError("usage", "--move-to needs a category (slug, name or id).", void 0, 2);
+      const planOf = async () => {
+        const [terms, all] = await Promise.all([freshTerms(), allEntries$2()]);
+        const t = requireTerm(terms, ref, type);
+        let moveTo;
+        if (moveToRef !== void 0) {
+          if (t.type !== "category") throw new CliError("usage", "--move-to moves the posts of a deleted category: this is a tag.", "Use --detach to remove a tag from its posts.", 2);
+          moveTo = findTerm(terms, moveToRef, "category");
+          if (!moveTo) throw new CliError("not-found", `No category "${moveToRef}" to move the posts to.`, "List them with `agentcms terms list --type category`.", 2);
+          if (moveTo.id === t.id) throw new CliError("usage", "--move-to must be another category than the one deleted.", void 0, 2);
+        }
+        const { buildPostUrl, detectPathCollision } = await import("./chunks/slug-CZzRNKy4.mjs");
+        const remaining = terms.filter((x) => x.id !== t.id);
+        const changes = all.filter((p) => p.primaryTermId === t.id || p.termIds.includes(t.id)).map((p) => {
+          const primary = p.primaryTermId === t.id;
+          const newPrimary = primary ? moveTo?.id ?? null : p.primaryTermId ?? null;
+          const termIds = p.termIds.filter((id) => id !== t.id);
+          if (primary && moveTo && !termIds.includes(moveTo.id)) termIds.unshift(moveTo.id);
+          const term = newPrimary ? remaining.find((x) => x.id === newPrimary) : void 0;
+          const to = p.status === "online" && p.lastPublishedPath && p.type === "post" ? buildPostUrl({ post: p, primaryTerm: term }) : p.lastPublishedPath ?? null;
+          return { post: p, primary, newPrimary, termIds, to };
+        });
+        const conflicts = moveTo ? changes.filter((c) => c.primary).map((c) => {
+          const path = buildPostUrl({ post: c.post, primaryTerm: moveTo });
+          const owner = detectPathCollision(path, all.filter((p) => p.type === "post" && p.primaryTermId !== t.id), all.filter((p) => p.type === "page"), remaining, c.post.id);
+          return owner ? { id: c.post.id, title: c.post.title, path, usedBy: `${owner.kind} "${owner.label}"` } : null;
+        }).filter((x) => !!x) : [];
+        return { term: t, moveTo, changes, conflicts, usedBy: usage(t, all), archivePath: archivePath(t), children: terms.filter((x) => x.parentId === t.id).map((x) => x.slug) };
+      };
+      const moveSummary = (p) => p.moveTo ? {
+        to: { id: p.moveTo.id, slug: p.moveTo.slug, name: p.moveTo.name },
+        posts: p.changes.map((c) => ({
+          id: c.post.id,
+          title: c.post.title,
+          status: c.post.status,
+          change: c.primary ? `category → ${p.moveTo.slug}` : `loses the ${p.term.type}`,
+          ...c.post.status === "online" ? { from: c.post.lastPublishedPath ?? null, to: c.to } : {}
+        })),
+        republish: p.changes.filter((c) => c.post.status === "online").length,
+        conflicts: p.conflicts
+      } : null;
+      const menuHints = (alias2, p, items) => p.moveTo ? items.map((m) => `Menu item "${m.label}" (${m.menu}) still points to the deleted ${p.term.type}: \`agentcms menus update ${m.id} --menu ${m.menu} --category ${p.moveTo.slug} --site ${alias2}\` (or \`agentcms menus remove ${m.id} --menu ${m.menu} --site ${alias2}\`).`) : menuRemoveHints(alias2, items);
+      if (!options.yes) {
+        return runAdmin(io, alias, {}, async (s) => {
+          const p = await planOf();
+          const menuItems = menuReferences(s.settings(), "term", [p.term.id]);
+          const move = moveSummary(p);
+          return {
+            needsConfirmation: true,
+            delete: { id: p.term.id, type: p.term.type, name: p.term.name, slug: p.term.slug },
+            usedBy: p.usedBy,
+            archivePath: p.archivePath,
+            children: p.children,
+            menuItems,
+            detach,
+            move,
+            removeArchive,
+            notes: [
+              p.usedBy.length ? move ? `${move.posts.filter((x) => x.change.startsWith("category")).length} post(s) move to "${move.to.name}", the others lose the ${p.term.type}; ${move.republish} online post(s) will be republished (bulk mode, one storage batch).` : detach ? `${p.usedBy.length} post(s) will lose this ${p.term.type} (--detach).` : `${p.usedBy.length} post(s) keep a reference to the deleted ${p.term.type}; add --detach to remove it from them${p.term.type === "category" ? ", or --move-to <category> to move them" : ""}.` : "No post uses it.",
+              ...p.conflicts.length ? [`Blocked: ${p.conflicts.map((c) => `${c.path} (${c.title}) is already used by ${c.usedBy}`).join("; ")} — rename those posts first or pick another --move-to.`] : [],
+              ...menuHints(s.site.alias, p, menuItems),
+              ...p.archivePath ? [removeArchive ? `${p.archivePath} will be deleted from the site.` : `${p.archivePath} stays published; add --remove-archive to delete it.`] : []
+            ]
+          };
+        }, (r) => `Would delete ${r.delete.type} "${r.delete.name}". ${r.notes.join(" ")} Nothing changed — re-run with --yes once the user agrees.`);
+      }
+      const publishes = moveToRef !== void 0;
+      return runAdmin(io, alias, { write: true, hosting: removeArchive || publishes, extensions: publishes, lock: true }, async (s) => {
+        const p = await planOf();
+        if (p.conflicts.length) {
+          throw new CliError("slug-taken", `Moving to "${p.moveTo.name}" would overwrite: ${p.conflicts.map((c) => `${c.path} (${c.usedBy})`).join(", ")}.`, "Rename those posts (`agentcms content update <id> --slug …`) or pick another --move-to. Nothing changed.", 2);
+        }
+        const menuItems = menuReferences(s.settings(), "term", [p.term.id]);
+        const { updatePost } = await import("./chunks/posts-CtjqzF5o.mjs");
+        const { deleteTerm } = await import("./chunks/taxonomies-6tEnuGYN.mjs");
+        const before = await allEntries$2();
+        const detached = [];
+        const moved = [];
+        if (detach || p.moveTo) {
+          for (const c of p.changes) {
+            await updatePost(c.post.id, {
+              termIds: c.termIds,
+              ...c.primary ? { primaryTermId: c.newPrimary } : {}
+            });
+            if (p.moveTo && c.primary) moved.push(c.post.id);
+            else detached.push(c.post.id);
+          }
+        }
+        await deleteTerm(p.term.id);
+        const { deleteFile, withStorageBatch } = await import("./chunks/siteFiles-CIBz6FxK.mjs").then((n) => n.s);
+        let archiveRemoved = false;
+        const republished = [];
+        const online = p.changes.filter((c) => c.post.status === "online");
+        await withStorageBatch(async () => {
+          if (removeArchive && p.archivePath) {
+            await deleteFile(p.archivePath);
+            archiveRemoved = true;
+          }
+          if (p.moveTo && online.length) {
+            const pub = s.host.publisher;
+            const ctx = await s.context({ refreshTerms: true });
+            ctx.bulkMode = true;
+            for (const c of online) {
+              try {
+                await pub.publishPost(c.post.id, ctx, s.log);
+                republished.push({ id: c.post.id, title: c.post.title, ok: true });
+              } catch (err) {
+                republished.push({ id: c.post.id, title: c.post.title, ok: false, error: err.message });
+              }
+            }
+            const { listRegenerationTargets } = await import("./chunks/regenerationTargetRegistry-3NmN64mg.mjs");
+            await pub.flushBulkRegeneration(ctx, s.log, listRegenerationTargets());
+          }
+        });
+        const after = await allEntries$2();
+        for (const r of republished) r.path = after.find((x) => x.id === r.id)?.lastPublishedPath ?? null;
+        const next = [];
+        const rootBound = p.moveTo ? [] : p.changes.filter((c) => c.post.status === "online" && c.primary);
+        if (rootBound.length) next.push(`Run \`agentcms regenerate repair\` — ${rootBound.length} online post(s) lost their category, so their URL changes.`);
+        if (!p.moveTo || !online.length) next.push(`Run \`agentcms regenerate everything\` so the archives, listings and plugin files (sitemaps, RSS feeds, search index) stop listing the deleted ${p.term.type}.`);
+        next.push(...menuHints(s.site.alias, p, menuItems));
+        if (p.archivePath && !archiveRemoved) next.push(`${p.archivePath} is still published (re-run with --remove-archive, or delete it by hand).`);
+        const moves = p.moveTo ? pathMoves(before, after) : rootBound.filter((c) => c.to && c.to !== c.post.lastPublishedPath).map((c) => ({ from: c.post.lastPublishedPath, to: c.to }));
+        if (p.archivePath) moves.push({ from: p.archivePath, to: p.moveTo ? archivePath(p.moveTo) : null });
+        const links = reportStaleLinks(s, moves);
+        return {
+          deleted: { id: p.term.id, type: p.term.type, name: p.term.name, slug: p.term.slug },
+          detached,
+          moved,
+          movedTo: p.moveTo ? { id: p.moveTo.id, slug: p.moveTo.slug, name: p.moveTo.name } : null,
+          republished,
+          stillReferencedBy: detach || p.moveTo ? [] : p.usedBy,
+          archivePath: p.archivePath,
+          archiveRemoved,
+          orphanChildren: p.children,
+          menuItems,
+          staleLinks: links,
+          next
+        };
+      }, (r) => [`Deleted ${r.deleted.type} "${r.deleted.name}"${r.movedTo ? ` — ${r.moved.length} post(s) moved to "${r.movedTo.name}"` : ""}.`, ...r.next.map((n) => `  next: ${n}`)].join("\n"));
+    }
+    default:
+      throw new CliError("usage", action ? `Unknown terms action "${action}".` : "terms needs an action.", "Actions: list, get, create, update, delete.", 2);
+  }
+}
+const termsCommand = {
+  name: "terms",
+  summary: "Categories and tags, like the admin's Categories & Tags page: list, get <ref>, create (--type, --name; slug from the name when omitted), update <ref> (name, slug, description, parent, SEO; --remove-archive with a new --slug deletes the old archive, --remove-archive --old-slug <s> one left by an earlier rename; --lang <code> edits the agentcms-multilang translation, --remove drops it), delete <ref> (plan first, --yes; --move-to <category> moves its posts there and republishes the online ones, --detach removes it from its posts, --remove-archive deletes the published archive). Saving a term republishes nothing: run the `next` regeneration; `next` also names menu items whose label no longer matches and warnings name config links to moved pages.",
+  usage: "terms <list|get|create|update|delete> [<id|slug|name>] --site <alias> [--type category|tag] [--name <n>] [--slug <s>] [--description <t>|@file] [--parent <category>] [--seo-title <t>] [--seo-description <t>] [--seo-image <url>] [--data <json>|@file] [--lang <code>] [--remove] [--remove-archive] [--old-slug <s>] [--detach] [--move-to <category>] [--yes]",
+  options: [
+    { name: "site", type: "string", description: "Site alias." },
+    { name: "type", type: "string", description: "category or tag (required on create; filters list / disambiguates refs)." },
+    { name: "name", type: "string", description: "Name (with --lang: the translated name)." },
+    { name: "slug", type: "string", description: "Slug (create: default from the name, made unique; with --lang: the translated slug)." },
+    { name: "description", type: "string", description: 'Description ("" clears it).' },
+    { name: "parent", type: "string", description: 'Parent category (slug, name or id; "" removes it). Categories only.' },
+    { name: "seo-title", type: "string", description: 'Archive <title> ("" clears it).' },
+    { name: "seo-description", type: "string", description: 'Archive meta description ("" clears it).' },
+    { name: "seo-image", type: "string", description: 'Archive og:image URL ("" clears it).' },
+    { name: "data", type: "string", description: "Fields as JSON (or @file.json): name, slug, description, parent, seo{title,description,ogImage}. Flags override it." },
+    { name: "lang", type: "string", description: "update: edit translations[<lang>] (agentcms-multilang) instead of the main fields." },
+    { name: "remove", type: "boolean", description: "update --lang: delete that translation." },
+    { name: "detach", type: "boolean", description: "delete: also remove the term from the posts that use it." },
+    { name: "move-to", type: "string", description: "delete (categories): give its posts this category instead (slug, name or id); online ones are republished in bulk mode. Not with --detach." },
+    { name: "remove-archive", type: "boolean", description: "delete: also delete the category's published archive (<slug>/index.html). update: delete the archive the slug change leaves behind (with --slug, or --old-slug)." },
+    { name: "old-slug", type: "string", description: "update --remove-archive: the slug of an earlier rename whose archive (<old-slug>/index.html) is still published." },
+    { name: "yes", type: "boolean", description: "delete: apply (otherwise only the plan)." }
+  ],
+  run: run$a
+};
+async function loadCorpus() {
+  const { fetchAllPosts, invalidateAllPostsCache } = await import("./chunks/posts-CtjqzF5o.mjs");
+  const { fetchAllTerms } = await import("./chunks/taxonomies-6tEnuGYN.mjs");
+  invalidateAllPostsCache();
+  const [posts, pages2, terms] = await Promise.all([fetchAllPosts({ type: "post" }), fetchAllPosts({ type: "page" }), fetchAllTerms()]);
+  return { posts, pages: pages2, terms };
+}
+function newId() {
+  return typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+async function describe(item, c) {
+  const { resolveMenuItems } = await import("./chunks/menuResolver-BEzafl_Y.mjs");
+  const href = resolveMenuItems([{ ...item, children: void 0 }], c)[0].href;
+  let target;
+  if (item.externalUrl !== void 0) target = { kind: "external", url: item.externalUrl };
+  else if (item.ref?.kind === "post") {
+    const p = [...c.posts, ...c.pages].find((x) => x.id === item.ref?.id);
+    target = p ? { kind: p.type, id: p.id, title: p.title, slug: p.slug, status: p.status, ...p.status !== "online" ? { problem: "not online: the link leads to a missing page" } : {} } : { kind: "post", id: item.ref.id ?? null, problem: "missing: the post or page no longer exists (href #)" };
+  } else if (item.ref?.kind === "term") {
+    const t = c.terms.find((x) => x.id === item.ref?.id);
+    target = t ? { kind: t.type, id: t.id, name: t.name, slug: t.slug, ...t.type !== "category" ? { problem: "tags have no archive (href #)" } : {} } : { kind: "category", id: item.ref.id ?? null, problem: "missing: the category no longer exists (href #)" };
+  } else target = { kind: "home" };
+  const children = item.children ? await Promise.all(item.children.map((ch) => describe(ch, c))) : [];
+  const { children: _raw, ...rest } = item;
+  return { ...rest, ...item.children ? { children } : {}, target: { ...target, href } };
+}
+function normalizeItem(raw, c, where, findPost, findTerm) {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new CliError("invalid-menu", `${where}: an item must be an object.`, void 0, 2);
+  const o = raw;
+  const label = typeof o.label === "string" ? o.label : "";
+  if (!label.trim()) throw new CliError("invalid-menu", `${where}: "label" is required.`, void 0, 2);
+  const item = { id: typeof o.id === "string" && o.id ? o.id : newId(), label };
+  const kinds = ["post", "category", "home", "url", "ref", "externalUrl"].filter((k) => o[k] !== void 0 && o[k] !== false);
+  if (kinds.length > 1) throw new CliError("invalid-menu", `${where}: give one target (${kinds.join(" + ")} given).`, void 0, 2);
+  const all = [...c.posts, ...c.pages];
+  const url = o.url ?? o.externalUrl;
+  if (url !== void 0) {
+    if (typeof url !== "string" || !url.trim()) throw new CliError("invalid-menu", `${where}: the url must be a non-empty string.`, void 0, 2);
+    item.externalUrl = url.trim();
+  } else if (o.post !== void 0) {
+    item.ref = { kind: "post", id: findPost(all, String(o.post)).id };
+  } else if (o.category !== void 0) {
+    const t = findTerm(c.terms, String(o.category), "category");
+    if (!t) throw new CliError("not-found", `${where}: no category "${String(o.category)}".`, "List them with `agentcms terms list --type category`.", 2);
+    item.ref = { kind: "term", id: t.id };
+  } else if (o.ref !== void 0) {
+    const ref = o.ref;
+    if (!ref || typeof ref !== "object" || !["post", "term", "home"].includes(String(ref.kind))) {
+      throw new CliError("invalid-menu", `${where}: ref.kind must be post, term or home.`, void 0, 2);
+    }
+    const kind = ref.kind;
+    if (kind === "home") item.ref = { kind: "home" };
+    else {
+      if (typeof ref.id !== "string" || !ref.id) throw new CliError("invalid-menu", `${where}: ref.id is required for a ${kind}.`, void 0, 2);
+      if (kind === "post") item.ref = { kind, id: findPost(all, ref.id).id };
+      else {
+        const t = findTerm(c.terms, ref.id, "category");
+        if (!t) throw new CliError("not-found", `${where}: no category "${ref.id}".`, void 0, 2);
+        item.ref = { kind, id: t.id };
+      }
+    }
+  } else {
+    item.ref = { kind: "home" };
+  }
+  if (o.translations !== void 0) {
+    const tr = o.translations;
+    if (!tr || typeof tr !== "object" || Array.isArray(tr)) throw new CliError("invalid-menu", `${where}: translations must be { "<lang>": { "label": "…" } }.`, void 0, 2);
+    const clean = {};
+    for (const [lang, v] of Object.entries(tr)) {
+      const l = typeof v === "string" ? v : v?.label;
+      if (l !== void 0 && typeof l !== "string") throw new CliError("invalid-menu", `${where}: translations.${lang}.label must be a string.`, void 0, 2);
+      if (l && l.trim()) clean[lang] = { label: l };
+    }
+    if (Object.keys(clean).length) item.translations = clean;
+  }
+  if (o.children !== void 0) {
+    if (!Array.isArray(o.children)) throw new CliError("invalid-menu", `${where}: children must be an array.`, void 0, 2);
+    if (o.children.length) item.children = o.children.map((ch, i) => normalizeItem(ch, c, `${where}.children[${i}]`, findPost, findTerm));
+  }
+  return item;
+}
+function menuOption(v) {
+  if (v === "header" || v === "footer") return v;
+  throw new CliError("usage", `--menu is header or footer${v === void 0 ? "" : ` (got "${String(v)}")`}.`, void 0, 2);
+}
+function findItemIndex(list2, ref, menu) {
+  const byId = list2.findIndex((i) => i.id === ref);
+  if (byId >= 0) return byId;
+  const byLabel = list2.map((i, n) => [i, n]).filter(([i]) => i.label.toLowerCase() === ref.toLowerCase());
+  if (byLabel.length === 1) return byLabel[0][1];
+  if (byLabel.length > 1) throw new CliError("ambiguous", `${byLabel.length} ${menu} items are labelled "${ref}".`, "Use the item id (see `agentcms menus get`).", 2);
+  const pos = Number(ref);
+  if (Number.isInteger(pos) && pos >= 1 && pos <= list2.length) return pos - 1;
+  throw new CliError("not-found", `No ${menu} item "${ref}".`, "Use an id, a label or a 1-based position (see `agentcms menus get`).", 2);
+}
+function findItemDeep(list2, ref, menu) {
+  const byId = (items) => {
+    for (const it of items) {
+      if (it.id === ref) return it;
+      const hit = it.children ? byId(it.children) : void 0;
+      if (hit) return hit;
+    }
+    return void 0;
+  };
+  return byId(list2) ?? list2[findItemIndex(list2, ref, menu)];
+}
+function positionOption(v, length) {
+  if (v === void 0) return void 0;
+  const n = Number(v);
+  if (!Number.isInteger(n) || n < 1) throw new CliError("usage", `--position is a 1-based position (got "${String(v)}").`, void 0, 2);
+  return Math.min(n, length + 1) - 1;
+}
+async function run$9({ io, options, positionals }) {
+  const [action, ref] = positionals;
+  const common = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+  const { runAdmin, findPost, findTerm, readJsonOption } = common;
+  const alias = options.site;
+  const describeAll = async (menus, c) => ({
+    header: await Promise.all((menus.header ?? []).map((i) => describe(i, c))),
+    footer: await Promise.all((menus.footer ?? []).map((i) => describe(i, c)))
+  });
+  const write = (compute) => runAdmin(io, alias, { write: true, hosting: true, extensions: true, lock: true }, async (s) => {
+    const settings = s.settings();
+    const c = { ...await loadCorpus(), settings };
+    const current = { header: settings.menus?.header ?? [], footer: settings.menus?.footer ?? [] };
+    const nextMenus = await compute(current, c);
+    const { updateSettings } = await import("./chunks/settings-DhDNovH5.mjs");
+    const { publishMenuJson, MENU_JSON_PATH } = await import("./chunks/menuPublisher-CNTfo9OZ.mjs");
+    await updateSettings({ menus: nextMenus });
+    const patched = { ...settings, menus: nextMenus };
+    const { withStorageBatch } = await import("./chunks/siteFiles-CIBz6FxK.mjs").then((n) => n.s);
+    await withStorageBatch(() => publishMenuJson(patched, c.posts, c.pages, c.terms));
+    await s.refresh();
+    const described = await describeAll(nextMenus, c);
+    const problems = [...described.header, ...described.footer].filter((i) => i.target.problem).map((i) => `${i.label}: ${i.target.problem}`);
+    for (const p of problems) s.warnings.push(p);
+    return { ...described, published: MENU_JSON_PATH };
+  }, (r) => `Saved the menus (header ${r.header.length}, footer ${r.footer.length} items) and published ${r.published}.`);
+  switch (action) {
+    case "get":
+      return runAdmin(io, alias, {}, async (s) => {
+        const settings = s.settings();
+        const c = { ...await loadCorpus(), settings };
+        return describeAll({ header: settings.menus?.header ?? [], footer: settings.menus?.footer ?? [] }, c);
+      }, (r) => ["header", "footer"].map((m) => [`${m}:`, ...r[m].length ? r[m].map((i, n) => `  ${n + 1}. ${i.label} → ${i.target.href}${i.target.problem ? `  (${i.target.problem})` : ""}  [${i.id}]`) : ["  (empty)"]].join("\n")).join("\n"));
+    case "set": {
+      const data = readJsonOption(options.data, "data");
+      if (!data || typeof data !== "object" || Array.isArray(data)) throw new CliError("usage", `menus set needs --data '{"header":[…],"footer":[…]}' (or @file.json).`, "A menu left out keeps its current items.", 2);
+      for (const k of Object.keys(data)) if (k !== "header" && k !== "footer") throw new CliError("invalid-menu", `Unknown key "${k}" (only header and footer).`, void 0, 2);
+      for (const m of ["header", "footer"]) if (data[m] !== void 0 && !Array.isArray(data[m])) throw new CliError("invalid-menu", `${m} must be an array of items.`, void 0, 2);
+      return write((current, c) => ({
+        header: data.header ? data.header.map((i, n) => normalizeItem(i, c, `header[${n}]`, findPost, findTerm)) : current.header,
+        footer: data.footer ? data.footer.map((i, n) => normalizeItem(i, c, `footer[${n}]`, findPost, findTerm)) : current.footer
+      }));
+    }
+    case "add": {
+      const menu = menuOption(options.menu);
+      const raw = { label: options.label };
+      if (options.post !== void 0) raw.post = options.post;
+      if (options.category !== void 0) raw.category = options.category;
+      if (options.url !== void 0) raw.url = options.url;
+      if (options.home) raw.home = true;
+      return write((current, c) => {
+        const item = normalizeItem(raw, c, "item", findPost, findTerm);
+        const list2 = [...current[menu]];
+        list2.splice(positionOption(options.position, list2.length) ?? list2.length, 0, item);
+        return { ...current, [menu]: list2 };
+      });
+    }
+    case "remove": {
+      const menu = menuOption(options.menu);
+      if (!ref) throw new CliError("usage", "menus remove needs an item id, label or position.", void 0, 2);
+      return write((current) => {
+        const list2 = [...current[menu]];
+        list2.splice(findItemIndex(list2, ref, menu), 1);
+        return { ...current, [menu]: list2 };
+      });
+    }
+    case "move": {
+      const menu = menuOption(options.menu);
+      if (!ref) throw new CliError("usage", "menus move needs an item id, label or position.", void 0, 2);
+      if (options.position === void 0) throw new CliError("usage", "menus move needs --position <n> (1-based).", void 0, 2);
+      return write((current) => {
+        const list2 = [...current[menu]];
+        const [item] = list2.splice(findItemIndex(list2, ref, menu), 1);
+        list2.splice(positionOption(options.position, list2.length), 0, item);
+        return { ...current, [menu]: list2 };
+      });
+    }
+    case "update": {
+      const menu = menuOption(options.menu);
+      if (!ref) throw new CliError("usage", "menus update needs an item id, label or position.", void 0, 2);
+      const lang = typeof options.lang === "string" ? options.lang.trim() : void 0;
+      const label = typeof options.label === "string" ? options.label : void 0;
+      const targets = ["post", "category", "url", "home"].filter((k) => options[k] !== void 0 && options[k] !== false);
+      if (targets.length > 1) throw new CliError("usage", `Give one target (${targets.map((t) => `--${t}`).join(" + ")} given).`, void 0, 2);
+      if (lang !== void 0) {
+        if (!lang) throw new CliError("usage", "--lang needs a language code.", void 0, 2);
+        if (label === void 0) throw new CliError("usage", '--lang sets a translated label: it needs --label ("" removes the translation).', void 0, 2);
+      } else if (label !== void 0 && !label.trim()) throw new CliError("invalid-menu", "--label can't be empty.", void 0, 2);
+      if (label === void 0 && !targets.length) throw new CliError("usage", "Nothing to update.", "Pass --label (with --lang <code> for a translation), or a new target: --post, --category, --url or --home.", 2);
+      return write((current, c) => {
+        const list2 = JSON.parse(JSON.stringify(current[menu]));
+        const item = findItemDeep(list2, ref, menu);
+        if (label !== void 0) {
+          if (lang) {
+            const tr = { ...item.translations ?? {} };
+            if (label.trim()) tr[lang] = { label };
+            else delete tr[lang];
+            if (Object.keys(tr).length) item.translations = tr;
+            else delete item.translations;
+          } else item.label = label;
+        }
+        if (targets.length) {
+          const raw = { label: item.label, [targets[0]]: options[targets[0]] };
+          const target = normalizeItem(raw, c, "item", findPost, findTerm);
+          delete item.ref;
+          delete item.externalUrl;
+          if (target.externalUrl !== void 0) item.externalUrl = target.externalUrl;
+          else item.ref = target.ref;
+        }
+        return { ...current, [menu]: list2 };
+      });
+    }
+    default:
+      throw new CliError("usage", action ? `Unknown menus action "${action}".` : "menus needs an action.", "Actions: get, set, add, update, remove, move.", 2);
+  }
+}
+const menusCommand = {
+  name: "menus",
+  summary: "Header and footer menus, like the admin's Menus page: get (each item with its resolved target and link), set --data (the whole { header, footer }; items { label, post|category|home|url } or the stored { ref, externalUrl } shape), add / remove / move one item, update <item> (--label, --lang <code> --label for a translated label, or a new target --post|--category|--url|--home; nested items by id). Saving publishes data/menu.json (no page regeneration needed).",
+  usage: "menus <get|set|add|update|remove|move> [<item id|label|position>] --site <alias> [--data <json>|@file] [--menu header|footer] [--label <t>] [--lang <code>] [--post <id|slug>] [--category <slug|name>] [--url <url>] [--home] [--position <n>]",
+  options: [
+    { name: "site", type: "string", description: "Site alias." },
+    { name: "data", type: "string", description: "set: { header?: [...], footer?: [...] } as JSON or @file.json (a menu left out is kept)." },
+    { name: "menu", type: "string", description: "add / update / remove / move: header or footer." },
+    { name: "label", type: "string", description: `add / update: the item's label (update --lang: the translated label, "" removes it).` },
+    { name: "lang", type: "string", description: "update: set the label of this language (translations[<lang>].label)." },
+    { name: "post", type: "string", description: "add / update: link to a post or page (id or slug)." },
+    { name: "category", type: "string", description: "add / update: link to a category archive (slug, name or id)." },
+    { name: "url", type: "string", description: "add / update: external (or site-relative) URL." },
+    { name: "home", type: "boolean", description: "add / update: link to the home page (add: the default)." },
+    { name: "position", type: "string", description: "add / move: 1-based position (add default: at the end)." }
+  ],
+  run: run$9
+};
+const SECTIONS = ["site", "editor", "performance", "target"];
+const SECRET_KEYS = /* @__PURE__ */ new Set(["token", "apiKey", "accessKeyId", "secretAccessKey", "accessToken", "password", "sqliteToken", "passphrase"]);
+const LENGTH_RE = /^\d+(\.\d+)?(px|rem|em|pt|%)$/;
+const LANG_RE = /^[A-Za-z]{2,3}(-[A-Za-z0-9]{1,8})*$/;
+function mask(settings) {
+  return Object.fromEntries(Object.entries(settings).map(([k, v]) => [k, SECRET_KEYS.has(k) && v ? "(set)" : v]));
+}
+async function pages() {
+  const { fetchAllPosts, invalidateAllPostsCache } = await import("./chunks/posts-CtjqzF5o.mjs");
+  invalidateAllPostsCache();
+  return fetchAllPosts({ type: "page" });
+}
+async function backend$1() {
+  return (await import("./chunks/runtimeConfig-2M2d2Pbu.mjs")).getBackendKind();
+}
+async function readSection(section, settings, s) {
+  switch (section) {
+    case "site": {
+      const { pickPublicLocale } = await import("./chunks/index-DCzLoAau.mjs").then((n) => n.e);
+      const home = settings.homePageId ? (await pages()).find((p) => p.id === settings.homePageId) : void 0;
+      return {
+        title: settings.title,
+        description: settings.description,
+        language: settings.language,
+        publicLocale: pickPublicLocale(settings.language),
+        baseUrl: settings.baseUrl,
+        postsPerPage: settings.postsPerPage,
+        homeMode: settings.homeMode,
+        homePageId: settings.homePageId ?? null,
+        homePage: home ? { id: home.id, title: home.title, slug: home.slug, status: home.status } : null,
+        discourageIndexing: settings.discourageIndexing === true,
+        activeThemeId: settings.activeThemeId
+      };
+    }
+    case "editor": {
+      const { EDITOR_FONT_OPTIONS, DEFAULT_EDITOR_SIZES } = await import("./chunks/editorFonts-CO-y6ab0.mjs");
+      return { ...settings.editorStyle ?? {}, fonts: EDITOR_FONT_OPTIONS.map((f) => f.name), defaults: DEFAULT_EDITOR_SIZES };
+    }
+    case "performance": {
+      const kind = await backend$1();
+      return { backend: kind, paginationMode: settings.paginationMode ?? "global", applicable: kind === "firebase" };
+    }
+    case "target": {
+      const { readPublishTarget, targetSiteUrl } = await import("./chunks/target-DOA7j9IO.mjs");
+      const stored = await readPublishTarget();
+      const merged = { ...s.site.hosting.settings, ...stored.settings };
+      const siteUrl = targetSiteUrl({ connectorId: stored.connectorId, settings: merged });
+      const base = (settings.baseUrl ?? "").replace(/\/+$/, "");
+      return {
+        connectorId: stored.connectorId,
+        settings: mask(merged),
+        siteUrl: siteUrl || null,
+        credential: s.site.credentials.hosting ?? null,
+        baseUrlMismatch: siteUrl && base && siteUrl !== base ? { baseUrl: base, targetSiteUrl: siteUrl, fix: `agentcms settings set --base-url ${siteUrl}` } : null
+      };
+    }
+  }
+}
+function boolValue(v, name) {
+  if (v === void 0) return void 0;
+  if (v === true || v === "true" || v === "yes" || v === "1") return true;
+  if (v === false || v === "false" || v === "no" || v === "0") return false;
+  throw new CliError("usage", `--${name} is true or false (got "${String(v)}").`, void 0, 2);
+}
+async function readInput(options) {
+  const { readJsonOption, readTextOption } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+  const data = readJsonOption(options.data, "data") ?? {};
+  if (typeof data !== "object" || Array.isArray(data)) throw new CliError("usage", "--data must be a JSON object.", void 0, 2);
+  const known = ["title", "description", "language", "baseUrl", "postsPerPage", "homeMode", "homePage", "homePageId", "discourageIndexing", "editorStyle", "paginationMode"];
+  for (const k of Object.keys(data)) if (!known.includes(k)) throw new CliError("usage", `--data: unknown setting "${k}".`, `Known: ${known.join(", ")}.`, 2);
+  const pick = (flag, key) => flag !== void 0 ? flag : data[key];
+  const str = (v, name) => {
+    if (v === void 0) return void 0;
+    if (typeof v !== "string") throw new CliError("usage", `${name} must be a string.`, void 0, 2);
+    return v;
+  };
+  const input = {
+    title: str(pick(options.title, "title"), "title"),
+    description: str(readTextOption(options.description, "description") ?? data.description, "description"),
+    language: str(pick(options.language, "language"), "language"),
+    baseUrl: str(pick(options["base-url"], "baseUrl"), "baseUrl"),
+    homePage: str(pick(options["home-page"], "homePage") ?? data.homePageId, "homePage")
+  };
+  const ppp = pick(options["posts-per-page"], "postsPerPage");
+  if (ppp !== void 0) {
+    const n = typeof ppp === "number" ? ppp : Number(String(ppp));
+    if (!Number.isInteger(n) || n < 1) throw new CliError("invalid-setting", `postsPerPage must be a whole number ≥ 1 (got "${String(ppp)}").`, void 0, 2);
+    input.postsPerPage = n;
+  }
+  const mode = pick(options["home-mode"], "homeMode");
+  if (mode !== void 0) {
+    if (mode !== "latest-posts" && mode !== "static-page") throw new CliError("invalid-setting", `homeMode is latest-posts or static-page (got "${String(mode)}").`, void 0, 2);
+    input.homeMode = mode;
+  }
+  input.discourageIndexing = boolValue(pick(options["discourage-indexing"], "discourageIndexing"), "discourage-indexing");
+  const pm = pick(options["pagination-mode"], "paginationMode");
+  if (pm !== void 0) {
+    if (pm !== "global" && pm !== "paginated") throw new CliError("invalid-setting", `paginationMode is global or paginated (got "${String(pm)}").`, void 0, 2);
+    input.paginationMode = pm;
+  }
+  const es = { ...data.editorStyle && typeof data.editorStyle === "object" ? data.editorStyle : {} };
+  for (const [flag, key] of [["editor-font", "fontFamily"], ["editor-body-size", "bodySize"], ["editor-h1-size", "h1Size"], ["editor-h2-size", "h2Size"], ["editor-h3-size", "h3Size"]]) {
+    if (options[flag] !== void 0) es[key] = options[flag];
+  }
+  if (Object.keys(es).length) input.editorStyle = es;
+  return input;
+}
+async function run$8({ io, options, positionals }) {
+  const [action, sub] = positionals;
+  const { runAdmin, findPost } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+  const alias = options.site;
+  switch (action) {
+    case "get": {
+      const wanted = sub ?? options.section ?? "all";
+      if (wanted !== "all" && !SECTIONS.includes(wanted)) throw new CliError("usage", `Unknown section "${wanted}".`, "site, editor, performance, target or all.", 2);
+      return runAdmin(io, alias, {}, async (s) => {
+        const settings = s.settings();
+        const out = {};
+        for (const sec of wanted === "all" ? SECTIONS : [wanted]) out[sec] = await readSection(sec, settings, s);
+        return out;
+      }, (r) => JSON.stringify(r, null, 2));
+    }
+    case "set": {
+      const input = await readInput(options);
+      if (!Object.values(input).some((v) => v !== void 0)) {
+        throw new CliError("usage", "Nothing to set.", "Pass --title, --description, --language, --base-url, --posts-per-page, --home-mode, --home-page, --discourage-indexing, --editor-*, --pagination-mode or --data.", 2);
+      }
+      if (input.title !== void 0 && !input.title.trim()) throw new CliError("invalid-setting", "The site title can't be empty.", void 0, 2);
+      if (input.language !== void 0 && !LANG_RE.test(input.language.trim())) throw new CliError("invalid-setting", `"${input.language}" is not a BCP-47 language tag.`, "e.g. en, fr, fr-FR, pt-BR.", 2);
+      if (input.baseUrl !== void 0 && input.baseUrl.trim() && !/^https?:\/\/[^\s/]+/.test(input.baseUrl.trim())) {
+        throw new CliError("invalid-setting", `"${input.baseUrl}" is not an http(s) URL.`, 'e.g. https://www.example.com (or "" to clear it).', 2);
+      }
+      if (input.editorStyle) {
+        const { EDITOR_FONT_OPTIONS, SYSTEM_FONT_NAME } = await import("./chunks/editorFonts-CO-y6ab0.mjs");
+        const f = input.editorStyle.fontFamily;
+        if (f !== void 0 && f !== "" && !EDITOR_FONT_OPTIONS.some((o) => o.name === f)) {
+          throw new CliError("invalid-setting", `Unknown editor font "${f}".`, `One of: ${EDITOR_FONT_OPTIONS.map((o) => o.name).join(", ")}.`, 2);
+        }
+        if (f === SYSTEM_FONT_NAME) input.editorStyle.fontFamily = "";
+        for (const k of ["bodySize", "h1Size", "h2Size", "h3Size"]) {
+          const v = input.editorStyle[k];
+          if (v !== void 0 && typeof v !== "string") throw new CliError("invalid-setting", `editorStyle.${k} must be a string.`, void 0, 2);
+          if (v && v.trim() && !LENGTH_RE.test(v.trim())) throw new CliError("invalid-setting", `editorStyle.${k} "${v}" is not a CSS length.`, "e.g. 16px, 1.125rem.", 2);
+        }
+      }
+      return runAdmin(io, alias, { write: true, lock: true }, async (s) => {
+        const { updateSettings } = await import("./chunks/settings-DhDNovH5.mjs");
+        const settings = s.settings();
+        const kind = await backend$1();
+        const changed = [];
+        const next = [];
+        const notes = [];
+        const site = {};
+        if (input.title !== void 0) site.title = input.title.trim();
+        if (input.description !== void 0) site.description = input.description;
+        if (input.language !== void 0) site.language = input.language.trim();
+        if (input.baseUrl !== void 0) site.baseUrl = input.baseUrl.trim();
+        if (input.postsPerPage !== void 0) site.postsPerPage = input.postsPerPage;
+        if (input.discourageIndexing !== void 0) site.discourageIndexing = input.discourageIndexing;
+        const homeMode = input.homeMode ?? settings.homeMode;
+        let homePageId = settings.homePageId;
+        if (input.homePage !== void 0) {
+          if (input.homePage === "") homePageId = void 0;
+          else {
+            const page = findPost(await pages(), input.homePage, "page");
+            if (page.status !== "online") notes.push(`"${page.title}" is a draft: publish it (\`agentcms content publish ${page.id}\`) or the home has no content.`);
+            homePageId = page.id;
+          }
+        }
+        if (input.homeMode !== void 0 || input.homePage !== void 0) {
+          if (homeMode === "static-page" && !homePageId) {
+            throw new CliError("invalid-setting", "A static-page home needs a page.", "Add --home-page <page id|slug> (see `agentcms content list --type page`).", 2);
+          }
+          if (input.homePage && homeMode !== "static-page") notes.push("--home-page only applies with --home-mode static-page: ignored.");
+          site.homeMode = homeMode;
+          site.homePageId = homeMode === "static-page" ? homePageId : void 0;
+        }
+        const editorPatch = {};
+        if (input.editorStyle) {
+          const merged = { ...settings.editorStyle ?? {}, ...input.editorStyle };
+          const clean = {};
+          if (merged.fontFamily) clean.fontFamily = merged.fontFamily;
+          for (const k of ["bodySize", "h1Size", "h2Size", "h3Size"]) if (merged[k]?.trim()) clean[k] = merged[k].trim();
+          editorPatch.editorStyle = Object.keys(clean).length ? clean : void 0;
+        }
+        let indexes = null;
+        if (input.paginationMode !== void 0) {
+          if (kind !== "firebase") {
+            throw new CliError("not-applicable", `The pagination mode only exists on Firebase sites (this one is ${kind}).`, "Document-store backends keep everything in memory; nothing to set.", 2);
+          }
+          const { invalidateCachedReady, pingPaginatedQueries } = await import("./chunks/firestoreSetup-COoE4jom.mjs");
+          invalidateCachedReady();
+          if (input.paginationMode === "paginated") {
+            const res = await pingPaginatedQueries().catch((e) => ({ ready: false, missingIndexes: [], unexpectedError: { code: "error", message: e.message } }));
+            indexes = res;
+            if (!res.ready) notes.push("Paginated mode needs two Firestore composite indexes that are not ready yet — the admin's lists fail until they exist (see `indexes`).");
+          }
+        }
+        for (const [k, v] of Object.entries(site)) if (JSON.stringify(v) !== JSON.stringify(settings[k])) changed.push(k);
+        if ("editorStyle" in editorPatch && JSON.stringify(editorPatch.editorStyle ?? null) !== JSON.stringify(settings.editorStyle ?? null)) changed.push("editorStyle");
+        if (input.paginationMode !== void 0 && input.paginationMode !== (settings.paginationMode ?? "global")) changed.push("paginationMode");
+        if (Object.keys(site).length) await updateSettings(site);
+        if ("editorStyle" in editorPatch) await updateSettings(editorPatch);
+        if (input.paginationMode !== void 0) await updateSettings({ paginationMode: input.paginationMode });
+        await s.refresh();
+        const has = (...keys) => keys.some((k) => changed.includes(k));
+        const sitewide = has("discourageIndexing", "baseUrl", "language");
+        if (has("homeMode", "homePageId")) next.push("agentcms regenerate repair");
+        if (sitewide) next.push("agentcms regenerate everything");
+        else if (has("homeMode", "homePageId", "title", "description", "postsPerPage")) next.push("agentcms regenerate all");
+        if (has("paginationMode")) notes.push("Reload the admin in the browser for the new pagination mode.");
+        if (has("editorStyle")) notes.push("Editor typography only changes the admin's editor canvas; nothing to regenerate.");
+        const after = s.settings();
+        const ml = after.pluginConfigs?.["agentcms-multilang"];
+        const mlOn = after.enabledPlugins?.["agentcms-multilang"] !== false;
+        const lang = (after.language || "").toLowerCase();
+        if (mlOn && lang && (ml?.primaryLanguage ?? "en").toLowerCase() !== lang) {
+          const others = (ml?.enabledLanguages ?? []).filter((l) => l.toLowerCase() !== lang);
+          notes.push(
+            others.length ? `agentcms-multilang's primary language is "${ml?.primaryLanguage ?? "en"}", not "${after.language}": \`agentcms plugins config agentcms-multilang --merge '{"primaryLanguage":"${after.language}","enabledLanguages":${JSON.stringify(others)}}'\`.` : `agentcms-multilang is enabled with primary language "${ml?.primaryLanguage ?? "en"}" and no other language. For a site in one language, disable it (\`agentcms plugins disable agentcms-multilang\`) or set \`{"primaryLanguage":"${after.language}"}\`.`
+          );
+        }
+        return {
+          changed,
+          site: await readSection("site", after, s),
+          editor: after.editorStyle ?? {},
+          ...input.paginationMode !== void 0 ? { paginationMode: after.paginationMode ?? "global", indexes } : {},
+          notes,
+          next
+        };
+      }, (r) => [r.changed.length ? `Saved: ${r.changed.join(", ")}.` : "Nothing changed.", ...r.notes.map((n) => `  note: ${n}`), ...r.next.map((n) => `  next: ${n}`)].join("\n"));
+    }
+    case "target": {
+      const what = sub ?? "show";
+      if (what === "show") {
+        return runAdmin(io, alias, {}, async (s) => readSection("target", s.settings(), s), (r) => `${r.connectorId}${r.siteUrl ? ` → ${r.siteUrl}` : ""}${r.baseUrlMismatch ? `
+  note: settings.baseUrl is ${r.baseUrlMismatch.baseUrl} — fix: ${r.baseUrlMismatch.fix}` : ""}`);
+      }
+      if (what === "test") {
+        return runAdmin(io, alias, {}, async (s) => {
+          const { getStorageConfig } = await import("./chunks/registry-0V3j22df.mjs").then((n) => n.y);
+          const { testStorageConnection } = await import("./chunks/registry-0V3j22df.mjs").then((n) => n.v);
+          const { requireCredential: requireCredential2 } = await Promise.resolve().then(() => credentials);
+          const stored = await getStorageConfig().catch(() => null);
+          const connectorId = stored?.connectorId ?? s.site.hosting.connectorId;
+          if (!connectorId) throw new CliError("hosting-unknown", `The publish target of ${s.site.alias} is unknown.`);
+          const values = s.site.credentials.hosting ? requireCredential2(s.site.credentials.hosting).values : {};
+          const settings = { ...s.site.hosting.settings, ...stored?.settings ?? {}, ...values };
+          const res = await testStorageConnection(connectorId, settings);
+          if (!res.ok) throw new CliError("connection-failed", `${connectorId}: ${res.detail}`, s.site.credentials.hosting ? `Check the account with \`agentcms credentials set ${s.site.credentials.hosting}\`.` : "Record the hosting credential with `agentcms site add … --hosting-credential <account>`.");
+          return { connectorId, ok: true, detail: res.detail };
+        }, (r) => `✓ ${r.connectorId}: ${r.detail}`);
+      }
+      throw new CliError("usage", `Unknown target action "${what}".`, "settings target [show|test].", 2);
+    }
+    default:
+      throw new CliError("usage", action ? `Unknown settings action "${action}".` : "settings needs an action.", "Actions: get, set, target.", 2);
+  }
+}
+const settingsCommand = {
+  name: "settings",
+  summary: "Settings → General, like the admin: get [site|editor|performance|target|all], set (title, description, language, base URL, posts per page, home mode + page, discourage indexing, editor typography, pagination mode on Firebase), target [show|test] (publish target without secrets / Test connection). Saving republishes nothing: run the `next` regeneration.",
+  usage: "settings <get [section]|set|target [show|test]> --site <alias> [--section site|editor|performance|target|all] [--title <t>] [--description <t>|@file] [--language <bcp47>] [--base-url <url>] [--posts-per-page <n>] [--home-mode latest-posts|static-page] [--home-page <page id|slug>] [--discourage-indexing true|false] [--editor-font <name>] [--editor-body-size <len>] [--editor-h1-size <len>] [--editor-h2-size <len>] [--editor-h3-size <len>] [--pagination-mode global|paginated] [--data <json>|@file]",
+  options: [
+    { name: "site", type: "string", description: "Site alias." },
+    { name: "section", type: "string", description: "get: site, editor, performance, target or all (default)." },
+    { name: "title", type: "string", description: "Site title." },
+    { name: "description", type: "string", description: "Site description (text, @file or -)." },
+    { name: "language", type: "string", description: "Public site language (BCP-47: en, fr-FR…) — <html lang>." },
+    { name: "base-url", type: "string", description: 'Public base URL (https://…; "" clears it). Drives canonicals, sitemaps, RSS, sub-folder links.' },
+    { name: "posts-per-page", type: "string", description: "Posts per listing page (≥ 1)." },
+    { name: "home-mode", type: "string", description: "latest-posts or static-page." },
+    { name: "home-page", type: "string", description: 'The page shown as home in static-page mode (id or slug; "" clears it).' },
+    { name: "discourage-indexing", type: "string", description: "true: noindex on every page + robots.txt Disallow (after regeneration); false: indexable." },
+    { name: "editor-font", type: "string", description: 'Admin editor font (see `settings get editor`; "" = system).' },
+    { name: "editor-body-size", type: "string", description: 'Admin editor body size (CSS length; "" = default).' },
+    { name: "editor-h1-size", type: "string", description: "Admin editor H1 size." },
+    { name: "editor-h2-size", type: "string", description: "Admin editor H2 size." },
+    { name: "editor-h3-size", type: "string", description: "Admin editor H3 size." },
+    { name: "pagination-mode", type: "string", description: "Firebase only: global or paginated (needs composite indexes)." },
+    { name: "data", type: "string", description: "Settings as JSON (or @file.json): title, description, language, baseUrl, postsPerPage, homeMode, homePage, discourageIndexing, editorStyle{fontFamily,bodySize,h1Size,h2Size,h3Size}, paginationMode. Flags override it." }
+  ],
+  run: run$8
+};
+const ACTIONS = {
+  "agentcms-sitemaps": ["robots", "stylesheets", "regenerate"],
+  "agentcms-rss": ["stylesheet", "regenerate"],
+  "agentcms-search": ["regenerate"],
+  "agentcms-archives": ["regenerate"],
+  "agentcms-favicon": ["set", "remove", "manifest"],
+  "agentcms-import": ["init", "list", "scan", "run"]
+};
+function nextSteps(id, alias) {
+  const all = `agentcms regenerate all --site ${alias}`;
+  switch (id) {
+    case "agentcms-sitemaps":
+    case "agentcms-rss":
+    case "agentcms-search":
+      return [`agentcms regenerate ${id} --site ${alias}`];
+    case "agentcms-archives":
+      return [`agentcms regenerate ${id} --site ${alias}`, all];
+    case "agentcms-favicon":
+    case "agentcms-import":
+      return [];
+    default:
+      return [all];
+  }
+}
+async function muPlugins() {
+  return (await import("./chunks/media-D9y7Q4-j.mjs").then((n) => n.h)).listMuPlugins();
+}
+async function pluginRows(s) {
+  const { readBackendRegistryForCli } = await import("./chunks/sessionRegistry-D9GF_Vh_.mjs");
+  const registry = await readBackendRegistryForCli().catch(() => null) ?? { plugins: [] };
+  const enabled = s.settings().enabledPlugins ?? {};
+  const rows = /* @__PURE__ */ new Map();
+  const add = (m, kind, installed2) => rows.set(m.id, {
+    id: m.id,
+    name: m.name,
+    version: m.version,
+    kind,
+    installed: installed2,
+    enabled: kind === "must-use" || enabled[m.id] !== false,
+    loaded: true,
+    hasSettings: !!m.settings,
+    actions: ACTIONS[m.id] ?? [],
+    description: m.description ?? null
+  });
+  for (const m of await muPlugins()) add(m, "must-use", "bundled");
+  for (const m of s.host.plugins.PLUGINS) add(m, "regular", "bundled");
+  const failed = new Map(s.loadedExtensions.failed.map((f) => [f.id, f.error]));
+  for (const m of s.host.registry.listExternalPlugins()) add(m, "regular", "external");
+  for (const entry of registry.plugins) {
+    const row = rows.get(entry.id);
+    if (row) {
+      row.installed = "external";
+      continue;
+    }
+    rows.set(entry.id, {
+      id: entry.id,
+      name: entry.id,
+      version: entry.version ?? "",
+      kind: "regular",
+      installed: "external",
+      enabled: enabled[entry.id] !== false,
+      loaded: false,
+      hasSettings: false,
+      actions: [],
+      description: null,
+      error: failed.get(`plugins/${entry.id}`) ?? "not loaded"
+    });
+  }
+  return [...rows.values()];
+}
+async function findPlugin(s, id) {
+  if (!id) throw new CliError("usage", "Which plugin? Give its id.", "List them with `agentcms plugins list`.", 2);
+  const mu = (await muPlugins()).find((m) => m.id === id);
+  if (mu) return { manifest: mu, mu: true };
+  const regular = s.host.registry.listExternalPlugins().find((m) => m.id === id) ?? s.host.plugins.PLUGINS.find((m) => m.id === id);
+  if (regular) return { manifest: regular, mu: false };
+  const failed = s.loadedExtensions.failed.find((f) => f.id === `plugins/${id}`);
+  if (failed) throw new CliError("plugin-not-loaded", `Plugin "${id}" is installed but could not be loaded: ${failed.error}`, "Check the site's admin (`agentcms doctor`), or reinstall it (`agentcms ext install`).");
+  throw new CliError("not-found", `No plugin "${id}" on this site.`, "List them with `agentcms plugins list`; install one with `agentcms ext install`.", 2);
+}
+function currentConfig(stored, defaults) {
+  return { ...defaults ?? {}, ...stored ?? {} };
+}
+function pluginConfigOf(s, m) {
+  return currentConfig(s.settings().pluginConfigs?.[m.id], m.settings?.defaultConfig);
+}
+async function savePluginConfig(s, id, next) {
+  const { updatePluginConfig } = await import("./chunks/settings-DhDNovH5.mjs");
+  await updatePluginConfig(id, next);
+  return s.refresh();
+}
+async function corpus() {
+  const { fetchAllPosts, invalidateAllPostsCache } = await import("./chunks/posts-CtjqzF5o.mjs");
+  invalidateAllPostsCache();
+  const [posts, pages2] = await Promise.all([fetchAllPosts({ type: "post" }), fetchAllPosts({ type: "page" })]);
+  return { posts, pages: pages2 };
+}
+async function refreshMenuJson$1(s) {
+  const { publishMenuJson } = await import("./chunks/menuPublisher-CNTfo9OZ.mjs");
+  const { posts, pages: pages2 } = await corpus();
+  try {
+    await publishMenuJson(s.settings(), posts, pages2, await s.terms());
+  } catch (err) {
+    s.log({ level: "warn", message: `menu.json republish failed: ${err.message}` });
+  }
+}
+async function batched$1(fn) {
+  const { withStorageBatch } = await import("./chunks/siteFiles-CIBz6FxK.mjs").then((n) => n.s);
+  return withStorageBatch(fn);
+}
+function requireBaseUrl(s, id) {
+  const baseUrl = s.settings().baseUrl;
+  if (!baseUrl) throw new CliError("base-url-missing", `${id} needs the site URL (settings.baseUrl).`, `Set it with \`agentcms settings set --data '{"baseUrl":"https://…"}' --site ${s.site.alias}\`.`);
+  return baseUrl;
+}
+async function resolveRssTerms(s, cfg) {
+  const { findTerm } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+  const terms = await s.terms();
+  const idOf = (ref) => {
+    const t = typeof ref === "string" ? findTerm(terms, ref, "category") : void 0;
+    if (!t) throw new CliError("not-found", `No category "${String(ref)}" (agentcms-rss).`, "List them with `agentcms terms list --type category`.", 2);
+    return t.id;
+  };
+  const out = { ...cfg };
+  const site = out.site;
+  if (site && Array.isArray(site.excludedTermIds)) out.site = { ...site, excludedTermIds: site.excludedTermIds.map(idOf) };
+  if (Array.isArray(out.categoryFeeds)) {
+    out.categoryFeeds = out.categoryFeeds.map((f) => ({ itemCount: 20, addToFooter: false, ...f, termId: idOf(f.termId) }));
+  }
+  return out;
+}
+const PWA_KEYS = ["pwaName", "pwaShortName", "pwaThemeColor", "pwaBackgroundColor", "pwaDisplay"];
+function pwaInput(cfg, settings) {
+  const title = settings.title ?? "";
+  return {
+    name: String(cfg.pwaName || title),
+    shortName: String(cfg.pwaShortName || (title ? title.slice(0, 12) : "")),
+    themeColor: String(cfg.pwaThemeColor ?? "#ffffff"),
+    backgroundColor: String(cfg.pwaBackgroundColor ?? "#ffffff"),
+    display: cfg.pwaDisplay ?? "standalone"
+  };
+}
+async function readPwaOption(value) {
+  const { readJsonOption } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+  const raw = readJsonOption(value, "pwa");
+  if (raw === void 0) return {};
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) throw new CliError("usage", "--pwa must be a JSON object.", void 0, 2);
+  const out = {};
+  for (const [k, v] of Object.entries(raw)) {
+    const key = k.startsWith("pwa") ? k : `pwa${k[0].toUpperCase()}${k.slice(1)}`;
+    if (!PWA_KEYS.includes(key)) throw new CliError("usage", `--pwa: unknown field "${k}".`, "Fields: name, shortName, themeColor, backgroundColor, display (standalone|browser|fullscreen|minimal-ui).", 2);
+    out[key] = v;
+  }
+  return out;
+}
+const IMAGE_MIME = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".gif": "image/gif", ".svg": "image/svg+xml" };
+function imageFileFromDisk(path, allowed) {
+  const file2 = resolve(path);
+  if (!existsSync(file2) || !statSync(file2).isFile()) throw new CliError("not-found", `${path} does not exist.`, void 0, 2);
+  const type = IMAGE_MIME[extname(file2).toLowerCase()];
+  if (!type || !allowed.includes(type)) throw new CliError("usage", `${basename(file2)}: unsupported image type.`, `Use ${allowed.map((t) => t.replace("image/", "")).join(", ")}.`, 2);
+  return new File([readFileSync(file2)], basename(file2), { type });
+}
+function classify(name) {
+  const ext = extname(name).slice(1).toLowerCase();
+  if (/^readme\.md$/i.test(name)) return null;
+  if (ext === "md") return "markdown";
+  if (ext === "xml") return "xml";
+  if (["jpg", "jpeg", "png", "webp", "svg", "gif"].includes(ext)) return "image";
+  if (/^_terms\.json$/i.test(name)) return "markdown";
+  return null;
+}
+function bundleFromDisk(path) {
+  const root = resolve(path);
+  if (!existsSync(root)) throw new CliError("not-found", `${path} does not exist.`, void 0, 2);
+  const files = [];
+  const walk = (p) => {
+    if (statSync(p).isDirectory()) {
+      for (const e of readdirSync(p).sort()) if (!e.startsWith(".") && e !== "node_modules") walk(join(p, e));
+    } else files.push(p);
+  };
+  walk(root);
+  const bundle = { source: "drop", markdown: [], xml: [], images: [], ignored: [] };
+  for (const f of files) {
+    const name = basename(f);
+    const kind = classify(name);
+    if (kind === "markdown") bundle.markdown.push({ name, content: readFileSync(f, "utf8") });
+    else if (kind === "xml") bundle.xml.push({ name, content: readFileSync(f, "utf8") });
+    else if (kind === "image") bundle.images.push({ filename: name, blob: new File([readFileSync(f)], name, { type: IMAGE_MIME[extname(name).toLowerCase()] }) });
+    else bundle.ignored.push(name);
+  }
+  return bundle;
+}
+function summarizeScan(summary, statusMode) {
+  return {
+    entries: summary.entries.map((e) => ({
+      source: e.source.sourceName,
+      type: e.source.type,
+      title: e.source.title,
+      slug: e.finalSlug,
+      slugWasModified: e.slugWasModified,
+      category: e.source.categoryName ?? null,
+      tags: e.source.tags,
+      sourceStatus: e.source.status,
+      willPublish: statusMode === "online" || statusMode === "from-source" && e.source.status === "online",
+      translations: Object.keys(e.source.translations ?? {})
+    })),
+    categoriesToCreate: summary.categoriesToCreate.map((t) => t.name),
+    tagsToCreate: summary.tagsToCreate.map((t) => t.name),
+    imagesToUpload: summary.imagesToUpload,
+    wordpressAttachments: summary.wpAttachmentsToFetch.length,
+    termTranslations: summary.termTranslations.length,
+    errors: summary.warnings.filter((w) => w.level === "error"),
+    warnings: summary.warnings.filter((w) => w.level !== "error")
+  };
+}
+async function importOptions(s, m, options) {
+  const { DEFAULT_IMPORT_OPTIONS } = await import("./chunks/media-D9y7Q4-j.mjs").then((n) => n.i);
+  const stored = pluginConfigOf(s, m).options ?? {};
+  const opts = { ...DEFAULT_IMPORT_OPTIONS, ...stored };
+  if (options.status !== void 0) {
+    const v = String(options.status);
+    if (!["draft", "online", "from-source"].includes(v)) throw new CliError("usage", `--status is draft, online or from-source (got "${v}").`, void 0, 2);
+    opts.statusMode = v;
+  }
+  if (options.category !== void 0) opts.defaultCategory = String(options.category);
+  if (options["keep-files"]) opts.moveProcessedFiles = false;
+  return opts;
+}
+async function runImportAction(options, s, m, action, arg) {
+  const imp = await import("./chunks/media-D9y7Q4-j.mjs").then((n) => n.i);
+  if (action === "init") {
+    await batched$1(() => imp.initializeFolder());
+    return { action, folder: imp.IMPORT_FOLDER };
+  }
+  if (action === "list") {
+    const { getStorageCapabilities } = await import("./chunks/siteFiles-CIBz6FxK.mjs").then((n) => n.s);
+    if (!(await getStorageCapabilities()).list) throw new CliError("unsupported", "This hosting can't list files, so the import folder can't be read.", "Import from a local folder instead: `plugins action agentcms-import scan <path>`.");
+    const listing = await imp.listImportFolder();
+    return { action, folder: imp.IMPORT_FOLDER, markdown: listing.markdownFiles.map((f) => f.path), xml: listing.xmlFiles.map((f) => f.path), images: listing.imageFiles.map((f) => f.path) };
+  }
+  const fromHosting = !!options["from-hosting"];
+  if (!arg && !fromHosting) throw new CliError("usage", `import ${action} needs a local folder (.md + images) or a WordPress .xml export — or --from-hosting for the site's ${imp.IMPORT_FOLDER}/ folder.`, void 0, 2);
+  const bundle = fromHosting ? await imp.buildBundleFromFolder() : bundleFromDisk(arg);
+  if (bundle.markdown.length === 0 && bundle.xml.length === 0) throw new CliError("no-sources", "No Markdown or WordPress XML file found to import.", void 0, 2);
+  const opts = await importOptions(s, m, options);
+  const { currentUserId } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+  const { posts, pages: pages2 } = await corpus();
+  const scanCtx = { posts, pages: pages2, terms: await s.terms(), media: await s.media(), users: await s.users(), importerUserId: await currentUserId() };
+  const summary = imp.scanBundle(bundle, scanCtx, opts);
+  const scan = { ...summarizeScan(summary, opts.statusMode), ignored: bundle.ignored ?? [], options: opts };
+  if (action === "scan" || !options.yes) {
+    return { action, needsConfirmation: action === "run", ...scan };
+  }
+  if (scan.errors.length) {
+    throw new CliError("import-errors", `The scan found ${scan.errors.length} blocking error(s): ${scan.errors.map((e) => `${e.source}: ${e.message}`).join("; ")}`, "Fix the sources (see `plugins action agentcms-import scan`).");
+  }
+  const progress = [];
+  const out = await batched$1(
+    () => imp.runImport({ ctx: scanCtx, options: opts, bundle, summary, settings: s.settings(), onProgress: (msg) => progress.push(msg) })
+  );
+  return {
+    action,
+    created: out.createdPostIds,
+    published: out.publishedPostIds,
+    terms: out.createdTermIds,
+    media: out.uploadedMediaIds,
+    warnings: out.warnings,
+    errors: out.errors,
+    progress
+  };
+}
+async function runTarget(s, id) {
+  const { listRegenerationTargets } = await import("./chunks/regenerationTargetRegistry-3NmN64mg.mjs");
+  const target = listRegenerationTargets().find((t) => t.id === id);
+  if (!target) throw new CliError("unknown-target", `${id} registered no regeneration (is it enabled?).`, `Enable it with \`agentcms plugins enable ${id}\`.`);
+  const ctx = await s.context();
+  await batched$1(() => target.run(ctx, s.log));
+}
+async function pluginAction(options, s, m, action, arg) {
+  const known = ACTIONS[m.id] ?? [];
+  if (!action || !known.includes(action)) {
+    throw new CliError("usage", action ? `"${action}" is not an action of ${m.id}.` : `Which ${m.id} action?`, known.length ? `Actions of ${m.id}: ${known.join(", ")}.` : `${m.id} has no settings-page action (see \`plugins config ${m.id}\`).`, 2);
+  }
+  const alias = s.site.alias;
+  switch (m.id) {
+    case "agentcms-sitemaps": {
+      const baseUrl = requireBaseUrl(s, m.id);
+      const gen = await import("./chunks/generator-CbLrDXHx.mjs");
+      if (action === "regenerate") {
+        await runTarget(s, m.id);
+        return { action };
+      }
+      let config = pluginConfigOf(s, m);
+      if (action === "robots") {
+        if (options["default-robots"]) {
+          config = { ...config, robotsTxt: gen.defaultRobotsTxt(baseUrl, config.newsEnabled) };
+          await savePluginConfig(s, m.id, config);
+        }
+        await batched$1(() => gen.regenerateRobotsTxt({ config, baseUrl, discourageIndexing: s.settings().discourageIndexing === true }));
+        return { action, uploaded: ["robots.txt"] };
+      }
+      const res = await batched$1(() => gen.regenerateStylesheets({ settings: s.settings(), config }));
+      return { action, ...res };
+    }
+    case "agentcms-rss": {
+      requireBaseUrl(s, m.id);
+      if (action === "regenerate") {
+        await runTarget(s, m.id);
+        return { action };
+      }
+      const gen = await import("./chunks/generator-DhabBDT8.mjs");
+      await batched$1(() => gen.regenerateStylesheet({ settings: s.settings() }));
+      return { action, uploaded: ["rss.xsl"] };
+    }
+    case "agentcms-search":
+    case "agentcms-archives":
+      await runTarget(s, m.id);
+      return { action };
+    case "agentcms-favicon": {
+      const gen = await import("./chunks/generator-CwnNjhSm.mjs");
+      const { DEFAULT_FAVICON_CONFIG } = await import("./chunks/media-D9y7Q4-j.mjs").then((n) => n.S);
+      const cfg = pluginConfigOf(s, m);
+      const draft = { ...cfg, ...await readPwaOption(options.pwa) };
+      const regen = [`agentcms regenerate all --site ${alias}`];
+      if (action === "set") {
+        if (!arg) throw new CliError("usage", "favicon set needs an image file (PNG, JPEG or WebP; square, 512 px or more).", void 0, 2);
+        const file2 = imageFileFromDisk(arg, ["image/png", "image/jpeg", "image/webp", "image/svg+xml"]);
+        if (file2.type === "image/svg+xml") throw new CliError("unsupported", "The CLI can't rasterize SVG favicons.", "Convert the logo to a 512×512 PNG and pass that, or upload the SVG from the admin.", 2);
+        const result = await batched$1(() => gen.generateAndUploadFavicons({ file: file2, pwa: pwaInput(draft, s.settings()) }));
+        const next = { ...draft, enabled: true, uploadedAt: Date.now(), ...result };
+        await savePluginConfig(s, m.id, next);
+        return { action, folder: gen.FAVICON_FOLDER, files: result, next: regen };
+      }
+      if (action === "remove") {
+        await batched$1(() => gen.removeAllFavicons());
+        const next = { ...DEFAULT_FAVICON_CONFIG, ...Object.fromEntries(PWA_KEYS.map((k) => [k, draft[k]])) };
+        await savePluginConfig(s, m.id, next);
+        return { action, removed: gen.FAVICON_FOLDER, next: regen };
+      }
+      let regenerated = false;
+      if (cfg.hasManifest || cfg.enabled) {
+        await batched$1(() => gen.regenerateManifest({ pwa: pwaInput(draft, s.settings()) }));
+        regenerated = true;
+      }
+      await savePluginConfig(s, m.id, { ...draft, uploadedAt: cfg.enabled ? Date.now() : draft.uploadedAt });
+      return { action, regenerated, pwa: pwaInput(draft, s.settings()) };
+    }
+    case "agentcms-import":
+      return runImportAction(options, s, m, action, arg);
+  }
+  return { action };
+}
+async function applyConfig(s, m, prev, next) {
+  const effects = [];
+  switch (m.id) {
+    case "agentcms-rss": {
+      const gen = await import("./chunks/generator-DhabBDT8.mjs");
+      const resolved = await resolveRssTerms(s, next);
+      return batched$1(async () => {
+        const cleanup = await gen.cleanupRemovedFeeds({ prevConfig: prev, nextConfig: resolved });
+        for (const d of cleanup.deleted) effects.push(`deleted ${d}`);
+        await savePluginConfig(s, m.id, cleanup.nextConfig);
+        await refreshMenuJson$1(s);
+        effects.push("published data/menu.json");
+        return { saved: cleanup.nextConfig, effects };
+      });
+    }
+    case "agentcms-favicon": {
+      const changed = PWA_KEYS.some((k) => JSON.stringify(prev[k]) !== JSON.stringify(next[k]));
+      if (changed && (prev.hasManifest || prev.enabled)) {
+        const gen = await import("./chunks/generator-CwnNjhSm.mjs");
+        await batched$1(() => gen.regenerateManifest({ pwa: pwaInput(next, s.settings()) }));
+        next = { ...next, uploadedAt: prev.enabled ? Date.now() : next.uploadedAt };
+        effects.push(`uploaded ${gen.FAVICON_FOLDER}/site.webmanifest`);
+      }
+      break;
+    }
+    case "agentcms-import": {
+      const o = next.options ?? {};
+      if (o.statusMode !== void 0 && !["draft", "online", "from-source"].includes(String(o.statusMode))) {
+        throw new CliError("usage", `options.statusMode is draft, online or from-source (got "${String(o.statusMode)}").`, void 0, 2);
+      }
+      break;
+    }
+  }
+  await savePluginConfig(s, m.id, next);
+  return { saved: next, effects };
+}
+async function run$7({ io, options, positionals }) {
+  const [action, id, sub, arg] = positionals;
+  const { runAdmin } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+  const alias = options.site;
+  const write = { write: true, hosting: true, extensions: true, lock: true };
+  switch (action) {
+    case "list":
+      return runAdmin(
+        io,
+        alias,
+        { extensions: true },
+        (s) => pluginRows(s),
+        (rows) => rows.map((r) => `${r.enabled ? "●" : "○"} ${r.id.padEnd(22)} ${r.version.padEnd(8)} ${r.kind === "must-use" ? "must-use" : r.enabled ? "enabled" : "disabled"}${r.installed === "external" ? " (installed)" : ""}${r.hasSettings ? "  config" : ""}${r.actions.length ? `  actions: ${r.actions.join(", ")}` : ""}${r.loaded ? "" : `  NOT LOADED: ${r.error}`}`).join("\n") + "\n(install / uninstall a plugin ZIP: agentcms ext install|uninstall)"
+      );
+    case "enable":
+    case "disable":
+      return runAdmin(io, alias, { write: true, extensions: true, lock: true }, async (s) => {
+        const { manifest, mu } = await findPlugin(s, id);
+        if (mu) throw new CliError("must-use", `${manifest.id} is a must-use plugin: it is always active.`, void 0, 2);
+        const enabledPlugins = s.settings().enabledPlugins ?? {};
+        const current = enabledPlugins[manifest.id] !== false;
+        const wanted = action === "enable";
+        if (current !== wanted) {
+          const { updateSettings } = await import("./chunks/settings-DhDNovH5.mjs");
+          await updateSettings({ enabledPlugins: { ...enabledPlugins, [manifest.id]: wanted } });
+          await s.refresh();
+        }
+        const warnings = [];
+        if (wanted && manifest.id === "agentcms-search") warnings.push(...await searchTriggerWarnings(s));
+        return {
+          id: manifest.id,
+          enabled: wanted,
+          changed: current !== wanted,
+          warnings,
+          // Toggling a plugin doesn't republish: its head / body output and
+          // its files follow on the next regeneration.
+          next: current !== wanted ? [`agentcms regenerate everything --site ${s.site.alias}`] : []
+        };
+      }, (r) => `${r.id} ${r.enabled ? "enabled" : "disabled"}${r.changed ? "" : " (already)"}${r.next.length ? `
+Regenerate the site for it to show: ${r.next.join(" ; ")}` : ""}${r.warnings.map((w) => `
+  warning: ${w}`).join("")}`);
+    case "config": {
+      const { readConfigRequest } = await import("./chunks/configEdit-Cwxh9J-q.mjs");
+      const req = readConfigRequest(options);
+      const readOnly = req.mode === "get" || req.mode === "schema";
+      return runAdmin(io, alias, readOnly ? { extensions: true } : write, async (s) => {
+        const { manifest, mu } = await findPlugin(s, id);
+        if (!manifest.settings) throw new CliError("no-settings", `${manifest.id} has no settings.`, void 0, 2);
+        const defaults = manifest.settings.defaultConfig;
+        if (req.mode === "schema") return { id: manifest.id, defaultConfig: defaults, actions: ACTIONS[manifest.id] ?? [] };
+        const prev = pluginConfigOf(s, manifest);
+        if (req.mode === "get") return { id: manifest.id, config: prev, stored: s.settings().pluginConfigs?.[manifest.id] ?? null };
+        const { deepMerge, shapeWarnings, changedKeys } = await import("./chunks/configEdit-Cwxh9J-q.mjs");
+        const next = req.mode === "set" ? req.value : deepMerge(prev, req.value);
+        const warnings = shapeWarnings(defaults, req.value, manifest.id);
+        if (!mu && s.settings().enabledPlugins?.[manifest.id] === false) warnings.push(`${manifest.id} is disabled: the settings are saved but have no effect until \`agentcms plugins enable ${manifest.id}\`.`);
+        const { saved, effects } = await applyConfig(s, manifest, prev, next);
+        return { id: manifest.id, config: saved, changed: changedKeys(prev, saved), effects, warnings, next: nextSteps(manifest.id, s.site.alias) };
+      }, (r) => {
+        if ("defaultConfig" in r) return JSON.stringify(r.defaultConfig, null, 2);
+        if (!("changed" in r) || !r.changed) return JSON.stringify(r.config, null, 2);
+        return [`Saved ${r.id} (${r.changed.length ? r.changed.join(", ") : "no change"}).`, ...r.effects.map((e) => `  ${e}`), ...r.warnings.map((w) => `  warning: ${w}`), ...r.next.length ? [`Then: ${r.next.join(" ; ")}`] : []].join("\n");
+      });
+    }
+    case "action": {
+      const readOnly = id === "agentcms-import" && (sub === "list" || sub === "scan" || sub === "run" && !options.yes);
+      return runAdmin(io, alias, readOnly ? { hosting: true, extensions: true } : write, async (s) => {
+        const { manifest, mu } = await findPlugin(s, id);
+        if (!mu && s.settings().enabledPlugins?.[manifest.id] === false) {
+          throw new CliError("plugin-disabled", `${manifest.id} is disabled.`, `Enable it first: \`agentcms plugins enable ${manifest.id}\`.`);
+        }
+        const out = { id: manifest.id, ...await pluginAction(options, s, manifest, sub, arg) };
+        return out;
+      }, (r) => {
+        if (r.needsConfirmation) return `${humanScan(r)}
+Nothing imported — re-run with --yes once the user agrees.`;
+        if (r.action === "scan") return humanScan(r);
+        const next = r.next ?? [];
+        return `${r.id} ${String(r.action)}: done.${next.length ? `
+Then: ${next.join(" ; ")}` : ""}`;
+      });
+    }
+    default:
+      throw new CliError("usage", action ? `Unknown plugins action "${action}".` : "plugins needs an action.", "Actions: list, enable, disable, config, action.", 2);
+  }
+}
+function humanScan(r) {
+  const entries = r.entries ?? [];
+  const errors = r.errors ?? [];
+  return [
+    `${entries.length} entr${entries.length === 1 ? "y" : "ies"} to import:`,
+    ...entries.map((e) => `  ${e.type} ${e.slug} — ${e.title}${e.willPublish ? " (published)" : ""}`),
+    `categories to create: ${r.categoriesToCreate.join(", ") || "none"}; tags: ${r.tagsToCreate.join(", ") || "none"}; images: ${r.imagesToUpload.length}`,
+    ...errors.map((e) => `  error: ${e.source}: ${e.message}`)
+  ].join("\n");
+}
+async function searchTriggerWarnings(s) {
+  const { publicUrlOf: publicUrlOf2 } = await Promise.resolve().then(() => remote);
+  const url = `${publicUrlOf2(s.site)}/`;
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(8e3), cache: "no-store" });
+    if (!res.ok) return [];
+    const html = await res.text();
+    if (/\sdata-cms-search(?=[\s=>/])/.test(html)) return [];
+    return [
+      'The active theme has no search button ([data-cms-search]) on the home page, so visitors can\'t open the search. Add one to the custom code\'s `bodyEnd`, keeping what is already there (`plugins config agentcms-custom-code --get`), e.g. <button type="button" data-cms-search aria-label="Search" style="position:fixed;right:1rem;bottom:1rem;z-index:50;padding:.6rem .9rem;border:0;border-radius:999px;background:#111;color:#fff">Search</button> — then `regenerate all`.'
+    ];
+  } catch {
+    return [];
+  }
+}
+const pluginsCommand = {
+  name: "plugins",
+  summary: "The admin's Plugins page and plugin settings: list; enable|disable <id> (then regenerate); config <id> (--get, --schema = default config, --set <json> replaces, --merge <json> deep-merges; runs the settings page's side effects); action <id> <action> = the settings page buttons — agentcms-sitemaps robots [--default-robots]|stylesheets|regenerate, agentcms-rss stylesheet|regenerate, agentcms-search|agentcms-archives regenerate, agentcms-favicon set <image> [--pwa json]|remove|manifest [--pwa json], agentcms-import scan|run <folder|wp.xml> [--status draft|online|from-source] [--category <name>] (run: plan first, --yes) or init|list (the hosting's _cms-import/ folder, --from-hosting). Plugin ZIPs: `ext install`.",
+  usage: "plugins <list|enable|disable|config|action> [<id>] [<action>] [<path>] --site <alias> [--get|--schema|--set <json>|@file|--merge <json>|@file] [--default-robots] [--pwa <json>] [--status draft|online|from-source] [--category <name>] [--from-hosting] [--keep-files] [--yes]",
+  options: [
+    { name: "site", type: "string", description: "Site alias." },
+    { name: "get", type: "boolean", description: "config: print the current config (stored merged over defaults) — the default." },
+    { name: "schema", type: "boolean", description: "config: print the plugin's default config (every key it knows)." },
+    { name: "set", type: "string", description: "config: replace the whole config with this JSON object (or @file.json)." },
+    { name: "merge", type: "string", description: "config: deep-merge this JSON object into the current config (arrays are replaced)." },
+    { name: "default-robots", type: "boolean", description: "action agentcms-sitemaps robots: reset robots.txt to the default text first." },
+    { name: "pwa", type: "string", description: "action agentcms-favicon set|manifest: PWA manifest fields as JSON {name, shortName, themeColor, backgroundColor, display}." },
+    { name: "status", type: "string", description: "action agentcms-import: draft, online (publish everything) or from-source (each file's status)." },
+    { name: "category", type: "string", description: "action agentcms-import: category name for entries without one." },
+    { name: "from-hosting", type: "boolean", description: "action agentcms-import scan|run: read the site's _cms-import/ folder instead of a local path." },
+    { name: "keep-files", type: "boolean", description: "action agentcms-import run --from-hosting: don't move processed files to an archive folder." },
+    { name: "yes", type: "boolean", description: "action agentcms-import run: import (otherwise only the dry-run summary)." }
+  ],
+  run: run$7
+};
+const plugins = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  currentConfig,
+  imageFileFromDisk,
+  pluginRows,
+  pluginsCommand
+}, Symbol.toStringTag, { value: "Module" }));
+const LOGO = { width: 480, height: 144, fit: "contain" };
+function dedupe(list2) {
+  const byId = /* @__PURE__ */ new Map();
+  for (const t of list2) if (!byId.has(t.id)) byId.set(t.id, t);
+  return [...byId.values()];
+}
+function logoSlot(theme) {
+  const d = theme.settings?.defaultConfig;
+  if (!d) return null;
+  if ("logoEnabled" in d) return "top";
+  const brand = d.brand;
+  if (brand && typeof brand === "object" && "logoEnabled" in brand) return "brand";
+  return null;
+}
+async function themeRows(s) {
+  const { readBackendRegistryForCli } = await import("./chunks/sessionRegistry-D9GF_Vh_.mjs");
+  const registry = await readBackendRegistryForCli().catch(() => null) ?? { themes: [] };
+  const external = new Set(registry.themes.map((e) => e.id));
+  const active = s.settings().activeThemeId;
+  const rows = dedupe(s.host.themes.listThemes()).map((t) => ({
+    id: t.id,
+    name: t.name,
+    version: t.version,
+    active: t.id === active,
+    installed: external.has(t.id) ? "external" : "bundled",
+    loaded: true,
+    hasSettings: !!t.settings,
+    logo: logoSlot(t) !== null,
+    description: t.description ?? null
+  }));
+  for (const e of registry.themes) {
+    if (rows.some((r) => r.id === e.id)) continue;
+    const failed = s.loadedExtensions.failed.find((f) => f.id === `themes/${e.id}`);
+    rows.push({ id: e.id, name: e.id, version: e.version ?? "", active: e.id === active, installed: "external", loaded: false, hasSettings: false, logo: false, description: null, error: failed?.error ?? "not loaded" });
+  }
+  return rows;
+}
+function findTheme(s, id) {
+  if (!id) throw new CliError("usage", "Which theme? Give its id.", "List them with `agentcms themes list`.", 2);
+  const theme = s.host.themes.listThemes().find((t) => t.id === id);
+  if (theme) return theme;
+  const failed = s.loadedExtensions.failed.find((f) => f.id === `themes/${id}`);
+  if (failed) throw new CliError("theme-not-loaded", `Theme "${id}" is installed but could not be loaded: ${failed.error}`, "Check the site's admin (`agentcms doctor`), or reinstall it (`agentcms ext install`).");
+  throw new CliError("not-found", `No theme "${id}" on this site.`, "List them with `agentcms themes list`; install one with `agentcms ext install`.", 2);
+}
+function themeConfigOf(s, theme) {
+  const stored = s.settings().themeConfigs?.[theme.id];
+  return { ...theme.settings?.defaultConfig ?? {}, ...stored ?? {} };
+}
+async function batched(fn) {
+  const { withStorageBatch } = await import("./chunks/siteFiles-CIBz6FxK.mjs").then((n) => n.s);
+  return withStorageBatch(fn);
+}
+function cssVariablesOf(css) {
+  const block = /:root\s*\{([^}]*)\}/.exec(css ?? "")?.[1] ?? "";
+  const out = {};
+  for (const m of block.matchAll(/(--[\w-]+)\s*:\s*([^;]+);?/g)) {
+    const v = m[2].trim();
+    const rgb = /^(\d{1,3})\s+(\d{1,3})\s+(\d{1,3})$/.exec(v);
+    out[m[1]] = rgb ? "#" + rgb.slice(1).map((n) => Number(n).toString(16).padStart(2, "0")).join("") : v;
+  }
+  return out;
+}
+async function saveThemeConfig(s, theme, next) {
+  const { updateThemeConfig } = await import("./chunks/settings-DhDNovH5.mjs");
+  await updateThemeConfig(theme.id, next);
+  await s.refresh();
+  if (!theme.compileCss || !theme.settings) return null;
+  let css;
+  try {
+    css = theme.compileCss({ ...theme.settings.defaultConfig, ...next });
+  } catch (err) {
+    s.log({ level: "warn", message: `compileCss for "${theme.id}" failed: ${err.message} — the stylesheet was not updated.` });
+    return null;
+  }
+  const { uploadFile } = await import("./chunks/siteFiles-CIBz6FxK.mjs").then((n) => n.s);
+  const path = `theme-assets/${theme.id}.css`;
+  await uploadFile({ path, content: css });
+  return path;
+}
+async function refreshMenuJson(s) {
+  const { publishMenuJson } = await import("./chunks/menuPublisher-CNTfo9OZ.mjs");
+  const { fetchAllPosts, invalidateAllPostsCache } = await import("./chunks/posts-CtjqzF5o.mjs");
+  invalidateAllPostsCache();
+  const [posts, pages2] = await Promise.all([fetchAllPosts({ type: "post" }), fetchAllPosts({ type: "page" })]);
+  try {
+    await publishMenuJson(s.settings(), posts, pages2, await s.terms());
+  } catch (err) {
+    s.log({ level: "warn", message: `menu.json republish failed: ${err.message}` });
+  }
+}
+function logoState(cfg, slot) {
+  if (slot === "brand") {
+    const b = cfg.brand ?? {};
+    return [b.logoEnabled, b.logoUpdatedAt, b.wordmark];
+  }
+  return [cfg.logoEnabled, cfg.logoUpdatedAt];
+}
+async function run$6({ io, options, positionals }) {
+  const [action, id, arg] = positionals;
+  const { runAdmin } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+  const alias = options.site;
+  const write = { write: true, hosting: true, extensions: true, lock: true };
+  switch (action) {
+    case "list":
+      return runAdmin(
+        io,
+        alias,
+        { extensions: true },
+        (s) => themeRows(s),
+        (rows) => rows.map((r) => `${r.active ? "●" : "○"} ${r.id.padEnd(18)} ${r.version.padEnd(8)}${r.active ? " active" : ""}${r.installed === "external" ? " (installed)" : ""}${r.hasSettings ? "  config" : ""}${r.logo ? "  logo" : ""}${r.loaded ? "" : `  NOT LOADED: ${r.error}`}`).join("\n") + "\n(install / uninstall a theme ZIP: agentcms ext install|uninstall)"
+      );
+    case "activate": {
+      if (!id) throw new CliError("usage", "themes activate needs a theme id.", "List them with `agentcms themes list`.", 2);
+      if (!options.yes) {
+        return runAdmin(io, alias, { extensions: true }, async (s) => {
+          const theme = findTheme(s, id);
+          const { fetchAllPosts } = await import("./chunks/posts-CtjqzF5o.mjs");
+          const [posts, pages2] = await Promise.all([fetchAllPosts({ type: "post" }), fetchAllPosts({ type: "page" })]);
+          const online = [...posts, ...pages2].filter((p) => p.status === "online").length;
+          const plan = {
+            needsConfirmation: true,
+            from: s.settings().activeThemeId,
+            to: theme.id,
+            alreadyActive: theme.id === s.settings().activeThemeId,
+            rewrites: { onlineEntries: online, steps: ["theme assets of every installed theme", "every online post and page", "home, category and author pages, 404.html, menu/posts/authors JSON", "every plugin regeneration target"] }
+          };
+          return plan;
+        }, (p) => p.alreadyActive ? `${p.to} is already the active theme.` : `Switching ${p.from} → ${p.to} regenerates the whole site (${p.rewrites.onlineEntries} online entries, listings, assets, plugin files).
+Nothing changed — re-run with --yes once the user agrees.`);
+      }
+      return runAdmin(io, alias, write, async (s) => {
+        const theme = findTheme(s, id);
+        const from = s.settings().activeThemeId;
+        const started = Date.now();
+        await batched(async () => {
+          const { updateSettings } = await import("./chunks/settings-DhDNovH5.mjs");
+          await updateSettings({ activeThemeId: theme.id });
+          const settings = await s.refresh();
+          const { syncThemeAssets } = await import("./chunks/themeSync-Dhezra5s.mjs");
+          await syncThemeAssets(dedupe(s.host.themes.listThemes()), settings.themeConfigs, s.log);
+          const ctx = await s.context();
+          await s.host.publisher.regenerateAll(ctx, s.log);
+          const { listRegenerationTargets } = await import("./chunks/regenerationTargetRegistry-3NmN64mg.mjs");
+          for (const target of listRegenerationTargets()) {
+            try {
+              await target.run(ctx, s.log);
+            } catch (err) {
+              s.log({ level: "error", message: `Plugin "${target.id}" regen failed: ${err.message}` });
+            }
+          }
+        });
+        return { from, to: theme.id, seconds: Math.round((Date.now() - started) / 1e3) };
+      }, (r) => `Theme switched ${r.from} → ${r.to}; site regenerated in ${r.seconds}s.`);
+    }
+    case "config": {
+      const { readConfigRequest } = await import("./chunks/configEdit-Cwxh9J-q.mjs");
+      const req = readConfigRequest(options);
+      const readOnly = req.mode === "get" || req.mode === "schema";
+      return runAdmin(io, alias, readOnly ? { extensions: true } : write, async (s) => {
+        const theme = findTheme(s, id);
+        if (!theme.settings) throw new CliError("no-settings", `Theme ${theme.id} has no settings.`, void 0, 2);
+        const defaults = theme.settings.defaultConfig;
+        if (req.mode === "schema") return { id: theme.id, defaultConfig: defaults, cssVariables: cssVariablesOf(theme.cssText) };
+        const prev = themeConfigOf(s, theme);
+        if (req.mode === "get") return { id: theme.id, config: prev, stored: s.settings().themeConfigs?.[theme.id] ?? null };
+        const { deepMerge, shapeWarnings, changedKeys } = await import("./chunks/configEdit-Cwxh9J-q.mjs");
+        let next = req.mode === "set" ? { ...req.value } : deepMerge(prev, req.value);
+        const warnings = shapeWarnings(defaults, req.value, theme.id);
+        const active = theme.id === s.settings().activeThemeId;
+        if (!active) warnings.push(`${theme.id} is not the active theme (${s.settings().activeThemeId}): saved for when it is.`);
+        const effects = [];
+        await batched(async () => {
+          let catalogMove = null;
+          if (theme.id === "storefront" && JSON.stringify(prev.catalog) !== JSON.stringify(next.catalog) && next.catalog && typeof next.catalog === "object") {
+            const cat = next.catalog;
+            const slug = String(cat.slug || "catalog.html").replace(/^\/+/, "");
+            const oldPath = String(prev.catalog?.lastPublishedPath ?? "");
+            next = { ...next, catalog: { ...cat, slug, lastPublishedPath: slug } };
+            catalogMove = [oldPath, slug];
+          }
+          const css = await saveThemeConfig(s, theme, next);
+          if (css) effects.push(`uploaded ${css}`);
+          if (catalogMove) {
+            const { cleanupOldCatalogPath } = await import("./chunks/catalogPublisher-DfCTkk-K.mjs");
+            await cleanupOldCatalogPath(catalogMove[0], catalogMove[1]);
+            if (catalogMove[0] && catalogMove[0] !== catalogMove[1]) effects.push(`deleted ${catalogMove[0]}`);
+          }
+          const slot = logoSlot(theme);
+          if (catalogMove || JSON.stringify(logoState(prev, slot)) !== JSON.stringify(logoState(next, slot))) {
+            await refreshMenuJson(s);
+            effects.push("published data/menu.json");
+          }
+        });
+        const changed = changedKeys(prev, next);
+        const styleOnly = changed.length > 0 && changed.every((k) => ["style", "cssUpdatedAt"].includes(k));
+        const layout = changed.filter((k) => !["style", "cssUpdatedAt", "catalog"].includes(k));
+        const homeOnly = layout.length > 0 && layout.every((k) => k === "home");
+        const nextSteps2 = styleOnly || !layout.length ? [] : [`agentcms regenerate ${homeOnly ? "home" : "all"} --site ${s.site.alias}`];
+        if (theme.id === "storefront" && next.catalog && changed.includes("catalog")) nextSteps2.push(`agentcms regenerate storefront/catalog --site ${s.site.alias}`);
+        return { id: theme.id, config: next, changed: changedKeys(prev, next), effects, warnings, next: active ? nextSteps2 : [] };
+      }, (r) => {
+        if ("defaultConfig" in r) return JSON.stringify(r.defaultConfig, null, 2);
+        if (!("changed" in r) || !r.changed) return JSON.stringify(r.config, null, 2);
+        return [`Saved ${r.id} (${r.changed.length ? r.changed.join(", ") : "no change"}).`, ...r.effects.map((e) => `  ${e}`), ...r.warnings.map((w) => `  warning: ${w}`), ...r.next.length ? [`Pages pick up layout changes on the next regeneration: ${r.next.join(" ; ")}`] : []].join("\n");
+      });
+    }
+    case "logo": {
+      const remove = !!options.remove;
+      if (!remove && !arg) throw new CliError("usage", "themes logo needs <id> <image> (PNG, JPEG or WebP), or <id> --remove.", void 0, 2);
+      return runAdmin(io, alias, write, async (s) => {
+        const theme = findTheme(s, id);
+        const slot = logoSlot(theme);
+        if (!slot) throw new CliError("no-logo", `Theme ${theme.id} has no logo setting.`, void 0, 2);
+        const { uploadThemeLogo, removeThemeLogo, logoPath } = await import("./chunks/themeLogo-DXCm1YOD.mjs").then((n) => n.t);
+        const prev = themeConfigOf(s, theme);
+        const file2 = remove ? null : (await Promise.resolve().then(() => plugins)).imageFileFromDisk(arg, ["image/png", "image/jpeg", "image/webp"]);
+        const effects = [];
+        const state = remove ? { logoEnabled: false, logoUpdatedAt: theme.id === "storefront" ? Date.now() : 0 } : { logoEnabled: true, logoUpdatedAt: Date.now() };
+        const next = slot === "brand" ? { ...prev, brand: { ...prev.brand ?? {}, ...state } } : { ...prev, ...state };
+        await batched(async () => {
+          if (file2) await uploadThemeLogo({ themeId: theme.id, file: file2, ...LOGO });
+          else await removeThemeLogo(theme.id);
+          effects.push(`${file2 ? "uploaded" : "deleted"} ${logoPath(theme.id)}`);
+          const css = await saveThemeConfig(s, theme, next);
+          if (css) effects.push(`uploaded ${css}`);
+          await refreshMenuJson(s);
+          effects.push("published data/menu.json");
+        });
+        const warnings = theme.id === s.settings().activeThemeId ? [] : [`${theme.id} is not the active theme: the logo shows once it is.`];
+        return { id: theme.id, logo: file2 ? logoPath(theme.id) : null, ...state, effects, warnings };
+      }, (r) => [`${r.id} logo ${r.logo ? `uploaded to ${r.logo}` : "removed"}.`, ...r.effects.map((e) => `  ${e}`), ...r.warnings.map((w) => `  warning: ${w}`)].join("\n"));
+    }
+    case "sync-assets":
+      return runAdmin(io, alias, write, async (s) => {
+        const { syncThemeAssets } = await import("./chunks/themeSync-Dhezra5s.mjs");
+        const themes = dedupe(s.host.themes.listThemes());
+        await batched(() => syncThemeAssets(themes, s.settings().themeConfigs, s.log));
+        return { themes: themes.map((t) => t.id) };
+      }, (r) => `Theme assets uploaded for ${r.themes.join(", ")}.`);
+    default:
+      throw new CliError("usage", action ? `Unknown themes action "${action}".` : "themes needs an action.", "Actions: list, activate, config, logo, sync-assets.", 2);
+  }
+}
+const themesCommand = {
+  name: "themes",
+  summary: "The admin's Themes page and theme settings: list; activate <id> (switches and regenerates the whole site — plan first, --yes); config <id> (--get, --schema = default config, --set <json> replaces, --merge <json> deep-merges; recompiles theme-assets/<id>.css, republishes menu.json for logo / storefront catalog changes — layout changes need `regenerate all`); logo <id> <image> | logo <id> --remove; sync-assets (= regenerate assets). The storefront catalog page is `regenerate storefront/catalog`. Theme ZIPs: `ext install`.",
+  usage: "themes <list|activate|config|logo|sync-assets> [<id>] [<image>] --site <alias> [--get|--schema|--set <json>|@file|--merge <json>|@file] [--remove] [--yes]",
+  options: [
+    { name: "site", type: "string", description: "Site alias." },
+    { name: "get", type: "boolean", description: "config: print the current config (stored merged over defaults) — the default." },
+    { name: "schema", type: "boolean", description: "config: print the theme's default config (every key it knows)." },
+    { name: "set", type: "string", description: "config: replace the whole config with this JSON object (or @file.json)." },
+    { name: "merge", type: "string", description: "config: deep-merge this JSON object into the current config (arrays are replaced)." },
+    { name: "remove", type: "boolean", description: "logo: delete the logo instead of uploading one." },
+    { name: "yes", type: "boolean", description: "activate: switch and regenerate (otherwise only the plan)." }
+  ],
+  run: run$6
+};
+const MIME_BY_EXT = {
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".png": "image/png",
+  ".webp": "image/webp",
+  ".gif": "image/gif",
+  ".svg": "image/svg+xml",
+  ".avif": "image/avif"
+};
+let formatSpecs = {};
+async function loadFormatSpecs(s) {
+  const { ADMIN_FORMATS } = await import("./chunks/imageFormats-C1E7toWk.mjs");
+  let theme = {};
+  try {
+    theme = s.host.themes.getActiveTheme(s.settings().activeThemeId ?? "default").imageFormats?.formats ?? {};
+  } catch {
+    theme = {};
+  }
+  formatSpecs = {};
+  for (const [name, f] of Object.entries(theme)) formatSpecs[name] = { fit: f.fit ?? "cover", adminOnly: false };
+  for (const [name, f] of Object.entries(ADMIN_FORMATS)) formatSpecs[name] = { fit: f.fit ?? "cover", adminOnly: true };
+}
+async function summarize$1(m) {
+  const { pickMediaUrl } = await import("./chunks/media-K2GXb5Xy.mjs");
+  const { iso } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+  const formats = {};
+  for (const [name, v] of Object.entries(m.formats ?? {})) formats[name] = { url: v.url, width: v.width, height: v.height, bytes: v.bytes, ...formatSpecs[name] ?? {} };
+  return {
+    id: m.id,
+    name: m.name,
+    alt: m.alt ?? null,
+    caption: m.caption ?? null,
+    contentType: m.contentType,
+    size: m.size,
+    url: pickMediaUrl(m) || null,
+    defaultFormat: m.defaultFormat ?? null,
+    formats,
+    storageBase: m.storageBase ?? m.storagePath ?? null,
+    uploadedAt: iso(m.uploadedAt),
+    uploadedBy: m.uploadedBy || null
+  };
+}
+function requireMedia(all, ref) {
+  const m = all.find((x) => x.id === ref) ?? (all.filter((x) => x.name === ref).length === 1 ? all.find((x) => x.name === ref) : void 0);
+  if (!m) throw new CliError("not-found", `No media "${ref}".`, "List them with `agentcms media list` (use the id).", 2);
+  return m;
+}
+function findMediaUsages(m, entries, users, terms) {
+  const needles = [m.storageBase, m.storagePath, m.url, ...Object.values(m.formats ?? {}).map((v) => v.url)].filter((s) => !!s);
+  const mentions = (text) => !!text && needles.some((n) => text.includes(n));
+  const out = [];
+  for (const p of entries) {
+    const where = [];
+    if (p.heroMediaId === m.id) where.push("featured image");
+    if (mentions(p.contentMarkdown)) where.push("body");
+    if (mentions(p.seo?.ogImage)) where.push("SEO image");
+    if (p.translations && mentions(JSON.stringify(p.translations))) where.push("translation");
+    if (where.length) out.push({ kind: p.type, id: p.id, label: p.title, where });
+  }
+  for (const u of users) if (u.avatarMediaId === m.id) out.push({ kind: "user", id: u.id, label: u.email || u.id, where: ["avatar"] });
+  for (const t of terms) {
+    if (mentions(t.seo?.ogImage) || t.translations && mentions(JSON.stringify(t.translations))) out.push({ kind: "term", id: t.id, label: t.name, where: ["SEO image"] });
+  }
+  return out;
+}
+async function allEntries$1() {
+  const { fetchAllPosts, invalidateAllPostsCache } = await import("./chunks/posts-CtjqzF5o.mjs");
+  invalidateAllPostsCache();
+  const [posts, pages2] = await Promise.all([fetchAllPosts({ type: "post" }), fetchAllPosts({ type: "page" })]);
+  return [...posts, ...pages2];
+}
+async function run$5({ io, options, positionals }) {
+  const [action, ...refs] = positionals;
+  const { runAdmin } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+  const alias = options.site;
+  const str = (v) => v === void 0 || v === false ? void 0 : String(v);
+  switch (action) {
+    case "list":
+      return runAdmin(io, alias, { extensions: true }, async (s) => {
+        await loadFormatSpecs(s);
+        let all = await s.media();
+        if (options.search) {
+          const tokens = String(options.search).toLowerCase().split(/\s+/).filter(Boolean);
+          all = all.filter((m) => tokens.every((t) => `${m.name} ${m.alt ?? ""} ${m.caption ?? ""}`.toLowerCase().includes(t)));
+        }
+        return Promise.all(all.map(summarize$1));
+      }, (rows) => rows.length ? rows.map((r) => `${r.id}  ${r.name}${r.alt ? `  "${r.alt}"` : ""}  ${r.url ?? ""}`).join("\n") : "No media.");
+    case "get": {
+      if (!refs[0]) throw new CliError("usage", "media get needs a media id.", void 0, 2);
+      return runAdmin(io, alias, { extensions: true }, async (s) => {
+        await loadFormatSpecs(s);
+        const m = requireMedia(await s.media(), refs[0]);
+        const usages = findMediaUsages(m, await allEntries$1(), await s.users(), await s.terms());
+        return { ...await summarize$1(m), usages };
+      }, (r) => [
+        `${r.name} (${r.id})${r.alt ? ` — alt: ${r.alt}` : ""}`,
+        ...Object.entries(r.formats).map(([n, f]) => `  ${n.padEnd(15)} ${f.width}×${f.height}  ${f.url}`),
+        r.usages.length ? `Used by: ${r.usages.map((u) => `${u.kind} "${u.label}" (${u.where.join(", ")})`).join("; ")}` : "Not referenced."
+      ].join("\n"));
+    }
+    case "upload": {
+      if (!refs.length) throw new CliError("usage", "media upload needs one or more image files.", 'e.g. `agentcms media upload photo.jpg --alt "…"`', 2);
+      const files = refs.map((f) => resolve(f));
+      for (const f of files) {
+        if (!existsSync(f) || !statSync(f).isFile()) throw new CliError("not-found", `${f} does not exist.`, void 0, 2);
+      }
+      const alt = str(options.alt);
+      const caption = str(options.caption);
+      return runAdmin(io, alias, { write: true, hosting: true, extensions: true, lock: true }, async (s) => {
+        const { uploadMedia, updateMedia, validateMediaFile, listAllMedia } = await import("./chunks/media-D9y7Q4-j.mjs").then((n) => n.n);
+        const { withStorageBatch } = await import("./chunks/siteFiles-CIBz6FxK.mjs").then((n) => n.s);
+        const { currentUserId } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+        const settings = s.settings();
+        await loadFormatSpecs(s);
+        let inputFormats;
+        try {
+          inputFormats = s.host.themes.getActiveTheme(settings.activeThemeId ?? "default").imageFormats?.inputFormats;
+        } catch {
+          inputFormats = void 0;
+        }
+        const prepared = files.map((path) => {
+          const name = basename(path);
+          const file2 = new File([readFileSync(path)], name, { type: MIME_BY_EXT[extname(name).toLowerCase()] ?? "" });
+          const v = validateMediaFile(file2, inputFormats);
+          if (!v.ok) throw new CliError("invalid-media", v.reason, `Accepted: ${(inputFormats ?? [".jpg", ".jpeg", ".png", ".webp", ".gif"]).join(", ")} (the active theme decides).`, 2);
+          return file2;
+        });
+        const uploadedBy = await currentUserId();
+        const out = [];
+        for (const [i, file2] of prepared.entries()) {
+          try {
+            const created = await withStorageBatch(() => uploadMedia(file2, uploadedBy, settings));
+            if (alt !== void 0 || caption !== void 0) await updateMedia(created.id, { alt, caption });
+            const fresh = (await listAllMedia()).find((m) => m.id === created.id) ?? created;
+            const sum = await summarize$1(fresh);
+            out.push({ file: files[i], ok: true, id: created.id, url: sum.url, formats: sum.formats });
+          } catch (err) {
+            out.push({ file: files[i], ok: false, error: err.message });
+          }
+        }
+        return out;
+      }, (rows) => rows.map((r) => r.ok ? `✓ ${basename(r.file)} → ${r.id}  ${r.url}` : `✗ ${basename(r.file)} — ${r.error}`).join("\n"));
+    }
+    case "update": {
+      if (!refs[0]) throw new CliError("usage", "media update needs a media id.", void 0, 2);
+      const alt = str(options.alt);
+      const caption = str(options.caption);
+      if (alt === void 0 && caption === void 0) throw new CliError("usage", 'media update needs --alt and/or --caption ("" clears).', void 0, 2);
+      return runAdmin(io, alias, { write: true, lock: true }, async (s) => {
+        const m = requireMedia(await s.media(), refs[0]);
+        const { updateMedia, listAllMedia } = await import("./chunks/media-D9y7Q4-j.mjs").then((n) => n.n);
+        await updateMedia(m.id, { alt, caption });
+        const fresh = (await listAllMedia()).find((x) => x.id === m.id) ?? m;
+        return { id: m.id, alt: fresh.alt ?? null, caption: fresh.caption ?? null, note: "Published pages keep the old alt text until they are republished (`agentcms regenerate all`)." };
+      }, (r) => `Updated ${r.id}: alt=${JSON.stringify(r.alt)} caption=${JSON.stringify(r.caption)}
+${r.note}`);
+    }
+    case "delete": {
+      if (!refs.length) throw new CliError("usage", "media delete needs one or more media ids.", void 0, 2);
+      const inspect = async (s) => {
+        const all = await s.media();
+        const targets = refs.map((r) => requireMedia(all, r));
+        const [entries, users, terms] = await Promise.all([allEntries$1(), s.users(), s.terms()]);
+        return targets.map((m) => ({ media: m, usages: findMediaUsages(m, entries, users, terms) }));
+      };
+      const NOTE = "Published pages keep the URLs they were rendered with: they show a broken image until republished (`agentcms regenerate all`) or edited.";
+      if (!options.yes) {
+        return runAdmin(io, alias, {}, async (s) => {
+          const found = await inspect(s);
+          return {
+            needsConfirmation: true,
+            delete: found.map(({ media, usages }) => ({ id: media.id, name: media.name, folder: media.storageBase ?? media.storagePath ?? null, usages })),
+            note: NOTE
+          };
+        }, (r) => [
+          `Would delete ${r.delete.length} media (files on the publish target and the record):`,
+          ...r.delete.map((d) => `  ${d.id} ${d.name}${d.usages.length ? ` — still used by ${d.usages.map((u) => `${u.kind} "${u.label}" (${u.where.join(", ")})`).join("; ")}` : ""}`),
+          r.note,
+          "Nothing changed — re-run with --yes once the user agrees."
+        ].join("\n"));
+      }
+      return runAdmin(io, alias, { write: true, hosting: true, lock: true }, async (s) => {
+        const found = await inspect(s);
+        const { deleteMedia } = await import("./chunks/media-D9y7Q4-j.mjs").then((n) => n.n);
+        const { withStorageBatch } = await import("./chunks/siteFiles-CIBz6FxK.mjs").then((n) => n.s);
+        const out = [];
+        for (const { media, usages } of found) {
+          try {
+            await withStorageBatch(() => deleteMedia(media));
+            out.push({ id: media.id, name: media.name, ok: true, usages });
+          } catch (err) {
+            out.push({ id: media.id, name: media.name, ok: false, usages, error: err.message });
+          }
+        }
+        return { deleted: out, note: out.some((d) => d.usages.length) ? NOTE : null };
+      }, (r) => [...r.deleted.map((d) => `${d.ok ? "✓ deleted" : "✗"} ${d.name}${d.error ? ` — ${d.error}` : ""}${d.usages.length ? ` (was used by ${d.usages.length} item(s))` : ""}`), ...r.note ? [r.note] : []].join("\n"));
+    }
+    default:
+      throw new CliError("usage", action ? `Unknown media action "${action}".` : "media needs an action.", "Actions: list, get, upload, update, delete.", 2);
+  }
+}
+const mediaCommand = {
+  name: "media",
+  summary: "The Media library: list [--search], get <id> (variants, URLs, where it is used), upload <file…> (the admin's pipeline: the active theme's variants + admin formats, then the record; --alt / --caption), update <id> --alt/--caption, delete <id…> (files + record; plan first, --yes; warns about posts / avatars still using it).",
+  usage: "media <list|get|upload|update|delete> [ids|files…] --site <alias> [--search <q>] [--alt <text>] [--caption <text>] [--yes]",
+  options: [
+    { name: "site", type: "string", description: "Site alias." },
+    { name: "search", type: "string", description: "list: words that must all appear in the name, alt or caption." },
+    { name: "alt", type: "string", description: 'upload/update: alternative text ("" clears).' },
+    { name: "caption", type: "string", description: 'upload/update: caption ("" clears).' },
+    { name: "yes", type: "boolean", description: "delete: apply (otherwise only the plan)." }
+  ],
+  run: run$5
+};
+const LOCALES = ["en", "fr", "de", "es", "nl", "pt", "ko"];
+const NETWORKS = ["twitter", "linkedin", "instagram", "mastodon", "bluesky", "github", "website"];
+async function backend() {
+  const { getBackendKind } = await import("./chunks/runtimeConfig-2M2d2Pbu.mjs");
+  return getBackendKind() ?? "unknown";
+}
+function summarize(u, entries) {
+  const own = entries.filter((p) => p.authorId === u.id);
+  return {
+    id: u.id,
+    email: u.email,
+    firstName: u.firstName ?? null,
+    lastName: u.lastName ?? null,
+    title: u.title ?? null,
+    // The name shown on posts and the author page: first + last name,
+    // else the account's display name. Empty = posts show no byline.
+    publicName: [u.firstName, u.lastName].filter((x) => x && x.trim()).join(" ").trim() || u.displayName?.trim() || null,
+    role: u.role,
+    disabled: !!u.disabled,
+    posts: own.length,
+    onlinePosts: own.filter((p) => p.status === "online").length
+  };
+}
+function detail(u, entries) {
+  return {
+    ...summarize(u, entries),
+    displayName: u.displayName ?? null,
+    bio: u.bio ?? null,
+    avatarMediaId: u.avatarMediaId ?? null,
+    socials: u.socials ?? {},
+    adminLocale: u.preferences?.adminLocale ?? null
+  };
+}
+async function allEntries() {
+  const { fetchAllPosts, invalidateAllPostsCache } = await import("./chunks/posts-CtjqzF5o.mjs");
+  invalidateAllPostsCache();
+  const [posts, pages2] = await Promise.all([fetchAllPosts({ type: "post" }), fetchAllPosts({ type: "page" })]);
+  return { posts, pages: pages2, all: [...posts, ...pages2] };
+}
+async function selfAuthUser() {
+  const { isDocStoreBackend, getBackendKind } = await import("./chunks/runtimeConfig-2M2d2Pbu.mjs");
+  if (isDocStoreBackend(getBackendKind())) {
+    const { getDocStore } = await import("./chunks/registry-0V3j22df.mjs").then((n) => n.x);
+    const id = await getDocStore().identity();
+    if (!id) throw new CliError("not-signed-in", "The site's content store did not identify a user.");
+    return { uid: id.uid, email: id.email, displayName: id.displayName };
+  }
+  const { getAuthClient } = await import("./chunks/firebaseClient-D3fvED27.mjs").then((n) => n.a8);
+  const u = getAuthClient().currentUser;
+  if (!u) throw new CliError("not-signed-in", "Not signed in to Firebase.");
+  return { uid: u.uid, email: u.email, displayName: u.displayName };
+}
+async function ensureSelf() {
+  const me = await selfAuthUser();
+  const { ensureSelfUserRecord } = await import("./chunks/users-CWcF8Vrg.mjs").then((n) => n.u);
+  await ensureSelfUserRecord(me);
+  return me.uid;
+}
+function findUser(users, ref, selfId) {
+  const id = ref === "me" ? selfId : ref;
+  const u = users.find((x) => x.id === id) ?? users.find((x) => x.email && x.email.toLowerCase() === ref.toLowerCase());
+  if (!u) {
+    throw new CliError(
+      "not-found",
+      ref === "me" ? "The signed-in user has no record on this site yet." : `No user "${ref}".`,
+      ref === "me" ? "Any write command (e.g. `users update me …` or `users locale <code>`) creates it, like the admin's first sign-in." : "List them with `agentcms users list`.",
+      2
+    );
+  }
+  return u;
+}
+function parseSocials(value) {
+  const out = {};
+  for (const item of value.split(/\s+/).filter(Boolean)) {
+    const eq = item.indexOf("=");
+    const network = eq < 0 ? item : item.slice(0, eq);
+    if (!NETWORKS.includes(network)) throw new CliError("usage", `--social: unknown network "${network}".`, `Networks: ${NETWORKS.join(", ")}.`, 2);
+    let rest = eq < 0 ? "" : item.slice(eq + 1);
+    let visible = true;
+    const flag = /,(visible|hidden)$/.exec(rest);
+    if (flag) {
+      visible = flag[1] === "visible";
+      rest = rest.slice(0, -flag[0].length);
+    }
+    out[network] = rest ? { url: rest, visible } : null;
+  }
+  return out;
+}
+async function readProfile(options, current) {
+  const { readJsonOption, readTextOption } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+  const data = readJsonOption(options.data, "data") ?? {};
+  if (typeof data !== "object" || Array.isArray(data)) throw new CliError("usage", "--data must be a JSON object.", void 0, 2);
+  const patch = {};
+  const pick = (flag, key, text = false) => {
+    const v = options[flag] !== void 0 ? text ? readTextOption(options[flag], flag) : String(options[flag]) : data[key];
+    if (v === void 0) return;
+    patch[key] = v === null || v === "" ? null : String(v).trim() || null;
+  };
+  pick("first-name", "firstName");
+  pick("last-name", "lastName");
+  pick("title", "title");
+  pick("bio", "bio", true);
+  pick("avatar", "avatarMediaId");
+  if (data.socials !== void 0) {
+    if (data.socials !== null && (typeof data.socials !== "object" || Array.isArray(data.socials))) throw new CliError("usage", "--data socials must be an object { network: { url, visible } }.", void 0, 2);
+    patch.socials = data.socials ?? null;
+  }
+  if (options.social !== void 0) {
+    const base = { ...patch.socials ?? current.socials ?? {} };
+    for (const [network, entry] of Object.entries(parseSocials(String(options.social)))) {
+      if (entry) base[network] = entry;
+      else delete base[network];
+    }
+    patch.socials = base;
+  }
+  return patch;
+}
+function refuseNoAccounts(kind, what) {
+  if (kind === "sqlite-file" || kind === "local") {
+    throw new CliError(
+      "unsupported-backend",
+      `${what} doesn't apply to this site: its ${kind === "sqlite-file" ? "SQLite file" : "local store"} has no accounts — whoever can open it is the admin.`,
+      kind === "sqlite-file" ? "Control access through who holds the hosting credentials (and the passphrase)." : void 0,
+      2
+    );
+  }
+}
+async function run$4({ io, options, positionals }) {
+  const [action, ...refs] = positionals;
+  const { runAdmin } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+  const alias = options.site;
+  const writeOpen = { write: true, lock: true };
+  const loadUsers = async (s) => s.users();
+  switch (action) {
+    case "list":
+      return runAdmin(io, alias, {}, async (s) => {
+        const [users, { all }, me, kind] = await Promise.all([loadUsers(s), allEntries(), selfAuthUser(), backend()]);
+        return {
+          backend: kind,
+          you: { id: me.uid, email: me.email, hasRecord: users.some((u) => u.id === me.uid) },
+          users: users.map((u) => summarize(u, all))
+        };
+      }, (r) => [
+        ...r.users.length ? r.users.map((u) => `${u.id}  ${u.email.padEnd(28)} ${u.role.padEnd(6)}${u.disabled ? " disabled" : ""}  ${[u.firstName, u.lastName].filter(Boolean).join(" ")}  (${u.posts} entries)`) : ["No user records."],
+        `Signed in as ${r.you.email ?? r.you.id}${r.you.hasRecord ? "" : " (no record yet — created by the first write, like the admin's first sign-in)"}.`
+      ].join("\n"));
+    case "get": {
+      const ref = refs[0] ?? "me";
+      return runAdmin(io, alias, {}, async (s) => {
+        const [users, { all }, me] = await Promise.all([loadUsers(s), allEntries(), selfAuthUser()]);
+        if (ref === "me" && !users.some((u) => u.id === me.uid)) {
+          const own = all.filter((p) => p.authorId === me.uid);
+          return {
+            id: me.uid,
+            email: me.email ?? "",
+            hasRecord: false,
+            firstName: null,
+            lastName: null,
+            title: null,
+            publicName: me.displayName ?? null,
+            role: null,
+            disabled: false,
+            posts: own.length,
+            onlinePosts: own.filter((p) => p.status === "online").length,
+            bio: null,
+            avatarMediaId: null,
+            socials: {},
+            note: "No profile stored yet. `agentcms users update me --first-name … --last-name … --bio …` creates it."
+          };
+        }
+        return { ...detail(findUser(users, ref, me.uid), all), hasRecord: true };
+      }, (u) => `${u.email} (${u.id})${u.role ? ` — ${u.role}` : ""}${u.disabled ? ", disabled" : ""}
+${[u.firstName, u.lastName].filter(Boolean).join(" ")}${u.title ? `, ${u.title}` : ""}${u.bio ? `
+${u.bio}` : ""}${"note" in u && u.note ? `
+${u.note}` : ""}`);
+    }
+    case "update": {
+      const ref = refs[0];
+      if (!ref) throw new CliError("usage", 'users update needs a user id, email or "me".', void 0, 2);
+      return runAdmin(io, alias, { write: true, hosting: true, extensions: true, lock: true }, async (s) => {
+        const selfId = await ensureSelf();
+        const users = await loadUsers(s);
+        const user = findUser(users, ref, selfId);
+        const patch = await readProfile(options, user);
+        if (!Object.keys(patch).length) throw new CliError("usage", "Nothing to change.", "Pass --first-name, --last-name, --title, --bio, --avatar, --social or --data.", 2);
+        const media = await s.media();
+        if (patch.avatarMediaId && !media.some((m) => m.id === patch.avatarMediaId)) {
+          throw new CliError("not-found", `No media "${patch.avatarMediaId}".`, 'Upload it with `agentcms media upload` and pass its id ("" removes the avatar).', 2);
+        }
+        const { setUserProfile, getUserRecord, buildAuthorLookup } = await import("./chunks/users-CWcF8Vrg.mjs").then((n) => n.u);
+        await setUserProfile(user.id, patch);
+        const fresh = await getUserRecord(user.id) ?? user;
+        const nextUsers = users.map((u) => u.id === user.id ? fresh : u);
+        const { posts, pages: pages2, all } = await allEntries();
+        const published = [];
+        const { withStorageBatch } = await import("./chunks/siteFiles-CIBz6FxK.mjs").then((n) => n.s);
+        await withStorageBatch(async () => {
+          const { publishAuthorsJson, AUTHORS_JSON_PATH } = await import("./chunks/authorsJsonPublisher-CV48XKYS.mjs").then((n) => n.f);
+          try {
+            await publishAuthorsJson(nextUsers, media, posts, pages2);
+            published.push(AUTHORS_JSON_PATH);
+          } catch (err) {
+            s.log({ level: "error", message: `authors.json refresh failed: ${err.message}` });
+          }
+          if (all.some((p) => p.status === "online" && p.authorId === user.id)) {
+            try {
+              const ctx = await s.host.publisher.buildPublishContext({
+                terms: await s.terms(),
+                settings: s.settings(),
+                users: nextUsers,
+                authorLookup: buildAuthorLookup(nextUsers, media)
+              });
+              await s.host.publisher.publishAuthorArchive(user.id, ctx, s.log);
+              const { buildAuthorUrl } = await import("./chunks/slug-CZzRNKy4.mjs");
+              published.push(buildAuthorUrl(fresh, nextUsers));
+            } catch (err) {
+              s.log({ level: "error", message: `Author archive refresh failed: ${err.message}` });
+            }
+          }
+        });
+        const named = ["firstName", "lastName"].some((k) => k in patch) && all.some((p) => p.status === "online" && p.authorId === user.id);
+        return { ...detail(fresh, all), changed: Object.keys(patch), published, next: named ? [`agentcms regenerate all --site ${s.site.alias}`] : [] };
+      }, (r) => `Updated ${r.email}: ${r.changed.join(", ")}${r.published.length ? ` — republished ${r.published.join(", ")}` : ""}`);
+    }
+    case "role": {
+      const [ref, role] = refs;
+      if (!ref || role !== "admin" && role !== "editor") throw new CliError("usage", "users role <id|email> admin|editor", void 0, 2);
+      return runAdmin(io, alias, writeOpen, async (s) => {
+        const kind = await backend();
+        refuseNoAccounts(kind, "A role");
+        const selfId = await ensureSelf();
+        const user = findUser(await loadUsers(s), ref, selfId);
+        const { setUserRole } = await import("./chunks/users-CWcF8Vrg.mjs").then((n) => n.u);
+        await setUserRole(user.id, role);
+        return {
+          id: user.id,
+          email: user.email,
+          role,
+          note: kind === "markdown-git" ? "Informational on Markdown-in-git sites: the effective role follows the account's repository permission (admin = repo admin) at its next sign-in." : null
+        };
+      }, (r) => `${r.email} is now ${r.role}.${r.note ? `
+${r.note}` : ""}`);
+    }
+    case "disable":
+    case "enable": {
+      const ref = refs[0];
+      if (!ref) throw new CliError("usage", `users ${action} needs a user id or email.`, void 0, 2);
+      return runAdmin(io, alias, writeOpen, async (s) => {
+        const kind = await backend();
+        refuseNoAccounts(kind, "Disabling an account");
+        const selfId = await ensureSelf();
+        const user = findUser(await loadUsers(s), ref, selfId);
+        const { setUserDisabled } = await import("./chunks/users-CWcF8Vrg.mjs").then((n) => n.u);
+        await setUserDisabled(user.id, action === "disable");
+        return {
+          id: user.id,
+          email: user.email,
+          disabled: action === "disable",
+          note: kind === "markdown-git" ? "The admin refuses a disabled user; their repository access is unchanged (remove them from the repo to revoke it)." : null
+        };
+      }, (r) => `${r.email} ${r.disabled ? "disabled" : "enabled"}.${r.note ? `
+${r.note}` : ""}`);
+    }
+    case "delete": {
+      const ref = refs[0];
+      if (!ref) throw new CliError("usage", "users delete needs a user id or email.", void 0, 2);
+      const noteFor = (kind) => kind === "firebase" ? "Only the user record is removed: the Firebase Auth account stays (delete it in the Firebase Console), and signing in again recreates the record." : kind === "markdown-git" ? "Only the user record is removed: the account keeps its repository access, and signing in again recreates the record." : "Only the user record is removed (this site has no accounts).";
+      if (!options.yes) {
+        return runAdmin(io, alias, {}, async (s) => {
+          const [users, { all }, me, kind] = await Promise.all([loadUsers(s), allEntries(), selfAuthUser(), backend()]);
+          const user = findUser(users, ref, me.uid);
+          return { needsConfirmation: true, delete: summarize(user, all), note: noteFor(kind) };
+        }, (r) => `Would delete the record of ${r.delete.email} (${r.delete.posts} entries keep them as author). ${r.note}
+Nothing changed — re-run with --yes once the user agrees.`);
+      }
+      return runAdmin(io, alias, writeOpen, async (s) => {
+        const kind = await backend();
+        const me = await selfAuthUser();
+        const user = findUser(await loadUsers(s), ref, me.uid);
+        const { deleteUserRecord } = await import("./chunks/users-CWcF8Vrg.mjs").then((n) => n.u);
+        await deleteUserRecord(user.id);
+        return { id: user.id, email: user.email, deleted: true, note: noteFor(kind) };
+      }, (r) => `Deleted the record of ${r.email}. ${r.note}`);
+    }
+    case "locale": {
+      const code = refs[0];
+      if (!code || !LOCALES.includes(code)) throw new CliError("usage", "users locale <code>", `The admin's languages: ${LOCALES.join(", ")}.`, 2);
+      return runAdmin(io, alias, writeOpen, async () => {
+        const selfId = await ensureSelf();
+        const { setUserPreferences, getUserRecord } = await import("./chunks/users-CWcF8Vrg.mjs").then((n) => n.u);
+        await setUserPreferences(selfId, { adminLocale: code });
+        const rec = await getUserRecord(selfId);
+        return { id: selfId, email: rec?.email ?? null, adminLocale: rec?.preferences?.adminLocale ?? code };
+      }, (r) => `Admin language of ${r.email ?? r.id}: ${r.adminLocale} (applies at the next admin load).`);
+    }
+    default:
+      throw new CliError("usage", action ? `Unknown users action "${action}".` : "users needs an action.", "Actions: list, get, update, role, disable, enable, delete, locale.", 2);
+  }
+}
+const usersCommand = {
+  name: "users",
+  summary: "The Users page: list, get [<id|email|me>], update <id|email|me> (public author profile; republishes data/authors.json and the author's archive), role <id|email> admin|editor, disable / enable <id|email>, delete <id|email> (the record only; plan first, --yes), locale <code> (the signed-in user's admin language).",
+  usage: 'users <list|get|update|role|disable|enable|delete|locale> [<id|email|me>] [admin|editor|<locale>] --site <alias> [--first-name <t>] [--last-name <t>] [--title <t>] [--bio <text>|@file|-] [--avatar <media id>|""] [--social "<network>=<url>[,hidden] …"] [--data <json>|@file] [--yes]',
+  options: [
+    { name: "site", type: "string", description: "Site alias." },
+    { name: "first-name", type: "string", description: 'update: first name ("" clears).' },
+    { name: "last-name", type: "string", description: 'update: last name ("" clears).' },
+    { name: "title", type: "string", description: 'update: job title shown under the name ("" clears).' },
+    { name: "bio", type: "string", description: 'update: bio — text, @file, or - for stdin ("" clears).' },
+    { name: "avatar", type: "string", description: 'update: avatar media id ("" removes it).' },
+    {
+      name: "social",
+      type: "string",
+      description: `update: space-separated network=url entries merged into the profile (",hidden" keeps it off the public page, "network=" removes it). Networks: ${NETWORKS.join(", ")}. Repeatable.`,
+      multiple: true
+    },
+    { name: "data", type: "string", description: "update: fields as JSON (or @file.json): firstName, lastName, title, bio, avatarMediaId, socials { network: { url, visible } } (replaces all). Flags override it." },
+    { name: "yes", type: "boolean", description: "delete: apply (otherwise only the plan)." }
+  ],
+  run: run$4
+};
+function readExport(file2) {
+  const path = resolve(file2);
+  if (!existsSync(path)) throw new CliError("not-found", `${path} does not exist.`, void 0, 2);
+  let data;
+  try {
+    data = JSON.parse(readFileSync(path, "utf8"));
+  } catch (err) {
+    throw new CliError("invalid-export", `${path} is not JSON: ${err.message}`, void 0, 2);
+  }
+  const ok = !!data && typeof data === "object" && data.format === "agentcms-export" && data.version === 1 && typeof data.collections === "object";
+  if (!ok) throw new CliError("invalid-export", `${path} is not an AgentCMS export.`, "Make one with `agentcms transfer export --out <file>` (or Settings → Data backend → Export).", 2);
+  return data;
+}
+function counts(data) {
+  return Object.fromEntries(Object.entries(data.collections).map(([k, v]) => [k, Array.isArray(v) ? v.length : 0]));
+}
+function withoutTarget(data) {
+  const config = (data.collections.config ?? []).filter((d) => d.id !== "storage");
+  return { ...data, collections: { ...data.collections, config } };
+}
+async function run$3({ io, options, positionals }) {
+  const [action, file2] = positionals;
+  const { runAdmin } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+  const alias = options.site;
+  switch (action) {
+    case "export": {
+      const out = resolve(String(options.out ?? file2 ?? `agentcms-export-${(/* @__PURE__ */ new Date()).toISOString().slice(0, 10)}.json`));
+      return runAdmin(io, alias, {}, async () => {
+        const { exportContent } = await import("./chunks/contentTransfer-BuFJ8pvR.mjs");
+        const data = await exportContent();
+        mkdirSync(dirname(out), { recursive: true });
+        const text = JSON.stringify(data, null, 2);
+        writeFileSync(out, text);
+        return { file: out, bytes: text.length, backend: data.backend, counts: counts(data), note: "Secrets (tokens, keys) are not in the file; media files stay on the publish target." };
+      }, (r) => `Exported ${Object.entries(r.counts).map(([k, n]) => `${n} ${k}`).join(", ")} to ${r.file}`);
+    }
+    case "import": {
+      if (!file2) throw new CliError("usage", "transfer import needs the export file.", "agentcms transfer import <file.json> --mode merge|replace --site <alias>", 2);
+      const mode = String(options.mode ?? "merge");
+      if (mode !== "merge" && mode !== "replace") throw new CliError("usage", `--mode is merge or replace (got "${mode}").`, void 0, 2);
+      const raw = readExport(file2);
+      const keepTarget = !!options["keep-target"];
+      const data = keepTarget ? withoutTarget(raw) : raw;
+      const next = (a) => `agentcms regenerate everything --site ${a}`;
+      const check2 = async () => {
+        const { canImportContent } = await import("./chunks/contentTransfer-BuFJ8pvR.mjs");
+        if (!canImportContent()) {
+          throw new CliError("unsupported-backend", "Import only works on Markdown-in-git and SQLite-file sites.", "Firebase sites can be exported, not imported into.", 2);
+        }
+      };
+      const targetWarning = async () => {
+        const incoming = (data.collections.config ?? []).find((d) => d.id === "storage");
+        if (!incoming) return null;
+        const { getStorageConfig } = await import("./chunks/registry-0V3j22df.mjs").then((n) => n.y);
+        const current = await getStorageConfig().catch(() => null);
+        const same = current && current.connectorId === incoming.connectorId && JSON.stringify(current.settings ?? {}) === JSON.stringify({ ...current.settings ?? {}, ...incoming.settings ?? {} });
+        return same ? null : `The file replaces this site's publish target with the exported one (${incoming.connectorId ?? "?"}). Pass --keep-target to keep the current one.`;
+      };
+      if (!options.yes) {
+        return runAdmin(io, alias, {}, async (s) => {
+          await check2();
+          const { getDocStore } = await import("./chunks/registry-0V3j22df.mjs").then((n) => n.x);
+          const store = getDocStore();
+          await store.ready();
+          const current = Object.fromEntries(Object.keys(data.collections).map((c) => [c, store.list(c).length]));
+          return {
+            needsConfirmation: true,
+            mode,
+            from: { backend: data.backend, exportedAt: data.exportedAt },
+            incoming: counts(data),
+            current,
+            warning: await targetWarning(),
+            note: mode === "replace" ? "replace empties every collection present in the file first (posts, terms, media records, users, settings…) — documents not in the file are lost." : "merge overwrites documents with the same id and keeps the others.",
+            next: next(s.site.alias)
+          };
+        }, (r) => [
+          `Would import (${r.mode}) ${Object.entries(r.incoming).map(([k, n]) => `${n} ${k}`).join(", ")} — this site has ${Object.entries(r.current).map(([k, n]) => `${n} ${k}`).join(", ")}.`,
+          r.note,
+          ...r.warning ? [r.warning] : [],
+          "Nothing changed — re-run with --yes once the user agrees."
+        ].join("\n"));
+      }
+      return runAdmin(io, alias, { write: true, lock: true }, async (s) => {
+        await check2();
+        const warning = await targetWarning();
+        const { importContent } = await import("./chunks/contentTransfer-BuFJ8pvR.mjs");
+        const imported = await importContent(data, mode);
+        return {
+          imported,
+          mode,
+          publishTargetReplaced: !!warning,
+          note: "Nothing was republished: the public site still shows the previous content.",
+          next: next(s.site.alias)
+        };
+      }, (r) => `Imported (${r.mode}) ${Object.entries(r.imported).map(([k, n]) => `${n} ${k}`).join(", ")}.
+${r.note} Next: ${r.next}`);
+    }
+    default:
+      throw new CliError("usage", action ? `Unknown transfer action "${action}".` : "transfer needs an action.", "Actions: export, import.", 2);
+  }
+}
+const transferCommand = {
+  name: "transfer",
+  summary: "Settings → Data backend → Export / Import: export (every backend → one JSON file, no secrets, no media files), import <file> --mode merge|replace (Markdown-in-git / SQLite-file sites, ids kept, one write; plan first, --yes; republishes nothing → then `regenerate everything`).",
+  usage: "transfer <export|import> [<file>] --site <alias> [--out <file>] [--mode merge|replace] [--keep-target] [--yes]",
+  options: [
+    { name: "site", type: "string", description: "Site alias." },
+    { name: "out", type: "string", description: "export: output file (default agentcms-export-<date>.json)." },
+    { name: "mode", type: "string", description: "import: merge (same ids overwritten, others kept; default) or replace (collections in the file emptied first)." },
+    { name: "keep-target", type: "boolean", description: "import: keep this site's publish target instead of the one in the file." },
+    { name: "yes", type: "boolean", description: "import: apply (otherwise only the plan)." }
+  ],
+  run: run$3
+};
+async function run$2({ io, options }) {
+  const { runAdmin } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+  return runAdmin(io, options.site, {}, async (s) => {
+    const { fetchAllPosts, invalidateAllPostsCache } = await import("./chunks/posts-CtjqzF5o.mjs");
+    invalidateAllPostsCache();
+    const [posts, pages2, terms, media, users] = await Promise.all([
+      fetchAllPosts({ type: "post" }),
+      fetchAllPosts({ type: "page" }),
+      s.terms(),
+      s.media(),
+      s.users()
+    ]);
+    const split = (list2) => ({
+      total: list2.length,
+      online: list2.filter((p) => p.status === "online").length,
+      draft: list2.filter((p) => p.status !== "online").length
+    });
+    return {
+      posts: split(posts),
+      pages: split(pages2),
+      terms: { total: terms.length, categories: terms.filter((t) => t.type === "category").length, tags: terms.filter((t) => t.type === "tag").length },
+      media: media.length,
+      users: users.length
+    };
+  }, (r) => [
+    `Posts  ${r.posts.total} (${r.posts.online} online, ${r.posts.draft} draft)`,
+    `Pages  ${r.pages.total} (${r.pages.online} online, ${r.pages.draft} draft)`,
+    `Terms  ${r.terms.total} (${r.terms.categories} categories, ${r.terms.tags} tags)`,
+    `Media  ${r.media}`,
+    `Users  ${r.users}`
+  ].join("\n"));
+}
+const statsCommand = {
+  name: "stats",
+  summary: "The dashboard's numbers: posts and pages (total / online / draft), terms (categories / tags), media, users.",
+  usage: "stats --site <alias>",
+  options: [{ name: "site", type: "string", description: "Site alias." }],
+  run: run$2
+};
+const TEXT = /* @__PURE__ */ new Set([".html", ".htm", ".css", ".js", ".mjs", ".json", ".xml", ".txt", ".svg", ".md", ".webmanifest", ".xsl", ".csv"]);
+const PROTECTED = [/^admin(\/|$)/, /^theme-assets\//, /^data\/(menu|posts|authors|products)\.json$/, /\.sqlite$/, /(^|\/)config\.js$/];
+function cleanPath(raw) {
+  const p = raw.replace(/^\/+/, "");
+  if (!p || p.split("/").some((seg) => seg === ".." || seg === ".")) throw new CliError("usage", `Invalid path "${raw}".`, "Use a path relative to the site, e.g. robots.txt or old/index.html.", 2);
+  return p;
+}
+async function run$1({ io, options, positionals }) {
+  const [action, a, b] = positionals;
+  const alias = options.site;
+  const { runAdmin, confirmOrPlan } = await import("./chunks/adminCommon-BdDL1hcG.mjs");
+  switch (action) {
+    case "list":
+      return runAdmin(io, alias, { hosting: true }, async () => {
+        const files = await import("./chunks/siteFiles-CIBz6FxK.mjs").then((n) => n.s);
+        const caps = await files.getStorageCapabilities();
+        if (!caps.list) throw new CliError("unsupported", `The ${caps.connectorId} hosting can't list its files.`);
+        const prefix = a ? cleanPath(a) : "";
+        const out = [];
+        for (let page = 1; page < 200; page++) {
+          const res = await files.listFiles(page, 500);
+          for (const it of res.items) if (it.type === "file" && it.path.startsWith(prefix)) out.push({ path: it.path, size: it.size ?? null });
+          if (res.items.length < res.per_page || res.total !== void 0 && page * res.per_page >= res.total) break;
+        }
+        return { prefix, count: out.length, files: out };
+      }, (r) => r.count ? r.files.map((f) => `${f.path}${f.size != null ? `  ${f.size} B` : ""}`).join("\n") : "No files.");
+    case "put": {
+      if (!a) throw new CliError("usage", "files put needs a local file (and optionally the path on the site).", "e.g. agentcms files put ./google1234.html", 2);
+      if (!existsSync(a)) throw new CliError("not-found", `${a} does not exist.`, void 0, 2);
+      const target = cleanPath(b ?? a.split("/").pop());
+      if (PROTECTED.some((re) => re.test(target))) throw new CliError("protected", `${target} is managed by the CMS.`, "Change it through its command (deploy-admin, themes, regenerate…).", 2);
+      return runAdmin(io, alias, { write: true, hosting: true, lock: true }, async () => {
+        const files = await import("./chunks/siteFiles-CIBz6FxK.mjs").then((n) => n.s);
+        const bytes = readFileSync(a);
+        const text = TEXT.has(extname(target).toLowerCase());
+        await files.withStorageBatch(
+          () => files.uploadFile(text ? { path: target, content: bytes.toString("utf8") } : { path: target, content: bytes.toString("base64"), encoding: "base64" })
+        );
+        return { path: target, bytes: bytes.length, url: await files.publicUrlFor(target) };
+      }, (r) => `Uploaded ${r.path} (${r.bytes} B) → ${r.url}`);
+    }
+    case "delete": {
+      const paths2 = positionals.slice(1).map(cleanPath);
+      if (!paths2.length) throw new CliError("usage", "files delete needs one or more paths.", void 0, 2);
+      const blocked = paths2.filter((p) => PROTECTED.some((re) => re.test(p)));
+      if (blocked.length) throw new CliError("protected", `${blocked.join(", ")}: managed by the CMS.`, "Use the matching command instead (unpublish content, deploy-admin…).", 2);
+      if (!await confirmOrPlan(io, !!options.yes, { delete: paths2 }, () => `Would delete ${paths2.join(", ")} from the site.`)) return;
+      return runAdmin(io, alias, { write: true, hosting: true, lock: true }, async () => {
+        const files = await import("./chunks/siteFiles-CIBz6FxK.mjs").then((n) => n.s);
+        await files.withStorageBatch(async () => {
+          for (const p of paths2) await files.deleteFile(p);
+        });
+        return { deleted: paths2 };
+      }, (r) => `Deleted ${r.deleted.join(", ")}.`);
+    }
+    default:
+      throw new CliError("usage", action ? `Unknown files action "${action}".` : "files needs an action.", "Actions: list [prefix], put <local file> [site path], delete <path…> --yes.", 2);
+  }
+}
+const filesCommand = {
+  name: "files",
+  summary: "Files on the hosting, relative to the site's folder: list [prefix], put <local file> [site path] (e.g. a search-engine verification file), delete <path…> (plan first, --yes; e.g. a stray old page). The CMS's own files (admin, theme assets, data/*.json, database) are protected — use their commands.",
+  usage: "files <list|put|delete> [args] --site <alias> [--yes]",
+  options: [
+    { name: "site", type: "string", description: "Site alias." },
+    { name: "yes", type: "boolean", description: "delete: apply (otherwise only the plan)." }
+  ],
+  run: run$1
+};
 function readPlan(source) {
   const text = source === "-" ? readFileSync(0, "utf8") : readFileSync(source, "utf8");
   try {
@@ -1250,12 +4404,12 @@ const installCommand = {
   async run({ io, options }) {
     if (typeof options.plan !== "string") throw new CliError("usage", "install needs --plan <file|->.", "Run `agentcms options` for the format.", 2);
     installBrowserEnv();
-    const { resolvePlan } = await import("./chunks/plan-v_cPgEaJ.mjs").then((n) => n.p);
+    const { resolvePlan } = await import("./chunks/plan-r86_nj47.mjs").then((n) => n.p);
     const plan = resolvePlan(readPlan(options.plan));
     if (getSite(plan.alias)) {
       throw new CliError("site-exists", `A site named "${plan.alias}" is already registered.`, "Use another alias, or `agentcms site forget` it first.");
     }
-    const { checkPlan, runInstall } = await import("./chunks/install-TJYbfY0q.mjs");
+    const { checkPlan, runInstall } = await import("./chunks/install-CjhmTX67.mjs");
     io.err("Checking access…");
     const checks = await checkPlan(plan);
     const stored = checks.data.storedTarget;
@@ -1265,7 +4419,7 @@ const installCommand = {
       data: plan.backend,
       hosting: plan.hostingType,
       siteUrl: plan.siteUrl,
-      adminUrl: adminUrlOf({ siteUrl: plan.siteUrl, adminFolder: plan.adminFolder }),
+      adminUrl: secureAdminUrlOf({ siteUrl: plan.siteUrl, adminFolder: plan.adminFolder, hosting: plan.publicTarget }) ?? adminUrlOf({ siteUrl: plan.siteUrl, adminFolder: plan.adminFolder }),
       credentials: plan.credentials,
       checks
     };
@@ -1306,34 +4460,41 @@ const installCommand = {
         installedAt: now,
         updatedAt: now
       });
-      const nextSteps = [];
-      if (summary.adminUrl) nextSteps.push(`Open the admin: ${summary.adminUrl}`);
-      else nextSteps.push("The admin was not copied to the hosting: run `agentcms serve` to use it locally.");
+      const nextSteps2 = [];
+      if (summary.adminUrl) nextSteps2.push(`Open the admin: ${summary.adminUrl}`);
+      else nextSteps2.push("The admin was not copied to the hosting: run `agentcms serve` to use it locally.");
       if (plan.backend === "markdown-git") {
-        nextSteps.push("Each browser asks once for the editor's own git token (Contents read/write on the content repository).");
+        nextSteps2.push("Each browser asks once for the editor's own git token (Contents read/write on the content repository).");
+      } else if (plan.backend === "firebase") {
+        nextSteps2.push("Editors sign in to the admin with their Firebase email + password (create their accounts in the Firebase console → Authentication).");
       } else {
-        nextSteps.push(
+        nextSteps2.push(
           `Each new browser asks once for the ${plan.dataLocation && plan.dataLocation !== plan.target ? "data location" : "hosting"} keys${plan.passphraseAccount ? " and the database passphrase" : ""} (they stay in that browser). No login: protect the admin folder at the hosting level.`
         );
         if (plan.passphraseAccount) {
-          nextSteps.push(
+          nextSteps2.push(
             `The database is encrypted. Have the user save its passphrase in a password manager now: \`agentcms credentials copy ${plan.passphraseAccount}\` puts it on the clipboard. Without it the content can't be opened.`
           );
         } else if (!plan.dataLocation || plan.dataLocation === plan.target) {
-          nextSteps.push("Warning: the database is NOT encrypted and is served by the public site — anyone who guesses its path can download it.");
+          nextSteps2.push("Warning: the database is NOT encrypted and is served by the public site — anyone who guesses its path can download it.");
         } else if (plan.dataLocation.connectorId === "git-pages") {
-          nextSteps.push("Warning: the database is NOT encrypted — anyone who can read the repository (public repos: everyone) can download it.");
+          nextSteps2.push("Warning: the database is NOT encrypted — anyone who can read the repository (public repos: everyone) can download it.");
         }
       }
       if (plan.backend === "markdown-git" && SECRET_FIELDS[plan.target.connectorId]) {
-        nextSteps.push(`Publishing from a browser needs the hosting ${SECRET_FIELDS[plan.target.connectorId]} once: admin → Settings → Publish target.`);
+        nextSteps2.push(`Publishing from a browser needs the hosting ${SECRET_FIELDS[plan.target.connectorId]} once: admin → Settings → Publish target.`);
       }
-      if (plan.target.connectorId === "git-pages") nextSteps.push("Pages hosts take about a minute to serve new commits.");
-      nextSteps.push(`Check everything with \`agentcms doctor --site ${plan.alias}\`.`);
+      if (plan.target.connectorId === "git-pages") nextSteps2.push("Pages hosts take about a minute to serve new commits.");
+      if (!checks.data.existing) {
+        nextSteps2.push(
+          `New sites start as "My site", in English, with the default theme and every plugin on (including agentcms-multilang): set the title, description and language (\`agentcms settings set --site ${plan.alias} --title … --language …\`), pick a theme, disable agentcms-multilang for a one-language site, and give the author a public name (\`agentcms users update me --site ${plan.alias} --first-name … --last-name …\`).`
+        );
+      }
+      nextSteps2.push(`Check everything with \`agentcms doctor --site ${plan.alias}\`.`);
       printResult(
         io,
-        { ...summary, installed: true, files: outcome.files, adminVersion: outcome.adminVersion, notices: outcome.notices, nextSteps },
-        () => [`Installed ${plan.alias}.`, ...outcome.notices.map((n) => `${n.level}: ${n.message}`), ...nextSteps.map((s) => `- ${s}`)].join("\n")
+        { ...summary, installed: true, files: outcome.files, adminVersion: outcome.adminVersion, notices: outcome.notices, nextSteps: nextSteps2 },
+        () => [`Installed ${plan.alias}.`, ...outcome.notices.map((n) => `${n.level}: ${n.message}`), ...nextSteps2.map((s) => `- ${s}`)].join("\n")
       );
     } finally {
       unlock();
@@ -1387,10 +4548,21 @@ const DATA_BACKENDS = [
     id: "firebase",
     summary: "Firestore + Firebase Auth.",
     goodFor: "Real-time multi-editor with email/password logins.",
-    cli: false,
-    fields: [],
-    credentialTypes: [],
-    notes: ["Not scriptable yet: run `agentcms serve` and use the setup wizard."]
+    cli: true,
+    fields: [
+      { key: "firebase.apiKey", required: true, description: "Web app config apiKey (public — Firebase console → Project settings → Your apps)." },
+      { key: "firebase.authDomain", required: true, description: "e.g. <project>.firebaseapp.com" },
+      { key: "firebase.projectId", required: true, description: "Project id." },
+      { key: "firebase.appId", required: true, description: "Web app id." },
+      { key: "firebase.storageBucket", required: false, description: "From the web app config." },
+      { key: "firebase.messagingSenderId", required: false, description: "From the web app config." },
+      { key: "credential", required: true, description: "firebase:<name> account (email + password of the bootstrap admin)." }
+    ],
+    credentialTypes: ["firebase"],
+    notes: [
+      "The project needs Authentication → Email/Password enabled, a user for the admin, Firestore created, and the AgentCMS Firestore rules published with that email pinned (README → Firestore rules). The CLI checks all of it before installing.",
+      "Like the setup wizard, the publish target's keys are stored in Firestore config/storage (readable by the site's editors)."
+    ]
   },
   {
     id: "local",
@@ -1514,8 +4686,17 @@ const optionsCommand = {
   name: "options",
   summary: "List data backends, hostings, credential types and the install plan format — ask the user about data first, then hosting.",
   usage: "options",
-  options: [],
-  async run({ io }) {
+  options: [
+    { name: "firebase-rules", type: "string", description: "Print the Firestore security rules to publish for a Firebase site, with this email pinned as bootstrap admin." }
+  ],
+  async run({ io, options }) {
+    if (options["firebase-rules"]) {
+      const { firestoreRules } = await import("./chunks/firestoreRules-DyI9VR01.mjs");
+      const email = String(options["firebase-rules"]);
+      const rules = firestoreRules(email);
+      printResult(io, { email, rules, where: "Firebase console → Firestore Database → Rules → paste → Publish (or `firebase deploy --only firestore:rules` with the rules in firestore.rules)." }, () => rules);
+      return;
+    }
     const data = {
       order: ["data", "hosting"],
       dataBackends: DATA_BACKENDS,
@@ -1656,10 +4837,13 @@ const serve = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePropert
 }, Symbol.toStringTag, { value: "Module" }));
 const siteCommand = {
   name: "site",
-  summary: "Manage the registry of sites this computer drives: list, show, use <alias> (default), rename <from> <to>, forget <alias> (local only — nothing is deleted online), add <alias> --admin-url <url> (register an existing site).",
-  usage: "site <list|show|use|rename|forget|add> [args] [--site <alias>] [--admin-url <url>] [--site-url <url>] [--data-credential <account>] [--hosting-credential <account>] [--passphrase-credential <account>]",
+  summary: "Manage the registry of sites this computer drives: list, show, use <alias> (default), rename <from> <to>, forget <alias> (local only — nothing is deleted online), add <alias> --admin-url <url> (register an existing site), screenshot [path…] (PNG captures of the live public site, desktop + mobile; default: the home page).",
+  usage: "site <list|show|use|rename|forget|add|screenshot> [args] [--site <alias>] [--admin-url <url>] [--site-url <url>] [--data-credential <account>] [--hosting-credential <account>] [--passphrase-credential <account>]",
   options: [
-    { name: "site", type: "string", description: "Site alias (show)." },
+    { name: "site", type: "string", description: "Site alias (show, screenshot)." },
+    { name: "out", type: "string", description: "screenshot: folder for the PNGs (default: <system temp>/agentcms-screenshots/<alias>; absolute paths in the result)." },
+    { name: "screenshot-js", type: "string", description: `screenshot: JavaScript run in each page before the capture (await allowed), e.g. 'document.querySelector("[data-cms-search]")?.click()'.` },
+    { name: "max-height", type: "string", description: "screenshot: cap each capture's height in CSS px (default: the whole page, up to 6000). Use the viewport height (800 desktop / 844 mobile) for above-the-fold only." },
     { name: "admin-url", type: "string", description: "add: URL of the hosted admin, e.g. https://example.com/admin/." },
     { name: "site-url", type: "string", description: "add: public site URL when it isn't the admin's parent folder." },
     { name: "data-credential", type: "string", description: "add: account of the content repo token (Markdown in git) or of the SQLite data location." },
@@ -1675,7 +4859,8 @@ const siteCommand = {
           alias: s.alias,
           default: s.alias === def,
           siteUrl: s.siteUrl,
-          adminUrl: adminUrlOf(s),
+          publicUrl: publicUrlOf(s),
+          adminUrl: secureAdminUrlOf(s) ?? adminUrlOf(s),
           backend: s.runtime.backend,
           hosting: s.hosting.connectorId || null,
           adminVersion: s.adminVersion ?? null
@@ -1683,13 +4868,13 @@ const siteCommand = {
         printResult(
           io,
           { default: def, sites: rows },
-          () => rows.length ? rows.map((r) => `${r.default ? "*" : " "} ${r.alias.padEnd(20)} ${r.siteUrl}  [${r.backend} → ${r.hosting ?? "?"}]`).join("\n") : "No site registered. Install one with `agentcms install` or register one with `agentcms site add`."
+          () => rows.length ? rows.map((r) => `${r.default ? "*" : " "} ${r.alias.padEnd(20)} ${r.publicUrl}  [${r.backend} → ${r.hosting ?? "?"}]`).join("\n") : "No site registered. Install one with `agentcms install` or register one with `agentcms site add`."
         );
         return;
       }
       case "show": {
         const site = resolveSite(a ?? options.site);
-        printResult(io, { ...site, adminUrl: adminUrlOf(site) }, () => JSON.stringify(site, null, 2));
+        printResult(io, { ...site, publicUrl: publicUrlOf(site), adminUrl: secureAdminUrlOf(site) ?? adminUrlOf(site) }, () => JSON.stringify(site, null, 2));
         return;
       }
       case "use": {
@@ -1716,7 +4901,7 @@ const siteCommand = {
         if (getSite(a)) throw new CliError("site-exists", `A site named "${a}" already exists.`, "Pick another alias or `site forget` it first.");
         if (typeof options["admin-url"] !== "string") throw new CliError("usage", "site add needs --admin-url.", void 0, 2);
         installBrowserEnv();
-        const { siteFromAdminUrl } = await import("./chunks/siteAdd-I271jDRJ.mjs");
+        const { siteFromAdminUrl } = await import("./chunks/siteAdd-ptdsywB2.mjs");
         const site = await siteFromAdminUrl({
           alias: a,
           adminUrl: options["admin-url"],
@@ -1729,8 +4914,30 @@ const siteCommand = {
         printResult(io, site, () => `Registered ${a}: ${site.siteUrl} [${site.runtime.backend} → ${site.hosting.connectorId || "unknown hosting"}]`);
         return;
       }
+      case "screenshot": {
+        const site = resolveSite(options.site);
+        const paths2 = positionals.slice(1);
+        const pages2 = {};
+        for (const raw of paths2.length ? paths2 : [""]) {
+          const path = raw.replace(/^https?:\/\/[^/]+\/?/, "").replace(/^\/+/, "");
+          const label = path.replace(/\.html?$/, "").replace(/[^a-z0-9-]+/gi, "_").replace(/^_+|_+$/g, "") || "home";
+          pages2[label] = path;
+        }
+        const { resolve: resolve2 } = await import("node:path");
+        const { screenshotPages } = await import("./chunks/extScreenshot-g4iC5NB5.mjs");
+        const outDir = resolve2(String(options.out ?? join(tmpdir(), "agentcms-screenshots", site.alias)));
+        const base = publicUrlOf(site);
+        const r = await screenshotPages(base, Object.fromEntries(Object.entries(pages2).map(([k, v]) => [k, v || "./"])), outDir, options["screenshot-js"], options["max-height"] ? Number(options["max-height"]) : void 0);
+        if (!r.browser) throw new CliError("no-browser", "No Chrome / Chromium / Edge found for screenshots.", "Install Google Chrome, or set CHROME_PATH.");
+        printResult(
+          io,
+          { site: site.alias, publicUrl: base, ...r },
+          () => [...r.shots.map((s) => `${s.page} (${s.viewport}): ${s.file}`), ...r.errors.map((e) => `  error: ${e}`)].join("\n")
+        );
+        return r.errors.length ? 1 : 0;
+      }
       default:
-        throw new CliError("usage", `Unknown action "${action}".`, "Use list, show, use, rename, forget or add.", 2);
+        throw new CliError("usage", `Unknown action "${action}".`, "Use list, show, use, rename, forget, add or screenshot.", 2);
     }
   }
 };
@@ -1841,7 +5048,7 @@ const helpCommand = {
       name: "agentcms",
       version,
       globalOptions: GLOBAL_OPTIONS,
-      commands: list2.map(({ name, summary, usage, options }) => ({ name, summary, usage, options }))
+      commands: list2.map(({ name, summary, usage: usage2, options }) => ({ name, summary, usage: usage2, options }))
     };
     printResult(
       io,
@@ -1879,6 +5086,18 @@ const COMMANDS = [
   doctorCommand,
   compactDataCommand,
   extCommand,
+  contentCommand,
+  regenerateCommand,
+  termsCommand,
+  menusCommand,
+  settingsCommand,
+  pluginsCommand,
+  themesCommand,
+  mediaCommand,
+  usersCommand,
+  transferCommand,
+  statsCommand,
+  filesCommand,
   serveCommand
 ];
 function findCommand(name) {
@@ -1913,7 +5132,7 @@ async function run(name, args, io) {
       allowPositionals: true,
       strict: true,
       options: Object.fromEntries(
-        [...command.options, ...GLOBAL_OPTIONS].map((o) => [o.name, { type: o.type }])
+        [...command.options, ...GLOBAL_OPTIONS].map((o) => [o.name, { type: o.type, ..."multiple" in o && o.multiple ? { multiple: true } : {} }])
       )
     });
   } catch (e) {
@@ -1922,7 +5141,10 @@ async function run(name, args, io) {
   if (parsed.values.help && command.name !== "help") return run("help", [command.name], io);
   return command.run({
     io,
-    options: parsed.values,
+    // Repeated options arrive joined with a space.
+    options: Object.fromEntries(
+      Object.entries(parsed.values).map(([k, v]) => [k, Array.isArray(v) ? v.join(" ") : v])
+    ),
     positionals: parsed.positionals
   });
 }
@@ -1933,7 +5155,7 @@ if (major < 20) {
   process.exit(1);
 }
 main(process.argv.slice(2)).then((code) => {
-  process.exitCode = code;
+  process.stdout.write("", () => process.exit(code));
 });
 export {
   CliError as C,
@@ -1941,16 +5163,16 @@ export {
   installBrowserEnv as a,
   readVersionInfo as b,
   compareVersions as c,
-  distRoot as d,
-  adminUrlOf as e,
+  adminUrlOf as d,
+  fetchText as e,
   fetchHostedAdmin as f,
   generatePassphrase as g,
-  fetchText as h,
+  distRoot as h,
   isEncryptedDatabase as i,
-  parseConfigJs as j,
-  parseAccount as k,
+  requireCredential as j,
+  parseConfigJs as k,
   lockSite as l,
-  requireCredential as m,
+  parseAccount as m,
   findDataBackend as n,
   getCredential as o,
   printResult as p,
@@ -1961,5 +5183,6 @@ export {
   decryptDatabase as u,
   validateAlias as v,
   encryptDatabase as w,
-  paths as x
+  paths as x,
+  firebaseSession as y
 };

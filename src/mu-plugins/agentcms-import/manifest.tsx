@@ -10,7 +10,7 @@ import readme from "./README.md?raw";
 export const manifest: PluginManifest<ImportConfig> = {
   id: "agentcms-import",
   name: "Import",
-  version: "1.0.0",
+  version: "1.0.1",
   author: "AgentCMS",
   description:
     "Bulk-imports posts and pages from markdown (with YAML frontmatter) or WordPress XML exports. Auto-creates categories / tags (with hierarchy), uploads referenced images, rewrites image URLs in the body, and matches authors to existing CMS users.",

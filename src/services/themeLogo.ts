@@ -1,4 +1,24 @@
+import { blobToBase64 } from "./imageProcessing";
 import { deleteFile, uploadFile } from "./siteFiles";
+
+// Replacement for the canvas resize below, for runtimes without
+// createImageBitmap / OffscreenCanvas (the agentcms CLI on Node, see
+// agent/ops/imageNode.ts). Same contract as resizeImageToWebp: a
+// width × height WebP, "contain" letterboxed on transparent pixels.
+export type ThemeLogoResizer = (
+  file: Blob,
+  width: number,
+  height: number,
+  fit: "cover" | "contain",
+  quality: number,
+) => Promise<Blob>;
+
+let logoResizer: ThemeLogoResizer | null = null;
+
+// null restores the browser pipeline.
+export function setThemeLogoResizer(impl: ThemeLogoResizer | null): void {
+  logoResizer = impl;
+}
 
 // Site path of the active theme's logo. Stable across uploads —
 // cache busting happens via the `?v=<logoUpdatedAt>` query string the
@@ -19,6 +39,7 @@ async function resizeImageToWebp(
   fit: "cover" | "contain",
   quality = 0.9,
 ): Promise<Blob> {
+  if (logoResizer) return logoResizer(file, width, height, fit, quality);
   const bitmap = await createImageBitmap(file);
   const canvas =
     typeof OffscreenCanvas !== "undefined"
@@ -52,23 +73,6 @@ async function resizeImageToWebp(
       "image/webp",
       quality,
     );
-  });
-}
-
-function blobToBase64(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result;
-      if (typeof result !== "string") {
-        reject(new Error("Unexpected FileReader result."));
-        return;
-      }
-      const idx = result.indexOf(",");
-      resolve(idx >= 0 ? result.slice(idx + 1) : result);
-    };
-    reader.onerror = () => reject(reader.error ?? new Error("FileReader failed."));
-    reader.readAsDataURL(blob);
   });
 }
 

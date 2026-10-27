@@ -1,8 +1,8 @@
 import type { PluginManifest } from "../../plugins";
-import type { BaseLayoutProps } from "../../themes/types";
 import { en, fr, de, es, nl, pt, ko } from "./i18n";
 import { columnsBlock } from "./columns/manifest";
 import {
+  consumeColumnsDetection,
   getDetectedColumnsStyles,
   transformColumnsHtml,
 } from "./columns/transforms";
@@ -21,7 +21,7 @@ ensureAdminColumnsStyles();
 export const manifest: PluginManifest = {
   id: PLUGIN_ID,
   name: "Blocks",
-  version: "1.0.0",
+  version: "1.0.1",
   author: "AgentCMS",
   description:
     "Layout and code primitives for the post editor. Ships a Columns block (2-4 columns, mobile-stacking) and a Custom HTML block for raw HTML/JS / CSS.",
@@ -56,13 +56,22 @@ export const manifest: PluginManifest = {
     );
 
     // Head-extra injection: emits the baseline columns CSS exactly
-    // once when at least one columns block appears on the page.
-    // Mirrors agentcms-embeds' getDetectedHeadStyles flow.
-    api.addFilter<string>("page.head.extra", (current, ...rest) => {
-      void rest[0] as BaseLayoutProps | undefined;
+    // once when at least one columns block appears on the page. The
+    // CSS ships with the plugin (not the theme), so columns render the
+    // same on every theme, bundled or third-party — the only theme
+    // requirement is the standard `x-cms-head-extra` sentinel.
+    api.addFilter<string>("page.head.extra", (current) => {
       const styles = getDetectedColumnsStyles();
       if (!styles) return current;
       return [current, styles].filter(Boolean).join("\n");
+    });
+
+    // Body end is the last per-page hook: clear the detection flag so
+    // a listing page rendered next (no post.html.body pass) doesn't
+    // inherit the previous page's CSS.
+    api.addFilter<string>("page.body.end", (current) => {
+      consumeColumnsDetection();
+      return current;
     });
   },
 };

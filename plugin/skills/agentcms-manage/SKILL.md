@@ -9,6 +9,8 @@ metadata:
 
 # Manage AgentCMS sites
 
+This skill covers the sites themselves (registry, health, updates). To change a site's content or settings — posts, pages, media, menus, themes, plugins, regeneration — use the `agentcms-admin` skill.
+
 **Language:** talk to the user in their language; keep commands and files in English.
 
 Every command is `npx -y @agent-cms/agentcms@0.2.1 <command> --json` (Node.js 20+); read `error.hint` whenever `ok` is false. Fallback without npm: `node agentcms/dist/agent/agentcms.mjs` from a clone of https://github.com/fleox/agentcms.
@@ -45,7 +47,7 @@ Registry commands: `site show <alias>`, `site use <alias>`, `site rename <from> 
 npx -y @agent-cms/agentcms@0.2.1 site add <alias> --admin-url https://example.com/admin/ --data-credential github:<login> --hosting-credential <account> --json
 ```
 
-- `--data-credential` is required for Markdown-in-git sites (to read where the site publishes); omit it otherwise.
+- `--data-credential` is required for Markdown-in-git sites (to read where the site publishes) and for Firebase sites (`firebase:<name>` = the admin's email + password, stored by the user with `! npx -y @agent-cms/agentcms@0.2.1 credentials set firebase:<name>`): the CLI signs in like the admin and reads the publish target from Firestore.
 - `--hosting-credential` is needed to update the hosted admin later; for git hostings on the same account as the content it defaults to the data credential.
 - SQLite sites: `--data-credential` is the account of the database location (it reads the real publish target from the database), `--passphrase-credential passphrase:<name>` the passphrase of an encrypted database (store it first with `credentials set`).
 - Missing credential -> see "Credentials" in the `agentcms-install` skill (the user stores secrets themselves; never in the chat).

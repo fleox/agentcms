@@ -180,10 +180,12 @@ export function renderMagazineHero(
   // so a French-language site reads "À LA UNE", a Korean one reads
   // "추천", etc. Direct getResource (no React context here).
   const locale = pickPublicLocale(env.ctx.settings.language);
+  const badgeLabelOverride = (env.ctx.settings.themeConfigs as Record<string, { home?: { featuredLabel?: string } }> | undefined)?.magazine?.home?.featuredLabel?.trim();
   const badgeLabel =
-    (i18n.getResource(locale, "theme-magazine", "blocks.magazineHero.featuredLabel") as
+    badgeLabelOverride ||
+    ((i18n.getResource(locale, "theme-magazine", "blocks.magazineHero.featuredLabel") as
       | string
-      | undefined) ?? "FEATURED";
+      | undefined) ?? "FEATURED");
 
   const featuredHtml = renderFeatured(featured, slotEnv, {
     showBadge: attrs.showFeaturedBadge ?? true,

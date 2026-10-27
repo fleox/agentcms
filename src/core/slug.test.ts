@@ -15,6 +15,8 @@ import {
 describe("slugify", () => {
   it("lower-cases and strips diacritics", () => {
     expect(slugify("Bonjour à tous, été 2026 !")).toBe("bonjour-a-tous-ete-2026");
+    expect(slugify("Œufs brouillés & cœur")).toBe("oeufs-brouilles-coeur");
+    expect(slugify("Straße Æsir Øresund")).toBe("strasse-aesir-oresund");
   });
   it("collapses non-alphanumeric runs to a single dash", () => {
     expect(slugify("Hello___world!!!")).toBe("hello-world");

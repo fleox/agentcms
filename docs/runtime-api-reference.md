@@ -72,7 +72,7 @@ Filters must return the (possibly modified) value; extra args are untyped — na
 | `publish.additional` | async | `([], post, ctx)` → `{ path, html }[]` | During `publishPost` and per post in *Regenerate all*: extra files per post. Paths no longer returned are deleted by diffing `post.lastPublishedPathsByLocale` — which the plugin must write itself (`updatePost`). |
 | `publish.extraListings` | async | `([], ctx)` → `{ path, html }[]` | With every listing refresh (home + categories). No cleanup: the plugin deletes its own orphans. |
 | `sitemap.urlset.namespaces` | SYNC | `(ns: Record<string,string>, { kind, baseUrl })` | `agentcms-sitemaps`, per yearly sitemap. |
-| `sitemap.url.entry` | SYNC | `("", { entity, baseUrl, path, lastmodMs })` | Per `<url>`: return extra (escaped) inner XML. |
+| `sitemap.url.entry` | SYNC | `("", { entity, baseUrl, path, lastmodMs, terms, settings })` | Per `<url>`: return extra (escaped) inner XML. |
 | `sitemap.urls.extra` | SYNC | `(SitemapExtraUrl[], { posts, pages, terms, settings, year, scope })` | Once **per year** with the same data — filter on `year` or URLs repeat in every file. |
 | `sitemap.index.extra` | SYNC | `(SitemapIndexExtraEntry[], { settings })` | Extra `<sitemap>` references. |
 | `sitemap.news.locales` | async | `(NewsLocaleEntry[], { posts, pages, terms, settings, config })` | When News is enabled: extra per-language news sitemaps. |

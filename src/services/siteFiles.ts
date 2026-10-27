@@ -22,6 +22,7 @@ import {
   stageDeletePrefix,
   stagePut,
 } from "./storage/batch";
+import { bytesToBase64 } from "./git/encoding";
 import { unsupported } from "./storage/http";
 import { rememberUploadedImage } from "../lib/localMediaCache";
 import { getActiveStorageConnector } from "./storage/registry";
@@ -78,6 +79,10 @@ export async function uploadFile(opts: UploadFileOptions): Promise<void> {
 // Reads bytes from a File and returns a base64 string (without the data: prefix).
 // Used for binary uploads (images, PDFs, fonts).
 export function fileToBase64(file: File): Promise<string> {
+  // Node (the agentcms CLI) has File but no FileReader.
+  if (typeof FileReader === "undefined") {
+    return file.arrayBuffer().then((buf) => bytesToBase64(new Uint8Array(buf)));
+  }
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {

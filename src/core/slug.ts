@@ -1,12 +1,16 @@
-import type { Post, Term } from "./types";
+import type { Post, SiteSettings, Term } from "./types";
 
 // Lower-case ASCII slug. Static-host URLs are case-sensitive — keeping every slug
 // lower-case avoids "Hero.jpg vs hero.jpg" style 404s. Diacritics are
 // stripped via NFD decomposition (é → e), and any remaining non-alphanumeric
 // run becomes a single dash. Empty input returns an empty string so callers
 // can decide whether to fall back to a generated id.
+// Letters NFD can't decompose (ligatures, ß, ø…) are spelled out first.
+const SPELLED: Record<string, string> = { œ: "oe", Œ: "oe", æ: "ae", Æ: "ae", ß: "ss", ø: "o", Ø: "o", đ: "d", Đ: "d", ł: "l", Ł: "l", þ: "th", Þ: "th", ð: "d", Ð: "d" };
+
 export function slugify(input: string): string {
   return input
+    .replace(/[œŒæÆßøØđĐłŁþÞðÐ]/g, (c) => SPELLED[c] ?? c)
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
@@ -96,6 +100,25 @@ export function buildTermUrl(term: Pick<Term, "type" | "slug">): string {
 // Home page lives at /index.html regardless of whether the home is a static
 // page or the latest-posts feed.
 export const HOME_PATH = "index.html";
+
+// True when `post` is the page bound to the static-page home
+// (`settings.homeMode === "static-page"` + `settings.homePageId`). That
+// page is published at HOME_PATH only — the publisher never writes its
+// `<slug>.html` — so every link / listing must point at the home instead.
+// (In-tree plugins inline the same 4-line check: they only see
+// `@agent-cms/runtime`.)
+export function isStaticHomePage(
+  post: Pick<Post, "id" | "type">,
+  settings: Pick<SiteSettings, "homeMode" | "homePageId"> | null | undefined,
+): boolean {
+  return (
+    !!settings &&
+    post.type === "page" &&
+    settings.homeMode === "static-page" &&
+    !!settings.homePageId &&
+    settings.homePageId === post.id
+  );
+}
 
 // 404 fallback served by browsers when the host returns its default 404. We
 // upload a `404.html` to the root so visitors see themed content; whether

@@ -6,6 +6,7 @@
 - **Site** (GitHub Pages): a repository the admin publishes HTML into. On free GitHub plans Pages only works on **public** repositories.
 - Use two repositories. Content inside the public site repository would publish the drafts too.
 - An empty repository is fine: the first install commit creates the branch.
+- Everything in the site repository is public on the site, including a `README.md` GitHub created: remove it with `agentcms files delete README.md --site <alias> --yes` if the user doesn't want it served.
 
 If `gh` is installed and signed in (`gh auth status`), offer to create them:
 

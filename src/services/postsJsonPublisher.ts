@@ -1,7 +1,8 @@
-import { buildPostUrl, buildTermUrl } from "../core/slug";
+import { buildPostUrl, buildTermUrl, HOME_PATH, isStaticHomePage } from "../core/slug";
 import { mediaToView, pickFormat } from "../core/media";
 import { markdownToPlainText } from "../core/markdown";
 import { postSortMillis } from "../core/postSort";
+import { siteRelativeUrl } from "../core/basePath";
 import type { Media, Post, SiteSettings, Term } from "../core/types";
 import { uploadFile } from "./siteFiles";
 
@@ -96,7 +97,8 @@ export function buildPostsJson(
       : undefined;
     let url: string;
     try {
-      url = buildPostUrl({ post, primaryTerm: term });
+      // The static home page lives at index.html only (no <slug>.html).
+      url = isStaticHomePage(post, settings) ? HOME_PATH : buildPostUrl({ post, primaryTerm: term });
     } catch {
       // Missing slug — skip rather than emit a malformed entry.
       continue;
@@ -116,7 +118,8 @@ export function buildPostsJson(
     const heroView = mediaToView(
       post.heroMediaId ? mediaMap.get(post.heroMediaId) : undefined,
     );
-    const hero = heroView ? pickFormat(heroView, "medium") : "";
+    // Root-relative: works from every address of the site (see siteRelativeUrl).
+    const hero = heroView ? siteRelativeUrl(pickFormat(heroView, "medium"), settings.baseUrl) : "";
 
     const category =
       term && term.type === "category"

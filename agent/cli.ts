@@ -34,7 +34,7 @@ async function run(name: string, args: string[], io: Io): Promise<number | void>
       allowPositionals: true,
       strict: true,
       options: Object.fromEntries(
-        [...command.options, ...GLOBAL_OPTIONS].map((o) => [o.name, { type: o.type }]),
+        [...command.options, ...GLOBAL_OPTIONS].map((o) => [o.name, { type: o.type, ...("multiple" in o && o.multiple ? { multiple: true } : {}) }]),
       ),
     });
   } catch (e) {
@@ -43,7 +43,10 @@ async function run(name: string, args: string[], io: Io): Promise<number | void>
   if (parsed.values.help && command.name !== "help") return run("help", [command.name], io);
   return command.run({
     io,
-    options: parsed.values as Record<string, string | boolean | undefined>,
+    // Repeated options arrive joined with a space.
+    options: Object.fromEntries(
+      Object.entries(parsed.values).map(([k, v]) => [k, Array.isArray(v) ? v.join(" ") : v]),
+    ) as Record<string, string | boolean | undefined>,
     positionals: parsed.positionals,
   });
 }

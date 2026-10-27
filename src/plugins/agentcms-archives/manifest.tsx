@@ -8,6 +8,7 @@ import {
   type ArchivesConfig,
   DEFAULT_ARCHIVES_CONFIG,
   forceRegenerate,
+  forceRegenerateSummary,
   PLUGIN_ID,
   regenerateForPost,
 } from "./generator";
@@ -41,7 +42,7 @@ async function regenerate(post: Post, ctx: PublishContext): Promise<void> {
 export const manifest: PluginManifest<ArchivesConfig> = {
   id: PLUGIN_ID,
   name: "Archives",
-  version: "1.0.0",
+  version: "1.0.1",
   author: "AgentCMS",
   description:
     "Generates static archive pages grouped by year (and optionally month or ISO week) and adds a 'See full archives' link to home / category listings — a static-friendly alternative to pagination.",
@@ -79,10 +80,7 @@ export const manifest: PluginManifest<ArchivesConfig> = {
           terms: ctx.terms,
           settings: ctx.settings,
         });
-        log({
-          level: "success",
-          message: `Archives: ${result.uploaded.length} uploaded, ${result.deleted.length} removed.`,
-        });
+        log({ level: "success", message: forceRegenerateSummary(result) });
       },
     });
   },

@@ -94,7 +94,7 @@ export const ColumnsContainer = Node.create({
     // The `0` slot tells ProseMirror "this is where my children go"
     // — children are rendered in the markdown / HTML output via
     // their own renderHTML. Wrapped in a div with the marker
-    // attribute so the publish-time DOMParser pass can pick it up.
+    // attribute so the publish-time transform can pick it up.
     return [
       "div",
       mergeAttributes(HTMLAttributes, { "data-cms-block": BLOCK_ID }),

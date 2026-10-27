@@ -10,6 +10,7 @@ import {
   type MenuJson,
   type PublishContext,
   type PluginManifest,
+  type BaseLayoutProps,
 } from "@agent-cms/runtime";
 import { en, fr, de, es, nl, pt, ko } from "./i18n";
 import {
@@ -21,6 +22,7 @@ import {
   SITE_RSS_PATH,
   type RssConfig,
 } from "./generator";
+import { buildFeedDiscoveryLinks } from "./head";
 import { RssSettingsPage } from "./SettingsPage";
 import readme from "./README.md?raw";
 
@@ -117,7 +119,7 @@ function appendFeedFooterItems(menu: MenuJson, ctx: MenuFilterContext): MenuJson
 export const manifest: PluginManifest<RssConfig> = {
   id: PLUGIN_ID,
   name: "RSS",
-  version: "1.0.0",
+  version: "1.1.0",
   author: "AgentCMS",
   description:
     "Generates an RSS 2.0 feed at /rss.xml plus optional per-category feeds, and can list them in the site footer.",
@@ -150,6 +152,17 @@ export const manifest: PluginManifest<RssConfig> = {
       const ctx = rest[0] as MenuFilterContext | undefined;
       if (!ctx) return menu;
       return appendFeedFooterItems(menu, ctx);
+    });
+
+    // Feed auto-discovery: <link rel="alternate" type="application/rss+xml">
+    // in every published page's <head> (site feed when enabled, plus the
+    // category's own feed on its archive). No-op when nothing applies.
+    api.addFilter<string>("page.head.extra", (current, ...rest) => {
+      const props = rest[0] as BaseLayoutProps | undefined;
+      if (!props?.site) return current;
+      const links = buildFeedDiscoveryLinks(props);
+      if (!links) return current;
+      return current ? `${current}\n${links}` : links;
     });
 
     // Themes ▸ Regenerate ▾ entry. Mirrors the SettingsPage's Force
@@ -194,9 +207,15 @@ export const manifest: PluginManifest<RssConfig> = {
         } catch (err) {
           log({ level: "warn", message: `menu.json republish failed: ${(err as Error).message}` });
         }
+        const feeds = out.result.uploaded.length;
+        const removed = out.result.deleted.length;
         log({
           level: "success",
-          message: `RSS: ${out.result.uploaded.length + 1} file(s) uploaded.`,
+          message:
+            (feeds
+              ? `RSS: stylesheet + ${feeds} feed(s) uploaded`
+              : "RSS: stylesheet uploaded; no feed is enabled") +
+            (removed ? `, ${removed} disabled feed(s) removed.` : "."),
         });
       },
     });
