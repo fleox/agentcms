@@ -1,9 +1,9 @@
 {
   "name": "@agent-cms/agentcms",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "apiVersion": "1.4.0",
   "apiMinVersion": "1.0.0",
-  "minSkillsVersion": "0.1.0",
+  "minSkillsVersion": "0.2.0",
   "dataSchema": 2,
   "repository": "github:fleox/agentcms"
 }
