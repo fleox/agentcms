@@ -1,6 +1,6 @@
 {
   "name": "@agent-cms/agentcms",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "type": "module",
   "description": "Static CMS whose admin runs in the browser and publishes plain HTML to any static host (GitHub/GitLab/Cloudflare Pages, S3-compatible buckets). Installable and manageable from AI coding agents.",
   "license": "SEE LICENSE IN LICENSE",
