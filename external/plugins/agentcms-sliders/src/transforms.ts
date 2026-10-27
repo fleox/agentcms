@@ -11,10 +11,13 @@
 //   3. page.body.end — emits the runtime JS once per page if any
 //      slider appears.
 //
-// Module-level Set tracks per-page detection. The publish pipeline
-// runs sequentially for a single page, so a plain shared Set is safe;
-// transformBodyHtml resets it at the start of every call to prevent
-// state leaking from one page render to the next.
+// A module-level flag tracks per-page detection. The publish pipeline
+// runs sequentially for a single page, so a plain shared flag is safe.
+// It is reset at the start of every transformBodyHtml call AND once
+// page.body.end (the last per-page hook) has read it: listing pages
+// (home, categories, authors) never run post.html.body, so without the
+// second reset they would inherit the flag of the single page rendered
+// just before them.
 
 import { SLIDERS, SLIDER_LIST, type SliderAttrs, type SliderKind } from "./sliders";
 import { SLIDER_SCRIPT_TAG, SLIDER_STYLE_TAG } from "./runtime";
@@ -49,8 +52,12 @@ export function getDetectedStyles(): string {
   return detected ? SLIDER_STYLE_TAG : "";
 }
 
-export function getDetectedScripts(): string {
-  return detected ? SLIDER_SCRIPT_TAG : "";
+// Called from page.body.end: returns the runtime script for this page
+// and clears the flag for the next page.
+export function consumeDetectedScripts(): string {
+  const out = detected ? SLIDER_SCRIPT_TAG : "";
+  detected = false;
+  return out;
 }
 
 export const encodeAttrs = encodeAttrsImpl;

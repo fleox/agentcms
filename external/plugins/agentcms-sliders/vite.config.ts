@@ -1,8 +1,11 @@
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-  plugins: [react()],
+  // JSX → react/jsx-runtime calls (external, provided by the admin).
+  // jsxDev: false — otherwise Vite emits react/jsx-dev-runtime calls
+  // whenever NODE_ENV isn't "production" in the shell, and the admin
+  // (which doesn't map that module) fails with "jsxDEV is not a function".
+  esbuild: { jsx: "automatic", jsxDev: false },
   define: {
     "process.env.NODE_ENV": JSON.stringify("production"),
   },

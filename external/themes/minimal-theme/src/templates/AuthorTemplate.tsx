@@ -1,16 +1,7 @@
-interface CardPost {
-  id: string;
-  title: string;
-  url: string;
-  dateLabel?: string;
-}
+import type { AuthorTemplateProps, SiteContext } from "@agent-cms/runtime";
+import { PostList } from "./PostList";
 
-interface AuthorProps {
-  author: { displayName: string; bio?: string };
-  posts: CardPost[];
-}
-
-export function AuthorTemplate({ author, posts }: AuthorProps) {
+export function AuthorTemplate({ author, posts }: AuthorTemplateProps & { site: SiteContext }) {
   return (
     <article>
       <header>
@@ -18,16 +9,7 @@ export function AuthorTemplate({ author, posts }: AuthorProps) {
         {author.bio && <p>{author.bio}</p>}
       </header>
       <h2>Posts</h2>
-      <ul className="mt-list">
-        {posts.map((post) => (
-          <li key={post.id}>
-            <a href={`/${post.url}`}>{post.title}</a>
-            {post.dateLabel && (
-              <span className="mt-meta"> — {post.dateLabel}</span>
-            )}
-          </li>
-        ))}
-      </ul>
+      <PostList posts={posts} excerpts={false} />
     </article>
   );
 }

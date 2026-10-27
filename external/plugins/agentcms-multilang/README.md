@@ -1,58 +1,56 @@
 # agentcms-multilang
 
-Multi-language support for AgentCMS — translated posts/pages/terms, hreflang SEO, per-language sitemap entries, per-language RSS feeds.
+Multi-language support for AgentCMS — translated posts, pages, categories and tags, hreflang SEO, per-language sitemaps and RSS feeds, and a public language switcher.
 
 ## What it does
 
-- **Translations editor**: adds a **Translations** tab in the post / page editor's right-side Inspector. Each enabled language gets its own slug + title + Markdown content + excerpt + SEO fields.
-- **Term translations**: an expandable row in the Categories / Tags page exposes per-language `name` + `slug` for each term.
-- **URL strategy**: the primary language lives at the site root (`site.com/news/hello.html`). Every other enabled language lives under its own prefix (`site.com/fr/actualites/bonjour.html`).
-- **SEO**: emits the full `<link rel="canonical">`, `<link rel="alternate" hreflang="">` (one per language plus `x-default`), `<meta property="og:locale">` and `<meta property="og:locale:alternate">` set on every published page — Google international SEO best practices.
-- **Sitemap**: augments `agentcms-sitemaps`'s output with `<xhtml:link rel="alternate" hreflang="">` entries inside each `<url>` element AND adds the translated URLs themselves to the yearly sitemaps. Adds per-language news sitemap references to `sitemap-index.xml`.
-- **RSS**: generates one `/<lang>/feed.xml` per enabled language plus per-category feeds at `/<lang>/<slug>/<slug>.xml`.
-- **`<html lang>`** set per page server-side via the new `BaseLayoutProps.currentLocale` (no JS hack).
+- **Language tabs in the editor**: an editor *variant provider* adds a tab strip above the post / page editor, one tab per language (★ = primary). Switching tab swaps the whole editor — title, slug, content (blocks included), excerpt and SEO — so every language gets the same authoring experience. Translation tabs appear once the post has been saved once.
+- **Term translations**: a collapsible section in each row of **Categories / Tags** holds the per-language `name`, `slug`, description and SEO.
+- **URL strategy**: the primary language lives at the site root (`site.com/news/hello.html`); every other enabled language lives under its own prefix (`site.com/fr/actualites/bonjour.html`), with its own home (`/fr/index.html`, optionally a static page per language) and category archives.
+- **SEO**: `<link rel="alternate" hreflang="…">` for every language plus `x-default`, `og:locale` and `og:locale:alternate` on every published page, and `<html lang>` per page (`BaseLayoutProps.currentLocale`). The canonical link stays the theme's job: the publisher hands the theme the localized `currentPath`, so a theme that emits `canonicalUrl(baseUrl, currentPath)` gets the right per-language canonical.
+- **Sitemaps** (with `agentcms-sitemaps` enabled): `<xhtml:link rel="alternate">` entries inside each `<url>`, the translated URLs in the yearly sitemaps, and — when News is enabled — one `sitemaps/sitemap-news-<lang>.xml` per secondary language, referenced from the index.
+- **RSS** (with `agentcms-rss` enabled and its site feed on): one `/<lang>/rss.xml` per secondary language, through the RSS plugin's `rss.site.locales` filter. Legacy `/<lang>/feed.xml` and per-category `/<lang>/<slug>/<slug>.xml` files from versions ≤ 1.6.1 are deleted on the next publish.
+- **Language switcher**: a small script injected through `page.body.end` fills `[data-cms-langswitch="header"]` and `[data-cms-langswitch="footer"]` containers with links to the current page's alternates (toggles in the plugin settings). The in-tree themes (default, magazine, corporate, storefront, portfolio) ship these containers; other themes just add an empty `<div data-cms-langswitch="header"></div>`.
 
 ## Requirements
 
-- AgentCMS admin built from `apiVersion >= 1.2.0`. The plugin uses the inspector-tab + term-editor-section APIs and the publisher's `publish.additional` filter, all introduced in 1.2.
+- AgentCMS admin with runtime API **1.4.0** or newer (the plugin uses `registerEditorVariantProvider`, `publish.before(post, ctx)`, `regenerate.listings.before` and `sitemap.news.locales`).
+- The plugin ships pre-installed with AgentCMS (bundled default); this folder is its source.
 
-## Installation
+## Build and install (from source)
 
 1. `npm install --legacy-peer-deps`
-2. `npm run build` — produces `dist/bundle.js` + `agentcms-multilang.zip`
-3. In the admin, **Plugins** → **Install plugin** → drag the ZIP.
-4. Open **Plugins → Multi-language → Settings** and pick the primary language + enabled secondaries.
-5. Edit a post → **Translations** tab in the right inspector → fill the translation for each language and Save.
+2. `npm run build` — type-checks, produces `dist/bundle.js` + `agentcms-multilang.zip`
+3. In the admin, **Plugins** → **Install plugin** → drop the ZIP (same id = in-place upgrade).
+4. Open **Settings → Multi-language** and pick the primary language + additional languages.
 
 ## Workflow
 
-1. Edit the post in the primary language using the standard editor (title, slug, content, SEO).
-2. Open the **Translations** tab on the right.
-3. Switch language tab → fill title, slug, content, excerpt, SEO. Optionally click **Duplicate from primary** as a starting point.
-4. Click **Save translations**. Translations live on `Post.translations` in the database.
-5. Click **Publish**. The publisher renders the primary version + every translation in one pass. Each is uploaded to its own path.
+1. Write the post in the primary language with the standard editor and save it.
+2. Click a language tab above the editor and fill the title, slug, content, excerpt and SEO for that language. Save.
+3. Publish. The publisher renders the primary version and every translation in one pass (`publish.additional`), each at its own path; removed translations are deleted from the site.
 
 ## Storage
 
-- Per-post translations live on `Post.translations` (JSON / Firestore Map column) keyed by language code.
-- Per-term translations live on `Term.translations` (same shape, keyed by language).
-- Plugin config (enabled languages, primary, per-language home page) lives in `settings.pluginConfigs["agentcms-multilang"]`.
+- Per-post translations live on `Post.translations[<lang>]` (`{ slug, title, contentMarkdown, excerpt, seo }`).
+- Per-term translations live on `Term.translations[<lang>]` (`{ slug, name, description, seo }`).
+- Published translation paths are tracked in `Post.lastPublishedPathsByLocale` (orphan cleanup).
+- Plugin config (languages, primary, per-language home page, menu label overrides, switcher toggles) lives in `settings.pluginConfigs["agentcms-multilang"]`.
 
-All storage flows through the standard backend dispatcher — works identically on every data backend (Firebase, SQLite file, Markdown in git, this browser).
+All storage flows through the standard backend dispatcher — it works the same on every data backend (Firebase, SQLite file, Markdown in git, this browser).
 
 ## Theme compatibility
 
-The plugin renders translated pages through the **active theme exactly as the primary publisher would** — same templates, same BaseLayout, same CSS. No theme changes required for content + SEO to work.
+Translated pages render through the **active theme exactly as the primary publisher does** — same templates, BaseLayout and CSS. Themes should:
 
-For a visual **language switcher**, themes can opt in by:
+- use `currentLocale` for `<html lang>` and `site.homePath ?? "/index.html"` for home links;
+- render translated menu labels from `item.labels[<lang>]` in their menu loader (the bundled loaders do);
+- add `[data-cms-langswitch]` containers where the switcher should appear.
 
-1. Putting a `<div data-cms-langswitch></div>` somewhere in their `Header` template.
-2. The runtime script `lang-switcher.js` (loaded via `page.body.end`, future enhancement) will populate it with anchor tags pointing at the current page's alternates.
-
-Themes that don't add the container still get URL prefixes, hreflang, sitemap entries and RSS feeds; only the visual switcher is missing.
+Block markers in translated content go through the same `post.html.body` filters as the primary render. Those filters receive a per-language publish context as an extra third argument (`ctx.settings.language` = the target language), because `getCurrentPublishContext()` is only set during the core's own renders.
 
 ## Known limitations
 
-- Theme-specific rich homes (e.g. magazine's hero/sidebar widgets) are not replicated in non-primary languages. Configure a **static page** as the home per language for full control.
-- Markdown editor blocks (Hero, embeds, etc.) embedded in the primary content are NOT auto-replicated in translations — paste your translated Markdown in the Translations tab manually.
-- Concurrent edits to a single post's translations follow last-write-wins (one Firestore document / one SQLite row).
+- Theme-specific rich homes (e.g. magazine's hero / sidebar widgets) are not replicated in secondary languages. Pick a **static page** as the home of each language for full control.
+- `post.markdown.before` and `post.template.props` filters don't run for translated renders.
+- Concurrent edits to one post's translations are last-write-wins (one document / row per post).

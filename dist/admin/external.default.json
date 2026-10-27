@@ -32,7 +32,7 @@
     },
     {
       "id": "agentcms-multilang",
-      "version": "1.6.2",
+      "version": "1.6.3",
       "apiVersion": "1.4.0",
       "entryPath": "plugins/agentcms-multilang/bundle.js"
     }
@@ -64,7 +64,7 @@
     },
     {
       "id": "marketplace-core",
-      "version": "1.7.0",
+      "version": "1.7.1",
       "apiVersion": "1.4.0",
       "entryPath": "themes/marketplace-core/bundle.js"
     }

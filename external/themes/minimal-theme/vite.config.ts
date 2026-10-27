@@ -1,18 +1,20 @@
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
 
 // External theme build config. Same shape as the plugin example —
 // library mode + single ESM bundle + externalised runtime deps.
 //
-// Themes have an extra wrinkle: their CSS isn't bundled into bundle.js.
-// Instead we ship `theme.css` alongside `bundle.js` and the theme's
-// manifest declares `cssText` by importing it via `?raw` so the admin's
-// "Sync theme assets" path uploads the verbatim string. Build the CSS
-// however you prefer (Tailwind, SCSS, hand-written) — the admin only
-// cares that you ship a `theme.css` file with the bundle.
+// CSS: the manifest imports src/theme.css with `?raw`, so the CSS is a
+// string inside bundle.js (manifest.cssText) — that string is what
+// "Sync theme assets" uploads to /theme-assets/<id>.css. Never
+// `import "./theme.css"` (lib mode would emit a separate file the admin
+// never loads). Building the CSS with SCSS/PostCSS? Use `?inline`.
 
 export default defineConfig({
-  plugins: [react()],
+  // JSX → react/jsx-runtime calls (external, provided by the admin).
+  // jsxDev: false — otherwise Vite emits react/jsx-dev-runtime calls
+  // whenever NODE_ENV isn't "production" in the shell, and the admin
+  // (which doesn't map that module) fails with "jsxDEV is not a function".
+  esbuild: { jsx: "automatic", jsxDev: false },
   // Vite lib mode doesn't replace `process.env.NODE_ENV` at build time
   // (only app mode does). Any externalised dep that ships a React-style
   // dev/prod branch (most of React's ecosystem) throws "process is not
@@ -36,6 +38,7 @@ export default defineConfig({
         "react/jsx-runtime",
         "react-dom",
         "react-dom/client",
+        "react-i18next",
         "@agent-cms/runtime",
       ],
       output: {

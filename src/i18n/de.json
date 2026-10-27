@@ -933,5 +933,8 @@
     "passphraseHint": "Die Datenbank ist verschlüsselt. Gib die bei der Installation gewählte Passphrase ein (wird nur in diesem Browser gespeichert).",
     "passphraseWrong": "Falsche Passphrase: Die Datenbank konnte nicht geöffnet werden.",
     "passphraseMissing": "Gib die Passphrase der Datenbank ein."
+  },
+  "publicSite": {
+    "notFoundTitle": "Seite nicht gefunden"
   }
 }

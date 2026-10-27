@@ -7,9 +7,9 @@ const __filename = __acmsPath(import.meta.url);
 const __dirname = __acmsDirname(__filename);
 import { parseArgs } from "node:util";
 import { existsSync, readFileSync, mkdirSync, writeFileSync, chmodSync, renameSync, statSync, openSync, writeSync, closeSync, unlinkSync, createReadStream } from "node:fs";
-import { join, resolve, dirname, sep, extname, normalize } from "node:path";
+import { join, resolve, dirname, basename, sep, extname, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
-import { homedir } from "node:os";
+import { homedir, tmpdir } from "node:os";
 import { spawnSync, execFileSync } from "node:child_process";
 import { createServer } from "node:http";
 class CliError extends Error {
@@ -32,7 +32,11 @@ function printResult(io, data, human) {
   else io.out(human());
 }
 function printError(io, error) {
-  const e = error instanceof CliError ? error : new CliError("internal", error instanceof Error ? error.message : String(error));
+  const e = error instanceof CliError ? error : new CliError(
+    "internal",
+    error instanceof Error ? error.message : String(error),
+    "Unexpected error. Retry once; if it persists, report it with the command and this output at https://github.com/fleox/agentcms/issues."
+  );
   if (io.json) {
     io.out(JSON.stringify({ ok: false, error: { code: e.code, message: e.message, ...e.hint ? { hint: e.hint } : {} } }));
   } else {
@@ -54,6 +58,11 @@ function readVersionInfo() {
   }
   return JSON.parse(readFileSync(file2, "utf8"));
 }
+const paths = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  distRoot,
+  readVersionInfo
+}, Symbol.toStringTag, { value: "Module" }));
 class MemoryStorage {
   data = /* @__PURE__ */ new Map();
   get length() {
@@ -346,7 +355,7 @@ const compactDataCommand = {
     if (!account) throw new CliError("credential-required", `No credential recorded for the data of ${site.alias}.`);
     const token = requireCredential(account).values.token;
     installBrowserEnv();
-    const { createRemoteGitTransport, joinRepoPath } = await import("./chunks/index-CSmlfI0R.mjs").then((n) => n.g);
+    const { createRemoteGitTransport, joinRepoPath } = await import("./chunks/index-BVQJP7xk.mjs").then((n) => n.r);
     const transport = createRemoteGitTransport({
       provider: "github",
       owner: s.owner ?? "",
@@ -595,14 +604,14 @@ const credentialsCommand = {
     }
     if (action === "list") {
       const { sites } = listSites();
-      const list = listCredentials().map((c) => ({
+      const list2 = listCredentials().map((c) => ({
         ...c,
         usedBy: sites.filter((s) => s.credentials.data === c.account || s.credentials.hosting === c.account).map((s) => s.alias)
       }));
       printResult(
         io,
-        list,
-        () => list.length ? list.map((c) => `${c.account}  (${c.fields.join(", ")})${c.usedBy.length ? `  used by ${c.usedBy.join(", ")}` : ""}`).join("\n") : "No stored credentials."
+        list2,
+        () => list2.length ? list2.map((c) => `${c.account}  (${c.fields.join(", ")})${c.usedBy.length ? `  used by ${c.usedBy.join(", ")}` : ""}`).join("\n") : "No stored credentials."
       );
       return;
     }
@@ -692,12 +701,19 @@ function findSecretKeys(value, path = "") {
 }
 async function fetchHostedAdmin(adminUrl, fetchImpl = fetch) {
   const res = await fetchText(`${adminUrl}admin-files.json`, fetchImpl);
-  if (!res.ok) return { version: null, dataSchema: null, files: [], error: res.error ?? `HTTP ${res.status}` };
+  const none = { version: null, dataSchema: null, apiVersion: null, apiMinVersion: null, files: [] };
+  if (!res.ok) return { ...none, error: res.error ?? `HTTP ${res.status}` };
   try {
     const m = JSON.parse(res.text);
-    return { version: m.version ?? null, dataSchema: m.dataSchema ?? null, files: m.files ?? [] };
+    return {
+      version: m.version ?? null,
+      dataSchema: m.dataSchema ?? null,
+      apiVersion: m.apiVersion ?? null,
+      apiMinVersion: m.apiMinVersion ?? null,
+      files: m.files ?? []
+    };
   } catch {
-    return { version: null, dataSchema: null, files: [], error: "admin-files.json is not valid JSON" };
+    return { ...none, error: "admin-files.json is not valid JSON" };
   }
 }
 function readChangelog() {
@@ -709,12 +725,12 @@ function readChangelog() {
   }
 }
 function changesBetween(entries, from, to) {
-  const list = entries.filter((e) => compareVersions(e.version, from) > 0 && compareVersions(e.version, to) <= 0);
+  const list2 = entries.filter((e) => compareVersions(e.version, from) > 0 && compareVersions(e.version, to) <= 0);
   return {
-    versions: list.map((e) => e.version),
-    breaking: list.some((e) => e.breaking),
-    changes: list.flatMap((e) => e.changes.map((c) => `${e.version}: ${c}`)),
-    actions: [...new Set(list.flatMap((e) => e.actions))]
+    versions: list2.map((e) => e.version),
+    breaking: list2.some((e) => e.breaking),
+    changes: list2.flatMap((e) => e.changes.map((c) => `${e.version}: ${c}`)),
+    actions: [...new Set(list2.flatMap((e) => e.actions))]
   };
 }
 const deployAdminCommand = {
@@ -733,8 +749,8 @@ const deployAdminCommand = {
     const sites = options.all ? listSites().sites.filter((s) => s.adminFolder) : [resolveSite(options.site)];
     if (sites.length === 0) throw new CliError("no-sites", "No registered site has a hosted admin.");
     installBrowserEnv();
-    const { adminOps, applyOps, hostingConnector, themeAssetOps } = await import("./chunks/hosting-BORVYEgr.mjs").then((n) => n.f);
-    const { collectToasts, settleHosting } = await import("./chunks/install-hgrA7e9m.mjs");
+    const { adminOps, applyOps, hostingConnector, themeAssetOps } = await import("./chunks/hosting-DLKOgr4B.mjs");
+    const { collectToasts, settleHosting } = await import("./chunks/install-TJYbfY0q.mjs");
     const plans = [];
     for (const site of sites) {
       const adminUrl = adminUrlOf(site);
@@ -928,7 +944,7 @@ async function runDoctor(site, opts = {}) {
       add({ id: "hosting-access", status: "skip", message: "No hosting credential to test." });
     } else {
       installBrowserEnv();
-      const { testStorageConnection } = await import("./chunks/registry-BqcVo77s.mjs").then((n) => n.z);
+      const { testStorageConnection } = await import("./chunks/registry-DClFwwHa.mjs").then((n) => n.q);
       const res = await testStorageConnection(site.hosting.connectorId, { ...site.hosting.settings, ...hostingCred.values });
       add(
         res.ok ? { id: "hosting-access", status: "ok", message: `Hosting writable: ${res.detail}.` } : { id: "hosting-access", status: "fail", message: `Hosting access failed: ${res.detail}.`, fix: "Check the credential's permissions / expiry, then `agentcms credentials set` it again." }
@@ -962,6 +978,255 @@ const doctorCommand = {
     if (failed) return 1;
   }
 };
+function parseJsonOption(name, value) {
+  if (value == null || value === "") return void 0;
+  try {
+    const parsed = JSON.parse(String(value));
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) return parsed;
+  } catch {
+  }
+  throw new CliError("usage", `--${name} must be a JSON object.`, `Example: --${name} '{"key":"value"}'`, 2);
+}
+function list(value) {
+  return value ? String(value).split(",").map((s) => s.trim()).filter(Boolean) : [];
+}
+async function loadAll(paths2) {
+  const [{ readExtensionPackage, bundleSource }, { importExtensionBundle }] = await Promise.all([
+    import("./chunks/extPackage-4FSerswt.mjs"),
+    import("./chunks/extHost-Cj8Wjaia.mjs")
+  ]);
+  const out = [];
+  for (const p of paths2) {
+    const pkg = await readExtensionPackage(p);
+    const code = bundleSource(pkg);
+    if (code == null) throw new CliError("no-bundle", `${p}: ${pkg.entry} not found.`, pkg.sourceType === "project" ? "Build it first (npm run build)." : void 0);
+    const { manifest } = await importExtensionBundle(code);
+    const m = manifest;
+    if (!m || typeof m.id !== "string") throw new CliError("no-export", `${p}: the bundle exports no manifest.`, "Run `agentcms ext check` on it.");
+    out.push({ kind: m.templates ? "theme" : "plugin", id: m.id, manifest: m, pkg });
+  }
+  return out;
+}
+async function check({ io, options, positionals }) {
+  const target = positionals[1];
+  if (!target) throw new CliError("usage", "ext check needs a path: the project folder, an unpacked package or the .zip.", void 0, 2);
+  const kind = options.kind;
+  if (kind && kind !== "plugin" && kind !== "theme") throw new CliError("usage", "--kind is plugin or theme.", void 0, 2);
+  const { readExtensionPackage } = await import("./chunks/extPackage-4FSerswt.mjs");
+  const { checkExtension } = await import("./chunks/extCheck-CLKQDMSf.mjs");
+  const pkg = await readExtensionPackage(target);
+  const report = await checkExtension(pkg, {
+    kind,
+    previewDir: options["keep-preview"] || options.out ? resolve(String(options["keep-preview"] || options.out)) : void 0
+  });
+  printResult(io, report, () => {
+    const lines = [
+      `${report.valid ? "PASS" : "FAIL"}  ${report.kind ?? "?"} ${report.id ?? "?"} ${report.version ?? ""} (apiVersion ${report.apiVersion ?? "?"}, admin API ${report.hostApi.version})`,
+      ...report.errors.map((e) => `  error  [${e.code}] ${e.message}${e.hint ? `
+         → ${e.hint}` : ""}`),
+      ...report.warnings.map((w) => `  warn   [${w.code}] ${w.message}${w.hint ? `
+         → ${w.hint}` : ""}`)
+    ];
+    if (report.registered) {
+      const r = report.registered;
+      const parts = [
+        r.filters.length && `filters: ${r.filters.map((f) => f.hook).join(", ")}`,
+        r.actions.length && `actions: ${r.actions.map((a) => a.hook).join(", ")}`,
+        r.blocks.length && `blocks: ${r.blocks.join(", ")}`,
+        r.dashboardCards.length && `dashboard cards: ${r.dashboardCards.join(", ")}`
+      ].filter(Boolean);
+      if (parts.length) lines.push(`  registers ${parts.join("; ")}`);
+    }
+    for (const b of report.blocks ?? []) {
+      lines.push(`  block ${b.id}: stored as ${b.markdown ? JSON.stringify(b.markdown.slice(0, 90)) + (b.markdown.length > 90 ? "…" : "") : "(nothing)"}`);
+    }
+    if (report.output) {
+      if (report.output.added.length) lines.push(`  adds ${report.output.added.length} file(s): ${report.output.added.slice(0, 12).join(", ")}${report.output.added.length > 12 ? ", …" : ""}`);
+      if (report.output.changed.length) lines.push(`  changes ${report.output.changed.length} file(s): ${report.output.changed.slice(0, 12).join(", ")}${report.output.changed.length > 12 ? ", …" : ""}`);
+      for (const st of report.output.lifecycle ?? []) {
+        const parts = [
+          st.added.length && `adds ${st.added.join(", ")}`,
+          st.changed.length && `changes ${st.changed.join(", ")}`,
+          st.removed.length && `removes ${st.removed.join(", ")}`
+        ].filter(Boolean);
+        lines.push(`  on ${st.step}: ${parts.length ? parts.join("; ") : "nothing of its own"}`);
+      }
+      if (report.output.previewDir) lines.push(`  demo site kept in ${report.output.previewDir}`);
+    }
+    return lines.join("\n");
+  });
+  return report.valid ? 0 : 1;
+}
+async function preview({ io, options, positionals }) {
+  const paths2 = positionals.slice(1);
+  const exts = await loadAll(paths2);
+  const { renderPreview } = await import("./chunks/extPreview-BGivr2Zw.mjs");
+  const port = Number(options.port ?? 4321);
+  if (!Number.isInteger(port) || port < 1 || port > 65535) throw new CliError("usage", `Invalid port: ${options.port}`, void 0, 2);
+  const outDir = resolve(String(options.out ?? join(tmpdir(), `agentcms-preview-${exts.map((e) => e.id).join("+") || "default"}`)));
+  let content;
+  let siteAlias;
+  if (options.site) {
+    const { snapshotSiteContent } = await import("./chunks/extSiteContent-DP5gC6c4.mjs");
+    const snap = await snapshotSiteContent(String(options.site));
+    content = snap.content;
+    siteAlias = snap.alias;
+  }
+  const rawBase = options["base-path"] ? String(options["base-path"]) : "";
+  if (rawBase && !/^\/?[a-z0-9._~-]+(?:\/[a-z0-9._~-]+)*\/?$/i.test(rawBase)) {
+    throw new CliError("usage", `Invalid --base-path "${rawBase}".`, "Example: --base-path /blog", 2);
+  }
+  const basePath = rawBase ? "/" + rawBase.replace(/^\/+|\/+$/g, "") : "";
+  const baseUrl = `http://localhost:${port}${basePath}`;
+  if (options.home && options.home !== "blocks") throw new CliError("usage", `--home takes "blocks".`, `Use --settings '{"homeMode":"static-page","homePageId":"page-about"}' for another page.`, 2);
+  if (options.demo && options.demo !== "empty" && options.demo !== "full") throw new CliError("usage", `--demo is "full" or "empty".`, void 0, 2);
+  const res = await renderPreview({
+    outDir,
+    baseUrl,
+    extensions: exts.map(({ kind, id, manifest }) => ({ kind, id, manifest })),
+    themeId: options.theme,
+    enablePlugins: list(options.enable),
+    themeConfig: parseJsonOption("theme-config", options["theme-config"]),
+    pluginConfigs: parseJsonOption("plugin-configs", options["plugin-configs"]),
+    settings: parseJsonOption("settings", options.settings),
+    content,
+    blockPage: true,
+    home: options.home === "blocks" ? "blocks" : void 0,
+    demo: options.demo === "empty" ? "empty" : "full"
+  });
+  let server = null;
+  let screenshots = null;
+  if (options.screenshots || options.serve) {
+    const { startAdminServer: startAdminServer2 } = await Promise.resolve().then(() => serve);
+    try {
+      server = await startAdminServer2(res.outDir, "127.0.0.1", port, basePath);
+    } catch (e) {
+      if (e.code === "EADDRINUSE") throw new CliError("port-busy", `Port ${port} is in use.`, "Pass --port <n> (links in the preview use that port).");
+      throw e;
+    }
+  }
+  if (options.screenshots) {
+    const { screenshotPages } = await import("./chunks/extScreenshot-D5CCgm5-.mjs");
+    screenshots = await screenshotPages(baseUrl, res.pages, join(res.outDir, ".screenshots"), options["screenshot-js"] ? String(options["screenshot-js"]) : void 0);
+  }
+  const data = {
+    ...res,
+    site: siteAlias ?? null,
+    url: options.serve ? `${baseUrl}/` : null,
+    screenshots: screenshots ? { browser: screenshots.browser, files: screenshots.shots, errors: screenshots.errors, ...screenshots.browser ? {} : { hint: "No Chrome / Chromium / Edge found; set CHROME_PATH." } } : null
+  };
+  if (!options.serve && server) await new Promise((r) => server.close(() => r()));
+  printResult(
+    io,
+    data,
+    () => [
+      `Preview of ${res.themeId}${res.plugins.length ? ` + ${res.plugins.join(", ")}` : ""}: ${res.files.length} files in ${res.outDir}`,
+      ...Object.entries(res.pages).filter(([, p]) => p).map(([k, p]) => `  ${k.padEnd(9)} ${p}`),
+      ...res.issues.map((i) => `  ${i.level}  ${i.message}`),
+      ...res.notes.map((n) => `  note  ${n}`),
+      ...screenshots?.shots.map((s) => `  screenshot ${s.file}`) ?? [],
+      ...screenshots && !screenshots.browser ? ["  (no Chrome / Chromium / Edge found for screenshots; set CHROME_PATH)"] : [],
+      options.serve ? `Serving at ${baseUrl}/ — Ctrl+C to stop.` : ""
+    ].filter(Boolean).join("\n")
+  );
+  if (options.serve && server) {
+    await new Promise((r) => {
+      const stop = () => server.close(() => r());
+      process.once("SIGINT", stop);
+      process.once("SIGTERM", stop);
+    });
+  }
+  return res.issues.some((i) => i.level === "error") ? 1 : 0;
+}
+async function pack({ io, options, positionals }) {
+  const target = positionals[1] ?? ".";
+  const { readExtensionPackage } = await import("./chunks/extPackage-4FSerswt.mjs");
+  const { writeExtensionZip } = await import("./chunks/extZip-Cl-j_KR5.mjs");
+  const pkg = await readExtensionPackage(target);
+  if (pkg.sourceType === "zip") throw new CliError("usage", "ext pack takes a project or unpacked folder, not a .zip.", void 0, 2);
+  if (!pkg.manifest?.id) throw new CliError("manifest-id", "manifest.json has no id.");
+  if (!pkg.files.has(pkg.entry)) throw new CliError("no-bundle", `${pkg.entry} not found.`, pkg.sourceType === "project" ? "Build first: `vite build` (the bundle goes to dist/)." : void 0);
+  const out = resolve(String(options.out ?? join(pkg.source, `${pkg.manifest.id}.zip`)));
+  mkdirSync(dirname(out), { recursive: true });
+  const bytes = await writeExtensionZip(pkg.files);
+  writeFileSync(out, bytes);
+  const files = [...pkg.files.keys()].sort();
+  printResult(io, { zip: out, bytes: bytes.length, files }, () => `Packed ${basename(out)} (${files.length} files, ${(bytes.length / 1024).toFixed(1)} KB): ${files.join(", ")}`);
+}
+async function scaffold({ io, options, positionals }) {
+  const [, kind, id] = positionals;
+  if (kind !== "plugin" && kind !== "theme") throw new CliError("usage", "ext new needs plugin or theme, then an id: ext new theme my-theme", void 0, 2);
+  if (!id) throw new CliError("usage", `ext new ${kind} needs an id (lower-case, dashes), e.g. ext new ${kind} my-${kind}.`, void 0, 2);
+  const { scaffoldExtension } = await import("./chunks/extScaffold-BRonfK8E.mjs");
+  const dir = resolve(String(options.dir ?? id));
+  if (existsSync(dir) && (await import("node:fs")).readdirSync(dir).length > 0 && !options.force) {
+    throw new CliError("dir-not-empty", `${dir} already exists and is not empty.`, "Pick another --dir (or --force to write into it).", 2);
+  }
+  const res = scaffoldExtension({
+    kind,
+    id,
+    dir,
+    name: options.name,
+    description: options.description,
+    author: options.author,
+    features: list(options.with)
+  });
+  printResult(io, res, () => [`Created ${kind} "${id}" in ${dir}:`, ...res.files.map((f) => `  ${f}`), "", ...res.next].join("\n"));
+}
+async function install(ctx) {
+  const { installExtensionCommand } = await import("./chunks/extInstall-BtIksRqN.mjs");
+  return installExtensionCommand(ctx);
+}
+const extCommand = {
+  name: "ext",
+  summary: "Build, test and ship plugins and themes: new <plugin|theme> <id> (scaffold a project), check <path> (validate + render a demo site, exit 1 on errors), preview <path…> (render a full demo site locally; --serve, --screenshots, --site <alias> for a site's real content), pack <project> (ZIP for the admin's Install button), install <zip> --site <alias> (upload to a site; plan first, --yes to apply), list --site <alias>, uninstall <id> --site <alias>.",
+  usage: "ext new <plugin|theme> <id> [--with <features>] [--dir <path>] [--name <name>] [--description <text>] [--author <name>] [--force] | ext check <path> [--kind <plugin|theme>] [--out <dir>] | ext preview <path…> [--theme <id>] [--enable <ids>] [--settings <json>] [--theme-config <json>] [--plugin-configs <json>] [--site <alias>] [--out <dir>] [--port <n>] [--base-path </dir>] [--home blocks] [--demo empty] [--screenshots] [--screenshot-js <code>] [--serve] | ext pack <project> [--out <zip>] | ext install <zip|folder> --site <alias> [--activate] [--yes] | ext list --site <alias> | ext uninstall <id> --site <alias> [--yes]",
+  options: [
+    { name: "dir", type: "string", description: "new: target folder (default: ./<id>)." },
+    { name: "name", type: "string", description: "new: display name." },
+    { name: "description", type: "string", description: "new: one-sentence description." },
+    { name: "author", type: "string", description: "new: author shown in the admin." },
+    { name: "with", type: "string", description: "new: optional parts, comma-separated — plugins: settings, block, i18n, dashboard-card; themes: settings, block (themes always include a menu loader)." },
+    { name: "force", type: "boolean", description: "new: write into a non-empty folder." },
+    { name: "kind", type: "string", description: "check: expected kind (plugin or theme)." },
+    { name: "keep-preview", type: "string", description: "check: keep the rendered demo site in this folder (--out works too)." },
+    { name: "out", type: "string", description: "preview: output folder (default: a temp folder). pack: ZIP path (default: <project>/<id>.zip)." },
+    { name: "theme", type: "string", description: 'preview: theme to activate (default: the theme given, else "default").' },
+    { name: "enable", type: "string", description: "preview: also enable these bundled plugins (comma-separated ids, e.g. core-seo,agentcms-sitemaps)." },
+    { name: "theme-config", type: "string", description: "preview: JSON merged into the theme's config." },
+    { name: "plugin-configs", type: "string", description: "preview: JSON { <plugin-id>: config } merged into plugin configs." },
+    { name: "settings", type: "string", description: 'preview: JSON merged into the site settings (e.g. {"language":"fr"}).' },
+    { name: "serve", type: "boolean", description: "preview: keep serving the site on http://localhost:<port>/ until stopped." },
+    { name: "port", type: "string", description: "preview: port used in links and by --serve (default 4321)." },
+    { name: "base-path", type: "string", description: "preview: render and serve the site as if hosted in a sub-folder, e.g. /blog (tests base-path handling)." },
+    { name: "home", type: "string", description: 'preview: "blocks" makes the block test page (every editor block) the static home page — to design a landing page.' },
+    { name: "demo", type: "string", description: 'preview: "empty" renders the demo site without posts or menus (empty states); default "full".' },
+    { name: "screenshot-js", type: "string", description: "preview: JavaScript run in every page before its screenshot (after load), e.g. to click a consent button or open the menu. Async code is awaited." },
+    { name: "screenshots", type: "boolean", description: "preview: PNG screenshots (desktop + mobile) of each kind of page with a local Chrome/Chromium/Edge." },
+    { name: "site", type: "string", description: "preview: render a registered site's real content (read-only copy). install/list/uninstall: the site." },
+    { name: "activate", type: "boolean", description: "install: also activate it (theme: make it the active theme; plugin: enable it)." },
+    { name: "yes", type: "boolean", description: "install/uninstall: apply (without it, only print the plan)." }
+  ],
+  async run(ctx) {
+    const action = ctx.positionals[0];
+    switch (action) {
+      case "check":
+        return check(ctx);
+      case "preview":
+        return preview(ctx);
+      case "pack":
+        return pack(ctx);
+      case "new":
+        return scaffold(ctx);
+      case "install":
+      case "list":
+      case "uninstall":
+        return install(ctx);
+      default:
+        throw new CliError("usage", action ? `Unknown ext action "${action}".` : "ext needs an action.", "Actions: new, check, preview, pack, install, list, uninstall.", 2);
+    }
+  }
+};
 function readPlan(source) {
   const text = source === "-" ? readFileSync(0, "utf8") : readFileSync(source, "utf8");
   try {
@@ -985,12 +1250,12 @@ const installCommand = {
   async run({ io, options }) {
     if (typeof options.plan !== "string") throw new CliError("usage", "install needs --plan <file|->.", "Run `agentcms options` for the format.", 2);
     installBrowserEnv();
-    const { resolvePlan } = await import("./chunks/plan-Dgd-OmrD.mjs").then((n) => n.p);
+    const { resolvePlan } = await import("./chunks/plan-v_cPgEaJ.mjs").then((n) => n.p);
     const plan = resolvePlan(readPlan(options.plan));
     if (getSite(plan.alias)) {
       throw new CliError("site-exists", `A site named "${plan.alias}" is already registered.`, "Use another alias, or `agentcms site forget` it first.");
     }
-    const { checkPlan, runInstall } = await import("./chunks/install-hgrA7e9m.mjs");
+    const { checkPlan, runInstall } = await import("./chunks/install-TJYbfY0q.mjs");
     io.err("Checking access…");
     const checks = await checkPlan(plan);
     const stored = checks.data.storedTarget;
@@ -1301,25 +1566,30 @@ const MIME = {
   ".zip": "application/zip"
 };
 const NO_CACHE = /* @__PURE__ */ new Set(["/index.html", "/config.js", "/admin-files.json", "/external.default.json"]);
-function resolveRequestPath(root, url) {
+function resolveRequestPath(root, url, prefix = "") {
   let pathname;
   try {
     pathname = decodeURIComponent(new URL(url, "http://localhost").pathname);
   } catch {
     return null;
   }
+  if (prefix) {
+    if (pathname === prefix) pathname = prefix + "/";
+    if (!pathname.startsWith(prefix + "/")) return null;
+    pathname = pathname.slice(prefix.length);
+  }
   if (pathname.endsWith("/")) pathname += "index.html";
   const file2 = normalize(join(root, pathname));
   if (file2 !== root && !file2.startsWith(root.endsWith(sep) ? root : root + sep)) return null;
   return file2;
 }
-function startAdminServer(root, host, port) {
+function startAdminServer(root, host, port, prefix = "") {
   const server = createServer((req, res) => {
     if (req.method !== "GET" && req.method !== "HEAD") {
       res.writeHead(405).end();
       return;
     }
-    const file2 = resolveRequestPath(root, req.url ?? "/");
+    const file2 = resolveRequestPath(root, req.url ?? "/", prefix);
     if (!file2 || !existsSync(file2) || !statSync(file2).isFile()) {
       res.writeHead(404, { "content-type": "text/plain; charset=utf-8" }).end("Not found");
       return;
@@ -1378,6 +1648,12 @@ Press Ctrl+C to stop.`);
     });
   }
 };
+const serve = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  resolveRequestPath,
+  serveCommand,
+  startAdminServer
+}, Symbol.toStringTag, { value: "Module" }));
 const siteCommand = {
   name: "site",
   summary: "Manage the registry of sites this computer drives: list, show, use <alias> (default), rename <from> <to>, forget <alias> (local only — nothing is deleted online), add <alias> --admin-url <url> (register an existing site).",
@@ -1440,7 +1716,7 @@ const siteCommand = {
         if (getSite(a)) throw new CliError("site-exists", `A site named "${a}" already exists.`, "Pick another alias or `site forget` it first.");
         if (typeof options["admin-url"] !== "string") throw new CliError("usage", "site add needs --admin-url.", void 0, 2);
         installBrowserEnv();
-        const { siteFromAdminUrl } = await import("./chunks/siteAdd-BZo3wBj5.mjs");
+        const { siteFromAdminUrl } = await import("./chunks/siteAdd-I271jDRJ.mjs");
         const site = await siteFromAdminUrl({
           alias: a,
           adminUrl: options["admin-url"],
@@ -1559,13 +1835,13 @@ const helpCommand = {
   options: [],
   async run({ io, positionals }) {
     const wanted = positionals[0];
-    const list = wanted ? COMMANDS.filter((c) => c.name === wanted) : COMMANDS;
+    const list2 = wanted ? COMMANDS.filter((c) => c.name === wanted) : COMMANDS;
     const { version } = readVersionInfo();
     const data = {
       name: "agentcms",
       version,
       globalOptions: GLOBAL_OPTIONS,
-      commands: list.map(({ name, summary, usage, options }) => ({ name, summary, usage, options }))
+      commands: list2.map(({ name, summary, usage, options }) => ({ name, summary, usage, options }))
     };
     printResult(
       io,
@@ -1575,7 +1851,7 @@ const helpCommand = {
         "",
         "Usage: agentcms <command> [options] [--json]",
         "",
-        ...list.flatMap((c) => [
+        ...list2.flatMap((c) => [
           `  ${c.usage}`,
           `      ${c.summary}`,
           ...c.options.map((o) => `      --${o.name}${o.type === "string" ? " <value>" : ""}  ${o.description}`)
@@ -1588,7 +1864,8 @@ const helpCommand = {
   }
 };
 const GLOBAL_OPTIONS = [
-  { name: "json", type: "boolean", description: "Print one JSON object on stdout: { ok, data } or { ok: false, error }." }
+  { name: "json", type: "boolean", description: "Print one JSON object on stdout: { ok, data } or { ok: false, error }." },
+  { name: "help", type: "boolean", description: "Show the command's usage and options instead of running it." }
 ];
 const COMMANDS = [
   helpCommand,
@@ -1601,6 +1878,7 @@ const COMMANDS = [
   deployAdminCommand,
   doctorCommand,
   compactDataCommand,
+  extCommand,
   serveCommand
 ];
 function findCommand(name) {
@@ -1641,6 +1919,7 @@ async function run(name, args, io) {
   } catch (e) {
     throw new CliError("usage", e.message, `Usage: agentcms ${command.usage}`, 2);
   }
+  if (parsed.values.help && command.name !== "help") return run("help", [command.name], io);
   return command.run({
     io,
     options: parsed.values,
@@ -1659,20 +1938,28 @@ main(process.argv.slice(2)).then((code) => {
 export {
   CliError as C,
   SqlitePassphraseError as S,
-  parseAccount as a,
-  fetchHostedAdmin as b,
-  encryptDatabase as c,
-  decryptDatabase as d,
-  encryptionParams as e,
-  fetchText as f,
+  installBrowserEnv as a,
+  readVersionInfo as b,
+  compareVersions as c,
+  distRoot as d,
+  adminUrlOf as e,
+  fetchHostedAdmin as f,
   generatePassphrase as g,
-  distRoot as h,
+  fetchText as h,
   isEncryptedDatabase as i,
-  findDataBackend as j,
-  getCredential as k,
-  findHosting as l,
-  parseConfigJs as p,
-  requireCredential as r,
+  parseConfigJs as j,
+  parseAccount as k,
+  lockSite as l,
+  requireCredential as m,
+  findDataBackend as n,
+  getCredential as o,
+  printResult as p,
+  findHosting as q,
+  resolveSite as r,
   setCredential as s,
-  validateAlias as v
+  encryptionParams as t,
+  decryptDatabase as u,
+  validateAlias as v,
+  encryptDatabase as w,
+  paths as x
 };

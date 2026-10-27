@@ -74,7 +74,7 @@ const MARKER_RE =
   /<div\s+([^>]*data-cms-block="marketplace-core\/header-buttons"[^>]*)>\s*<\/div>/g;
 
 export function transformHeaderButtons(bodyHtml: string): string {
-  return bodyHtml.replace(MARKER_RE, (full, raw: string) => {
+  return bodyHtml.replace(MARKER_RE, (_full, raw: string) => {
     const m = raw.match(/data-attrs=(?:"([^"]*)"|'([^']*)'|([^\s>]+))/);
     const enc = m ? (m[1] ?? m[2] ?? m[3] ?? "") : "";
     const attrs = decodeAttrs<HeaderButtonsAttrs>(enc, DEFAULT_HEADER_BUTTONS);

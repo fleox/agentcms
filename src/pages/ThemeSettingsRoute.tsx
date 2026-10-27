@@ -5,6 +5,24 @@ import { PageHeader } from "../components/layout/PageHeader";
 import { useCmsData } from "../context/CmsDataContext";
 import { getActiveTheme } from "../themes";
 import { updateThemeConfig } from "../services/settings";
+import { uploadFile } from "../services/siteFiles";
+import type { ThemeManifest } from "../themes/types";
+
+// Persists the config, then — for themes that bake their settings into
+// the stylesheet (compileCss) — re-uploads theme-assets/<id>.css so the
+// change is live without a separate "Sync theme assets".
+async function saveThemeConfig(theme: ThemeManifest, next: unknown): Promise<void> {
+  await updateThemeConfig(theme.id, next);
+  if (!theme.compileCss || !theme.settings) return;
+  let css: string;
+  try {
+    css = theme.compileCss({ ...(theme.settings.defaultConfig as object), ...((next as object) ?? {}) });
+  } catch (err) {
+    console.error(`[themes] compileCss for "${theme.id}" failed:`, err);
+    return;
+  }
+  await uploadFile({ path: `theme-assets/${theme.id}.css`, content: css });
+}
 
 // Renders the active theme's settings page (declared via
 // ThemeManifest.settings). Resolves the manifest, merges the stored
@@ -48,7 +66,7 @@ export function ThemeSettingsRoute() {
       <PageHeader title={heading} />
       <Component
         config={config}
-        save={(next) => updateThemeConfig(theme.id, next)}
+        save={(next) => saveThemeConfig(theme, next)}
       />
     </div>
   );

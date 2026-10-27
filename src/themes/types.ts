@@ -36,6 +36,8 @@ export interface AuthorSocial {
 export interface AuthorView {
   id: string;
   displayName: string;
+  // Root-absolute URL of the author's archive page ("/author/ada.html").
+  url?: string;
   title?: string;
   bio?: string;
   avatar?: MediaView;
@@ -209,6 +211,9 @@ export interface ThemeManifest<TConfig = unknown> {
   name: string;
   version: string;
   description?: string;
+  // Long-form documentation (Markdown, typically README.md imported with
+  // `?raw`). Non-empty → a "Learn more" button on the Themes page.
+  readme?: string;
   // Image catalog the theme expects. Used by the media upload pipeline to
   // decide which variants to generate, and by templates when calling
   // pickFormat(view, "large"). Optional — themes that opt out get only the

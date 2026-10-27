@@ -1,6 +1,7 @@
 /* Minimal theme stylesheet. Hand-written so the example stays
-   buildable without Tailwind or SCSS. Ship whatever you like — the
-   admin uploads this file verbatim to /theme-assets/<id>.css. */
+   buildable without Tailwind or SCSS. The bundle embeds it as
+   manifest.cssText (?raw import); "Sync theme assets" uploads that
+   string to /theme-assets/minimal-theme.css. */
 
 :root {
   --mt-bg: #ffffff;
@@ -59,4 +60,45 @@ article header h1 {
 
 .mt-list li:first-child {
   border-top: 0;
+}
+
+.mt-header,
+footer {
+  max-width: var(--mt-max-w);
+  margin: 0 auto;
+  padding: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+}
+
+[data-cms-brand] a {
+  font-weight: 700;
+  color: var(--mt-fg);
+  text-decoration: none;
+}
+
+[data-cms-menu] ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+}
+
+[data-cms-menu] ul ul {
+  display: none;
+}
+
+[data-cms-menu] a[aria-current="page"] {
+  font-weight: 600;
+}
+
+footer {
+  border-top: 1px solid #e5e7eb;
+  color: var(--mt-muted);
+  font-size: 0.85rem;
 }

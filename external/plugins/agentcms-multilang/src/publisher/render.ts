@@ -182,8 +182,15 @@ export async function renderLocalizedSingle(args: {
   // Without this, the localized HTML ships with the raw
   // `<div data-cms-block="…">` markers unrendered and the theme
   // surfaces (Download / Preview buttons, byline slot, …) stay empty.
+  //
+  // getCurrentPublishContext() is null here (only the core sets it), so
+  // a per-language shadow ctx is passed as an extra third argument: the
+  // core passes (html, post) only, and filters that need the target
+  // language (e.g. marketplace-core's code-block labels) read
+  // `ctx.settings.language` from it when present.
+  const shadowCtx: PublishContext = { ...ctx, settings: { ...ctx.settings, language } };
   let bodyHtml = renderMarkdown(trans.contentMarkdown);
-  bodyHtml = await applyFilters<string>("post.html.body", bodyHtml, post);
+  bodyHtml = await applyFilters<string>("post.html.body", bodyHtml, post, shadowCtx);
   const tags = ctx.terms.filter((t) => post.termIds.includes(t.id) && t.type === "tag");
   const primaryTerm = post.primaryTermId
     ? ctx.terms.find((t) => t.id === post.primaryTermId && t.type === "category")

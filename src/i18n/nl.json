@@ -933,5 +933,8 @@
     "passphraseHint": "De database is versleuteld. Voer de wachtzin in die bij de installatie is gekozen (alleen in deze browser bewaard).",
     "passphraseWrong": "Verkeerde wachtzin: de database kon niet worden geopend.",
     "passphraseMissing": "Voer de wachtzin van de database in."
+  },
+  "publicSite": {
+    "notFoundTitle": "Pagina niet gevonden"
   }
 }

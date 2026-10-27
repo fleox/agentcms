@@ -13,22 +13,26 @@ External authoring lives alongside the existing in-tree authoring (folders under
 
 ## Reading order
 
-1. **[creating-a-plugin.md](./creating-a-plugin.md)** — how to author, build, and ship an external plugin.
+1. **[creating-a-plugin.md](./creating-a-plugin.md)** — how to author, build, test and ship an external plugin (`npx -y @agent-cms/agentcms@0.2.0 ext new plugin <id>` → `npm run build` → `npm run check` → install).
 2. **[creating-a-theme.md](./creating-a-theme.md)** — same, for themes.
-3. **[runtime-api-reference.md](./runtime-api-reference.md)** — the public surface external bundles use (`@agent-cms/runtime` exports, hook list, manifest shapes).
+3. **[runtime-api-reference.md](./runtime-api-reference.md)** — guided overview of `@agent-cms/runtime`: versions, `pluginApi`, the hook table, exports by area.
+
+The API reference of record is [`types/agentcms-runtime.d.ts`](../types/agentcms-runtime.d.ts), shipped in the `@agent-cms/agentcms` npm package.
 
 ## Working examples
 
 Ready-to-build scaffolds live under `external/` in the main repo. External themes are grouped under `external/themes/<id>/` and external plugins under `external/plugins/<id>/`, where `<id>` matches each bundle's `manifest.id`:
 
 - `external/plugins/hello-plugin/` — minimal plugin: head meta tag + dashboard card.
-- `external/themes/minimal-theme/` — minimal theme: six templates + a hand-written stylesheet.
+- `external/plugins/agentcms-sliders/` — block plugin: four slider blocks with inspectors, `MediaPicker`, per-page CSS/JS injection.
+- `external/plugins/agentcms-multilang/` — the bundled multi-language plugin: `publish.additional`, editor variant provider, term editor section, sitemap / RSS filters.
+- `external/themes/minimal-theme/` — minimal theme: six templates, the BaseLayout checklist, a runtime menu loader.
 - `external/themes/marketplace-core/` — full theme: app-store style marketplace listing themes + plugins, with custom blocks, settings page, font + palette overrides.
 
 All follow the conventions described in the docs and are good copy-from-here starting points.
 
 ## AI authoring skill
 
-For developers using Claude Code (or any AI assistant that supports skill files), this repo ships a self-contained skill at [`.claude/skills/agentcms-extensions/SKILL.md`](../.claude/skills/agentcms-extensions/SKILL.md). It packages the most important AgentCMS extension constraints (externalize React, BaseLayout sentinels, manifest shapes, hook reference, common gotchas) into a single document — useful both as a Claude Code skill (auto-loads when working in this repo, invokable via `/agentcms-extensions`) and as a portable reference you can paste into any other AI assistant.
+The AgentCMS Claude Code plugin (`/plugin marketplace add fleox/agentcms`, then `/plugin install agentcms@agentcms`) ships the **`agentcms-extensions`** skill ([`plugin/skills/agentcms-extensions/`](../plugin/skills/agentcms-extensions/)): it drives the whole workflow — scaffold with `agentcms ext new`, build, `ext check`, `ext preview --screenshots`, `ext install`. Other agents can read its `SKILL.md` directly.
 
-To use it in your own project outside this repo, copy the entire `.claude/skills/agentcms-extensions/` folder (including its `SKILL.md`) into your project's `.claude/skills/` directory, or into `~/.claude/skills/` for global availability across every project.
+Contributors working inside this repo (in-tree plugins / themes, extending the runtime API) have a separate project skill: [`.claude/skills/extension-internals/SKILL.md`](../.claude/skills/extension-internals/SKILL.md).

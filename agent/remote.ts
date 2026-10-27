@@ -56,18 +56,28 @@ export function findSecretKeys(value: unknown, path = ""): string[] {
 export interface HostedAdmin {
   version: string | null;
   dataSchema: number | null;
+  // Extension API of the hosted admin (admin-files.json since 0.2.0).
+  apiVersion: string | null;
+  apiMinVersion: string | null;
   files: string[];
   error?: string;
 }
 
 export async function fetchHostedAdmin(adminUrl: string, fetchImpl: typeof fetch = fetch): Promise<HostedAdmin> {
   const res = await fetchText(`${adminUrl}admin-files.json`, fetchImpl);
-  if (!res.ok) return { version: null, dataSchema: null, files: [], error: res.error ?? `HTTP ${res.status}` };
+  const none = { version: null, dataSchema: null, apiVersion: null, apiMinVersion: null, files: [] };
+  if (!res.ok) return { ...none, error: res.error ?? `HTTP ${res.status}` };
   try {
-    const m = JSON.parse(res.text) as { version?: string; dataSchema?: number; files?: string[] };
-    return { version: m.version ?? null, dataSchema: m.dataSchema ?? null, files: m.files ?? [] };
+    const m = JSON.parse(res.text) as { version?: string; dataSchema?: number; apiVersion?: string; apiMinVersion?: string; files?: string[] };
+    return {
+      version: m.version ?? null,
+      dataSchema: m.dataSchema ?? null,
+      apiVersion: m.apiVersion ?? null,
+      apiMinVersion: m.apiMinVersion ?? null,
+      files: m.files ?? [],
+    };
   } catch {
-    return { version: null, dataSchema: null, files: [], error: "admin-files.json is not valid JSON" };
+    return { ...none, error: "admin-files.json is not valid JSON" };
   }
 }
 

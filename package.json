@@ -35,12 +35,13 @@
     "dist/theme-assets",
     "dist/version.json",
     "plugin",
+    "types",
     "changelog.json",
     "LICENSE",
     "README.md"
   ],
   "agentcms": {
-    "minSkillsVersion": "0.1.0",
+    "minSkillsVersion": "0.2.0",
     "dataSchema": 2
   },
   "scripts": {
@@ -80,6 +81,7 @@
     "clsx": "^2.1.1",
     "dompurify": "^3.2.3",
     "firebase": "^11.0.2",
+    "happy-dom": "^20.14.5",
     "i18next": "^23.16.8",
     "i18next-browser-languagedetector": "^8.0.2",
     "jsdom": "^25.0.1",

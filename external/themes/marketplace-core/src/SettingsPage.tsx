@@ -135,8 +135,15 @@ export function MarketplaceSettingsPage({
           disabled={saving}
           className="btn-primary disabled:opacity-60 disabled:cursor-wait"
         >
-          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          {saving ? "Saving…" : "Save & apply"}
+          {/* Stable DOM (icons toggled by class, never swapped): browser
+              extensions that inject nodes into forms otherwise crash
+              React's reconciliation. Saving also re-uploads the theme
+              CSS (compileCss), so palette / font changes go live. */}
+          <span className="inline-flex items-center gap-2">
+            <Loader2 className={saving ? "h-4 w-4 animate-spin" : "hidden"} />
+            <Save className={saving ? "hidden" : "h-4 w-4"} />
+            <span>{saving ? "Saving…" : "Save & apply"}</span>
+          </span>
         </button>
       </div>
     </div>
@@ -647,7 +654,7 @@ function ItemList({
     // Strip empty values so the picker falls back to the primary label
     // / href instead of showing an empty string. Keeps stored configs
     // minimal — entries with no overrides at all get pruned to keep
-    // `translations` from polluting Firestore / SQLite blobs.
+    // `translations` from polluting the stored settings document.
     const cleaned: { label?: string; href?: string } = {};
     if (merged.label && merged.label.trim() !== "") cleaned.label = merged.label;
     if (merged.href && merged.href.trim() !== "") cleaned.href = merged.href;

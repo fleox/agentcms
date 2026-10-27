@@ -4,6 +4,7 @@ import { compactDataCommand } from "./compactData";
 import { credentialsCommand } from "./credentials";
 import { deployAdminCommand } from "./deployAdmin";
 import { doctorCommand } from "./doctor";
+import { extCommand } from "./ext";
 import { installCommand } from "./install";
 import { optionsCommand } from "./options";
 import { serveCommand } from "./serve";
@@ -52,6 +53,7 @@ const helpCommand: Command = {
 
 export const GLOBAL_OPTIONS = [
   { name: "json", type: "boolean" as const, description: "Print one JSON object on stdout: { ok, data } or { ok: false, error }." },
+  { name: "help", type: "boolean" as const, description: "Show the command's usage and options instead of running it." },
 ];
 
 export const COMMANDS: Command[] = [
@@ -65,6 +67,7 @@ export const COMMANDS: Command[] = [
   deployAdminCommand,
   doctorCommand,
   compactDataCommand,
+  extCommand,
   serveCommand,
 ];
 

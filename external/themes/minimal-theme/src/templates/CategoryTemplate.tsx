@@ -1,34 +1,14 @@
-interface CardPost {
-  id: string;
-  title: string;
-  url: string;
-  excerpt?: string;
-  dateLabel?: string;
-}
+import type { CategoryTemplateProps, SiteContext } from "@agent-cms/runtime";
+import { PostList } from "./PostList";
 
-interface CategoryProps {
-  term: { name: string; description?: string };
-  posts: CardPost[];
-}
-
-export function CategoryTemplate({ term, posts }: CategoryProps) {
+export function CategoryTemplate({ term, posts }: CategoryTemplateProps & { site: SiteContext }) {
   return (
     <article>
       <header>
         <h1>{term.name}</h1>
         {term.description && <p className="mt-meta">{term.description}</p>}
       </header>
-      <ul className="mt-list">
-        {posts.map((post) => (
-          <li key={post.id}>
-            <h2>
-              <a href={`/${post.url}`}>{post.title}</a>
-            </h2>
-            {post.dateLabel && <p className="mt-meta">{post.dateLabel}</p>}
-            {post.excerpt && <p>{post.excerpt}</p>}
-          </li>
-        ))}
-      </ul>
+      <PostList posts={posts} />
     </article>
   );
 }

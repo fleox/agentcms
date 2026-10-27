@@ -12,9 +12,11 @@
 // `window.__AGENTCMS_RUNTIME__` — populated here, side-effect imported
 // by main.tsx **before** any other admin code runs.
 //
-// External plugin / theme authors install our @agent-cms/runtime
-// package as a dev dependency, externalize it in their Vite config,
-// and write `import { uploadFile, pluginApi } from "@agent-cms/runtime"`.
+// External plugin / theme authors map `@agent-cms/runtime` to the typed
+// contract types/agentcms-runtime.d.ts (shipped in the @agent-cms/agentcms
+// npm package, kept in sync by runtimeTypes.test.ts), externalize it in
+// their Vite config, and write `import { uploadFile, pluginApi } from
+// "@agent-cms/runtime"`.
 // At runtime the import-map redirects to /admin/runtime/cms-runtime.js
 // which re-exports from this same global.
 //

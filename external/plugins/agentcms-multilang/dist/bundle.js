@@ -1,8 +1,8 @@
-import { canonicalUrl as _, getActiveTheme as G, renderMarkdown as Le, applyFilters as Se, markdownToPlainText as se, renderPageToHtml as ae, renderHome as Te, updatePost as re, pathToPublicUrl as B, deleteFile as W, publishPostsJson as xe, publishAuthorsJson as Pe, useCmsData as ie, toast as J, isValidSlug as oe, fetchAllPosts as X } from "@agent-cms/runtime";
+import { canonicalUrl as _, getActiveTheme as J, renderMarkdown as Se, applyFilters as Te, markdownToPlainText as se, renderPageToHtml as re, renderHome as xe, updatePost as ie, pathToPublicUrl as G, deleteFile as X, publishPostsJson as Pe, publishAuthorsJson as ke, useCmsData as oe, toast as B, isValidSlug as le, fetchAllPosts as Q } from "@agent-cms/runtime";
 import { jsxs as L, jsx as m } from "react/jsx-runtime";
 import { useState as Y } from "react";
-import { useTranslation as le } from "react-i18next";
-const $e = {
+import { useTranslation as ce } from "react-i18next";
+const Ce = '# agentcms-multilang\n\nMulti-language support for AgentCMS — translated posts, pages, categories and tags, hreflang SEO, per-language sitemaps and RSS feeds, and a public language switcher.\n\n## What it does\n\n- **Language tabs in the editor**: an editor *variant provider* adds a tab strip above the post / page editor, one tab per language (★ = primary). Switching tab swaps the whole editor — title, slug, content (blocks included), excerpt and SEO — so every language gets the same authoring experience. Translation tabs appear once the post has been saved once.\n- **Term translations**: a collapsible section in each row of **Categories / Tags** holds the per-language `name`, `slug`, description and SEO.\n- **URL strategy**: the primary language lives at the site root (`site.com/news/hello.html`); every other enabled language lives under its own prefix (`site.com/fr/actualites/bonjour.html`), with its own home (`/fr/index.html`, optionally a static page per language) and category archives.\n- **SEO**: `<link rel="alternate" hreflang="…">` for every language plus `x-default`, `og:locale` and `og:locale:alternate` on every published page, and `<html lang>` per page (`BaseLayoutProps.currentLocale`). The canonical link stays the theme\'s job: the publisher hands the theme the localized `currentPath`, so a theme that emits `canonicalUrl(baseUrl, currentPath)` gets the right per-language canonical.\n- **Sitemaps** (with `agentcms-sitemaps` enabled): `<xhtml:link rel="alternate">` entries inside each `<url>`, the translated URLs in the yearly sitemaps, and — when News is enabled — one `sitemaps/sitemap-news-<lang>.xml` per secondary language, referenced from the index.\n- **RSS** (with `agentcms-rss` enabled and its site feed on): one `/<lang>/rss.xml` per secondary language, through the RSS plugin\'s `rss.site.locales` filter. Legacy `/<lang>/feed.xml` and per-category `/<lang>/<slug>/<slug>.xml` files from versions ≤ 1.6.1 are deleted on the next publish.\n- **Language switcher**: a small script injected through `page.body.end` fills `[data-cms-langswitch="header"]` and `[data-cms-langswitch="footer"]` containers with links to the current page\'s alternates (toggles in the plugin settings). The in-tree themes (default, magazine, corporate, storefront, portfolio) ship these containers; other themes just add an empty `<div data-cms-langswitch="header"></div>`.\n\n## Requirements\n\n- AgentCMS admin with runtime API **1.4.0** or newer (the plugin uses `registerEditorVariantProvider`, `publish.before(post, ctx)`, `regenerate.listings.before` and `sitemap.news.locales`).\n- The plugin ships pre-installed with AgentCMS (bundled default); this folder is its source.\n\n## Build and install (from source)\n\n1. `npm install --legacy-peer-deps`\n2. `npm run build` — type-checks, produces `dist/bundle.js` + `agentcms-multilang.zip`\n3. In the admin, **Plugins** → **Install plugin** → drop the ZIP (same id = in-place upgrade).\n4. Open **Settings → Multi-language** and pick the primary language + additional languages.\n\n## Workflow\n\n1. Write the post in the primary language with the standard editor and save it.\n2. Click a language tab above the editor and fill the title, slug, content, excerpt and SEO for that language. Save.\n3. Publish. The publisher renders the primary version and every translation in one pass (`publish.additional`), each at its own path; removed translations are deleted from the site.\n\n## Storage\n\n- Per-post translations live on `Post.translations[<lang>]` (`{ slug, title, contentMarkdown, excerpt, seo }`).\n- Per-term translations live on `Term.translations[<lang>]` (`{ slug, name, description, seo }`).\n- Published translation paths are tracked in `Post.lastPublishedPathsByLocale` (orphan cleanup).\n- Plugin config (languages, primary, per-language home page, menu label overrides, switcher toggles) lives in `settings.pluginConfigs["agentcms-multilang"]`.\n\nAll storage flows through the standard backend dispatcher — it works the same on every data backend (Firebase, SQLite file, Markdown in git, this browser).\n\n## Theme compatibility\n\nTranslated pages render through the **active theme exactly as the primary publisher does** — same templates, BaseLayout and CSS. Themes should:\n\n- use `currentLocale` for `<html lang>` and `site.homePath ?? "/index.html"` for home links;\n- render translated menu labels from `item.labels[<lang>]` in their menu loader (the bundled loaders do);\n- add `[data-cms-langswitch]` containers where the switcher should appear.\n\nBlock markers in translated content go through the same `post.html.body` filters as the primary render. Those filters receive a per-language publish context as an extra third argument (`ctx.settings.language` = the target language), because `getCurrentPublishContext()` is only set during the core\'s own renders.\n\n## Known limitations\n\n- Theme-specific rich homes (e.g. magazine\'s hero / sidebar widgets) are not replicated in secondary languages. Pick a **static page** as the home of each language for full control.\n- `post.markdown.before` and `post.template.props` filters don\'t run for translated renders.\n- Concurrent edits to one post\'s translations are last-write-wins (one document / row per post).\n', Me = {
   title: "Multi-language",
   intro: "Configure additional languages. Each enabled language gets its own URL prefix and per-post translations.",
   save: "Save settings",
@@ -28,7 +28,7 @@ const $e = {
     header: "Show switcher in the site header",
     footer: "Show switcher in the site footer"
   }
-}, Me = {
+}, $e = {
   label: "Translations",
   noLanguages: "No additional languages are configured for this site.",
   configureLanguages: "Configure languages",
@@ -49,7 +49,7 @@ const $e = {
     seoTitle: "SEO title",
     seoDescription: "Meta description"
   }
-}, ke = {
+}, Ne = {
   title: "Translations",
   name: "Name",
   slug: "Slug",
@@ -57,11 +57,11 @@ const $e = {
   seoTitle: "SEO meta title",
   seoDescription: "SEO meta description",
   noLanguages: "Enable secondary languages in the Multi-language plugin settings to translate this term."
-}, Ce = {
-  settings: $e,
-  tab: Me,
-  termSection: ke
-}, Ne = {
+}, Ie = {
+  settings: Me,
+  tab: $e,
+  termSection: Ne
+}, Ae = {
   title: "Multilingue",
   intro: "Configurez les langues supplémentaires. Chaque langue activée obtient son préfixe d'URL et des traductions par contenu.",
   save: "Sauvegarder",
@@ -87,7 +87,7 @@ const $e = {
     header: "Afficher le sélecteur dans l'en-tête du site",
     footer: "Afficher le sélecteur dans le pied de page du site"
   }
-}, Ie = {
+}, Ee = {
   label: "Traductions",
   noLanguages: "Aucune langue supplémentaire n'est configurée.",
   configureLanguages: "Configurer les langues",
@@ -108,7 +108,7 @@ const $e = {
     seoTitle: "Titre SEO",
     seoDescription: "Méta description"
   }
-}, Ae = {
+}, Ue = {
   title: "Traductions",
   name: "Nom",
   slug: "Slug",
@@ -116,10 +116,10 @@ const $e = {
   seoTitle: "Titre meta SEO",
   seoDescription: "Description meta SEO",
   noLanguages: "Activez des langues secondaires dans les réglages du plugin Multilingue pour traduire ce terme."
-}, Ue = {
-  settings: Ne,
-  tab: Ie,
-  termSection: Ae
+}, De = {
+  settings: Ae,
+  tab: Ee,
+  termSection: Ue
 }, H = {
   primaryLanguage: "en",
   enabledLanguages: [],
@@ -127,10 +127,10 @@ const $e = {
   menuTranslations: {},
   showHeaderSwitcher: !0,
   showFooterSwitcher: !1
-}, De = "agentcms-multilang";
+}, Fe = "agentcms-multilang";
 function w(n) {
   var t;
-  const e = (t = n.pluginConfigs) == null ? void 0 : t[De];
+  const e = (t = n.pluginConfigs) == null ? void 0 : t[Fe];
   return {
     ...H,
     // Default the primary language to the site's BCP-47 language tag
@@ -147,29 +147,29 @@ function y(n, e) {
   return n.primaryLanguage === e;
 }
 function F(n) {
-  const { post: e, trans: t, primaryTermTrans: s, primaryTermSlug: a, language: r, config: o } = n, i = y(o, r) ? "" : `${r}/`;
+  const { post: e, trans: t, primaryTermTrans: a, primaryTermSlug: s, language: r, config: o } = n, i = y(o, r) ? "" : `${r}/`;
   if (e.type === "page")
     return `${i}${t.slug}.html`;
-  const l = (s == null ? void 0 : s.slug) ?? a;
+  const l = (a == null ? void 0 : a.slug) ?? s;
   return l ? `${i}${l}/${t.slug}.html` : `${i}${t.slug}.html`;
 }
-function V(n, e, t, s) {
+function V(n, e, t, a) {
   if (n.type !== "category")
     throw new Error(`buildLocalizedTermUrl: term type "${n.type}" is not supported (categories only).`);
-  return `${y(s, t) ? "" : `${t}/`}${e.slug}/index.html`;
+  return `${y(a, t) ? "" : `${t}/`}${e.slug}/index.html`;
 }
-function z(n, e) {
+function O(n, e) {
   return y(e, n) ? "index.html" : `${n}/index.html`;
 }
-function C(n, e) {
-  const t = n.translations, s = t == null ? void 0 : t[e];
-  return !s || !s.slug || !s.title ? null : s;
-}
 function $(n, e) {
-  const t = n.translations, s = t == null ? void 0 : t[e];
-  return !s || !s.slug || !s.name ? null : s;
+  const t = n.translations, a = t == null ? void 0 : t[e];
+  return !a || !a.slug || !a.title ? null : a;
 }
-function O(n) {
+function k(n, e) {
+  const t = n.translations, a = t == null ? void 0 : t[e];
+  return !a || !a.slug || !a.name ? null : a;
+}
+function z(n) {
   return {
     slug: n.slug,
     title: n.title,
@@ -186,7 +186,7 @@ function R(n) {
     seo: n.seo
   };
 }
-function Q(n) {
+function Z(n) {
   const e = n.replace("-", "_");
   return e.includes("_") ? e : {
     en: "en_US",
@@ -200,7 +200,7 @@ function Q(n) {
     ja: "ja_JP"
   }[e] ?? `${e}_${e.toUpperCase()}`;
 }
-function k(n) {
+function M(n) {
   return n.replace(/[&<>"']/g, (e) => {
     switch (e) {
       case "&":
@@ -216,195 +216,195 @@ function k(n) {
     }
   });
 }
-function j(n, e, t) {
-  const s = e.replace(/\/+$/, "");
-  if (!s) return "";
-  const a = [];
+function q(n, e, t) {
+  const a = e.replace(/\/+$/, "");
+  if (!a) return "";
+  const s = [];
   for (const o of n.alternates) {
-    const i = _(s, o.path);
-    a.push(
-      `<link rel="alternate" hreflang="${k(o.language)}" href="${k(i)}" />`
+    const i = _(a, o.path);
+    s.push(
+      `<link rel="alternate" hreflang="${M(o.language)}" href="${M(i)}" />`
     );
   }
   const r = n.alternates.find((o) => o.language === t.primaryLanguage);
   if (r) {
-    const o = _(s, r.path);
-    a.push(`<link rel="alternate" hreflang="x-default" href="${k(o)}" />`);
+    const o = _(a, r.path);
+    s.push(`<link rel="alternate" hreflang="x-default" href="${M(o)}" />`);
   }
-  a.push(
-    `<meta property="og:locale" content="${k(Q(n.current.language))}" />`
+  s.push(
+    `<meta property="og:locale" content="${M(Z(n.current.language))}" />`
   );
   for (const o of n.alternates)
-    o.language !== n.current.language && a.push(
-      `<meta property="og:locale:alternate" content="${k(Q(o.language))}" />`
+    o.language !== n.current.language && s.push(
+      `<meta property="og:locale:alternate" content="${M(Z(o.language))}" />`
     );
-  return a.join(`
+  return s.join(`
 `);
 }
-function ce(n, e, t) {
-  const s = e.replace(/\/+$/, "");
-  if (!s || n.alternates.length === 0) return "";
-  const a = [];
+function ue(n, e, t) {
+  const a = e.replace(/\/+$/, "");
+  if (!a || n.alternates.length === 0) return "";
+  const s = [];
   for (const o of n.alternates) {
-    const i = _(s, o.path);
-    a.push(
-      `    <xhtml:link rel="alternate" hreflang="${k(o.language)}" href="${k(i)}"/>`
+    const i = _(a, o.path);
+    s.push(
+      `    <xhtml:link rel="alternate" hreflang="${M(o.language)}" href="${M(i)}"/>`
     );
   }
   const r = n.alternates.find((o) => o.language === t.primaryLanguage);
   if (r) {
-    const o = _(s, r.path);
-    a.push(
-      `    <xhtml:link rel="alternate" hreflang="x-default" href="${k(o)}"/>`
+    const o = _(a, r.path);
+    s.push(
+      `    <xhtml:link rel="alternate" hreflang="x-default" href="${M(o)}"/>`
     );
   }
-  return a.join(`
+  return s.join(`
 `);
 }
-function q(n, e, t) {
-  const s = [];
-  for (const a of [t.primaryLanguage, ...t.enabledLanguages]) {
-    if (s.some((c) => c.language === a)) continue;
-    const r = a === t.primaryLanguage ? O(n) : C(n, a);
+function j(n, e, t) {
+  const a = [];
+  for (const s of [t.primaryLanguage, ...t.enabledLanguages]) {
+    if (a.some((c) => c.language === s)) continue;
+    const r = s === t.primaryLanguage ? z(n) : $(n, s);
     if (!r) continue;
-    const o = n.primaryTermId ? e.find((c) => c.id === n.primaryTermId) : void 0, i = o ? a === t.primaryLanguage ? R(o) : $(o, a) ?? void 0 : void 0;
-    if (o && !i && !y(t, a)) continue;
+    const o = n.primaryTermId ? e.find((c) => c.id === n.primaryTermId) : void 0, i = o ? s === t.primaryLanguage ? R(o) : k(o, s) ?? void 0 : void 0;
+    if (o && !i && !y(t, s)) continue;
     const l = F({
       post: n,
       trans: r,
       primaryTermTrans: i,
       primaryTermSlug: o == null ? void 0 : o.slug,
-      language: a,
+      language: s,
       config: t
     });
-    s.push({ language: a, path: l });
+    a.push({ language: s, path: l });
   }
-  return s;
+  return a;
 }
-function ue(n, e) {
+function ge(n, e) {
   const t = [];
-  for (const s of [e.primaryLanguage, ...e.enabledLanguages]) {
-    if (t.some((r) => r.language === s)) continue;
-    const a = s === e.primaryLanguage ? R(n) : $(n, s);
-    a && n.type === "category" && t.push({ language: s, path: V(n, a, s, e) });
+  for (const a of [e.primaryLanguage, ...e.enabledLanguages]) {
+    if (t.some((r) => r.language === a)) continue;
+    const s = a === e.primaryLanguage ? R(n) : k(n, a);
+    s && n.type === "category" && t.push({ language: a, path: V(n, s, a, e) });
   }
   return t;
 }
-function ge(n) {
+function de(n) {
   const e = [];
   for (const t of [n.primaryLanguage, ...n.enabledLanguages])
-    e.some((s) => s.language === t) || e.push({ language: t, path: z(t, n) });
+    e.some((a) => a.language === t) || e.push({ language: t, path: O(t, n) });
   return e;
 }
-function K(n) {
+function W(n) {
   return (n.baseUrl || "").replace(/\/+$/, "");
 }
-const D = /* @__PURE__ */ new Map();
-function I(n, e, t, s, a) {
-  D.clear();
-  const r = K(s);
+const U = /* @__PURE__ */ new Map();
+function I(n, e, t, a, s) {
+  U.clear();
+  const r = W(a);
   if (!r) return;
   for (const i of [...n, ...e]) {
     if (i.status !== "online") continue;
-    const l = q(i, t, a);
+    const l = j(i, t, s);
     if (l.length !== 0)
       for (const c of l) {
-        const g = j(
+        const u = q(
           { current: { path: c.path, language: c.language }, alternates: l },
           r,
-          a
+          s
         );
-        D.set(c.path, g);
+        U.set(c.path, u);
       }
   }
   for (const i of t) {
     if (i.type !== "category") continue;
-    const l = ue(i, a);
+    const l = ge(i, s);
     if (l.length !== 0)
       for (const c of l) {
-        const g = j(
+        const u = q(
           { current: { path: c.path, language: c.language }, alternates: l },
           r,
-          a
+          s
         );
-        D.set(c.path, g);
+        U.set(c.path, u);
       }
   }
-  const o = ge(a);
+  const o = de(s);
   for (const i of o) {
-    const l = j(
+    const l = q(
       { current: { path: i.path, language: i.language }, alternates: o },
       r,
-      a
+      s
     );
-    D.set(i.path, l);
+    U.set(i.path, l);
   }
 }
-function Ee(n) {
+function He(n) {
   const e = n.replace(/^\/+/, "");
-  return D.get(e) ?? D.get(`/${e}`) ?? "";
+  return U.get(e) ?? U.get(`/${e}`) ?? "";
 }
-const E = /* @__PURE__ */ new Map();
-function A(n, e, t, s) {
-  E.clear();
+const D = /* @__PURE__ */ new Map();
+function A(n, e, t, a) {
+  D.clear();
   for (const r of [...n, ...e]) {
     if (r.status !== "online") continue;
-    const o = q(r, t, s);
+    const o = j(r, t, a);
     if (o.length !== 0)
       for (const i of o)
-        E.set(i.path, { language: i.language, alternates: o });
+        D.set(i.path, { language: i.language, alternates: o });
   }
   for (const r of t) {
     if (r.type !== "category") continue;
-    const o = ue(r, s);
+    const o = ge(r, a);
     if (o.length !== 0)
       for (const i of o)
-        E.set(i.path, { language: i.language, alternates: o });
+        D.set(i.path, { language: i.language, alternates: o });
   }
-  const a = ge(s);
-  for (const r of a)
-    E.set(r.path, { language: r.language, alternates: a });
+  const s = de(a);
+  for (const r of s)
+    D.set(r.path, { language: r.language, alternates: s });
 }
-function Fe(n) {
+function _e(n) {
   const e = n.replace(/^\/+/, "");
-  return E.get(e) ?? E.get(`/${e}`) ?? null;
+  return D.get(e) ?? D.get(`/${e}`) ?? null;
 }
-function de(n) {
-  var s;
-  const e = G(n.settings.activeThemeId);
+function pe(n) {
+  var a;
+  const e = J(n.settings.activeThemeId);
   if (!e.settings) return;
-  const t = (s = n.settings.themeConfigs) == null ? void 0 : s[e.id];
+  const t = (a = n.settings.themeConfigs) == null ? void 0 : a[e.id];
   return {
     ...e.settings.defaultConfig,
     ...t ?? {}
   };
 }
-function He(n, e, t) {
-  const s = y(t, e), a = s ? "" : `${e}/`, r = { ...n.settings, language: e }, o = n.terms.map((g) => {
-    if (g.type !== "category") return g;
-    const d = s ? R(g) : $(g, e);
+function Oe(n, e, t) {
+  const a = y(t, e), s = a ? "" : `${e}/`, r = { ...n.settings, language: e }, o = n.terms.map((u) => {
+    if (u.type !== "category") return u;
+    const d = a ? R(u) : k(u, e);
     return d ? {
-      ...g,
+      ...u,
       name: d.name,
       // Prefix with language code so buildPostUrl produces
       // <lang>/<term-slug>/<post-slug>.html for posts and
       // <lang>/<term-slug>/index.html for the archive itself.
-      slug: `${a}${d.slug}`,
+      slug: `${s}${d.slug}`,
       description: d.description
-    } : g;
-  }), i = (g) => {
-    const d = s ? O(g) : C(g, e);
+    } : u;
+  }), i = (u) => {
+    const d = a ? z(u) : $(u, e);
     if (!d) return null;
-    const p = g.type !== "post" || !g.primaryTermId;
+    const p = u.type !== "post" || !u.primaryTermId;
     return {
-      ...g,
+      ...u,
       title: d.title,
-      slug: p ? `${a}${d.slug}` : d.slug,
+      slug: p ? `${s}${d.slug}` : d.slug,
       contentMarkdown: d.contentMarkdown,
       excerpt: d.excerpt,
       seo: d.seo
     };
-  }, l = n.posts.map(i).filter((g) => g !== null), c = n.pages.map(i).filter((g) => g !== null);
+  }, l = n.posts.map(i).filter((u) => u !== null), c = n.pages.map(i).filter((u) => u !== null);
   return {
     ...n,
     settings: r,
@@ -413,44 +413,44 @@ function He(n, e, t) {
     terms: o
   };
 }
-async function _e(n) {
+async function ze(n) {
   var i;
-  const { language: e, ctx: t, config: s } = n, a = (i = s.homePages) == null ? void 0 : i[e], r = a ? { ...t.settings, homeMode: "static-page", homePageId: a } : t.settings, o = He({ ...t, settings: r }, e, s);
-  return Te(o, {
-    homePath: z(e, s),
+  const { language: e, ctx: t, config: a } = n, s = (i = a.homePages) == null ? void 0 : i[e], r = s ? { ...t.settings, homeMode: "static-page", homePageId: s } : t.settings, o = Oe({ ...t, settings: r }, e, a);
+  return xe(o, {
+    homePath: O(e, a),
     currentLocale: e
   });
 }
-async function ze(n) {
-  var x, P, T, N, M;
-  const { post: e, trans: t, termTrans: s, language: a, ctx: r, config: o } = n, i = G(r.settings.activeThemeId), l = {
-    settings: { ...r.settings, language: a },
+async function Re(n) {
+  var P, T, N, C, K;
+  const { post: e, trans: t, termTrans: a, language: s, ctx: r, config: o } = n, i = J(r.settings.activeThemeId), l = {
+    settings: { ...r.settings, language: s },
     resolvedMenus: { header: [], footer: [] },
     themeCssPath: `theme-assets/${r.settings.activeThemeId}.css`,
-    themeConfig: de(r),
-    homePath: y(o, a) ? "/index.html" : `/${a}/index.html`
-  };
-  let c = Le(t.contentMarkdown);
-  c = await Se("post.html.body", c, e);
-  const g = r.terms.filter((U) => e.termIds.includes(U.id) && U.type === "tag"), d = e.primaryTermId ? r.terms.find((U) => U.id === e.primaryTermId && U.type === "category") : void 0, p = r.authorLookup(e.authorId), u = e.heroMediaId ? r.media.get(e.heroMediaId) : void 0, h = ((x = t.seo) == null ? void 0 : x.description) ?? se(t.contentMarkdown, 160);
-  let f = d;
-  if (d && s) {
-    const ve = y(o, a) ? "" : `${a}/`;
-    f = {
-      ...d,
-      name: s.name,
-      slug: `${ve}${s.slug}`,
-      description: s.description
+    themeConfig: pe(r),
+    homePath: y(o, s) ? "/index.html" : `/${s}/index.html`
+  }, c = { ...r, settings: { ...r.settings, language: s } };
+  let u = Se(t.contentMarkdown);
+  u = await Te("post.html.body", u, e, c);
+  const d = r.terms.filter((E) => e.termIds.includes(E.id) && E.type === "tag"), p = e.primaryTermId ? r.terms.find((E) => E.id === e.primaryTermId && E.type === "category") : void 0, g = r.authorLookup(e.authorId), h = e.heroMediaId ? r.media.get(e.heroMediaId) : void 0, f = ((P = t.seo) == null ? void 0 : P.description) ?? se(t.contentMarkdown, 160);
+  let S = p;
+  if (p && a) {
+    const Le = y(o, s) ? "" : `${s}/`;
+    S = {
+      ...p,
+      name: a.name,
+      slug: `${Le}${a.slug}`,
+      description: a.description
     };
   }
-  const S = F({
+  const v = F({
     post: e,
     trans: t,
-    primaryTermTrans: s,
-    primaryTermSlug: d == null ? void 0 : d.slug,
-    language: a,
+    primaryTermTrans: a,
+    primaryTermSlug: p == null ? void 0 : p.slug,
+    language: s,
     config: o
-  }), v = {
+  }), b = {
     site: l,
     post: {
       ...e,
@@ -460,54 +460,54 @@ async function ze(n) {
       excerpt: t.excerpt,
       seo: t.seo
     },
-    bodyHtml: c,
-    author: p,
-    hero: u ? {
-      alt: u.alt,
-      caption: u.caption,
-      default: ((T = (P = u.formats) == null ? void 0 : P[u.defaultFormat ?? ""]) == null ? void 0 : T.url) ?? u.url ?? "",
-      formats: u.formats ?? {}
+    bodyHtml: u,
+    author: g,
+    hero: h ? {
+      alt: h.alt,
+      caption: h.caption,
+      default: ((N = (T = h.formats) == null ? void 0 : T[h.defaultFormat ?? ""]) == null ? void 0 : N.url) ?? h.url ?? "",
+      formats: h.formats ?? {}
     } : void 0,
-    primaryTerm: f,
-    tags: g
-  }, b = {
+    primaryTerm: S,
+    tags: d
+  }, x = {
     site: l,
-    pageTitle: ((N = t.seo) == null ? void 0 : N.title) ?? t.title,
-    pageDescription: h || void 0,
-    ogImage: (M = t.seo) == null ? void 0 : M.ogImage,
-    currentPath: S,
-    currentLocale: a
+    pageTitle: ((C = t.seo) == null ? void 0 : C.title) ?? t.title,
+    pageDescription: f || void 0,
+    ogImage: (K = t.seo) == null ? void 0 : K.ogImage,
+    currentPath: v,
+    currentLocale: s
   };
-  return ae({
+  return re({
     base: i.templates.base,
-    baseProps: b,
+    baseProps: x,
     template: i.templates.single,
-    templateProps: v
+    templateProps: b
   });
 }
-function Oe(n) {
+function je(n) {
   var f, S, v;
-  const { term: e, termTrans: t, language: s, ctx: a, config: r } = n, o = G(a.settings.activeThemeId), i = {
-    settings: { ...a.settings, language: s },
+  const { term: e, termTrans: t, language: a, ctx: s, config: r } = n, o = J(s.settings.activeThemeId), i = {
+    settings: { ...s.settings, language: a },
     resolvedMenus: { header: [], footer: [] },
-    themeCssPath: `theme-assets/${a.settings.activeThemeId}.css`,
-    themeConfig: de(a),
-    homePath: y(r, s) ? "/index.html" : `/${s}/index.html`
+    themeCssPath: `theme-assets/${s.settings.activeThemeId}.css`,
+    themeConfig: pe(s),
+    homePath: y(r, a) ? "/index.html" : `/${a}/index.html`
   }, l = {
     ...e,
     name: t.name,
     slug: t.slug,
     description: t.description
-  }, c = y(r, s), g = c ? "" : `${s}/`, d = a.posts.filter((b) => b.status === "online" && b.primaryTermId === e.id).filter((b) => c ? !0 : C(b, s) !== null).map((b) => {
-    var N, M;
-    const x = c ? O(b) : C(b, s), P = F({
+  }, c = y(r, a), u = c ? "" : `${a}/`, d = s.posts.filter((b) => b.status === "online" && b.primaryTermId === e.id).filter((b) => c ? !0 : $(b, a) !== null).map((b) => {
+    var N, C;
+    const x = c ? z(b) : $(b, a), P = F({
       post: b,
       trans: x,
       primaryTermTrans: t,
       primaryTermSlug: e.slug,
-      language: s,
+      language: a,
       config: r
-    }), T = b.heroMediaId ? a.media.get(b.heroMediaId) : void 0;
+    }), T = b.heroMediaId ? s.media.get(b.heroMediaId) : void 0;
     return {
       ...b,
       title: x.title,
@@ -517,12 +517,12 @@ function Oe(n) {
       hero: T ? {
         alt: T.alt,
         caption: T.caption,
-        default: ((M = (N = T.formats) == null ? void 0 : N[T.defaultFormat ?? ""]) == null ? void 0 : M.url) ?? T.url ?? "",
+        default: ((C = (N = T.formats) == null ? void 0 : N[T.defaultFormat ?? ""]) == null ? void 0 : C.url) ?? T.url ?? "",
         formats: T.formats ?? {}
       } : void 0,
       category: {
         name: t.name,
-        url: `/${g}${t.slug}/index.html`
+        url: `/${u}${t.slug}/index.html`
       }
     };
   }), p = {
@@ -533,143 +533,143 @@ function Oe(n) {
     archivesLink: void 0,
     allCategories: [],
     popularTags: []
-  }, u = V(e, t, s, r), h = {
+  }, g = V(e, t, a, r), h = {
     site: i,
     pageTitle: ((f = t.seo) == null ? void 0 : f.title) || t.name,
     pageDescription: ((S = t.seo) == null ? void 0 : S.description) || t.description,
     ogImage: (v = t.seo) == null ? void 0 : v.ogImage,
-    currentPath: u,
-    currentLocale: s
+    currentPath: g,
+    currentLocale: a
   };
-  return ae({
+  return re({
     base: o.templates.base,
     baseProps: h,
     template: o.templates.category,
     templateProps: p
   });
 }
-async function Re(n, e, t) {
-  const s = w(t.settings);
-  if (s.enabledLanguages.length === 0) return n;
-  I(t.posts, t.pages, t.terms, t.settings, s), A(t.posts, t.pages, t.terms, s);
-  const a = [...n], r = {}, o = e.primaryTermId ? t.terms.find((i) => i.id === e.primaryTermId && i.type === "category") : void 0;
-  for (const i of s.enabledLanguages) {
-    if (y(s, i)) continue;
-    const l = C(e, i);
+async function qe(n, e, t) {
+  const a = w(t.settings);
+  if (a.enabledLanguages.length === 0) return n;
+  I(t.posts, t.pages, t.terms, t.settings, a), A(t.posts, t.pages, t.terms, a);
+  const s = [...n], r = {}, o = e.primaryTermId ? t.terms.find((i) => i.id === e.primaryTermId && i.type === "category") : void 0;
+  for (const i of a.enabledLanguages) {
+    if (y(a, i)) continue;
+    const l = $(e, i);
     if (!l) continue;
-    const c = o ? $(o, i) : void 0;
+    const c = o ? k(o, i) : void 0;
     if (o && !c) continue;
-    const g = F({
+    const u = F({
       post: e,
       trans: l,
       primaryTermTrans: c ?? void 0,
       primaryTermSlug: o == null ? void 0 : o.slug,
       language: i,
-      config: s
-    }), d = await ze({
+      config: a
+    }), d = await Re({
       post: e,
       trans: l,
       termTrans: c ?? void 0,
       language: i,
       ctx: t,
-      config: s
+      config: a
     });
-    a.push({ path: g, html: d }), r[i] = g;
+    s.push({ path: u, html: d }), r[i] = u;
   }
   try {
-    await re(e.id, { lastPublishedPathsByLocale: r });
+    await ie(e.id, { lastPublishedPathsByLocale: r });
   } catch {
-  }
-  return a;
-}
-async function qe(n, e) {
-  const t = w(e.settings);
-  if (t.enabledLanguages.length === 0) return n;
-  I(e.posts, e.pages, e.terms, e.settings, t), A(e.posts, e.pages, e.terms, t);
-  const s = [...n];
-  for (const a of t.enabledLanguages) {
-    if (y(t, a)) continue;
-    const r = z(a, t), o = await _e({ language: a, ctx: e, config: t });
-    s.push({ path: r, html: o });
-    for (const i of e.terms) {
-      if (i.type !== "category") continue;
-      const l = $(i, a);
-      if (!l) continue;
-      const c = V(i, l, a, t), g = Oe({ term: i, termTrans: l, language: a, ctx: e, config: t });
-      s.push({ path: c, html: g });
-    }
   }
   return s;
 }
-function je(n) {
+async function Be(n, e) {
+  const t = w(e.settings);
+  if (t.enabledLanguages.length === 0) return n;
+  I(e.posts, e.pages, e.terms, e.settings, t), A(e.posts, e.pages, e.terms, t);
+  const a = [...n];
+  for (const s of t.enabledLanguages) {
+    if (y(t, s)) continue;
+    const r = O(s, t), o = await ze({ language: s, ctx: e, config: t });
+    a.push({ path: r, html: o });
+    for (const i of e.terms) {
+      if (i.type !== "category") continue;
+      const l = k(i, s);
+      if (!l) continue;
+      const c = V(i, l, s, t), u = je({ term: i, termTrans: l, language: s, ctx: e, config: t });
+      a.push({ path: c, html: u });
+    }
+  }
+  return a;
+}
+function Je(n) {
   return { ...n, "xmlns:xhtml": "http://www.w3.org/1999/xhtml" };
 }
-function Je(n, e) {
+function Ge(n, e) {
   if (!e.entity) return n;
-  const t = Ke(), s = We();
-  if (!t || !s) return n;
-  const a = q(e.entity, s, t);
-  if (a.length === 0) return n;
+  const t = Xe(), a = Qe();
+  if (!t || !a) return n;
+  const s = j(e.entity, a, t);
+  if (s.length === 0) return n;
   const r = e.baseUrl.replace(/\/+$/, "");
-  return n + ce(
-    { current: { path: e.path, language: t.primaryLanguage }, alternates: a },
+  return n + ue(
+    { current: { path: e.path, language: t.primaryLanguage }, alternates: s },
     r,
     t
   ) + `
 `;
 }
-function Ge(n, e) {
-  var r, o, i, l, c, g;
+function Ve(n, e) {
+  var r, o, i, l, c, u;
   const t = w(e.settings);
   if (t.enabledLanguages.length === 0) return n;
-  const s = K(e.settings);
-  if (!s) return n;
-  const a = [...n];
+  const a = W(e.settings);
+  if (!a) return n;
+  const s = [...n];
   for (const d of [...e.posts, ...e.pages]) {
     if (d.status !== "online") continue;
     const p = ((o = (r = d.createdAt) == null ? void 0 : r.toMillis) == null ? void 0 : o.call(r)) ?? ((l = (i = d.publishedAt) == null ? void 0 : i.toMillis) == null ? void 0 : l.call(i)) ?? Date.now();
     if (new Date(p).getUTCFullYear() !== e.year) continue;
-    const u = q(d, e.terms, t);
-    if (u.length !== 0)
-      for (const h of u)
-        y(t, h.language) || a.push({
+    const g = j(d, e.terms, t);
+    if (g.length !== 0)
+      for (const h of g)
+        y(t, h.language) || s.push({
           path: h.path,
-          lastmodMs: ((g = (c = d.updatedAt) == null ? void 0 : c.toMillis) == null ? void 0 : g.call(c)) ?? p,
-          extraInnerXml: ce(
-            { current: { path: h.path, language: h.language }, alternates: u },
-            s,
+          lastmodMs: ((u = (c = d.updatedAt) == null ? void 0 : c.toMillis) == null ? void 0 : u.call(c)) ?? p,
+          extraInnerXml: ue(
+            { current: { path: h.path, language: h.language }, alternates: g },
+            a,
             t
           )
         });
   }
-  return a;
+  return s;
 }
-function Be(n, e) {
+function We(n, e) {
   var r;
   const t = (r = e.settings.pluginConfigs) == null ? void 0 : r["agentcms-sitemaps"];
   if (!(t != null && t.newsEnabled)) return n;
-  const s = w(e.settings);
-  if (s.enabledLanguages.length === 0) return n;
-  const a = [...n];
-  for (const o of s.enabledLanguages)
-    y(s, o) || a.push({ path: `sitemaps/sitemap-news-${o}.xml` });
-  return a;
+  const a = w(e.settings);
+  if (a.enabledLanguages.length === 0) return n;
+  const s = [...n];
+  for (const o of a.enabledLanguages)
+    y(a, o) || s.push({ path: `sitemaps/sitemap-news-${o}.xml` });
+  return s;
 }
-function Ve(n, e) {
-  var i, l, c, g, d, p, u, h;
+function Ke(n, e) {
+  var i, l, c, u, d, p, g, h;
   const t = w(e.settings);
-  if (t.enabledLanguages.length === 0 || !K(e.settings)) return n;
-  const a = e.config.newsWindowDays || 2, r = Date.now() - a * 24 * 60 * 60 * 1e3, o = [...n];
+  if (t.enabledLanguages.length === 0 || !W(e.settings)) return n;
+  const s = e.config.newsWindowDays || 2, r = Date.now() - s * 24 * 60 * 60 * 1e3, o = [...n];
   for (const f of t.enabledLanguages) {
     if (y(t, f)) continue;
     const S = [];
     for (const v of [...e.posts, ...e.pages]) {
       if (v.status !== "online") continue;
-      const b = ((l = (i = v.updatedAt) == null ? void 0 : i.toMillis) == null ? void 0 : l.call(i)) ?? ((g = (c = v.publishedAt) == null ? void 0 : c.toMillis) == null ? void 0 : g.call(c)) ?? ((p = (d = v.createdAt) == null ? void 0 : d.toMillis) == null ? void 0 : p.call(d)) ?? Date.now();
+      const b = ((l = (i = v.updatedAt) == null ? void 0 : i.toMillis) == null ? void 0 : l.call(i)) ?? ((u = (c = v.publishedAt) == null ? void 0 : c.toMillis) == null ? void 0 : u.call(c)) ?? ((p = (d = v.createdAt) == null ? void 0 : d.toMillis) == null ? void 0 : p.call(d)) ?? Date.now();
       if (b < r) continue;
-      const x = C(v, f);
+      const x = $(v, f);
       if (!x) continue;
-      const P = v.primaryTermId ? e.terms.find((M) => M.id === v.primaryTermId && M.type === "category") : void 0, T = P ? $(P, f) ?? void 0 : void 0, N = F({
+      const P = v.primaryTermId ? e.terms.find((C) => C.id === v.primaryTermId && C.type === "category") : void 0, T = P ? k(P, f) ?? void 0 : void 0, N = F({
         post: v,
         trans: x,
         primaryTermTrans: T,
@@ -680,7 +680,7 @@ function Ve(n, e) {
       S.push({
         path: N,
         title: x.title,
-        createdAtMs: ((h = (u = v.createdAt) == null ? void 0 : u.toMillis) == null ? void 0 : h.call(u)) ?? b,
+        createdAtMs: ((h = (g = v.createdAt) == null ? void 0 : g.toMillis) == null ? void 0 : h.call(g)) ?? b,
         updatedAtMs: b
       });
     }
@@ -692,74 +692,74 @@ function Ve(n, e) {
   }
   return o;
 }
-let pe = null, me = null;
-function he(n) {
-  pe = n;
-}
+let he = null, me = null;
 function fe(n) {
+  he = n;
+}
+function ye(n) {
   me = n;
 }
-function Ke() {
-  return pe;
+function Xe() {
+  return he;
 }
-function We() {
+function Qe() {
   return me;
 }
-const Xe = 20;
-function Ye(n) {
+const Ye = 20;
+function Ze(n) {
   return `${n}/rss.xml`;
 }
-function Qe(n) {
+function et(n) {
   return `${n}/feed.xml`;
 }
-function Ze(n, e) {
+function tt(n, e) {
   return `${n}/${e}/${e}.xml`;
 }
-function et(n) {
+function nt(n) {
   const e = w(n.settings);
   if (e.enabledLanguages.length === 0) return [];
   const t = [];
-  for (const s of e.enabledLanguages) {
-    if (y(e, s)) continue;
-    const a = tt(n.posts, n.terms, s, e, n.baseUrl);
+  for (const a of e.enabledLanguages) {
+    if (y(e, a)) continue;
+    const s = at(n.posts, n.terms, a, e, n.baseUrl);
     t.push({
-      language: s,
-      path: Ye(s),
-      channelTitle: `${n.settings.title || "Site"} — ${s.toUpperCase()}`,
-      channelLink: B(n.baseUrl, z(s, e)),
+      language: a,
+      path: Ze(a),
+      channelTitle: `${n.settings.title || "Site"} — ${a.toUpperCase()}`,
+      channelLink: G(n.baseUrl, O(a, e)),
       channelDescription: n.settings.description || n.settings.title || "",
-      items: a
+      items: s
     });
   }
   return t;
 }
-async function ye(n) {
+async function be(n) {
   const e = w(n.settings);
   for (const t of e.enabledLanguages)
     if (!y(e, t)) {
       try {
-        await W(Qe(t));
+        await X(et(t));
       } catch {
       }
-      for (const s of n.terms) {
-        if (s.type !== "category") continue;
-        const a = $(s, t);
-        if (a)
+      for (const a of n.terms) {
+        if (a.type !== "category") continue;
+        const s = k(a, t);
+        if (s)
           try {
-            await W(Ze(t, a.slug));
+            await X(tt(t, s.slug));
           } catch {
           }
       }
     }
 }
-function tt(n, e, t, s, a) {
-  return n.filter((r) => r.status === "online").map((r) => nt(r, e, t, s, a)).filter((r) => r !== null).sort((r, o) => o.pubDateMs - r.pubDateMs).slice(0, Xe);
+function at(n, e, t, a, s) {
+  return n.filter((r) => r.status === "online").map((r) => st(r, e, t, a, s)).filter((r) => r !== null).sort((r, o) => o.pubDateMs - r.pubDateMs).slice(0, Ye);
 }
-function nt(n, e, t, s, a) {
-  var p, u, h, f, S, v;
-  const r = C(n, t);
+function st(n, e, t, a, s) {
+  var p, g, h, f, S, v;
+  const r = $(n, t);
   if (!r) return null;
-  const o = n.primaryTermId ? e.find((b) => b.id === n.primaryTermId && b.type === "category") : void 0, i = o ? $(o, t) : void 0;
+  const o = n.primaryTermId ? e.find((b) => b.id === n.primaryTermId && b.type === "category") : void 0, i = o ? k(o, t) : void 0;
   if (o && !i) return null;
   const l = F({
     post: n,
@@ -767,35 +767,35 @@ function nt(n, e, t, s, a) {
     primaryTermTrans: i ?? void 0,
     primaryTermSlug: o == null ? void 0 : o.slug,
     language: t,
-    config: s
-  }), c = B(a, l), g = (r.excerpt && r.excerpt.trim().length > 0 ? r.excerpt : se(r.contentMarkdown, 300)).trim(), d = ((u = (p = n.publishedAt) == null ? void 0 : p.toMillis) == null ? void 0 : u.call(p)) ?? ((f = (h = n.updatedAt) == null ? void 0 : h.toMillis) == null ? void 0 : f.call(h)) ?? ((v = (S = n.createdAt) == null ? void 0 : S.toMillis) == null ? void 0 : v.call(S)) ?? Date.now();
+    config: a
+  }), c = G(s, l), u = (r.excerpt && r.excerpt.trim().length > 0 ? r.excerpt : se(r.contentMarkdown, 300)).trim(), d = ((g = (p = n.publishedAt) == null ? void 0 : p.toMillis) == null ? void 0 : g.call(p)) ?? ((f = (h = n.updatedAt) == null ? void 0 : h.toMillis) == null ? void 0 : f.call(h)) ?? ((v = (S = n.createdAt) == null ? void 0 : S.toMillis) == null ? void 0 : v.call(S)) ?? Date.now();
   return {
     title: r.title,
     link: c,
     guid: c,
-    description: g,
+    description: u,
     pubDateMs: d,
     category: i == null ? void 0 : i.name
   };
 }
-function st(n, e, t) {
-  const s = y(t, e), a = s ? "" : `${e}/`, r = n.terms.map((i) => {
+function rt(n, e, t) {
+  const a = y(t, e), s = a ? "" : `${e}/`, r = n.terms.map((i) => {
     if (i.type !== "category") return i;
-    const l = s ? R(i) : $(i, e);
+    const l = a ? R(i) : k(i, e);
     return l ? {
       ...i,
       name: l.name,
-      slug: `${a}${l.slug}`,
+      slug: `${s}${l.slug}`,
       description: l.description
     } : i;
   }), o = (i) => {
-    const l = s ? O(i) : C(i, e);
+    const l = a ? z(i) : $(i, e);
     if (!l) return null;
     const c = i.type !== "post" || !i.primaryTermId;
     return {
       ...i,
       title: l.title,
-      slug: c ? `${a}${l.slug}` : l.slug,
+      slug: c ? `${s}${l.slug}` : l.slug,
       contentMarkdown: l.contentMarkdown,
       excerpt: l.excerpt,
       seo: l.seo
@@ -807,64 +807,64 @@ function st(n, e, t) {
     terms: r
   };
 }
-async function be(n) {
+async function we(n) {
   const e = w(n.settings);
   if (e.enabledLanguages.length !== 0)
     for (const t of e.enabledLanguages) {
       if (y(e, t)) continue;
-      const s = st(n, t, e), a = { ...n.settings, language: t }, r = `${t}/data/posts.json`, o = `${t}/data/authors.json`;
+      const a = rt(n, t, e), s = { ...n.settings, language: t }, r = `${t}/data/posts.json`, o = `${t}/data/authors.json`;
       try {
-        await xe(
-          a,
-          s.posts,
-          s.pages,
-          s.terms,
+        await Pe(
+          s,
+          a.posts,
+          a.pages,
+          a.terms,
           n.media,
           r
         );
       } catch {
       }
       try {
-        await Pe(
+        await ke(
           n.users,
           n.media,
-          s.posts,
-          s.pages,
+          a.posts,
+          a.pages,
           o
         );
       } catch {
       }
     }
 }
-const Z = ["en", "fr", "de", "es", "nl", "pt", "ko"];
-function at({ config: n, save: e }) {
-  const { t } = le("agentcms-multilang"), { settings: s, pages: a } = ie(), [r, o] = Y({
+const ee = ["en", "fr", "de", "es", "nl", "pt", "ko"];
+function it({ config: n, save: e }) {
+  const { t } = ce("agentcms-multilang"), { settings: a, pages: s } = oe(), [r, o] = Y({
     ...H,
     ...n
   }), [i, l] = Y(!1);
   async function c() {
     l(!0);
     try {
-      await e(r), J.success(t("settings.saved"));
-    } catch (u) {
-      J.error(u.message || "Save failed");
+      await e(r), B.success(t("settings.saved"));
+    } catch (g) {
+      B.error(g.message || "Save failed");
     } finally {
       l(!1);
     }
   }
-  function g(u) {
+  function u(g) {
     o((h) => {
-      const S = h.enabledLanguages.includes(u) ? h.enabledLanguages.filter((v) => v !== u) : [...h.enabledLanguages, u];
+      const S = h.enabledLanguages.includes(g) ? h.enabledLanguages.filter((v) => v !== g) : [...h.enabledLanguages, g];
       return { ...h, enabledLanguages: S };
     });
   }
-  function d(u, h) {
+  function d(g, h) {
     o((f) => ({
       ...f,
-      homePages: { ...f.homePages ?? {}, [u]: h || "" }
+      homePages: { ...f.homePages ?? {}, [g]: h || "" }
     }));
   }
-  const p = (s.language || "en").split("-")[0];
+  const p = (a.language || "en").split("-")[0];
   return /* @__PURE__ */ L("div", { className: "space-y-6", children: [
     /* @__PURE__ */ L("div", { children: [
       /* @__PURE__ */ m("h2", { className: "font-semibold text-lg", children: t("settings.title") }),
@@ -879,8 +879,8 @@ function at({ config: n, save: e }) {
           {
             className: "input max-w-[200px]",
             value: r.primaryLanguage,
-            onChange: (u) => o({ ...r, primaryLanguage: u.target.value }),
-            children: Z.map((u) => /* @__PURE__ */ m("option", { value: u, children: u.toUpperCase() }, u))
+            onChange: (g) => o({ ...r, primaryLanguage: g.target.value }),
+            children: ee.map((g) => /* @__PURE__ */ m("option", { value: g, children: g.toUpperCase() }, g))
           }
         ),
         /* @__PURE__ */ m("span", { className: "text-[11px] text-surface-500 self-center", children: t("settings.primaryLanguage.siteHint", { lang: p }) })
@@ -889,40 +889,40 @@ function at({ config: n, save: e }) {
     /* @__PURE__ */ L("section", { className: "card p-4 space-y-3", children: [
       /* @__PURE__ */ m("h3", { className: "font-medium", children: t("settings.enabledLanguages.title") }),
       /* @__PURE__ */ m("p", { className: "text-xs text-surface-500 dark:text-surface-400", children: t("settings.enabledLanguages.help") }),
-      /* @__PURE__ */ m("div", { className: "flex flex-wrap gap-2", children: Z.filter((u) => u !== r.primaryLanguage).map((u) => {
-        const h = r.enabledLanguages.includes(u);
+      /* @__PURE__ */ m("div", { className: "flex flex-wrap gap-2", children: ee.filter((g) => g !== r.primaryLanguage).map((g) => {
+        const h = r.enabledLanguages.includes(g);
         return /* @__PURE__ */ m(
           "button",
           {
             type: "button",
-            onClick: () => g(u),
+            onClick: () => u(g),
             className: "text-xs px-3 py-1.5 rounded uppercase font-medium " + (h ? "bg-surface-900 text-surface-50 dark:bg-surface-100 dark:text-surface-900" : "bg-surface-100 text-surface-700 dark:bg-surface-800 dark:text-surface-300"),
-            children: u
+            children: g
           },
-          u
+          g
         );
       }) })
     ] }),
     r.enabledLanguages.length > 0 && /* @__PURE__ */ L("section", { className: "card p-4 space-y-3", children: [
       /* @__PURE__ */ m("h3", { className: "font-medium", children: t("settings.homePages.title") }),
       /* @__PURE__ */ m("p", { className: "text-xs text-surface-500 dark:text-surface-400", children: t("settings.homePages.help") }),
-      /* @__PURE__ */ m("div", { className: "space-y-2", children: r.enabledLanguages.map((u) => {
+      /* @__PURE__ */ m("div", { className: "space-y-2", children: r.enabledLanguages.map((g) => {
         var h;
         return /* @__PURE__ */ L("div", { className: "flex items-center gap-2", children: [
-          /* @__PURE__ */ m("span", { className: "text-[10px] uppercase font-semibold w-8", children: u }),
+          /* @__PURE__ */ m("span", { className: "text-[10px] uppercase font-semibold w-8", children: g }),
           /* @__PURE__ */ L(
             "select",
             {
               className: "input flex-1",
-              value: ((h = r.homePages) == null ? void 0 : h[u]) ?? "",
-              onChange: (f) => d(u, f.target.value),
+              value: ((h = r.homePages) == null ? void 0 : h[g]) ?? "",
+              onChange: (f) => d(g, f.target.value),
               children: [
                 /* @__PURE__ */ m("option", { value: "", children: t("settings.homePages.none") }),
-                a.filter((f) => f.status === "online").map((f) => /* @__PURE__ */ m("option", { value: f.id, children: f.title }, f.id))
+                s.filter((f) => f.status === "online").map((f) => /* @__PURE__ */ m("option", { value: f.id, children: f.title }, f.id))
               ]
             }
           )
-        ] }, u);
+        ] }, g);
       }) })
     ] }),
     r.enabledLanguages.length > 0 && /* @__PURE__ */ L("section", { className: "card p-4 space-y-3", children: [
@@ -934,7 +934,7 @@ function at({ config: n, save: e }) {
           {
             type: "checkbox",
             checked: r.showHeaderSwitcher ?? !0,
-            onChange: (u) => o({ ...r, showHeaderSwitcher: u.target.checked })
+            onChange: (g) => o({ ...r, showHeaderSwitcher: g.target.checked })
           }
         ),
         /* @__PURE__ */ m("span", { children: t("settings.switcher.header") })
@@ -945,7 +945,7 @@ function at({ config: n, save: e }) {
           {
             type: "checkbox",
             checked: r.showFooterSwitcher ?? !1,
-            onChange: (u) => o({ ...r, showFooterSwitcher: u.target.checked })
+            onChange: (g) => o({ ...r, showFooterSwitcher: g.target.checked })
           }
         ),
         /* @__PURE__ */ m("span", { children: t("settings.switcher.footer") })
@@ -963,24 +963,24 @@ function at({ config: n, save: e }) {
     ) })
   ] });
 }
-function rt({ term: n, updateTerm: e }) {
-  const { t } = le("agentcms-multilang"), { settings: s } = ie(), a = w(s);
-  if (a.enabledLanguages.length === 0)
+function ot({ term: n, updateTerm: e }) {
+  const { t } = ce("agentcms-multilang"), { settings: a } = oe(), s = w(a);
+  if (s.enabledLanguages.length === 0)
     return /* @__PURE__ */ m("p", { className: "text-xs text-surface-500 dark:text-surface-400", children: t("termSection.noLanguages") });
   const r = n.translations ?? {};
   function o(i, l) {
     const c = {
       ...r,
-      [i]: { ...r[i] ?? ee(), ...l }
+      [i]: { ...r[i] ?? te(), ...l }
     };
     e({ translations: c });
   }
   return /* @__PURE__ */ L("div", { className: "space-y-2", children: [
     /* @__PURE__ */ m("p", { className: "text-[11px] uppercase tracking-wide font-semibold text-surface-500 dark:text-surface-400", children: t("termSection.title") }),
-    a.enabledLanguages.map((i) => {
-      const l = r[i] ?? ee(), c = l.slug && !oe(l.slug), g = l.seo ?? {};
+    s.enabledLanguages.map((i) => {
+      const l = r[i] ?? te(), c = l.slug && !le(l.slug), u = l.seo ?? {};
       function d(p) {
-        o(i, { seo: { ...g, ...p } });
+        o(i, { seo: { ...u, ...p } });
       }
       return /* @__PURE__ */ L("div", { className: "space-y-2 border-t border-surface-200 dark:border-surface-700 pt-2 first:border-t-0 first:pt-0", children: [
         /* @__PURE__ */ L("div", { className: "flex flex-wrap items-start gap-2", children: [
@@ -1016,7 +1016,7 @@ function rt({ term: n, updateTerm: e }) {
               type: "text",
               className: "input w-full",
               placeholder: t("termSection.seoTitle"),
-              value: g.title ?? "",
+              value: u.title ?? "",
               onChange: (p) => d({ title: p.target.value })
             }
           ),
@@ -1025,7 +1025,7 @@ function rt({ term: n, updateTerm: e }) {
             {
               className: "input w-full min-h-[60px] resize-y",
               placeholder: t("termSection.seoDescription"),
-              value: g.description ?? "",
+              value: u.description ?? "",
               onChange: (p) => d({ description: p.target.value })
             }
           )
@@ -1034,10 +1034,10 @@ function rt({ term: n, updateTerm: e }) {
     })
   ] });
 }
-function ee() {
+function te() {
   return { slug: "", name: "", description: "" };
 }
-function we(n, e, t) {
+function ve(n, e, t) {
   if (t)
     return {
       title: n.title,
@@ -1046,53 +1046,53 @@ function we(n, e, t) {
       excerpt: n.excerpt,
       seo: n.seo
     };
-  const s = n.translations, a = s == null ? void 0 : s[e];
-  return !a || !a.title ? null : {
-    title: a.title ?? "",
-    slug: a.slug ?? "",
-    contentMarkdown: a.contentMarkdown ?? "",
-    excerpt: a.excerpt,
-    seo: a.seo
+  const a = n.translations, s = a == null ? void 0 : a[e];
+  return !s || !s.title ? null : {
+    title: s.title ?? "",
+    slug: s.slug ?? "",
+    contentMarkdown: s.contentMarkdown ?? "",
+    excerpt: s.excerpt,
+    seo: s.seo
   };
 }
-function te(n, e, t) {
+function ne(n, e, t) {
   if (t) return "★";
-  const s = we(n, e, !1);
-  return s && s.slug && s.title ? "" : "○";
+  const a = ve(n, e, !1);
+  return a && a.slug && a.title ? "" : "○";
 }
-const it = {
+const lt = {
   id: "agentcms-multilang/languages",
   priority: 50,
   listVariants(n, e) {
     const t = w(e.settings);
     if (t.enabledLanguages.length === 0) return [];
-    const s = [], a = /* @__PURE__ */ new Set();
-    s.push({
+    const a = [], s = /* @__PURE__ */ new Set();
+    a.push({
       id: t.primaryLanguage,
       label: t.primaryLanguage.toUpperCase(),
-      badge: te(n, t.primaryLanguage, !0),
+      badge: ne(n, t.primaryLanguage, !0),
       primary: !0
-    }), a.add(t.primaryLanguage);
+    }), s.add(t.primaryLanguage);
     for (const r of t.enabledLanguages)
-      a.has(r) || (a.add(r), s.push({
+      s.has(r) || (s.add(r), a.push({
         id: r,
         label: r.toUpperCase(),
-        badge: te(n, r, !1),
+        badge: ne(n, r, !1),
         primary: !1
       }));
-    return s;
+    return a;
   },
   loadFields(n, e, t) {
-    const s = w(t.settings), a = y(s, e);
-    return we(n, e, a);
+    const a = w(t.settings), s = y(a, e);
+    return ve(n, e, s);
   },
-  validate(n, e, t, s) {
-    const a = w(s.settings);
-    return y(a, e) ? null : t.title.trim() ? oe(t.slug) ? null : `Invalid slug for ${e.toUpperCase()}.` : `Title required for ${e.toUpperCase()}.`;
+  validate(n, e, t, a) {
+    const s = w(a.settings);
+    return y(s, e) ? null : t.title.trim() ? le(t.slug) ? null : `Invalid slug for ${e.toUpperCase()}.` : `Title required for ${e.toUpperCase()}.`;
   },
-  async saveFields(n, e, t, s) {
-    const a = w(s.settings);
-    if (y(a, e))
+  async saveFields(n, e, t, a) {
+    const s = w(a.settings);
+    if (y(s, e))
       return;
     const r = n.translations ?? {}, o = {
       title: t.title,
@@ -1105,21 +1105,21 @@ const it = {
     }
     const i = { ...r, [e]: o };
     try {
-      await re(n.id, { translations: i });
+      await ie(n.id, { translations: i });
     } catch (l) {
-      throw J.error(l.message), l;
+      throw B.error(l.message), l;
     }
   },
-  getSlugPathPrefix(n, e, t, s) {
-    var g;
-    const a = w(s.settings), r = y(a, e) ? "" : `${e}/`;
+  getSlugPathPrefix(n, e, t, a) {
+    var u;
+    const s = w(a.settings), r = y(s, e) ? "" : `${e}/`;
     if (n.type !== "post" || !n.primaryTermId) return r;
-    const o = s.terms.find((d) => d.id === n.primaryTermId);
+    const o = a.terms.find((d) => d.id === n.primaryTermId);
     if (!o) return r;
-    const i = o.translations, c = !y(a, e) && ((g = i == null ? void 0 : i[e]) == null ? void 0 : g.slug) || o.slug;
+    const i = o.translations, c = !y(s, e) && ((u = i == null ? void 0 : i[e]) == null ? void 0 : u.slug) || o.slug;
     return `${r}${c}/`;
   }
-}, ot = `
+}, ct = `
 .cms-langswitch{display:inline-flex;align-items:center;gap:6px;font-size:12px;line-height:1;letter-spacing:0.05em;}
 .cms-langswitch a,.cms-langswitch span{padding:4px 8px;border-radius:4px;text-decoration:none;color:inherit;text-transform:uppercase;font-weight:600;}
 .cms-langswitch a{opacity:0.55;}
@@ -1127,19 +1127,19 @@ const it = {
 .cms-langswitch__current{background:currentColor;color:transparent;position:relative;}
 .cms-langswitch__current::after{content:attr(data-label);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--cms-langswitch-on,white);mix-blend-mode:difference;}
 `.replace(/\s+/g, " ").trim();
-function lt(n) {
+function ut(n) {
   return n.replace(/[<>&\u2028\u2029]/g, (e) => e === "<" ? "\\u003c" : e === ">" ? "\\u003e" : e === "&" ? "\\u0026" : e === "\u2028" ? "\\u2028" : "\\u2029");
 }
-function ct(n) {
-  const { config: e, settings: t, currentPath: s } = n;
+function gt(n) {
+  const { config: e, settings: t, currentPath: a } = n;
   if (e.enabledLanguages.length === 0 || !e.showHeaderSwitcher && !e.showFooterSwitcher) return "";
-  const a = Fe(s);
-  if (!a || a.alternates.length < 2) return "";
-  const r = (t.baseUrl || "").replace(/\/+$/, ""), o = a.alternates.map((p) => ({
+  const s = _e(a);
+  if (!s || s.alternates.length < 2) return "";
+  const r = (t.baseUrl || "").replace(/\/+$/, ""), o = s.alternates.map((p) => ({
     lang: p.language,
     label: p.language.toUpperCase(),
-    href: r ? B(r, p.path) : `/${p.path.replace(/^\/+/, "")}`
-  })), i = a.language, l = e.primaryLanguage, c = {
+    href: r ? G(r, p.path) : `/${p.path.replace(/^\/+/, "")}`
+  })), i = s.language, l = e.primaryLanguage, c = {
     current: i,
     primary: l,
     items: o,
@@ -1149,7 +1149,7 @@ function ct(n) {
   return `<script>${`
 (function(){
   try {
-    var D = ${lt(JSON.stringify(c))};
+    var D = ${ut(JSON.stringify(c))};
     function render(host) {
       var html = '<div class="cms-langswitch" role="navigation" aria-label="Language">';
       for (var i = 0; i < D.items.length; i++) {
@@ -1175,7 +1175,7 @@ function ct(n) {
       }
       var s = document.createElement('style');
       s.setAttribute('data-cms-langswitch-css', '');
-      s.textContent = ${JSON.stringify(ot)};
+      s.textContent = ${JSON.stringify(ct)};
       document.head.appendChild(s);
     }
     if (document.readyState !== 'loading') paint();
@@ -1183,115 +1183,116 @@ function ct(n) {
   } catch (e) {}
 })();`}<\/script>`;
 }
-async function ut(n, e) {
+async function dt(n, e) {
   const t = w(e.settings);
-  he(t), fe(e.terms), I(e.posts, e.pages, e.terms, e.settings, t), A(e.posts, e.pages, e.terms, t), await ye(e), await be(e);
+  fe(t), ye(e.terms), I(e.posts, e.pages, e.terms, e.settings, t), A(e.posts, e.pages, e.terms, t), await be(e), await we(e);
 }
-async function ne(n, e) {
+async function ae(n, e) {
   const t = w(e.settings);
-  he(t), fe(e.terms), I(e.posts, e.pages, e.terms, e.settings, t), A(e.posts, e.pages, e.terms, t), await ye(e), await be(e);
+  fe(t), ye(e.terms), I(e.posts, e.pages, e.terms, e.settings, t), A(e.posts, e.pages, e.terms, t), await be(e), await we(e);
 }
-async function gt() {
+async function pt() {
   try {
     const n = window, e = n == null ? void 0 : n.__AGENTCMS_LIVE_SETTINGS__;
     if (!e) return;
     const t = w(e);
     if (t.enabledLanguages.length === 0) return;
-    const [s, a] = await Promise.all([
-      X({ type: "post" }),
-      X({ type: "page" })
+    const [a, s] = await Promise.all([
+      Q({ type: "post" }),
+      Q({ type: "page" })
     ]);
-    I(s, a, [], e, t), A(s, a, [], t);
+    I(a, s, [], e, t), A(a, s, [], t);
   } catch {
   }
 }
-const ft = {
+const bt = {
   id: "agentcms-multilang",
   name: "Multi-language",
-  version: "1.0.0",
+  version: "1.6.3",
   description: "Multi-language site support — translated posts/pages/terms, hreflang SEO, per-language sitemap entries, per-language RSS feeds.",
   author: "AgentCMS",
-  i18n: { en: Ce, fr: Ue },
+  readme: Ce,
+  i18n: { en: Ie, fr: De },
   settings: {
     navLabelKey: "settings.title",
     defaultConfig: H,
-    component: at
+    component: it
   },
   register(n) {
-    n.addFilter("publish.additional", async (e, t, s) => Re(
+    n.addFilter("publish.additional", async (e, t, a) => qe(
       e,
       t,
-      s
-    )), n.addFilter("publish.extraListings", async (e, t) => qe(
+      a
+    )), n.addFilter("publish.extraListings", async (e, t) => Be(
       e,
       t
     )), n.addAction("publish.before", async (e, t) => {
-      const s = t, a = w(s.settings);
-      I(s.posts, s.pages, s.terms, s.settings, a), A(s.posts, s.pages, s.terms, a);
+      const a = t, s = w(a.settings);
+      I(a.posts, a.pages, a.terms, a.settings, s), A(a.posts, a.pages, a.terms, s);
     }), n.addAction("regenerate.listings.before", async (e) => {
-      const t = e, s = w(t.settings);
-      I(t.posts, t.pages, t.terms, t.settings, s), A(t.posts, t.pages, t.terms, s);
+      const t = e, a = w(t.settings);
+      I(t.posts, t.pages, t.terms, t.settings, a), A(t.posts, t.pages, t.terms, a);
     }), n.addAction("publish.complete", async (e, t) => {
-      await ut(e, t);
+      await dt(e, t);
     }), n.addAction("post.unpublished", async (e, t) => {
-      await ne(e, t);
+      await ae(e, t);
     }), n.addAction("post.deleted", async (e, t) => {
-      await ne(e, t);
+      await ae(e, t);
     }), n.addFilter("page.head.extra", (e, ...t) => {
-      const s = t[0];
-      if (!(s != null && s.currentPath)) return e;
-      const a = Ee(s.currentPath);
-      return a ? e + (e ? `
-` : "") + a : e;
+      const a = t[0];
+      if (!(a != null && a.currentPath)) return e;
+      const s = He(a.currentPath);
+      return s ? e + (e ? `
+` : "") + s : e;
     }), n.addFilter("page.body.end", (e, ...t) => {
       var o;
-      const s = t[0];
-      if (!(s != null && s.currentPath) || !((o = s == null ? void 0 : s.site) != null && o.settings)) return e;
-      const a = w(s.site.settings), r = ct({
-        config: a,
-        settings: s.site.settings,
-        currentPath: s.currentPath
+      const a = t[0];
+      if (!(a != null && a.currentPath) || !((o = a == null ? void 0 : a.site) != null && o.settings)) return e;
+      const s = w(a.site.settings), r = gt({
+        config: s,
+        settings: a.site.settings,
+        currentPath: a.currentPath
       });
       return r ? e + (e ? `
 ` : "") + r : e;
     }), n.addFilter(
       "sitemap.urlset.namespaces",
-      (e) => je(e)
+      (e) => Je(e)
     ), n.addFilter("sitemap.url.entry", (e, ...t) => {
-      const s = t[0];
-      return Je(e, s);
+      const a = t[0];
+      return Ge(e, a);
     }), n.addFilter("sitemap.urls.extra", (e, ...t) => {
-      const s = t[0];
-      return Ge(
-        e,
-        s
-      );
-    }), n.addFilter("sitemap.index.extra", (e, ...t) => {
-      const s = t[0];
-      return Be(
-        e,
-        s
-      );
-    }), n.addFilter("sitemap.news.locales", (e, ...t) => {
-      const s = t[0];
+      const a = t[0];
       return Ve(
         e,
-        s
+        a
+      );
+    }), n.addFilter("sitemap.index.extra", (e, ...t) => {
+      const a = t[0];
+      return We(
+        e,
+        a
+      );
+    }), n.addFilter("sitemap.news.locales", (e, ...t) => {
+      const a = t[0];
+      return Ke(
+        e,
+        a
       );
     }), n.addFilter("rss.site.locales", (e, ...t) => {
-      const s = t[0];
-      return s ? [
+      const a = t[0];
+      return a ? [
         ...e,
-        ...et(s)
+        ...nt(a)
       ] : e;
-    }), n.registerEditorVariantProvider(it), n.registerTermEditorSection({
+    }), n.registerEditorVariantProvider(lt), n.registerTermEditorSection({
       id: "agentcms-multilang/term-translations",
       termType: "all",
       priority: 50,
-      component: rt
-    }), gt();
+      component: ot
+    }), pt();
   }
 };
 export {
-  ft as default
+  bt as default
 };

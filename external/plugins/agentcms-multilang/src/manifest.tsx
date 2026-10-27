@@ -1,7 +1,8 @@
 // agentcms-multilang — adds per-language translations to posts, pages,
 // categories and tags. Publishes each translation under /<lang>/...
-// and injects hreflang + canonical + og:locale + sitemap xhtml:link
-// alternates following Google's international SEO best practices.
+// and injects hreflang + og:locale + sitemap xhtml:link alternates
+// following Google's international SEO best practices (the canonical
+// link is left to the theme, which receives the localized path).
 //
 // Architecture overview (read in this order):
 //   - types.ts                       — config + translation shapes
@@ -11,13 +12,15 @@
 //   - core/pathRegistry.ts           — module cache for sync hooks
 //   - publisher/computeAdditional.ts — `publish.additional` handler
 //   - publisher/computeExtraListings.ts — `publish.extraListings` handler
-//   - publisher/sitemap.ts           — 4 sitemap hook handlers
-//   - publisher/feeds.ts             — per-language RSS feeds
-//   - editor/TranslationsTab.tsx     — inspector tab
+//   - publisher/sitemap.ts           — 5 sitemap hook handlers
+//   - publisher/feeds.ts             — per-language RSS feeds (rss.site.locales)
+//   - core/switcher.ts               — public language switcher (page.body.end)
+//   - editor/variantProvider.ts      — language tabs above the editor
 //   - editor/TermTranslationsSection.tsx — categories/tags edit row
 //   - settings/SettingsPage.tsx      — /settings/plugin/agentcms-multilang
 
 import { fetchAllPosts, type PluginManifest, type PublishContext, type Post } from "@agent-cms/runtime";
+import readme from "../README.md?raw";
 import en from "./i18n/en.json";
 import fr from "./i18n/fr.json";
 
@@ -106,10 +109,11 @@ async function warmRegistry(): Promise<void> {
 const manifest: PluginManifest<MultilangConfig> = {
   id: "agentcms-multilang",
   name: "Multi-language",
-  version: "1.0.0",
+  version: "1.6.3",
   description:
     "Multi-language site support — translated posts/pages/terms, hreflang SEO, per-language sitemap entries, per-language RSS feeds.",
   author: "AgentCMS",
+  readme,
   i18n: { en, fr },
   settings: {
     navLabelKey: "settings.title",

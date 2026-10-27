@@ -3,8 +3,9 @@
 // cards AND to call admin services (publish-target files, data CRUD,
 // publishing, slug helpers, markdown utilities, …).
 //
-// External bundles install @agent-cms/runtime as a dev dependency
-// for type definitions and externalize it at build time. The import-map
+// External bundles get their types from types/agentcms-runtime.d.ts
+// (npm package @agent-cms/agentcms) and externalize the specifier at
+// build time. The import-map
 // in /admin/index.html redirects each `import` here. We read the live
 // admin instances off window.__AGENTCMS_RUNTIME__ (populated by
 // src/core/cmsRuntime.ts on admin boot) and re-export them so the

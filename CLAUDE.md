@@ -36,6 +36,7 @@ The repo is also the npm package **`@agent-cms/agentcms`** (command `agentcms`) 
 - **How the CLI reuses the admin**: `agent/browserEnv.ts` installs an in-memory `window` + `localStorage` (never persisted) before any `src/` module is imported — commands `await import("../ops/…")` after calling it. `agent/ops/` drives the same building blocks as the wizard (`getDocStore().ready()`, `savePublishTarget`, connectors via `instantiateStorageConnector`) and uploads the admin + theme assets **from disk** (`dist/admin`, `dist/theme-assets`) in one connector batch. `sql.js` can't be bundled (UMD): the build copies it to `dist/agent/vendor/sql-wasm.cjs` (alias in `vite.agent.config.ts`) and the WASM comes from `dist/admin/assets` (`setSqlJsWasmBinary`). The git-pages connector exposes `githubPagesCheck()` so the CLI awaits the Pages auto-enable the admin fires in the background.
 - **CLI state**: `~/.agentcms` (`$AGENTCMS_HOME`): `sites.json` (registry, no secrets), `credentials.json` (0600, per account `<type>:<name>`), `locks/`. Site resolution: `--site` > `./agentcms.json` > the only site > `site use` default — otherwise `site-required` (agents must ask). `install` refuses content that already publishes elsewhere unless `--overwrite-target`; `deploy-admin` only prints its plan without `--yes`.
 - **Tests**: `agent/e2e-s3.test.ts` (in-memory S3 + website hosting, `agent/testing/fakeS3.ts`: encrypted / plain / separate-private-bucket SQLite) and `agent/e2e-github.test.ts` (in-memory GitHub + Pages, `agent/testing/fakeGithub.ts`) run install → doctor → deploy-admin → site add.
+- **Extension tooling** (plugin / theme authoring outside the repo): `types/agentcms-runtime.d.ts` is the public, self-contained typing of `@agent-cms/runtime` (shipped in the npm package — authors map it with tsconfig `paths`); `src/core/runtimeTypes.test.ts` keeps it in lockstep with `src/core/cmsRuntime.ts` and `public/runtime/cms-runtime.js` (identical value-export lists + compile-time assignability / mutual checks), so a runtime change fails `npm run typecheck` until the types follow. `agentcms ext new|check|preview|pack|install|list|uninstall` (`agent/commands/ext.ts`, `agent/ops/ext*.ts`) runs the admin's own code in Node: `extHost.ts` emulates the import-map (a `module.register` resolve hook maps `react`, `react-i18next`, `@agent-cms/runtime`… to the live CLI-side instances) and imports a bundle like the external loader; `extPreview.ts` renders a whole demo site (or a registered site's content, `--site`) with the real publisher on an in-memory docstore + a local-folder publish connector (`extFixture.ts` = demo content); `extCheck.ts` validates the package (manifest, ids, versions, bundle imports, registrations, `KNOWN_FILTERS` / `SYNC_FILTERS` / `KNOWN_ACTIONS`), then renders and lints the output; `extBlocks.ts` round-trips every block through a headless Tiptap editor configured like the admin's; `extScreenshot.ts` shoots desktop/mobile PNGs with a local Chrome/Edge over the DevTools protocol; `extScaffold.ts` writes new projects; `extPackage.ts` / `extZip.ts` read and write ZIPs; `extInstall.ts` does what the admin's Install dialog does on a registered site (plan first, `--yes`). Authoring guidance for agents lives in the distributed skill `plugin/skills/agentcms-extensions/`; repo-internal extension work (in-tree plugins/themes, new runtime exports, new hooks) in `.claude/skills/extension-internals/`.
 - `plugin/` — the Claude Code plugin listed by `.claude-plugin/marketplace.json`; skills in `plugin/skills/<name>/SKILL.md`, **100% English**, portable frontmatter only (`name`, `description`, `license`, `compatibility`, `metadata`, `allowed-tools`), `metadata.version` = package version. Skills call the CLI pinned: `npx -y @agent-cms/agentcms@<version> <command> --json`.
 - `package.json` `version` is the only version to edit; `npm version` runs `scripts/sync-version.mjs` (plugin.json, skill metadata, pinned commands). `agentcms.minSkillsVersion` / `agentcms.dataSchema` in package.json + the version from `src/core/cmsRuntime.ts` end up in `dist/version.json` (`scripts/write-version.mjs`). User-visible changes go into `changelog.json`.
 - **The build is reproducible** (no timestamps in `admin-files.json`, fixed ZIP entry dates) because CI rebuilds and rejects a committed `dist/` that differs. Keep new build steps deterministic.
@@ -249,9 +250,9 @@ The **data backend** (Firebase / SQLite file / Markdown in git / local) decides 
 
 Header / footer menus are **not** rendered into the HTML at publish time. The publisher does still resolve them (for completeness on the `SiteContext`) but the public-facing flow is:
 
-1. Whenever menus change in admin (or a referenced post / term changes slug or category), `services/menuPublisher.ts.publishMenuJson` re-uploads `/menu.json` to the public site root with the resolved tree.
+1. Whenever menus change in admin (or a referenced post / term changes slug or category), `services/menuPublisher.ts.publishMenuJson` re-uploads `data/menu.json` (`MENU_JSON_PATH`) with the resolved tree. The other public JSON snapshots live next to it: `data/posts.json`, `data/authors.json` (and `data/products.json` for storefront).
 2. The active theme ships a runtime loader (e.g. `themes/default/menu-loader.js`) embedded in the bundle via `import jsText from "./menu-loader.js?raw"`. The build pipeline writes it to `dist/theme-assets/<id>-menu.js` and `BaseLayout` references it via `<script defer>`.
-3. The loader reads `[data-cms-menu="header|footer"]` containers, fills their inner `<ul>` from `menu.json`, sets `aria-current="page"` on path matches, and (in the default theme) wires the burger toggle.
+3. The loader reads `[data-cms-menu="header|footer"]` containers, fills their inner `<ul>` from `data/menu.json` (prefixed with the `x-cms-base` path), sets `aria-current="page"` on path matches, and (in the default theme) wires the burger toggle.
 
 Cascade points that re-publish `menu.json`: `MenusPage` save, `publishPost`, `unpublishPost`, `deletePostAndUnpublish`, `regenerateAll`. All call into the same `republishMenu(ctx, log)` helper inside `publisher.ts`. Failures are best-effort: logged + toasted (via siteFiles's funnel) but never abort the parent operation.
 
@@ -306,7 +307,7 @@ Logo branding pattern (default theme): the theme's settings page uploads a resiz
 
 #### Theme CSS regeneration (compileCss hook)
 
-`ThemeManifest.compileCss?(config) => string` is an optional CSS transformer called whenever `theme-assets/<id>.css` gets uploaded — `Sync theme assets` in `ThemesPage` and the theme's own settings page both go through it. The bundled `manifest.cssText` (Vite `?inline` of `theme.scss`) is the **baseline**; the hook bakes the user's persisted style overrides into the **live** CSS. Without `compileCss`, syncing would push the baseline and erase customizations.
+`ThemeManifest.compileCss?(config) => string` is an optional CSS transformer called whenever `theme-assets/<id>.css` gets uploaded — `syncThemeAssets` (Themes → Sync theme assets, theme activation, Regenerate → Theme assets / Everything), the editor preview, and every theme-settings save (`pages/ThemeSettingsRoute.tsx` re-uploads `theme-assets/<id>.css` after `updateThemeConfig`). It is only called when the theme also declares `settings`, with `{ ...defaultConfig, ...stored }`. The bundled `manifest.cssText` (Vite `?inline` of `theme.scss`) is the **baseline**; the hook bakes the user's persisted style overrides into the **live** CSS. Without `compileCss`, syncing would push the baseline and erase customizations.
 
 Default theme implementation in `src/themes/default/style.ts`:
 
@@ -339,7 +340,7 @@ The **corporate** theme follows the same Tailwind + M3 pipeline as magazine but 
 - **Lead-gen oriented home.** Unlike magazine, corporate's home is a regular `page` whose body is composed of theme blocks (`hero-overlay` + `services-grid` + `testimonials` + `cta-banner`). Set `homeMode: "static-page"` in `/settings/general` and point at that page. There is no per-theme home layout config — the editor is the layout. A graceful fallback latest-posts grid renders when no static page is wired.
 - **10 blocks under `corporate/`** (vs. magazine's 3). Marker regex in `themes/corporate/blocks/transforms.ts` hardcodes the corporate namespace; bodies from other themes pass through untouched. The block set: `hero-overlay`, `hero-split`, `services-grid`, `cta-banner`, `testimonials`, `trust-bar`, `stats-grid`, `feature-stack`, `contact-info`, `contact-form`. None of them reference posts / terms / media — they're pure attr renderers — so the publisher's `RenderEnv` stays minimal (no `used: Set<string>` dedup pass needed).
 - **Contact form runtime.** `contact-form` block emits `[data-cms-form]` / `[data-cms-form-endpoint]` / `[data-cms-form-mailto]` hooks; `posts-loader.js`'s `wireContactForms()` intercepts submit and either POSTs urlencoded data to the configured endpoint (Formspree-compatible — JSON Accept header, success/error message toggle via `[data-cms-form-success]` / `[data-cms-form-error]` siblings) or builds a `mailto:` URL with the form values pre-filled. Floating-label CSS sync (`.is-filled`) is also wired so autofill / back-button restore keep labels raised.
-- **Header has 2 menu hosts.** The corporate header includes both an inline horizontal nav (`data-cms-menu-inline`, visible md+) and the standard burger overlay (`[data-cms-menu="header"]`, every viewport). The shared `menu-loader.js` reads the `data-cms-menu-inline` flag and emits flat `<a>` links instead of `<ul>/<li>` for that host — same `/menu.json`, two visual presentations.
+- **Header has 2 menu hosts.** The corporate header includes both an inline horizontal nav (`data-cms-menu-inline`, visible md+) and the standard burger overlay (`[data-cms-menu="header"]`, every viewport). The shared `menu-loader.js` reads the `data-cms-menu-inline` flag and emits flat `<a>` links instead of `<ul>/<li>` for that host — same `data/menu.json`, two visual presentations.
 - **Hardcoded `/contact.html` CTA.** The header's `Get Started` button always points at `/contact.html`. Document this in onboarding or replace via theme code if a site doesn't want a contact page.
 
 ### Admin folder name auto-detection
@@ -357,7 +358,7 @@ When extending: any new code path that uploads admin assets to the publish targe
 
 ### In-tree plugins / themes are built as externals
 
-Every in-tree plugin (under `src/plugins/`) and every non-`default` theme (under `src/themes/`) is compiled at `npm run build` time into a SEPARATE ESM bundle under `dist/admin/{plugins,themes}/<id>/` and listed in `dist/admin/external.json` — same loading path as user-uploaded externals. Their source code is **not** part of the main admin bundle in prod.
+Every in-tree plugin (under `src/plugins/`) and every non-`default` theme (under `src/themes/`) is compiled at `npm run build` time into a SEPARATE ESM bundle under `dist/admin/{plugins,themes}/<id>/` and listed in `dist/admin/external.default.json` (the seed of the registry) — same loading path as user-uploaded externals. Their source code is **not** part of the main admin bundle in prod.
 
 Mechanism:
 
@@ -404,7 +405,7 @@ Beyond the in-tree plugins/themes (under `src/plugins/`, `src/mu-plugins/`, `src
 - [public/runtime/](public/runtime/) — six static stub files (`react.js`, `react-dom.js`, `react-dom-client.js`, `react-jsx-runtime.js`, `react-i18next.js`, `cms-runtime.js`) that re-export from `window.__AGENTCMS_RUNTIME__`. Served at stable URLs (no Vite hashing) so the import-map in `index.html` can target them by relative path.
 - [index.html](index.html) — declares the `<script type="importmap">` redirecting bare specifiers (`react`, `react/jsx-runtime`, `react-dom`, `react-dom/client`, `react-i18next`, `@agent-cms/runtime`) to `./runtime/*.js`. Plugin/theme bundles externalise these at build time; the import-map resolves them to the admin's live instances at runtime → one React copy in the page (required for hook integrity).
 - [src/services/externalRegistry.ts](src/services/externalRegistry.ts) — in-memory list of imported external manifests. Mutable: bundles call `registerExternalPlugin` / `registerExternalTheme` on import; the upload flow calls `unregister*` on uninstall. Subscribers (e.g. theme/plugin pages) get notified.
-- [src/services/externalLoader.ts](src/services/externalLoader.ts) — at boot, fetches `/admin/external.json` (the runtime manifest of installed externals). For each entry, validates `apiVersion` against `[CMS_API_MIN_VERSION, CMS_API_VERSION]`, dynamic-imports the bundle's `bundle.js`, and registers the default export. Per-entry errors are caught + logged + grouped into a single toast — never abort boot.
+- [src/services/externalLoader.ts](src/services/externalLoader.ts) — at boot, reads the registry of installed externals (`readRegistry()`, see "Runtime registry storage" above). For each entry, validates `apiVersion` against `[CMS_API_MIN_VERSION, CMS_API_VERSION]`, dynamic-imports the bundle's `bundle.js`, and registers the default export. Per-entry errors are caught + logged + grouped into a single toast — never abort boot.
 - [src/services/externalUpload.ts](src/services/externalUpload.ts) — handles install/uninstall via the upload UI. `installFromZip(kind, file)` extracts via JSZip (handles macOS-style wrapping folders), validates `manifest.json` (id sanitised + apiVersion + entry presence), uploads every file under `/admin/<kind>/<id>/` via `siteFiles`, then writes the new entry to the backend registry. **In-place upgrade** is the default: if an entry with the same id already exists, the service pre-cleans the old folder via `deleteFolder` then proceeds with the upload + registry replace-in-place (not append), returning `mode: "upgrade"` + `previousVersion` so the modal can show `v1.0.0 → v1.1.0`. Users never need to uninstall before re-uploading a newer ZIP. `uninstallExternal(kind, id)` removes the entry from the registry first (so a partial cleanup never leaves the admin trying to load a deleted folder), then `deleteFolder` on the publish target, then `unregister*` in-memory.
 - [src/components/plugins/ExternalInstallModal.tsx](src/components/plugins/ExternalInstallModal.tsx) — shared modal mounted by both `PluginsPage` and `ThemesPage`. ZIP picker + install button + uninstall list of currently-installed externals.
 
@@ -421,21 +422,23 @@ Beyond the in-tree plugins/themes (under `src/plugins/`, `src/mu-plugins/`, `src
 
 ```
 /admin/
-├── external.json                  # { plugins: [...], themes: [...] } — runtime manifest
-├── plugins/<id>/manifest.json     # installation metadata (read at install + at boot)
+├── external.default.json          # build-time baseline of bundled entries (the live registry is in the data backend)
+├── plugins/<id>/manifest.json     # installation metadata (read at install only)
 ├── plugins/<id>/bundle.js         # ESM, default-exports the PluginManifest
 ├── themes/<id>/manifest.json
 ├── themes/<id>/bundle.js          # ESM, default-exports the ThemeManifest
-├── themes/<id>/theme.css          # uploaded as /theme-assets/<id>.css via Sync theme assets
+├── themes/<id>/…                  # any other ZIP file (never published: /theme-assets/<id>.css comes from manifest.cssText)
 ├── runtime/{react,react-dom,...}.js  # stable runtime stubs (Vite copies from public/runtime/)
 ```
 
-**Authoring** lives outside this repo:
+**Authoring** lives outside this repo — new projects start with `npx -y @agent-cms/agentcms@<version> ext new plugin|theme <id>` (see docs/creating-a-plugin.md):
 
 External themes live under `external/themes/<id>/` and external plugins under `external/plugins/<id>/`, where `<id>` matches each bundle's `manifest.id`. The scaffolds bundled in the repo:
 
 - [external/plugins/hello-plugin/](external/plugins/hello-plugin/) — minimal plugin scaffold with `vite.config.ts` showing the externalised dependencies and the `inlineDynamicImports: true` that's required (the admin only loads `bundle.js`; separate chunks would 404).
-- [external/themes/minimal-theme/](external/themes/minimal-theme/) — minimal theme scaffold with six templates + hand-written CSS imported via `?raw`.
+- [external/plugins/agentcms-sliders/](external/plugins/agentcms-sliders/) — editor-block plugin (Tiptap nodes bundled, inspectors, `MediaPicker`, per-page CSS/JS through the sync head/body filters).
+- [external/plugins/agentcms-multilang/](external/plugins/agentcms-multilang/) — the bundled multi-language plugin (also built by `build-bundled-externals.mjs` via `srcDir`).
+- [external/themes/minimal-theme/](external/themes/minimal-theme/) — minimal theme scaffold with six templates, the BaseLayout checklist (title fallback, canonical, `currentLocale`, `homePath`, sentinels), hand-written CSS imported via `?raw` and a runtime menu loader (`jsText`).
 - [external/themes/marketplace-core/](external/themes/marketplace-core/) — full theme example (app-store style marketplace) with custom blocks, settings page, font/palette overrides; demo content lives in [demo-content/marketplace-core/](demo-content/marketplace-core/).
 
 Sample content sets ship under `demo-content/<use-case>/`, separate from the theme/plugin source code under `external/`. Each one is a folder of `.md` listings + `images/` ready to drag into the drop zone of the **Import** must-use plugin (`agentcms-import`) (drag the inner folder, including `images/`). New content sets go alongside `demo-content/marketplace-core/`.
@@ -443,10 +446,10 @@ Sample content sets ship under `demo-content/<use-case>/`, separate from the the
 
 **Common gotchas** when extending the runtime:
 
-- New built-in modules that external bundles want to consume need: (1) added to `cmsRuntime`, (2) a stub in `public/runtime/`, (3) added to the import-map in `index.html`, (4) added to the example bundles' `external` Vite list.
-- The example scaffolds keep a local `src/types/cms-runtime.d.ts` — they don't depend on a published `@agent-cms/runtime` npm package. If we ever publish one, examples should switch to the public types and drop the local stub.
+- New built-in modules that external bundles want to consume need: (1) added to `cmsRuntime`, (2) a stub in `public/runtime/`, (3) added to the import-map in `index.html`, (4) added to `EXTERNAL_DEPS` in `scripts/build-bundled-externals.mjs`, the scaffold (`agent/ops/extScaffold.ts`), the CLI host (`agent/ops/extHost.ts`) and the example bundles' `external` Vite list. New exports of `@agent-cms/runtime` go through the checklist in `.claude/skills/extension-internals/SKILL.md` (types file, `runtimeTypes.test.ts`, `CMS_API_VERSION`).
+- The examples under `external/` map `@agent-cms/runtime` to the shared `types/agentcms-runtime.d.ts` via `tsconfig.json` paths (`../../../types/agentcms-runtime.d.ts`); their `npm run build` type-checks against it. Standalone projects get the same file from the `@agent-cms/agentcms` npm package.
 - Theme bundle.js MUST default-export an object whose `id` matches `manifest.json`'s `id`. The loader cross-checks; mismatched bundles are rejected to prevent slot hijacking.
-- The boot blocks on external loading. If a remote `external.json` fetch hangs (very unlikely), the admin spinner would too. Acceptable for now — the fetch has `cache: no-store` but no explicit timeout.
+- The boot blocks on external loading. If the registry read or a bundle import hangs (very unlikely), the admin spinner would too. Acceptable for now — there is no explicit timeout.
 
 ### Plugin system
 
@@ -483,7 +486,7 @@ The `useSyncExternalStore` subscribers behind these registries cache their snaps
 
 The `page.head.extra` and `page.body.end` filters both work via sentinel replacement in `core/render.tsx` — themes' `BaseLayout` emits a `<meta name="x-cms-head-extra" />` for head and a `<script type="application/x-cms-body-end" />` for body. After `renderToStaticMarkup`, render.tsx string-replaces each sentinel with the result of `applyFiltersSync(hook, "", baseProps)`. The body-end sentinel is always removed even when no plugin filters in (keeps the published HTML clean of internal markers).
 
-`menu.json.resolved` runs inside `services/menuPublisher.ts.publishMenuJson` just before the upload, with payload `(menu: MenuJson, ctx: MenuFilterContext)` where `MenuFilterContext = { settings, posts, pages, terms }`. Plugins can append, replace, or reorder header/footer entries — everything that ends up in `/menu.json` flows through this filter. The agentcms-rss plugin uses it to inject footer entries for each RSS feed where `addToFooter === true` (no MenusPage edit required).
+`menu.json.resolved` runs inside `services/menuPublisher.ts.publishMenuJson` just before the upload, with payload `(menu: MenuJson, ctx: MenuFilterContext)` where `MenuFilterContext = { settings, posts, pages, terms }`. Plugins can append, replace, or reorder header/footer entries — everything that ends up in `data/menu.json` flows through this filter. The agentcms-rss plugin uses it to inject footer entries for each RSS feed where `addToFooter === true` (no MenusPage edit required).
 
 Add more hooks by calling `applyFilters` / `doAction` in publisher or render. When extending, mirror the existing pattern: actions take `(payload, ctx)` so handlers don't need ad-hoc data fetching.
 

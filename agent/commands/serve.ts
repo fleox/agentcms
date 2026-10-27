@@ -32,12 +32,19 @@ const MIME: Record<string, string> = {
 // Files that must never be cached: they change per install / per build.
 const NO_CACHE = new Set(["/index.html", "/config.js", "/admin-files.json", "/external.default.json"]);
 
-export function resolveRequestPath(root: string, url: string): string | null {
+// `prefix` ("/blog"): serve the folder under a sub-path, like a site
+// hosted in a sub-folder; other paths are not found.
+export function resolveRequestPath(root: string, url: string, prefix = ""): string | null {
   let pathname: string;
   try {
     pathname = decodeURIComponent(new URL(url, "http://localhost").pathname);
   } catch {
     return null;
+  }
+  if (prefix) {
+    if (pathname === prefix) pathname = prefix + "/";
+    if (!pathname.startsWith(prefix + "/")) return null;
+    pathname = pathname.slice(prefix.length);
   }
   if (pathname.endsWith("/")) pathname += "index.html";
   const file = normalize(join(root, pathname));
@@ -45,13 +52,13 @@ export function resolveRequestPath(root: string, url: string): string | null {
   return file;
 }
 
-export function startAdminServer(root: string, host: string, port: number): Promise<Server> {
+export function startAdminServer(root: string, host: string, port: number, prefix = ""): Promise<Server> {
   const server = createServer((req, res) => {
     if (req.method !== "GET" && req.method !== "HEAD") {
       res.writeHead(405).end();
       return;
     }
-    const file = resolveRequestPath(root, req.url ?? "/");
+    const file = resolveRequestPath(root, req.url ?? "/", prefix);
     if (!file || !existsSync(file) || !statSync(file).isFile()) {
       res.writeHead(404, { "content-type": "text/plain; charset=utf-8" }).end("Not found");
       return;

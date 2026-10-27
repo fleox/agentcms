@@ -24,6 +24,11 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { existsSync, mkdirSync, writeFileSync, readFileSync, copyFileSync } from "node:fs";
 
+// Production JSX whatever the shell says: with NODE_ENV ≠ "production"
+// Vite emits jsxDEV calls (react/jsx-dev-runtime), which the admin's
+// import-map doesn't provide.
+process.env.NODE_ENV = "production";
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
 const distAdmin = resolve(root, "dist/admin");
@@ -67,7 +72,7 @@ const PLUGINS = [
   {
     id: "agentcms-multilang",
     name: "Multi-language",
-    version: "1.6.2",
+    version: "1.6.3",
     srcDir: "external/plugins/agentcms-multilang/src",
   },
 ];
@@ -84,7 +89,7 @@ const THEMES = [
   {
     id: "marketplace-core",
     name: "Marketplace Core",
-    version: "1.7.0",
+    version: "1.7.1",
     srcDir: "external/themes/marketplace-core/src",
   },
 ];

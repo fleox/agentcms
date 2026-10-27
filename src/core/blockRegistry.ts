@@ -25,7 +25,9 @@ export type BlockCategory = "text" | "media" | "layout" | "embed" | "advanced";
 // resources owned by the page (e.g. the media picker) without having
 // to thread props through the editor.
 export interface BlockInsertContext {
-  pickMedia?: () => Promise<{ url: string; alt?: string } | null>;
+  // `id` (the media id) lets a block resolve every variant at publish
+  // time (getCurrentPublishContext().media.get(id) → mediaToView).
+  pickMedia?: () => Promise<{ id?: string; url: string; alt?: string } | null>;
 }
 
 export interface BlockInspectorProps<TAttrs = Record<string, unknown>> {

@@ -1,15 +1,13 @@
-interface SingleProps {
-  post: { title: string };
-  bodyHtml: string;
-  author?: { displayName: string };
-}
+import type { SingleTemplateProps, SiteContext } from "@agent-cms/runtime";
 
-export function SingleTemplate({ post, bodyHtml, author }: SingleProps) {
+// Used for posts AND pages (post.type). bodyHtml is already sanitized
+// and transformed by the post.html.body filters.
+export function SingleTemplate({ post, bodyHtml, author }: SingleTemplateProps & { site: SiteContext }) {
   return (
     <article>
       <header>
         <h1>{post.title}</h1>
-        {author && <p className="mt-meta">By {author.displayName}</p>}
+        {post.type === "post" && author && <p className="mt-meta">By {author.displayName}</p>}
       </header>
       <div dangerouslySetInnerHTML={{ __html: bodyHtml }} />
     </article>

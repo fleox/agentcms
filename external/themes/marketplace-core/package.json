@@ -1,11 +1,12 @@
 {
   "name": "agentcms-marketplace-core",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.7.1",
   "description": "Marketplace Core — AgentCMS theme for app-store style themes/plugins directories. Modern Corporate aesthetic with ambient shadows and rounded XL corners.",
   "type": "module",
   "scripts": {
-    "build": "vite build && node scripts/pack.mjs",
+    "typecheck": "tsc --noEmit -p .",
+    "build": "tsc --noEmit -p . && vite build && node scripts/pack.mjs",
     "pack": "node scripts/pack.mjs"
   },
   "devDependencies": {

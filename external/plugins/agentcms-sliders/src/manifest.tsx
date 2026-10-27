@@ -14,11 +14,12 @@ import { createSliderNode, sliderNodeName } from "./nodes";
 import { SLIDERS, SLIDER_LIST, type SliderKind } from "./sliders";
 import { SliderInspector } from "./SliderInspector";
 import {
-  getDetectedScripts,
+  consumeDetectedScripts,
   getDetectedStyles,
   transformBodyHtml,
 } from "./transforms";
 import { ensureAdminSliderStyles } from "./runtime";
+import readme from "../README.md?raw";
 import { CardSliderIcon, HeroSliderIcon, ImageSliderIcon, LogoCarouselIcon } from "./icons";
 
 const PLUGIN_ID = "agentcms-sliders";
@@ -38,8 +39,9 @@ const ICONS: Record<SliderKind, () => JSX.Element> = {
 const manifest: PluginManifest = {
   id: PLUGIN_ID,
   name: "Sliders",
-  version: "1.0.2",
+  version: "1.0.3",
   author: "AgentCMS",
+  readme,
   description:
     "Four slider blocks (image, hero, cards, logo carousel) for the post/page editor. Self-contained: bundles its own vanilla-JS carousel runtime and CSS, injected per-page only when at least one slider is used.",
   i18n: { en, fr, de, es, nl, pt, ko },
@@ -92,9 +94,10 @@ const manifest: PluginManifest = {
       return [current, styles].filter(Boolean).join("\n");
     });
 
-    // Body end: emits the vanilla-JS runtime once per page.
+    // Body end: emits the vanilla-JS runtime once per page, and resets
+    // the per-page flag (body-end is the last hook of a page render).
     api.addFilter<string>("page.body.end", (current) => {
-      const script = getDetectedScripts();
+      const script = consumeDetectedScripts();
       if (!script) return current;
       return [current, script].filter(Boolean).join("\n");
     });

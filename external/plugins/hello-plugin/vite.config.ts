@@ -1,5 +1,4 @@
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
 
 // External-plugin build config. Three things matter here:
 //
@@ -22,7 +21,11 @@ import react from "@vitejs/plugin-react";
 // Output goes to dist/, then scripts/pack.mjs zips it for upload.
 
 export default defineConfig({
-  plugins: [react()],
+  // JSX → react/jsx-runtime calls (external, provided by the admin).
+  // jsxDev: false — otherwise Vite emits react/jsx-dev-runtime calls
+  // whenever NODE_ENV isn't "production" in the shell, and the admin
+  // (which doesn't map that module) fails with "jsxDEV is not a function".
+  esbuild: { jsx: "automatic", jsxDev: false },
   // Vite lib mode doesn't replace `process.env.NODE_ENV` at build time
   // (only app mode does). Any externalised dep that ships a React-style
   // dev/prod branch throws "process is not defined" in the browser

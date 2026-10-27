@@ -39,7 +39,7 @@ import { transformBodyHtml } from "./blocks/transforms";
 export const manifest: ThemeManifest<CorporateThemeConfig> = {
   id: "corporate",
   name: "Corporate",
-  version: "0.1.0",
+  version: "1.0.0",
   description:
     "Modern corporate / SaaS showcase theme — Tailwind-based, navy + indigo Material 3 palette, Inter typography. Built for vitrine sites, lead-gen, and content marketing.",
   // Convention name used by build-themes.mjs only as a fallback when

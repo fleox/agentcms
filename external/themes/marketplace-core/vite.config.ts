@@ -1,12 +1,15 @@
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
 
 // Marketplace Core external theme — Vite library build. Same shape as
 // the minimal external-theme example: single ESM bundle, React +
 // react-dom + cms-runtime externalised, no CSS bundled into bundle.js
 // (theme.css is shipped alongside via the pack script).
 export default defineConfig({
-  plugins: [react()],
+  // JSX → react/jsx-runtime calls (external, provided by the admin).
+  // jsxDev: false — otherwise Vite emits react/jsx-dev-runtime calls
+  // whenever NODE_ENV isn't "production" in the shell, and the admin
+  // (which doesn't map that module) fails with "jsxDEV is not a function".
+  esbuild: { jsx: "automatic", jsxDev: false },
   // Vite's lib mode does NOT replace `process.env.NODE_ENV` at build
   // time (unlike app mode, where it's automatic). React's production
   // shim, react-i18next, and several Tiptap deps reference it — without

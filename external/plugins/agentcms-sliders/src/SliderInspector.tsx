@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import type { Editor } from "@tiptap/core";
-import { MediaPicker, pickMediaUrl, type PickedMedia } from "@agent-cms/runtime";
+import { MediaPicker, pickMediaUrl, type Media } from "@agent-cms/runtime";
 import { sliderNodeName } from "./nodes";
 import {
   SLIDERS,
@@ -161,7 +161,7 @@ function ImageField({ label, url, alt, onPick, onClear }: {
   label: string;
   url?: string;
   alt?: string;
-  onPick: (media: PickedMedia) => void;
+  onPick: (media: Media) => void;
   onClear: () => void;
 }) {
   const { t } = useTranslation("agentcms-sliders");

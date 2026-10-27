@@ -39,7 +39,11 @@ export function printError(io: Io, error: unknown): number {
   const e =
     error instanceof CliError
       ? error
-      : new CliError("internal", error instanceof Error ? error.message : String(error));
+      : new CliError(
+          "internal",
+          error instanceof Error ? error.message : String(error),
+          "Unexpected error. Retry once; if it persists, report it with the command and this output at https://github.com/fleox/agentcms/issues.",
+        );
   if (io.json) {
     io.out(JSON.stringify({ ok: false, error: { code: e.code, message: e.message, ...(e.hint ? { hint: e.hint } : {}) } }));
   } else {

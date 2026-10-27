@@ -1,41 +1,43 @@
 # Minimal Theme — AgentCMS external theme example
 
-Demonstrates how to author a theme that gets compiled into a single ESM bundle and dropped into a AgentCMS admin via the "Install theme" upload flow.
+A deliberately small theme that shows the contract every AgentCMS theme follows. It is compiled into one ES module (`bundle.js`) and installed from the admin (**Themes → Install theme**) — no admin rebuild.
 
-## What it provides
+## What it shows
 
-- The six required templates: base, home, single, category, author, notFound.
-- A small hand-written stylesheet (`src/theme.css`) — no Tailwind / SCSS pipeline so the example stays minimal.
-- The required head-extra and body-end sentinels in BaseLayout, so plugins like `agentcms-favicon` and `agentcms-rss` can inject their tags into your theme's pages.
+- The six required templates: `base`, `home`, `single`, `category`, `author`, `notFound`, typed with the shared `@agent-cms/runtime` types.
+- `BaseLayout` essentials: a `<title>` that falls back to the site title (the latest-posts home passes an empty `pageTitle`), `<html lang>` from `currentLocale`, a canonical URL via `canonicalUrl()`, the stylesheet from `site.themeCssPath`, home links through `site.homePath`, and the two plugin sentinels (`<meta name="x-cms-head-extra" />`, `<script type="application/x-cms-body-end" />`).
+- A home that renders either the static page chosen in Settings (`staticPage`) or the latest posts.
+- Menus rendered at publish time from `site.resolvedMenus`, refreshed in the browser from `/data/menu.json` by a tiny runtime loader (`src/runtime/menu-loader.js`, shipped as `jsText` → `/theme-assets/minimal-theme-menu.js`). The loader honours `<meta name="x-cms-base">`, so sub-folder sites work.
+- A hand-written stylesheet (`src/theme.css`) imported with `?raw` as `cssText`.
 
-## Build
+## Build and test
 
 ```bash
 npm install
-npm run build
+npm run build     # type-check + dist/bundle.js + minimal-theme.zip
 ```
 
-Outputs:
+From the AgentCMS repo root you can validate it and render a demo site:
 
-- `./dist/bundle.js` — the ESM bundle imported by the admin at boot.
-- `./minimal-theme.zip` — the install-ready package.
+```bash
+node dist/agent/agentcms.mjs ext check external/themes/minimal-theme
+node dist/agent/agentcms.mjs ext preview external/themes/minimal-theme --screenshots
+```
 
 ## Install
 
-1. In AgentCMS admin → **Themes** → click **Install theme**.
-2. Pick `minimal-theme.zip`.
-3. After upload + reload the theme appears alongside the built-ins. Click **Activate** to switch the site to it.
+1. Admin → **Themes** → **Install theme** → pick `minimal-theme.zip`.
+2. After the reload, **Activate** it. Activation syncs theme assets (CSS + menu loader) and regenerates every page.
 
-## File layout
+Re-uploading a ZIP with a higher `version` upgrades in place.
+
+## Package layout
 
 ```
 minimal-theme.zip
 ├── manifest.json   ← id, name, version, apiVersion, entry
-├── bundle.js       ← ESM, default-exports the ThemeManifest
-├── theme.css       ← uploaded as /theme-assets/minimal-theme.css
+├── bundle.js       ← ESM, default-exports the ThemeManifest (CSS embedded as cssText)
 └── README.md
 ```
 
-The bundle imports `theme.css` via `?raw` so the CSS is embedded as `manifest.cssText`. The admin's "Sync theme assets" path uploads that string verbatim.
-
-See `docs/creating-a-theme.md` in the main repo for the full reference.
+See `docs/creating-a-theme.md` in the AgentCMS repo for the full guide.

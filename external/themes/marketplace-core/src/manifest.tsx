@@ -12,7 +12,7 @@ import { CategoryTemplate } from "./templates/CategoryTemplate";
 import { AuthorTemplate } from "./templates/AuthorTemplate";
 import { NotFoundTemplate } from "./templates/NotFoundTemplate";
 import { en, fr, de, es, nl, pt, ko } from "./i18n";
-import { i18n as runtimeI18n } from "@agent-cms/runtime";
+import { i18n as runtimeI18n, getCurrentPublishContext } from "@agent-cms/runtime";
 import { transformBodyHtml } from "./blocks/transforms";
 import { encodeAttrs } from "./blocks/util";
 import type { MarketplaceThemeConfig } from "./config";
@@ -60,7 +60,7 @@ type ManifestWithSeed = ThemeManifest<MarketplaceThemeConfig> & {
 const manifest: ManifestWithSeed = {
   id: "marketplace-core",
   name: "Marketplace Core",
-  version: "1.3.2",
+  version: "1.7.1",
   description:
     "App-store style theme for listing themes / plugins. Modern Corporate aesthetic with ambient shadows and rounded XL corners.",
   scssEntry: "theme.css",
@@ -109,13 +109,19 @@ const manifest: ManifestWithSeed = {
   register(api) {
     // Transform marketplace-core/* block markers into rich HTML at
     // publish time. Other themes' markers pass through untouched.
-    // The (post, ctx) tail args carry the current locale via
-    // ctx.settings.language — multilang's shadow ctx swaps it to "fr"
-    // for FR renders, so the code-block "Copy" / "Copier" label
-    // ships per-locale in the published HTML.
-    api.addFilter<string>("post.html.body", (html, _post, ctxRaw) => {
-      const ctx = ctxRaw as { settings?: { language?: string } } | undefined;
-      const lang = (ctx?.settings?.language || "en").toLowerCase().split("-")[0];
+    //
+    // The core calls `post.html.body` with (html, post) only. The full
+    // publish context is reachable through getCurrentPublishContext()
+    // — valid during post.markdown.before / post.html.body only (null
+    // in templates, head filters and post.template.props). The
+    // multilang plugin's localized renders have no current context but
+    // pass a per-language shadow ctx as a third argument, so both
+    // sources are read for the locale of the code-block Copy labels.
+    api.addFilter<string>("post.html.body", (html, postRaw, shadowRaw) => {
+      const ctx = getCurrentPublishContext() as TemplatePropsCtx | null;
+      const shadow = shadowRaw as { settings?: { language?: string } } | undefined;
+      const language = shadow?.settings?.language || ctx?.settings?.language || "en";
+      const lang = language.toLowerCase().split("-")[0];
       const copyLabel =
         (runtimeI18n.getResource(lang, "theme-marketplace-core", "publicBaked.codeBlock.copy") as
           | string
@@ -124,38 +130,42 @@ const manifest: ManifestWithSeed = {
         (runtimeI18n.getResource(lang, "theme-marketplace-core", "publicBaked.codeBlock.copied") as
           | string
           | undefined) ?? "Copied";
+      // Doc pager: resolve prev/next siblings now, while the publish
+      // context is available, and hand them to the post.template.props
+      // filter below (it runs right after, for the same post, without a
+      // ctx). Doc layout only applies to posts without a hero that have
+      // a category — matches the dispatch in SingleTemplate.tsx.
+      const post = postRaw as TemplatePropsPost;
+      pendingSiblings =
+        ctx && post && !post.heroMediaId && post.primaryTermId
+          ? { postId: post.id, siblings: resolveDocSiblings(ctx, post.id, post.primaryTermId) }
+          : null;
       return transformBodyHtml(html, copyLabel, copiedLabel);
     });
-    // Resolve doc-page siblings (prev/next pager) on the publisher
-    // side so the DocSingle template doesn't have to call
-    // `getCurrentPublishContext()` — which the in-tree publisher
-    // clears BEFORE renderPageToHtml runs, leaving template code
-    // looking at a null context. The `post.template.props` filter
-    // receives the live ctx as third arg and runs while it's still
-    // valid, so this is the right place to enrich props.
-    api.addFilter<unknown>("post.template.props", (props, _post, ctxRaw) => {
-      const ctx = ctxRaw as TemplatePropsCtx;
-      const post = _post as TemplatePropsPost;
-      // Doc layout is only triggered when the post has no hero — skip
-      // the work for product posts that won't use siblings. The check
-      // matches the dispatch logic in SingleTemplate.tsx.
-      if (post.heroMediaId || !post.primaryTermId) return props;
-      const siblings = resolveDocSiblings(ctx, post.id, post.primaryTermId);
+    api.addFilter<unknown>("post.template.props", (props, postRaw) => {
+      const post = postRaw as TemplatePropsPost;
+      const pending = pendingSiblings;
+      pendingSiblings = null;
+      if (!pending || pending.postId !== post?.id) return props;
       return {
         ...(props as Record<string, unknown>),
-        docSiblings: siblings,
+        docSiblings: pending.siblings,
       };
     });
   },
 };
 
-// Local minimal shape of the filter arguments. We avoid importing
-// PublishContext / Post types from the runtime because the
-// `post.template.props` filter signature in the runtime stubs is
-// already (props, post, ...) and the third arg is loose `unknown[]`.
-// The narrower interfaces below capture exactly what resolveDocSiblings
-// needs — defensive against shadow ctxs (multilang) that may carry
-// fewer fields.
+// Siblings computed by the post.html.body filter for the post being
+// rendered, consumed (once) by post.template.props. The publisher
+// renders one page at a time, so a single slot is enough; the post id
+// check keeps a stale value from leaking into another page.
+let pendingSiblings: { postId: string; siblings: DocSibling[] } | null = null;
+
+type DocSibling = { id: string; title: string; url: string };
+
+// Local minimal shape of what resolveDocSiblings reads from the
+// publish context — narrower than PublishContext so a partial
+// context still works.
 interface TemplatePropsCtx {
   posts: Array<{
     id: string;
@@ -167,6 +177,7 @@ interface TemplatePropsCtx {
     createdAt?: { toMillis?: () => number };
   }>;
   terms: Array<{ id: string; slug: string; type: "category" | "tag" }>;
+  settings?: { language?: string };
 }
 interface TemplatePropsPost {
   id: string;
@@ -178,7 +189,7 @@ function resolveDocSiblings(
   ctx: TemplatePropsCtx,
   currentPostId: string,
   primaryTermId: string,
-): Array<{ id: string; title: string; url: string }> {
+): DocSibling[] {
   if (!ctx?.posts) return [];
   const primaryTerm = ctx.terms.find((t) => t.id === primaryTermId);
   if (!primaryTerm) return [];
@@ -201,10 +212,9 @@ function resolveDocSiblings(
     .map((p) => {
       // Posts without a category live at the site root
       // (`<slug>.html`); doc posts always have a primary category,
-      // hence the `<term.slug>/<post.slug>.html` join. Multilang's
-      // shadow ctx already carries localized term + post slugs, so
-      // FR pages produce `/fr/demarrer/welcome.html` via the same
-      // logic.
+      // hence the `<term.slug>/<post.slug>.html` join. (Multilang's
+      // localized renders don't run post.template.props, so
+      // translated doc pages render without the pager.)
       return {
         id: p.id,
         title: p.title,

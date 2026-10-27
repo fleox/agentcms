@@ -1,11 +1,11 @@
 # Hello Plugin — AgentCMS external plugin example
 
-Demonstrates how to author a plugin that gets compiled into a single ESM bundle and dropped into a AgentCMS admin via the "Install plugin" upload flow.
+Demonstrates how to author a plugin that gets compiled into a single ESM bundle and dropped into an AgentCMS admin via the "Install plugin" upload flow.
 
 ## What it does
 
-- Filters `page.head.extra` to inject `<meta name="x-hello-plugin" content="external" />` on every published page.
-- Subscribes to the `publish.complete` action and `console.log`s the post id.
+- Filters `page.head.extra` (a synchronous filter) to inject `<meta name="x-hello-plugin" content="external" />` on every page rendered after install.
+- Subscribes to the `publish.complete` action and `console.log`s the post id (single-post publishes only: bulk publishes, imports and *Regenerate all* don't fire it).
 - Registers a small dashboard card showing live updating state (proves React hooks work in external bundles).
 
 ## Build
@@ -15,13 +15,13 @@ npm install
 npm run build
 ```
 
-Outputs `./dist/bundle.js` and packs `./hello-plugin.zip` next to it.
+Type-checks against the shared `@agent-cms/runtime` types (`types/agentcms-runtime.d.ts` in the AgentCMS repo, mapped in `tsconfig.json`), outputs `./dist/bundle.js` and packs `./hello-plugin.zip` next to it. From the repo root, `node dist/agent/agentcms.mjs ext check external/plugins/hello-plugin` validates the package and renders a demo site with the plugin enabled.
 
 ## Install
 
 1. In AgentCMS admin → **Plugins** → click **Install plugin**.
 2. Pick `hello-plugin.zip`.
-3. After the upload completes the admin reloads. The new card appears on the dashboard, and "View source" on any published page will show the meta tag.
+3. After the upload completes the admin reloads. The new card appears on the dashboard. Pages published (or regenerated) from now on carry the meta tag — run **Regenerate → All HTML** to add it to existing pages.
 
 ## File layout
 

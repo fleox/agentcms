@@ -1,60 +1,65 @@
-// Theme BaseLayout — wraps every page. Receives `site`, the page
-// title, optional description / OG image, and the rendered template
-// as `children`.
+// Theme BaseLayout — wraps every page. Receives `site`, the page title,
+// optional description / OG image, the page path, the page language
+// and the rendered template as `children`.
 //
-// IMPORTANT: emit the head-extra sentinel <meta name="x-cms-head-extra" />.
-// The publisher does a string-replace on this marker post-renderToStaticMarkup
-// to inject plugin-contributed head markup. Without it, plugins like
-// agentcms-favicon and agentcms-rss can't add their <link>/<meta> tags
-// to your theme's pages.
+// IMPORTANT: keep the two sentinels below, unmodified. The publisher
+// string-replaces them after renderToStaticMarkup:
+//   <meta name="x-cms-head-extra" />            → plugins' <head> markup
+//                                                 (favicon, SEO, hreflang,
+//                                                 noindex meta, …)
+//   <script type="application/x-cms-body-end" /> → plugins' body scripts
+// Without them those plugins silently do nothing on this theme.
 
-interface BaseLayoutProps {
-  site: { settings: { language?: string; title?: string } };
-  pageTitle: string;
-  pageDescription?: string;
-  ogImage?: string;
-  currentPath: string;
-  extraHead?: string;
-  children: React.ReactNode;
-}
+import { canonicalUrl, type BaseLayoutProps } from "@agent-cms/runtime";
+import { MenuList } from "./MenuList";
 
 export function BaseLayout({
   site,
   pageTitle,
   pageDescription,
   ogImage,
+  currentPath,
+  currentLocale,
   children,
 }: BaseLayoutProps) {
+  const siteTitle = site.settings.title || "Site";
+  // The latest-posts home passes an empty pageTitle.
+  const title = pageTitle ? `${pageTitle} — ${siteTitle}` : siteTitle;
+  // Empty when the site URL isn't set yet (canonical needs an origin).
+  const canonical = canonicalUrl(site.settings.baseUrl, currentPath);
+  // Localized homes (multilang) set site.homePath.
+  const homeHref = site.homePath ?? "/index.html";
   return (
-    <html lang={site.settings.language || "en"}>
+    <html lang={currentLocale || site.settings.language || "en"}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>{pageTitle}</title>
-        {pageDescription && (
-          <meta name="description" content={pageDescription} />
-        )}
+        <title>{title}</title>
+        {pageDescription && <meta name="description" content={pageDescription} />}
+        {canonical && <link rel="canonical" href={canonical} />}
+        <meta property="og:title" content={title} />
+        {canonical && <meta property="og:url" content={canonical} />}
         {ogImage && <meta property="og:image" content={ogImage} />}
-        <link rel="stylesheet" href="/theme-assets/minimal-theme.css" />
-        {/* Sentinel for plugin head-extra injection. */}
+        {/* rel before href: the admin preview inlines this stylesheet. */}
+        <link rel="stylesheet" href={`/${site.themeCssPath}`} />
+        <script defer src="/theme-assets/minimal-theme-menu.js" />
         <meta name="x-cms-head-extra" />
       </head>
       <body>
-        <header>
-          <nav data-cms-menu="header">
-            <ul></ul>
-          </nav>
+        <header className="mt-header">
           <div data-cms-brand>
-            <a href="/index.html">{site.settings.title || "Site"}</a>
+            <a href={homeHref}>{siteTitle}</a>
           </div>
+          <nav data-cms-menu="header">
+            <MenuList items={site.resolvedMenus.header} />
+          </nav>
         </header>
         <main>{children}</main>
         <footer>
           <nav data-cms-menu="footer">
-            <ul></ul>
+            <MenuList items={site.resolvedMenus.footer} />
           </nav>
         </footer>
-        {/* Body-end sentinel for plugin script injection. */}
         <script type="application/x-cms-body-end" />
       </body>
     </html>

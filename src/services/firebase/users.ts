@@ -24,6 +24,7 @@ import type {
 } from "../../core/types";
 import { SOCIAL_NETWORKS } from "../../core/types";
 import { mediaToView } from "../../core/media";
+import { buildAuthorUrl } from "../../core/slug";
 import type { AuthorView } from "../../themes/types";
 
 export const USER_ROLES: { admin: UserRole; editor: UserRole } = {
@@ -263,6 +264,7 @@ export function buildAuthorLookup(
     return {
       id: record.id,
       displayName,
+      url: `/${buildAuthorUrl(record, users)}`,
       title: record.title,
       bio: record.bio,
       avatar,

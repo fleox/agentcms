@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Packs dist/bundle.js + theme.css + manifest.json + README.md into a
+// Packs dist/bundle.js + manifest.json + README.md (the CSS is inside bundle.js as cssText) into a
 // single .zip ready for upload via the admin's "Install theme" UI.
 
 import { createWriteStream, existsSync, readFileSync } from "node:fs";
@@ -32,10 +32,6 @@ if (!existsSync(bundlePath)) {
 const zip = new JSZip();
 zip.file("manifest.json", readFileSync(manifestPath));
 zip.file("bundle.js", readFileSync(bundlePath));
-const cssPath = resolve(root, "src/theme.css");
-if (existsSync(cssPath)) {
-  zip.file("theme.css", readFileSync(cssPath));
-}
 const readmePath = resolve(root, "README.md");
 if (existsSync(readmePath)) {
   zip.file("README.md", readFileSync(readmePath));

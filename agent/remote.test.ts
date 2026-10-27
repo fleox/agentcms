@@ -33,9 +33,11 @@ describe("changesBetween", () => {
 });
 
 describe("fetchHostedAdmin", () => {
-  it("reads version + data schema, reports errors", async () => {
-    const ok = (async () => new Response(JSON.stringify({ version: "0.2.0", dataSchema: 1, files: ["index.html"] }))) as unknown as typeof fetch;
-    expect(await fetchHostedAdmin("https://x.test/admin/", ok)).toEqual({ version: "0.2.0", dataSchema: 1, files: ["index.html"] });
+  it("reads version + data schema + extension API, reports errors", async () => {
+    const ok = (async () => new Response(JSON.stringify({ version: "0.2.0", dataSchema: 1, apiVersion: "1.4.0", apiMinVersion: "1.0.0", files: ["index.html"] }))) as unknown as typeof fetch;
+    expect(await fetchHostedAdmin("https://x.test/admin/", ok)).toEqual({ version: "0.2.0", dataSchema: 1, apiVersion: "1.4.0", apiMinVersion: "1.0.0", files: ["index.html"] });
+    const older = (async () => new Response(JSON.stringify({ version: "0.1.1", dataSchema: 2, files: [] }))) as unknown as typeof fetch;
+    expect((await fetchHostedAdmin("https://x.test/admin/", older)).apiVersion).toBeNull();
     const missing = (async () => new Response("nope", { status: 404 })) as unknown as typeof fetch;
     expect((await fetchHostedAdmin("https://x.test/admin/", missing)).error).toBe("HTTP 404");
   });

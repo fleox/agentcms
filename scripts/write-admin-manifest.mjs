@@ -26,9 +26,14 @@ function walk(dir, out) {
 const files = walk(adminDir, []).filter((f) => !SKIP.has(f)).sort();
 const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
 // version + dataSchema let agents tell what a hosted admin runs (and
-// refuse a downgrade below the stored data format).
+// refuse a downgrade below the stored data format); apiVersion is the
+// extension API it loads (agentcms ext install checks bundles against it).
+const runtimeSrc = readFileSync(join(root, "src", "core", "cmsRuntime.ts"), "utf8");
+const apiVersion = /export const CMS_API_VERSION = "([^"]+)"/.exec(runtimeSrc)?.[1];
+const apiMinVersion = /export const CMS_API_MIN_VERSION = "([^"]+)"/.exec(runtimeSrc)?.[1];
+if (!apiVersion || !apiMinVersion) throw new Error("CMS_API_VERSION / CMS_API_MIN_VERSION not found in src/core/cmsRuntime.ts");
 writeFileSync(
   join(adminDir, MANIFEST),
-  JSON.stringify({ version: pkg.version, dataSchema: pkg.agentcms.dataSchema, files }, null, 2) + "\n",
+  JSON.stringify({ version: pkg.version, dataSchema: pkg.agentcms.dataSchema, apiVersion, apiMinVersion, files }, null, 2) + "\n",
 );
 console.log(`[admin-manifest] ${files.length} files listed in dist/admin/${MANIFEST}`);

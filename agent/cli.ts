@@ -40,6 +40,7 @@ async function run(name: string, args: string[], io: Io): Promise<number | void>
   } catch (e) {
     throw new CliError("usage", (e as Error).message, `Usage: agentcms ${command.usage}`, 2);
   }
+  if (parsed.values.help && command.name !== "help") return run("help", [command.name], io);
   return command.run({
     io,
     options: parsed.values as Record<string, string | boolean | undefined>,

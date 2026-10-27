@@ -933,5 +933,8 @@
     "passphraseHint": "The database is encrypted. Enter the passphrase chosen at install (kept in this browser only).",
     "passphraseWrong": "Wrong passphrase: the database could not be opened.",
     "passphraseMissing": "Enter the database passphrase."
+  },
+  "publicSite": {
+    "notFoundTitle": "Page not found"
   }
 }

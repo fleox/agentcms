@@ -68,13 +68,20 @@ function normalizeBlockBreaks(md: string): string {
   return out.join("\n").replace(/\n{3,}/g, "\n\n");
 }
 
+// DOMPurify needs a DOM. The browser provides one; the agentcms CLI
+// (Node) hands in an emulated window before rendering anything.
+let purifier = DOMPurify;
+export function setSanitizerWindow(win: unknown): void {
+  purifier = DOMPurify(win as Parameters<typeof DOMPurify>[0]);
+}
+
 // Renders Markdown to safe HTML for inclusion in a static page. Sanitization
 // is mandatory because the input is user-controlled (post body) and ends up
 // in the public site without React's escape rules.
 export function renderMarkdown(input: string): string {
   if (!input) return "";
   const rawHtml = marked.parse(normalizeBlockBreaks(input), { async: false }) as string;
-  return DOMPurify.sanitize(rawHtml, {
+  return purifier.sanitize(rawHtml, {
     USE_PROFILES: { html: true },
     ADD_ATTR: ["target", "rel"],
   });
@@ -85,7 +92,11 @@ export function renderMarkdown(input: string): string {
 // rich content.
 export function markdownToPlainText(input: string, maxLength = 200): string {
   if (!input) return "";
-  const noHtml = renderMarkdown(input).replace(/<[^>]*>/g, "");
+  // Block-level boundaries become spaces so "<li>a</li><li>b</li>" reads
+  // "a b", not "ab".
+  const noHtml = renderMarkdown(input)
+    .replace(/<\/?(p|div|li|ul|ol|h[1-6]|blockquote|pre|tr|td|th|table|br|hr|figure|figcaption|section|article|aside)\b[^>]*>/gi, " ")
+    .replace(/<[^>]*>/g, "");
   const collapsed = noHtml.replace(/\s+/g, " ").trim();
   if (collapsed.length <= maxLength) return collapsed;
   return collapsed.slice(0, maxLength).trimEnd() + "…";

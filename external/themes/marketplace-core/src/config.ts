@@ -1,5 +1,5 @@
 // Marketplace Core theme — config shape stored at
-// `settings.themeConfigs["marketplace-core"]` in Firestore.
+// `settings.themeConfigs["marketplace-core"]` in the data backend.
 
 export interface MarketplaceHomeConfig {
   heroEyebrow: string;

@@ -46,7 +46,7 @@ const MARKER_RE =
   /<div\s+([^>]*data-cms-block="marketplace-core\/feature-grid"[^>]*)>\s*<\/div>/g;
 
 export function transformFeatureGrid(bodyHtml: string): string {
-  return bodyHtml.replace(MARKER_RE, (full, raw: string) => {
+  return bodyHtml.replace(MARKER_RE, (_full, raw: string) => {
     const m = raw.match(/data-attrs=(?:"([^"]*)"|'([^']*)'|([^\s>]+))/);
     const enc = m ? (m[1] ?? m[2] ?? m[3] ?? "") : "";
     const attrs = decodeAttrs<FeatureGridAttrs>(enc, DEFAULT_FEATURE_GRID);

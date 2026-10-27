@@ -933,5 +933,8 @@
     "passphraseHint": "La base est chiffrée. Saisissez la phrase secrète choisie à l'installation (conservée dans ce navigateur uniquement).",
     "passphraseWrong": "Phrase secrète incorrecte : la base n'a pas pu être ouverte.",
     "passphraseMissing": "Saisissez la phrase secrète de la base."
+  },
+  "publicSite": {
+    "notFoundTitle": "Page introuvable"
   }
 }

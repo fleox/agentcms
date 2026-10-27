@@ -29,7 +29,7 @@ import { SlashCommand, setSlashCommandPickMedia } from "./SlashCommand";
 interface MarkdownEditorProps {
   value: string;
   onChange: (markdown: string) => void;
-  onPickMedia?: () => Promise<{ url: string; alt?: string } | null>;
+  onPickMedia?: () => Promise<{ id?: string; url: string; alt?: string } | null>;
   placeholder?: string;
   // Notified once the editor instance is ready (and again with `null`
   // on unmount). Lets the host page expose the editor to siblings —

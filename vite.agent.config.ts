@@ -35,6 +35,9 @@ export default defineConfig({
   publicDir: false,
   define: {
     __AGENTCMS_BUNDLED__: "true",
+    // React's production build, like the admin in the browser (no
+    // development-only warnings in extension checks and previews).
+    "process.env.NODE_ENV": JSON.stringify("production"),
   },
   resolve: {
     alias: [

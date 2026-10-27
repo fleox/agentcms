@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { Check, Loader2, Plus, RefreshCw, Trash2 } from "lucide-react";
+import { Check, Info, Loader2, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "../components/layout/PageHeader";
 import { PublishLogModal } from "../components/publishing/PublishLogModal";
 import { ConfirmModal } from "../components/ui/ConfirmModal";
 import { ExternalInstallModal } from "../components/plugins/ExternalInstallModal";
+import { ReadmeModal } from "../components/plugins/ReadmeModal";
+import type { ThemeManifest } from "../themes/types";
 import { useCmsData } from "../context/CmsDataContext";
 import { listThemes } from "../themes";
 import { listExternalThemes } from "../services/externalRegistry";
@@ -28,6 +30,7 @@ import {
 export function ThemesPage() {
   const { t } = useTranslation();
   const { settings, terms, users, media } = useCmsData();
+  const [readmeTheme, setReadmeTheme] = useState<ThemeManifest | null>(null);
   const [busy, setBusy] = useState(false);
   const [logEntries, setLogEntries] = useState<PublishLogEntry[]>([]);
   const themes = listThemes();
@@ -205,6 +208,12 @@ export function ThemesPage() {
                 </p>
               )}
               <div className="mt-3 flex flex-wrap items-center gap-2">
+                {theme.readme && (
+                  <button type="button" className="btn-ghost" onClick={() => setReadmeTheme(theme)}>
+                    <Info className="h-4 w-4" />
+                    {t("plugins.learnMore")}
+                  </button>
+                )}
                 {!active && (
                   <button
                     type="button"
@@ -268,6 +277,9 @@ export function ThemesPage() {
           onConfirm={handleConfirmThemeChange}
           onCancel={handleCancelThemeChange}
         />
+      )}
+      {readmeTheme && readmeTheme.readme && (
+        <ReadmeModal title={readmeTheme.name} markdown={readmeTheme.readme} onClose={() => setReadmeTheme(null)} />
       )}
       <ExternalInstallModal
         kind="themes"

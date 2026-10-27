@@ -933,5 +933,8 @@
     "passphraseHint": "A base de dados está cifrada. Introduza a frase-passe escolhida na instalação (guardada apenas neste navegador).",
     "passphraseWrong": "Frase-passe incorreta: não foi possível abrir a base de dados.",
     "passphraseMissing": "Introduza a frase-passe da base de dados."
+  },
+  "publicSite": {
+    "notFoundTitle": "Página não encontrada"
   }
 }

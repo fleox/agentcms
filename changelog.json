@@ -9,6 +9,11 @@
         "Flexweg support removed: the Flexweg SQLite data backend, the Flexweg hosting, the PHP bridge (own server) and the dashboard storage card are gone. Data: SQLite file, Markdown in git, Firebase or this browser. Hosting: GitHub/GitLab/Cloudflare Pages, S3-compatible buckets, local folder or ZIP.",
         "Internal names no longer mention Flexweg: plugins are agentcms-* (agentcms-sitemaps, agentcms-rss, …), external bundles import @agent-cms/runtime (CMS_API_VERSION), config.js sets window.__AGENTCMS_CONFIG__, browser keys start with agentcms. FlexwegApiError and getStorageLimits are removed from the runtime API.",
         "New AgentCMS logo and admin favicon.",
+        "New agent skill agentcms-extensions and CLI `agentcms ext`: scaffold a plugin or theme project (ext new), validate it exactly as the admin loads and publishes it (ext check: bundle imports, manifest, hooks, editor-block round trip, a demo site rendered by the real publisher), render a demo site with desktop/phone screenshots (ext preview, --site renders a site's real content read-only), pack the ZIP (ext pack) and install, list or uninstall extensions on a registered site (ext install / list / uninstall).",
+        "The npm package ships types/agentcms-runtime.d.ts: complete, documented TypeScript types of @agent-cms/runtime for external plugins and themes.",
+        "Saving a theme's settings page now re-uploads its compiled CSS (compileCss), so style changes are live without Sync theme assets.",
+        "admin-files.json records the extension API version of the hosted admin.",
+        "Extension API: AuthorView.url (author archive link for templates), the editor's pickMedia() now also returns the media id, markdownToPlainText separates block elements with spaces. Bundled examples and in-tree theme/plugin versions are consistent; external examples use the shared types.",
         "Sites and external plugins/themes made with 0.1.x must be reinstalled (or rebuilt against @agent-cms/runtime): their config.js, plugin settings and browser keys use the old names."
       ],
       "actions": [

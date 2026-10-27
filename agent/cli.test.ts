@@ -49,6 +49,7 @@ describe("agentcms cli", () => {
       "deploy-admin",
       "doctor",
       "compact-data",
+      "ext",
       "serve",
     ]);
   });

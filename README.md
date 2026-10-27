@@ -37,6 +37,21 @@ The same `agentcms` CLI works by hand (`npx -y @agent-cms/agentcms help`):
 | `deploy-admin --site <alias>` | Updates the hosted admin to this release (prints the plan; `--yes` applies) |
 | `serve` | Runs the admin locally for the setup wizard |
 
+## Build a plugin or theme
+
+Plugins and themes are standalone projects that build to one ZIP, installed from the admin (**Plugins / Themes → Install**) — no admin rebuild. The same CLI scaffolds, tests and ships them (Node.js 20+):
+
+```bash
+npx -y @agent-cms/agentcms@0.2.0 ext new plugin my-plugin   # or: ext new theme my-theme
+cd my-plugin && npm install
+npm run build      # type-check + bundle + my-plugin.zip
+npm run check      # validate + render a demo site through the real publisher
+npm run preview    # demo site + desktop/mobile screenshots
+npx -y @agent-cms/agentcms@0.2.0 ext install my-plugin.zip --site <alias> --yes
+```
+
+Types for `@agent-cms/runtime` ship in the package (`types/agentcms-runtime.d.ts`). Guides: [docs/creating-a-plugin.md](docs/creating-a-plugin.md), [docs/creating-a-theme.md](docs/creating-a-theme.md), [docs/runtime-api-reference.md](docs/runtime-api-reference.md); with Claude Code, the `agentcms-extensions` skill of the plugin above drives the whole loop.
+
 ## How it works
 
 ```
@@ -459,7 +474,7 @@ For sites that publish content in more than one language, install the bundled `a
 - **Per-language URL layout** — primary language at root (`/news/hello.html`), secondary languages prefixed (`/fr/actualites/bonjour.html`). Configure the primary language and the list of secondary languages under **Settings → Multi-language**.
 - **Per-post / per-page editor** — when at least one secondary language is enabled, the post editor grows a language tab strip above the canvas. Switching tabs swaps the full editor state (title, slug, body, blocks, excerpt, SEO) for the selected language while keeping the same Tiptap instance alive (so blocks and drag-and-drop survive language switches).
 - **Per-term name + slug + description + SEO** — categories and tags expose the per-language fields inline on the Categories & Tags page (chevron to expand). Empty fields fall back to the primary language.
-- **Per-language menu labels** — the Menus page renders one extra input per secondary language under each item's primary label. Filled-in values get projected into `/menu.json` as a `labels` map; the runtime menu loader picks the right one based on `<html lang>`.
+- **Per-language menu labels** — the Menus page renders one extra input per secondary language under each item's primary label. Filled-in values get projected into `data/menu.json` as a `labels` map; the runtime menu loader picks the right one based on `<html lang>`.
 - **SEO** — every localised page emits its own `<title>`, `<meta name="description">`, `og:locale` + alternates, and a clean canonical (no `/index.html` suffix). Reciprocal `<link rel="alternate" hreflang="…">` tags are emitted in the head of every variant (including the primary). The sitemap entries carry `<xhtml:link rel="alternate" hreflang="…">` alternates, and `agentcms-rss` emits one feed per locale.
 - **Per-locale homes + category archives + author archives** — each locale gets its own `/<lang>/index.html`, `/<lang>/<category>/index.html`, etc. The publisher resolves them through a "shadow context" pass so themes don't need any multilang-specific code — they just render whatever props the publisher hands them.
 
@@ -571,13 +586,13 @@ The header / footer menus configured under **Menus** in the admin are loaded **a
 
 ### How it works
 
-1. Saving in `MenusPage` (or any publish/unpublish that may have moved a referenced post / term) triggers `publishMenuJson`, which writes a small `/menu.json` file to the public site root with the resolved menu structure.
-2. The active theme's `BaseLayout` ships a `<script src="/theme-assets/<id>-menu.js" defer>`. That loader fetches `/menu.json` on `DOMContentLoaded` and populates every `[data-cms-menu="header|footer"]` container present on the page.
+1. Saving in `MenusPage` (or any publish/unpublish that may have moved a referenced post / term) triggers `publishMenuJson`, which writes a small `data/menu.json` file to the public site with the resolved menu structure.
+2. The active theme's `BaseLayout` ships a `<script src="/theme-assets/<id>-menu.js" defer>`. That loader fetches `/data/menu.json` on `DOMContentLoaded` and populates every `[data-cms-menu="header|footer"]` container present on the page.
 3. The default theme's loader also wires the burger toggle (`aria-expanded` flip + class toggle for the off-canvas overlay) and sets `aria-current="page"` on the link whose href matches the current URL (so themes can style the active item via CSS).
 
 ### Per-language menu labels
 
-Each menu item carries an optional `translations: Record<<lang>, { label? }>` map (edited inline in `MenusPage` when at least one secondary language is enabled in `agentcms-multilang`). The resolver projects non-empty entries into a `labels` map on each resolved item in `/menu.json`:
+Each menu item carries an optional `translations: Record<<lang>, { label? }>` map (edited inline in `MenusPage` when at least one secondary language is enabled in `agentcms-multilang`). The resolver projects non-empty entries into a `labels` map on each resolved item in `data/menu.json`:
 
 ```json
 { "id": "…", "label": "Care", "href": "/care/", "labels": { "fr": "Soins" } }
@@ -596,7 +611,7 @@ Any theme that wants dynamic menus exposes empty containers and a companion JS f
 <nav class="…" data-cms-menu="footer"><ul></ul></nav>
 ```
 
-The loader fills the inner `<ul>`. If `/menu.json` is unreachable, the containers stay empty and the loader hides them via the `hidden` attribute — no error UI, no empty space.
+The loader fills the inner `<ul>`. If `data/menu.json` is unreachable, the containers stay empty and the loader hides them via the `hidden` attribute — no error UI, no empty space.
 
 ### Failure mode
 
@@ -809,7 +824,7 @@ Then add it to `PLUGINS` in `src/plugins/index.ts`.
 | `post.template.props` | filter | `(props, post)` — modify the props passed to the active template. |
 | `page.head.extra` | filter (sync) | `(html, baseProps)` — inject extra `<head>` markup. |
 | `page.body.end` | filter (sync) | `(html, baseProps)` — inject extra markup right before `</body>`. Use for tracking scripts, deferred widgets, etc. |
-| `menu.json.resolved` | filter | `(menu, ctx)` — mutate the resolved `{ header, footer }` shape just before `/menu.json` is uploaded. `ctx` exposes `settings`, `posts`, `pages`, `terms`. |
+| `menu.json.resolved` | filter | `(menu, ctx)` — mutate the resolved `{ header, footer }` shape just before `data/menu.json` is uploaded. `ctx` exposes `settings`, `posts`, `pages`, `terms`. |
 | `publish.before` | action | `(post, ctx)` |
 | `publish.after` | action | `(post, ctx)` |
 | `publish.complete` | action | `(post, ctx)` — fires after the post is uploaded and listings refreshed. |
@@ -948,7 +963,7 @@ Configuration options:
 
 - **Site feed** — toggle on/off, item count (1–100), excluded categories (multi-select), "Show in footer" checkbox.
 - **Category feeds** — pick a category from an autocomplete combobox to add a new feed; per-feed item count + footer toggle. Removing a feed deletes its file on the next save.
-- **Save settings** — persists the config, deletes files for disabled or removed feeds, and re-publishes `/menu.json` so the footer toggles take effect immediately.
+- **Save settings** — persists the config, deletes files for disabled or removed feeds, and re-publishes `data/menu.json` so the footer toggles take effect immediately.
 - **Upload stylesheet** — uploads `rss.xsl` only. Run after a public-language change.
 - **Force regenerate all feeds** — saves config + uploads XSL + regenerates every enabled feed + re-publishes the menu.
 
@@ -958,7 +973,7 @@ Item descriptions use `post.excerpt` when set, otherwise the first ~300 characte
 
 Cover images: when a post has a `heroMediaId`, the item gets an RSS 2.0 `<enclosure url="..." length="..." type="..."/>` element. Most modern readers (Feedly, Inoreader, NetNewsWire, Reeder) display this as the article thumbnail. Variant selection prefers `large`, falls back to the asset's `defaultFormat`, then any available variant — same chain as the publisher's `og:image`. Legacy single-URL media is supported transparently. `length` is the variant's stored byte count (`0` when unknown, which readers tolerate); `type` is the asset's `contentType` or guessed from the URL extension.
 
-Footer items injected by this plugin appear at the **end** of the resolved footer in `/menu.json`. Labels are auto-generated: `RSS` for the site feed, `RSS — <category name>` for per-category feeds. To control placement or labels manually, leave the addToFooter checkboxes off and add custom items via **Menus** with the feed URL as an external link.
+Footer items injected by this plugin appear at the **end** of the resolved footer in `data/menu.json`. Labels are auto-generated: `RSS` for the site feed, `RSS — <category name>` for per-category feeds. To control placement or labels manually, leave the addToFooter checkboxes off and add custom items via **Menus** with the feed URL as an external link.
 
 ### `agentcms-favicon` (must-use)
 

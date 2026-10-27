@@ -1,4 +1,5 @@
 import { renderMarkdown, markdownToPlainText } from "../core/markdown";
+import i18n, { pickPublicLocale } from "../i18n";
 import { applyFilters, doAction } from "../core/pluginRegistry";
 import { renderPageToHtml } from "../core/render";
 import {
@@ -647,7 +648,8 @@ async function renderNotFound(ctx: PublishContext): Promise<string> {
     base: theme.templates.base,
     baseProps: {
       site,
-      pageTitle: "Page not found",
+      // In the SITE's language (the admin's i18n bundles carry it).
+      pageTitle: i18n.getFixedT(pickPublicLocale(ctx.settings.language || "en"))("publicSite.notFoundTitle", { defaultValue: "Page not found" }),
       currentPath: NOT_FOUND_PATH,
     },
     template: theme.templates.notFound,

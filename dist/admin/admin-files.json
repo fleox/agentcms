@@ -1,12 +1,14 @@
 {
   "version": "0.1.1",
   "dataSchema": 2,
+  "apiVersion": "1.4.0",
+  "apiMinVersion": "1.0.0",
   "files": [
-    "assets/CodeEditor-CYMwL9oi.js",
-    "assets/index-BHpduXqh.js",
+    "assets/CodeEditor-CPHsEWhU.js",
+    "assets/index-B8Z6QitN.js",
     "assets/index-Dz11lwHX.css",
-    "assets/sql-wasm-BVzA1qpI.js",
     "assets/sql-wasm-C1U8OeUW.wasm",
+    "assets/sql-wasm-DReF8LGO.js",
     "assets/sql-wasm-V5jTDcrT.js",
     "external.default.json",
     "favicon.svg",

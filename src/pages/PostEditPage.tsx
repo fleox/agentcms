@@ -855,7 +855,7 @@ export function PostOrPageEditPage({ type }: PostOrPageEditPageProps) {
     );
   }
 
-  async function pickInlineMedia(): Promise<{ url: string; alt?: string } | null> {
+  async function pickInlineMedia(): Promise<{ id?: string; url: string; alt?: string } | null> {
     setShowInlinePicker(true);
     return new Promise((resolve) => {
       inlinePickerResolveRef.current = (m) => {
@@ -865,7 +865,7 @@ export function PostOrPageEditPage({ type }: PostOrPageEditPageProps) {
         // format (typically "medium"). Editors can later swap formats
         // per-image by adding a custom Tiptap node — out of scope for
         // the MVP.
-        resolve(m ? { url: pickMediaUrl(m), alt: m.alt } : null);
+        resolve(m ? { id: m.id, url: pickMediaUrl(m), alt: m.alt } : null);
       };
     });
   }

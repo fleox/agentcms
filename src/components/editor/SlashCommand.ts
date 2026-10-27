@@ -29,14 +29,14 @@ interface SlashCommandStorage {
   // time. Mirrors the FloatingMenu's onPickMedia plumbing so blocks
   // that need to await a media picker (e.g. core/image) still work
   // when inserted via the slash command.
-  pickMedia?: () => Promise<{ url: string; alt?: string } | null>;
+  pickMedia?: () => Promise<{ id?: string; url: string; alt?: string } | null>;
 }
 
 export interface SlashCommandOptions {
   // Pluggable media picker handed to BlockManifest.insert via the
   // BlockInsertContext. Optional — blocks that don't need a picker
   // ignore it.
-  pickMedia?: () => Promise<{ url: string; alt?: string } | null>;
+  pickMedia?: () => Promise<{ id?: string; url: string; alt?: string } | null>;
 }
 
 interface SuggestionItemProps {
