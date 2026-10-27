@@ -109,7 +109,7 @@ async function installExtensionCommand({ io, options, positionals }) {
   if (action !== "install") throw new CliError("usage", `Unknown action ${action}.`, void 0, 2);
   if (!arg) throw new CliError("usage", "ext install needs the package: its .zip, project folder or unpacked folder.", void 0, 2);
   const { readExtensionPackage } = await import("./extPackage-4FSerswt.mjs");
-  const { checkExtension } = await import("./extCheck-CLKQDMSf.mjs");
+  const { checkExtension } = await import("./extCheck-DU12uj8R.mjs");
   const pkg = await readExtensionPackage(arg);
   const report = await checkExtension(pkg);
   if (!report.valid) {
@@ -173,7 +173,7 @@ async function installExtensionCommand({ io, options, positionals }) {
     }
     let activated = null;
     if (options.activate && kind === "themes") {
-      const { importExtensionBundle } = await import("./extHost-Cj8Wjaia.mjs");
+      const { importExtensionBundle } = await import("./extHost-C1s5fNiy.mjs");
       const { bundleSource } = await import("./extPackage-4FSerswt.mjs");
       const { manifest } = await importExtensionBundle(bundleSource(pkg));
       const theme = manifest;

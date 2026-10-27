@@ -2,6 +2,17 @@
   "$comment": "Newest first. Read by agents (agentcms status) to tell users what changed and what to run. `breaking`: an older admin, skill or site setup stops working without action. `actions`: steps a hosted site needs after updating — deploy-admin, regenerate-all, sync-theme-assets. Keep every entry in English.",
   "versions": [
     {
+      "version": "0.2.1",
+      "date": "2026-10-27",
+      "breaking": false,
+      "changes": [
+        "Fix: `agentcms ext check` / `ext preview` crashed when run from the npm package (\"Cannot find module '@mixmark-io/domino'\") — the CLI bundle now has no runtime dependency outside itself, guarded by a test.",
+        "Fix: projects made by `agentcms ext new` now install and type-check with a plain `npm install` (.npmrc legacy-peer-deps, react-i18next / i18next types, @tiptap/pm for blocks).",
+        "Releases now smoke-test every scaffold variant against the packed package with a real npm install."
+      ],
+      "actions": []
+    },
+    {
       "version": "0.2.0",
       "date": "2026-10-27",
       "breaking": true,

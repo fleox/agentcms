@@ -1,7 +1,7 @@
 import { mkdtempSync, readFileSync, realpathSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { buildProject, cleanup, cli, edit, errorCodes, scaffold, serially, warningCodes } from "./testing/extProject";
+import { buildProject, cleanup, cli, edit, errorCodes, linkPackages, scaffold, serially, warningCodes } from "./testing/extProject";
 
 // `ext check` catches each typical plugin mistake: one fresh scaffold
 // per case, ONE edit (source + rebuild, or manifest.json), expect the
@@ -40,7 +40,10 @@ describe("ext check on a broken plugin", { timeout: 90_000 }, () => {
   });
 
   it.concurrent("React bundled → bundled-react", async () => {
-    const { codes, project } = await mutated((p) => edit(p, VITE, '        "react",\n        "react/jsx-runtime",\n', ""));
+    const { codes, project } = await mutated((p) => {
+      linkPackages(p, ["react"]);
+      edit(p, VITE, '        "react",\n        "react/jsx-runtime",\n', "");
+    });
     expect(readFileSync(join(project, "dist", "bundle.js"), "utf8")).not.toMatch(/from\s*"react"/);
     expect(codes).toContain("bundled-react");
     expect(codes).not.toContain("unresolvable-import");
@@ -58,7 +61,10 @@ describe("ext check on a broken plugin", { timeout: 90_000 }, () => {
   // NODE_ENV isn't "production" — as here, under vitest (NODE_ENV=test).
   it.concurrent("development JSX transform → jsx-dev", async () => {
     expect(process.env.NODE_ENV).not.toBe("production");
-    const { codes } = await mutated((p) => edit(p, VITE, ", jsxDev: false", ""));
+    const { codes } = await mutated((p) => {
+      linkPackages(p, ["react"]);
+      edit(p, VITE, ", jsxDev: false", "");
+    });
     expect(codes).toContain("jsx-dev");
   });
 

@@ -57,7 +57,8 @@
     "pack:zips": "node scripts/pack-bundled-zips.mjs",
     "preview": "vite preview",
     "check:skills": "node scripts/check-skills.mjs",
-    "version": "node scripts/sync-version.mjs && npm run build && git add -A plugin dist"
+    "version": "node scripts/sync-version.mjs && npm run build && git add -A plugin dist",
+    "smoke:scaffold": "node scripts/smoke-scaffold.mjs"
   },
   "devDependencies": {
     "@codemirror/lang-html": "^6.4.11",

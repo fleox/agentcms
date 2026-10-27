@@ -16951,7 +16951,7 @@ function HtmlBlockView({ node: node2, selected }) {
   );
 }
 const CodeEditor$1 = reactExports.lazy(
-  () => import("./CodeEditor-D387U2zq.mjs").then((m) => ({ default: m.CodeEditor }))
+  () => import("./CodeEditor-CMWKzxdQ.mjs").then((m) => ({ default: m.CodeEditor }))
 );
 function HtmlInspector({ editor }) {
   const { t: t2 } = useTranslation("agentcms-blocks");
@@ -17323,7 +17323,7 @@ const DEFAULT_CUSTOM_CODE_CONFIG = {
   bodyEnd: ""
 };
 const CodeEditor = reactExports.lazy(
-  () => import("./CodeEditor-D387U2zq.mjs").then((m) => ({ default: m.CodeEditor }))
+  () => import("./CodeEditor-CMWKzxdQ.mjs").then((m) => ({ default: m.CodeEditor }))
 );
 function CustomCodeSettingsPage({
   config,
@@ -19589,12 +19589,35 @@ function createHTMLParser() {
   var Parser = function() {
   };
   {
-    var domino = require2("@mixmark-io/domino");
-    Parser.prototype.parseFromString = function(string) {
-      return domino.createDocument(string);
-    };
+    if (shouldUseActiveX()) {
+      Parser.prototype.parseFromString = function(string) {
+        var doc2 = new window.ActiveXObject("htmlfile");
+        doc2.designMode = "on";
+        doc2.open();
+        doc2.write(string);
+        doc2.close();
+        return doc2;
+      };
+    } else {
+      Parser.prototype.parseFromString = function(string) {
+        var doc2 = document.implementation.createHTMLDocument("");
+        doc2.open();
+        doc2.write(string);
+        doc2.close();
+        return doc2;
+      };
+    }
   }
   return Parser;
+}
+function shouldUseActiveX() {
+  var useActiveX = false;
+  try {
+    document.implementation.createHTMLDocument("").open();
+  } catch (e2) {
+    if (root.ActiveXObject) useActiveX = true;
+  }
+  return useActiveX;
 }
 var HTMLParser = canParseHTMLNatively() ? root.DOMParser : createHTMLParser();
 function RootNode(input, options) {

@@ -20,8 +20,9 @@ One repository (`fleox/agentcms`) is the single source for everything users and 
 
 1. Add an entry at the top of `changelog.json` (English): `version`, `date`, `breaking`, `changes[]`, `actions[]` (`deploy-admin`, `regenerate-all`, `sync-theme-assets` — what an existing hosted site needs after the update).
 2. Commit everything else first (the working tree must be clean).
-3. `npm version patch|minor|major` — bumps the version, syncs plugin + skills, **rebuilds `dist/`** (it embeds the version), commits all of it and tags `vX.Y.Z`, so the tagged commit passes the "committed dist/ matches the sources" check.
-4. `git push --follow-tags` — `release.yml` re-checks everything, publishes to npm with provenance and creates the GitHub Release.
+3. Optional but recommended: `npm run smoke:scaffold` (network) — packs the package, scaffolds every `agentcms ext new` variant and runs a real `npm install` + build + `ext check` against the tarball. The release workflow runs it too, before publishing.
+4. `npm version patch|minor|major` — bumps the version, syncs plugin + skills, **rebuilds `dist/`** (it embeds the version), commits all of it and tags `vX.Y.Z`, so the tagged commit passes the "committed dist/ matches the sources" check.
+5. `git push --follow-tags` — `release.yml` re-checks everything, publishes to npm with provenance and creates the GitHub Release.
 
 ## One-time npm setup
 

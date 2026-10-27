@@ -9,7 +9,7 @@ import { resolve, join, dirname, normalize, sep, relative } from "node:path";
 import { format } from "node:util";
 import { createHash } from "node:crypto";
 import { C as CliError } from "../agentcms.mjs";
-import { bootExtensionHost } from "./extHost-Cj8Wjaia.mjs";
+import { bootExtensionHost } from "./extHost-C1s5fNiy.mjs";
 import "node:url";
 import "node:os";
 import "node:child_process";

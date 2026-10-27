@@ -39,6 +39,9 @@ jobs:
             exit 1
           fi
       - run: npm run check:skills
+      # What npm users get: pack, scaffold every `ext new` variant, real
+      # `npm install` + build + `ext check` against the packed tarball.
+      - run: npm run smoke:scaffold
       # Trusted publishing needs npm >= 11.5.1 — upgraded only now: building
       # with another npm than the CI's can change the bundles (and the
       # committed dist/ check above would no longer hold).

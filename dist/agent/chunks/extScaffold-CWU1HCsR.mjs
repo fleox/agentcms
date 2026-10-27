@@ -7,7 +7,7 @@ const __dirname = __acmsDirname(__filename);
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { C as CliError, b as readVersionInfo } from "../agentcms.mjs";
-import { ID_PATTERN } from "./extCheck-CLKQDMSf.mjs";
+import { ID_PATTERN } from "./extCheck-DU12uj8R.mjs";
 import "node:util";
 import "node:url";
 import "node:os";
@@ -15,7 +15,7 @@ import "node:child_process";
 import "node:http";
 import "node:vm";
 import "./extBlocks-DU_PVI0T.mjs";
-import "./extHost-Cj8Wjaia.mjs";
+import "./extHost-C1s5fNiy.mjs";
 import "node:module";
 import "./extPackage-4FSerswt.mjs";
 import "./index-K8rfbNOg.mjs";
@@ -24,14 +24,16 @@ import "stream";
 import "events";
 import "buffer";
 import "util";
-import "./extPreview-BGivr2Zw.mjs";
+import "./extPreview-Dkzz4WZ0.mjs";
 import "node:crypto";
 const PLUGIN_FEATURES = ["settings", "block", "i18n", "dashboard-card"];
 const THEME_FEATURES = ["settings", "block"];
 const DEV_DEPS = {
   typescript: "^6.0.3",
   vite: "^6.4.3",
-  "@types/react": "^18.3.28"
+  "@types/react": "^18.3.28",
+  "react-i18next": "^15.2.0",
+  i18next: "^23.16.8"
 };
 const TIPTAP = "^2.27.2";
 function titleCase(id) {
@@ -84,7 +86,10 @@ function commonFiles(c, kind) {
     "@agent-cms/agentcms": c.cliVersion,
     ...DEV_DEPS
   };
-  if (c.has("block")) devDependencies["@tiptap/core"] = TIPTAP;
+  if (c.has("block")) {
+    devDependencies["@tiptap/core"] = TIPTAP;
+    devDependencies["@tiptap/pm"] = TIPTAP;
+  }
   const pkg = {
     name: c.id,
     private: true,
@@ -126,6 +131,9 @@ function commonFiles(c, kind) {
     ) + "\n",
     "vite.config.ts": VITE_CONFIG,
     ".gitignore": "node_modules/\ndist/\n*.zip\n.preview/\n",
+    // react-i18next declares an optional peer on TypeScript 5; the
+    // project uses TypeScript 6 (like AgentCMS itself).
+    ".npmrc": "legacy-peer-deps=true\n",
     "README.md": readme(c, kind),
     "AGENTS.md": agentsMd(c, kind),
     "CLAUDE.md": "@AGENTS.md\n"

@@ -1,6 +1,6 @@
 import { execFile } from "node:child_process";
-import { mkdirSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { existsSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { promisify } from "node:util";
 import { main } from "../cli";
 import type { Io } from "../output";
@@ -25,15 +25,28 @@ export async function cli(args: string[]): Promise<CliResult> {
   return { code, body: JSON.parse(stdout.at(-1) ?? "{}"), stderr };
 }
 
-// node_modules/<pkg> → the repo's packages; @agent-cms/agentcms → the repo.
+// An offline `npm install`: links ONLY the project's declared
+// devDependencies to the repo's copies (@agent-cms/agentcms → the repo),
+// so a dependency the scaffold forgets to declare fails here too, like
+// it would after a real install.
 export function linkDeps(project: string): void {
   const nm = join(project, "node_modules");
-  mkdirSync(join(nm, "@agent-cms"), { recursive: true });
-  for (const name of readdirSync(join(REPO, "node_modules"))) {
-    if (name === ".bin" || name === "@agent-cms" || name.startsWith(".")) continue;
-    symlinkSync(join(REPO, "node_modules", name), join(nm, name));
+  mkdirSync(nm, { recursive: true });
+  const pkg = JSON.parse(readFileSync(join(project, "package.json"), "utf8")) as { devDependencies?: Record<string, string>; dependencies?: Record<string, string> };
+  for (const name of Object.keys({ ...pkg.dependencies, ...pkg.devDependencies })) {
+    const target = name === "@agent-cms/agentcms" ? REPO : join(REPO, "node_modules", name);
+    if (!existsSync(target)) throw new Error(`${name} is not installed in the repo (needed by ${project}).`);
+    mkdirSync(dirname(join(nm, name)), { recursive: true });
+    symlinkSync(target, join(nm, name));
   }
-  symlinkSync(REPO, join(nm, "@agent-cms", "agentcms"));
+}
+
+// Extra packages a mutation needs (e.g. bundling React on purpose).
+export function linkPackages(project: string, names: string[]): void {
+  for (const name of names) {
+    mkdirSync(dirname(join(project, "node_modules", name)), { recursive: true });
+    symlinkSync(join(REPO, "node_modules", name), join(project, "node_modules", name));
+  }
 }
 
 export async function scaffold(dir: string, kind: "plugin" | "theme", id: string, features: string[] = []): Promise<string> {

@@ -43,6 +43,10 @@ export default defineConfig({
     alias: [
       // Exact match only: "sql.js/dist/sql-wasm.wasm?url" stays as is.
       { find: /^sql\.js$/, replacement: fileURLToPath(new URL("./agent/vendor/sqljs.ts", import.meta.url)) },
+      // turndown's Node build require()s @mixmark-io/domino at runtime,
+      // which isn't in the package. Its browser build only needs a DOM
+      // when it actually converts (never in the CLI).
+      { find: /^turndown$/, replacement: fileURLToPath(new URL("./node_modules/turndown/lib/turndown.browser.es.js", import.meta.url)) },
       { find: "@agent-cms/runtime", replacement: fileURLToPath(new URL("./src/core/cmsRuntime.ts", import.meta.url)) },
     ],
   },

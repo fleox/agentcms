@@ -25,10 +25,14 @@ const THEME_FEATURES = ["settings", "block"];
 
 // Versions the scaffold builds with — the ones this repo is built and
 // tested with.
+// react-i18next / i18next: types only — at runtime they come from the
+// admin (externals), like React (@types/react).
 const DEV_DEPS = {
   typescript: "^6.0.3",
   vite: "^6.4.3",
   "@types/react": "^18.3.28",
+  "react-i18next": "^15.2.0",
+  i18next: "^23.16.8",
 };
 const TIPTAP = "^2.27.2";
 
@@ -95,7 +99,12 @@ function commonFiles(c: Ctx, kind: "plugin" | "theme"): Record<string, string> {
     "@agent-cms/agentcms": c.cliVersion,
     ...DEV_DEPS,
   };
-  if (c.has("block")) devDependencies["@tiptap/core"] = TIPTAP;
+  if (c.has("block")) {
+    devDependencies["@tiptap/core"] = TIPTAP;
+    // Peer of @tiptap/core (ProseMirror types); not auto-installed with
+    // legacy-peer-deps.
+    devDependencies["@tiptap/pm"] = TIPTAP;
+  }
   const pkg = {
     name: c.id,
     private: true,
@@ -138,6 +147,9 @@ function commonFiles(c: Ctx, kind: "plugin" | "theme"): Record<string, string> {
       ) + "\n",
     "vite.config.ts": VITE_CONFIG,
     ".gitignore": "node_modules/\ndist/\n*.zip\n.preview/\n",
+    // react-i18next declares an optional peer on TypeScript 5; the
+    // project uses TypeScript 6 (like AgentCMS itself).
+    ".npmrc": "legacy-peer-deps=true\n",
     "README.md": readme(c, kind),
     "AGENTS.md": agentsMd(c, kind),
     "CLAUDE.md": "@AGENTS.md\n",
