@@ -32,12 +32,12 @@ If GitHub ignores the query parameters, they set by hand:
 - Permissions -> Repository: **Contents: Read and write**, **Pages: Read and write** (lets AgentCMS switch Pages on), Metadata: Read-only (automatic).
 - Expiration: their choice (note the date - the site stops publishing when it expires).
 
-Then they store it themselves: `! npx -y @agent-cms/agentcms@0.2.0 credentials set github:<login>` and paste it at the hidden prompt.
+Then they store it themselves: `! npx -y @agent-cms/agentcms@0.2.1 credentials set github:<login>` and paste it at the hidden prompt.
 
 **Option B - reuse the GitHub CLI login** (broader `repo` scope, quickest):
 
 ```bash
-npx -y @agent-cms/agentcms@0.2.0 credentials set github:<login> --from-gh --json
+npx -y @agent-cms/agentcms@0.2.1 credentials set github:<login> --from-gh --json
 ```
 
 Each editor of a Markdown site later signs in to the admin with **their own** token (same permissions on the content repo); write access = editor, admin access = admin.
