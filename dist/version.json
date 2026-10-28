@@ -1,6 +1,6 @@
 {
   "name": "@agent-cms/agentcms",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "apiVersion": "1.6.0",
   "apiMinVersion": "1.0.0",
   "minSkillsVersion": "0.2.0",

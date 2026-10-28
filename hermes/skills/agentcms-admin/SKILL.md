@@ -1,7 +1,7 @@
 ---
 name: agentcms-admin
 description: "Run an AgentCMS site like its back office does - write, edit, publish, unpublish and delete posts and pages (Markdown, editor blocks, images, categories, tags, SEO, translations), upload media, edit menus, site settings, categories and tags, users and author profiles, enable / disable / configure plugins (sitemaps, RSS, search, archives, favicon, custom code, import, multilang), switch and configure themes (logo, colors, layout), and run every regeneration. Use when the user wants to change content or settings of one of their AgentCMS sites, or asks to publish / regenerate."
-version: 0.3.3
+version: 0.3.4
 author: AgentCMS
 license: PolyForm-Noncommercial-1.0.0
 platforms: [macos, linux, windows]
