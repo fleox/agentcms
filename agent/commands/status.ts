@@ -55,12 +55,24 @@ export const statusCommand: Command = {
       Promise.all(sites.map((s) => siteStatus(s, info.version, info.dataSchema))),
     ]);
     const toolUpdate = latest && compareVersions(latest, info.version) > 0 ? changesBetween(readChangelog(), info.version, latest) : null;
+    // Release notes once (not repeated per site): version → changes, for
+    // every version some site would get with deploy-admin.
+    const releaseNotes: Record<string, string[]> = {};
+    for (const s of statuses) {
+      if (!s.update) continue;
+      for (const line of s.update.changes) {
+        const [v, ...rest] = line.split(": ");
+        (releaseNotes[v] ??= []).includes(rest.join(": ")) || releaseNotes[v].push(rest.join(": "));
+      }
+    }
+    const sitesOut = statuses.map((s) => (s.update ? { ...s, update: { versions: s.update.versions, breaking: s.update.breaking, actions: s.update.actions } } : s));
     const data = {
       tool: { version: info.version, latest, updateAvailable: latest ? compareVersions(latest, info.version) > 0 : null },
       // Release notes of the newer tool are only known once it's installed;
       // `changes` is filled when this package already ships them.
       toolUpdate,
-      sites: statuses,
+      sites: sitesOut,
+      releaseNotes,
       advice: [
         ...(latest && compareVersions(latest, info.version) > 0
           ? [`agentcms ${latest} is available (this is ${info.version}): offer to update the skills first (Claude Code: /plugin marketplace update agentcms, then /reload-plugins).`]

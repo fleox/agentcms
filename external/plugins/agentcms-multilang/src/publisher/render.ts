@@ -20,7 +20,7 @@ import {
   postToPrimaryTranslation,
   termToPrimaryTranslation,
 } from "../core/urls";
-import { isPrimaryLanguage } from "../core/config";
+import { isPrimaryLanguage, localizeSettings } from "../core/config";
 
 // Resolves the active theme's settings the same way the core publisher's
 // buildSiteContext does — defaults merged with whatever the user saved.
@@ -57,8 +57,10 @@ function buildLocalizedShadowCtx(
   // templates that read `pickPublicLocale(site.settings.language)`
   // (e.g. for i18n strings or Intl.DateTimeFormat) pick the FR
   // bundle on FR pages. The original site language stays unchanged
-  // outside this shadow ctx.
-  const localizedSettings = { ...ctx.settings, language };
+  // outside this shadow ctx. The translated site title / description
+  // (config.siteTexts) ride along so headers, footers and <title>
+  // suffixes read the target language's texts.
+  const localizedSettings = localizeSettings(ctx.settings, language, config);
 
   // Shadow terms — only categories carry slug prefixing. Tags stay
   // as-is because they don't drive URLs.
@@ -165,7 +167,7 @@ export async function renderLocalizedSingle(args: {
   // (drives the Header logo href). Menus stay empty: the runtime
   // menu-loader.js fetches /menu.json client-side.
   const site = {
-    settings: { ...ctx.settings, language },
+    settings: localizeSettings(ctx.settings, language, config),
     resolvedMenus: { header: [], footer: [] },
     themeCssPath: `theme-assets/${ctx.settings.activeThemeId}.css`,
     themeConfig: resolveThemeConfig(ctx),
@@ -188,7 +190,7 @@ export async function renderLocalizedSingle(args: {
   // core passes (html, post) only, and filters that need the target
   // language (e.g. marketplace-core's code-block labels) read
   // `ctx.settings.language` from it when present.
-  const shadowCtx: PublishContext = { ...ctx, settings: { ...ctx.settings, language } };
+  const shadowCtx: PublishContext = { ...ctx, settings: site.settings };
   let bodyHtml = renderMarkdown(trans.contentMarkdown);
   bodyHtml = await applyFilters<string>("post.html.body", bodyHtml, post, shadowCtx);
   const tags = ctx.terms.filter((t) => post.termIds.includes(t.id) && t.type === "tag");
@@ -280,7 +282,7 @@ export function renderLocalizedCategory(args: {
   const { term, termTrans, language, ctx, config } = args;
   const theme = getActiveTheme(ctx.settings.activeThemeId);
   const site = {
-    settings: { ...ctx.settings, language },
+    settings: localizeSettings(ctx.settings, language, config),
     resolvedMenus: { header: [], footer: [] },
     themeCssPath: `theme-assets/${ctx.settings.activeThemeId}.css`,
     themeConfig: resolveThemeConfig(ctx),

@@ -54,7 +54,7 @@ async function regenerate(post: Post, ctx: PublishContext): Promise<void> {
 export const manifest: PluginManifest<SitemapsConfig> = {
   id: "agentcms-sitemaps",
   name: "Sitemaps",
-  version: "1.0.2",
+  version: "1.0.3",
   author: "AgentCMS",
   description:
     "Generates sitemap-index.xml, per-year sitemaps, an optional Google News sitemap, and a robots.txt that points to them.",

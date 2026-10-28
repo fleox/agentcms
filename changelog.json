@@ -2,6 +2,37 @@
   "$comment": "Newest first. Read by agents (agentcms status) to tell users what changed and what to run. `breaking`: an older admin, skill or site setup stops working without action. `actions`: steps a hosted site needs after updating — deploy-admin, regenerate-all, sync-theme-assets. Keep every entry in English.",
   "versions": [
     {
+      "version": "0.3.2",
+      "date": "2026-10-28",
+      "breaking": false,
+      "changes": [
+        "Fix: unpublishing or deleting an entry now also deletes its translated pages (agentcms-multilang), in the admin and the CLI.",
+        "Fix: `transfer export` from the CLI exported an empty plugin / theme list, and importing it unloaded every plugin and the theme of the target site. Exports now carry the list the site runs; an empty list is never imported.",
+        "Hosts that build every branch (Cloudflare Pages previews, Netlify): database saves on the `agentcms-data` branch and Markdown content saves are committed with `[skip ci]`, so they no longer queue builds ahead of the site's own.",
+        "`site add` takes the admin address the user opens (S3: the bucket's https endpoint) and reads the public URL from the content; it warns about missing credentials. New `site credentials <alias>` attaches accounts to a registered site. Passphrase problems report `passphrase-required` / `passphrase-wrong` with the fix; `doctor --deep` opens the content to prove the credentials.",
+        "`doctor`: no more false 403s on S3 sites registered by their https address; new checks `not-found-page` (missing URLs show another site's 404, e.g. a sub-folder of a shared bucket) and `content-exposure` (Markdown content served by the public site). `install` warns when the content sits in the published repository.",
+        "`ext install`: installing a plugin (enabled by default) regenerates the site; plans and results give the admin's https address; theme activations (also `themes activate`) say when media need `media regenerate`.",
+        "`ext preview --site` renders plugins inside the site's own theme, `--theme` accepts every bundled theme, and a free port is picked automatically; preview / screenshots capture the real static pages.",
+        "Screenshots: `--color-scheme light|dark` (light by default, whatever this computer's setting), live pages fetched past CDN caches.",
+        "Settings: hex colors are checked where the schema asks for them, unknown nested keys are reported, `--set` keeps the settings an extension manages itself, and theme style changes bump the stylesheet version like the settings pages.",
+        "`content update --lang <code> --remove` deletes a translation; `--lang` warns when the post's category isn't translated (the translation isn't published until it is). `content create` checks --hero / --author before creating terms. `content blocks <id>` also works for blocks of an installed theme that isn't active yet.",
+        "`users role` refuses to demote the last admin (Firebase) and needs `--force` to demote yourself. `AGENTCMS_SITE` selects the site per shell; the skills now always pass `--site` (`site use` is shared by every process).",
+        "robots.txt: a default inserted before sub-folder support (`Disallow: /admin/`) now follows the site's folder. Admin version warnings say when a deployment is just pending. `status` lists release notes once (`releaseNotes`) instead of per site.",
+        "Portfolio theme: tight bento gallery (no empty panel), translated Category / Year labels (year taken from the project-meta block), translated 404 page, no empty author sections, `single.showNextProject` works.",
+        "Multi-language sites: search works per language (`<lang>/search-index.json`, translated search UI; extension API 1.6 adds the `search.index.locales` filter), the site title and description can be translated (agentcms-multilang `siteTexts`, also used by localized feeds), and removing a language deletes its `/<lang>/` tree on the next regeneration. Regenerate everything now also writes each language's data JSON.",
+        "Corporate theme: every hex color override is converted for the theme's CSS (some were written as invalid values), and pages or posts written in Markdown get a title and styled text (block-based pages unchanged).",
+        "Block attributes documented (extension API 1.6, `BlockManifest.attrsSchema`): `content blocks <id>` lists what each attribute of every bundled theme / plugin block does, its accepted values and the shape of list items, and refuses values outside closed lists. `ext check` warns about undocumented blocks; `ext new` scaffolds an example.",
+        "agentcms-archives: localized archive pages use the translated site title and description (agentcms-multilang `siteTexts`).",
+        "Fix: the storefront newsletter and corporate contact form show their default success / error message when the text is left empty.",
+        "Localized RSS feeds are titled \"<site> (<language>)\".",
+        "Bundled versions: agentcms-sitemaps 1.0.3, agentcms-search 1.0.3, agentcms-archives 1.0.3, agentcms-multilang 1.6.6, themes magazine 1.1.2, corporate 1.0.2, storefront 0.1.2, portfolio 0.2.1, marketplace-core 1.7.3."
+      ],
+      "actions": [
+        "deploy-admin",
+        "regenerate-all"
+      ]
+    },
+    {
       "version": "0.3.1",
       "date": "2026-10-28",
       "breaking": false,

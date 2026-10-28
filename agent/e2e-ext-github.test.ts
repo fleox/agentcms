@@ -71,7 +71,10 @@ describe("ext install / list / uninstall on markdown-git + GitHub Pages", () => 
     const done = await cli(["ext", "install", zip, "--site", "blog", "--yes"]);
     expect(done.body).toMatchObject({ ok: true, data: { installed: true, action: "install" } });
     expect(siteFiles()).toEqual(expect.arrayContaining(["admin/plugins/acme-tools/bundle.js", "admin/plugins/acme-tools/manifest.json", "admin/plugins/acme-tools/assets/old.txt"]));
-    expect(gh.commits("me/site")).toHaveLength(commits + 1);
+    // Files in one commit, then the site regenerated with the (enabled by
+    // default) plugin in a second one.
+    expect(done.body.data.regenerated).toMatchObject({ errors: [] });
+    expect(gh.commits("me/site")).toHaveLength(commits + 2);
     expect(registry().plugins).toContainEqual({ id: "acme-tools", version: "1.0.0", apiVersion: expect.any(String), entryPath: "plugins/acme-tools/bundle.js" });
     // The registry was seeded from the hosted admin's defaults.
     expect(registry().plugins.length).toBeGreaterThan(1);

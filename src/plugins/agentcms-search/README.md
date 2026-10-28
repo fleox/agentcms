@@ -88,6 +88,10 @@ the search input is hidden so the modal shows a single close button.
 
 - `/search-index.json` — the index. Re-uploaded on every corpus change.
 - `/search.js` — the runtime. Re-uploaded only when its hash changes.
+- `/<lang>/search-index.json` — one per secondary language when
+  `agentcms-multilang` is enabled (translated entries + that language's
+  UI strings), produced through the `search.index.locales` filter. The
+  index of a language that is removed is deleted on the next pass.
 
 Both live at the site root. The plugin auto-injects
 `<script src="/search.js" defer></script>` on every page through the
@@ -103,7 +107,7 @@ themselves.
 - **No fuzzy match** — token-by-token substring only. Typos = no
   results. Acceptable for a CMS search; consider a hosted service if
   you need typo tolerance.
-- **Single index per site** — no per-language splits. The runtime UI
-  strings respect `settings.language`, but the index itself is one
-  flat list; multilingual content sites should use one language per
-  site for now.
+- **One index per language** — pages of a secondary language name
+  their index in the script tag (`data-cms-search-index`) and search
+  only that language; when that index is missing the runtime falls
+  back to `/search-index.json`.

@@ -42,3 +42,27 @@ describe("settings schema (--schema)", () => {
     expect(schemaErrors(schema, { ...stored, home: { ...stored.home, cardLimit: 6 } }, stored)).toEqual([]);
   });
 });
+
+describe("hex colors and managed settings", () => {
+  it("refuses named colors where the schema asks for hex", () => {
+    const sch = { "style.vars": { description: "CSS vars", format: "map of CSS variable → hex color" }, accent: { description: "Accent", format: "hex color" } };
+    expect(schemaErrors(sch, { style: { vars: { "--color-secondary": "teal", "--space": "2rem" } }, accent: "#fff" })).toEqual(['"style.vars.--color-secondary" is "teal"; expected a hex color like "#1a2b3c".']);
+    expect(schemaErrors(sch, { accent: "red" })).toEqual(['"accent" is "red"; expected a hex color like "#1a2b3c".']);
+  });
+});
+
+describe("config edits", () => {
+  it("warns about unknown nested keys, not inside maps", async () => {
+    const { shapeWarnings } = await import("./configEdit");
+    const defaults = { home: { sidebarTop: "most-read" }, style: { vars: {} } };
+    expect(shapeWarnings(defaults, { home: { sidebarTopp: "promo" }, style: { vars: { "--x": "#000" } } }, "magazine")).toEqual([
+      'magazine: "home.sidebarTopp" is not a setting of its default config (kept as is) — see --schema.',
+    ]);
+  });
+
+  it("--set keeps the settings the extension manages", async () => {
+    const { keepManaged } = await import("./configEdit");
+    const schema = { cssUpdatedAt: { description: "Managed by the theme — don't set." }, accent: { description: "Accent." } };
+    expect(keepManaged({ cssUpdatedAt: 42, accent: "#000" }, { accent: "#fff" }, schema)).toEqual({ accent: "#fff", cssUpdatedAt: 42 });
+  });
+});

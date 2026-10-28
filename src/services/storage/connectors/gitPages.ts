@@ -204,7 +204,11 @@ export function createGitPagesConnector(settings: GitPagesSettings): StorageConn
     changes.push(...hostExtras(files));
     const deleted = changes.filter((c) => c.type === "delete").length;
     const summary = [count && `${count} updated`, deleted && `${deleted} removed`].filter(Boolean).join(", ");
-    await transport.commit(changes, { message: `Publish site${summary ? ` (${summary})` : ""} — AgentCMS` });
+    // The SQLite data branch is never published: "[skip ci]" keeps hosts
+    // that build every branch (Cloudflare Pages previews, Netlify branch
+    // deploys) from queueing a build per save ahead of the site's own.
+    const skipCi = settings.branch === "agentcms-data" ? " [skip ci]" : "";
+    await transport.commit(changes, { message: `Publish site${summary ? ` (${summary})` : ""} — AgentCMS${skipCi}` });
     cache = null;
     if (settings.host === "github-pages" && settings.provider === "github") {
       void ensureGithubPages(settings, token, dir);

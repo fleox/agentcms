@@ -199,8 +199,12 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
             }
           }
         });
-        return { from, to: theme.id, seconds: Math.round((Date.now() - started) / 1000) };
-      }, (r) => `Theme switched ${r.from} → ${r.to}; site regenerated in ${r.seconds}s.`);
+        // Media uploaded under another theme lack this one's formats.
+        const { planMediaRegeneration } = await import("../../src/services/mediaRegenerate");
+        const needCrop = planMediaRegeneration(await s.media(), s.settings()).filter((m) => m.formats.length).length;
+        const next = needCrop ? [`agentcms media regenerate --site ${s.site.alias} --yes`, `agentcms regenerate all --site ${s.site.alias}`] : [];
+        return { from, to: theme.id, seconds: Math.round((Date.now() - started) / 1000), mediaMissingFormats: needCrop, next };
+      }, (r) => `Theme switched ${r.from} → ${r.to}; site regenerated in ${r.seconds}s.${r.next.length ? `\n${r.mediaMissingFormats} media lack ${r.to}'s image formats: ${r.next.join(" ; ")}` : ""}`);
     }
 
     case "config": {
@@ -218,10 +222,15 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
         const prev = themeConfigOf(s, theme);
         if (req.mode === "get") return { id: theme.id, config: prev, stored: (s.settings().themeConfigs as Record<string, unknown> | undefined)?.[theme.id] ?? null };
         const { deepMerge, shapeWarnings, changedKeys, schemaErrors } = await import("../ops/configEdit");
-        let next = req.mode === "set" ? { ...req.value } : deepMerge(prev, req.value);
+        const { keepManaged } = await import("../ops/configEdit");
+        let next = req.mode === "set" ? keepManaged(prev, { ...req.value }, theme.settings.schema) : deepMerge(prev, req.value);
+        // Like the settings pages: a style change bumps cssUpdatedAt, the
+        // ?v= of the stylesheet link (returning visitors get the new CSS
+        // once pages are regenerated).
+        if ("cssUpdatedAt" in defaults && JSON.stringify(prev.style) !== JSON.stringify(next.style)) next = { ...next, cssUpdatedAt: Date.now() };
         const invalid = schemaErrors(theme.settings.schema, next, prev);
         if (invalid.length) throw new CliError("invalid-value", `${theme.id}: ${invalid.join(" ")}`, `See \`agentcms themes config ${theme.id} --schema\`.`, 2);
-        const warnings = shapeWarnings(defaults, req.value, theme.id);
+        const warnings = shapeWarnings(defaults, req.value, theme.id, theme.settings.schema);
         const active = theme.id === s.settings().activeThemeId;
         if (!active) warnings.push(`${theme.id} is not the active theme (${s.settings().activeThemeId}): saved for when it is.`);
         const effects: string[] = [];
@@ -256,7 +265,8 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
         const homeOnly = layout.length > 0 && layout.every((k) => k === "home");
         const nextSteps = styleOnly || !layout.length ? [] : [`agentcms regenerate ${homeOnly ? "home" : "all"} --site ${s.site.alias}`];
         if (theme.id === "storefront" && next.catalog && changed.includes("catalog")) nextSteps.push(`agentcms regenerate storefront/catalog --site ${s.site.alias}`);
-        return { id: theme.id, config: next, changed: changedKeys(prev, next), effects, warnings, next: active ? nextSteps : [] };
+        const note = changed.includes("cssUpdatedAt") && active ? `The new CSS is live. Visitors with a cached copy get it once pages link the new version: \`agentcms regenerate all --site ${s.site.alias}\` (optional).` : null;
+        return { id: theme.id, config: next, changed: changedKeys(prev, next), effects, warnings, next: active ? nextSteps : [], note };
       }, (r) => {
         if ("settings" in r && Array.isArray(r.settings)) {
           return r.settings

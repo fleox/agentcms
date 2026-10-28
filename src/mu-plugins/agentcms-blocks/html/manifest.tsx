@@ -2,6 +2,7 @@ import { FileCode2 } from "lucide-react";
 import type { BlockManifest } from "../../../core/blockRegistry";
 import { HTML_BLOCK_ID, HTML_NODE_NAME, HtmlBlock } from "./extension";
 import { HtmlInspector } from "./inspector";
+import { ATTRS_SCHEMA } from "./attrsSchema";
 
 // Block-registry manifest for the Custom HTML block. Inserts an
 // empty atom — the user fills in the code via the textarea in the
@@ -18,6 +19,7 @@ export const htmlBlock: BlockManifest = {
   namespace: "agentcms-blocks",
   icon: FileCode2,
   category: "layout",
+  attrsSchema: ATTRS_SCHEMA,
   extensions: [HtmlBlock],
   insert: (chain) => {
     chain.focus().insertContent({ type: HTML_NODE_NAME, attrs: { code: "" } }).run();

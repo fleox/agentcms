@@ -27,6 +27,7 @@ import type { manifest as realCoreSeo } from "../plugins/core-seo/manifest";
 import type { StorageConnector as RealStorageConnector } from "../services/storage/types";
 import type * as RealSitemaps from "../plugins/agentcms-sitemaps/generator";
 import type { RssLocaleEntry as RealRssLocaleEntry } from "../plugins/agentcms-rss/generator";
+import type { SearchLocaleEntry as RealSearchLocaleEntry } from "../plugins/agentcms-search/generator";
 
 const root = resolve(__dirname, "../..");
 const read = (rel: string) => readFileSync(resolve(root, rel), "utf8");
@@ -261,6 +262,7 @@ export type _MutualChecks = [
   Expect<Mutual<RealSitemaps.SitemapIndexExtraEntry, Curated.SitemapIndexExtraEntry>>,
   Expect<Mutual<RealSitemaps.NewsLocaleEntry, Curated.NewsLocaleEntry>>,
   Expect<Mutual<RealRssLocaleEntry, Curated.RssLocaleEntry>>,
+  Expect<Mutual<RealSearchLocaleEntry, Curated.SearchLocaleEntry>>,
   Expect<Mutual<RealBlockManifest<{ level: number }>, Curated.BlockManifest<{ level: number }>>>,
   Expect<Mutual<RealPluginManifest<{ a: string }>, Curated.PluginManifest<{ a: string }>>>,
   Expect<Mutual<RealThemeManifest<{ a: string }>, Curated.ThemeManifest<{ a: string }>>>,

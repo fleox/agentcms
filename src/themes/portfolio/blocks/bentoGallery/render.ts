@@ -1,9 +1,15 @@
 import { decodeAttrs, escapeAttr, escapeText } from "../util";
 
-// Bento gallery — 12-col grid:
-//   - col-span-8 large image, 600px tall
-//   - col-span-4 stacked: sub image top (300px), sub image bottom (300px)
-//   - col-span-12 full-width wide image (800px)
+// Bento gallery — tight 12-col grid that fits whatever column it is
+// dropped into (post prose column, page body, full width):
+//   - col-span-8 main image (4:3)
+//   - col-span-4 stacked sub images, stretched to the main image's height
+//   - col-span-12 wide image (16:9)
+// Every cell is an aspect-ratio box with an absolutely-positioned
+// cover image, so the grid never depends on the images' intrinsic
+// heights (the prose `img { height: auto }` rule used to collapse the
+// images inside fixed-height cells and leave tall empty panels).
+// Mobile stacks every image at 4:3.
 export interface BentoGalleryAttrs {
   mainImageUrl: string;
   mainImageAlt: string;
@@ -33,9 +39,14 @@ export const DEFAULT_BENTO_GALLERY_ATTRS: BentoGalleryAttrs = {
   wideImageAlt: "",
 };
 
-function img(url: string, alt: string, classes: string, grayscale = false): string {
-  if (!url) return `<div class="${classes} bg-surface-container"></div>`;
-  return `<img src="${escapeAttr(url)}" alt="${escapeAttr(alt)}" class="${classes}${grayscale ? " grayscale" : ""}" loading="lazy"/>`;
+const IMG_CLASSES =
+  "absolute inset-0 w-full h-full object-cover transition-transform duration-500 hover:scale-[1.02]";
+
+function cell(url: string, alt: string, boxClasses: string, grayscale = false): string {
+  const inner = url
+    ? `<img src="${escapeAttr(url)}" alt="${escapeAttr(alt)}" class="${IMG_CLASSES}${grayscale ? " grayscale" : ""}" loading="lazy"/>`
+    : "";
+  return `<div class="portfolio-bento-cell relative overflow-hidden bg-surface-container ${boxClasses}">${inner}</div>`;
 }
 
 export function renderBentoGallery(attrs: BentoGalleryAttrs): BentoGalleryRenderResult {
@@ -46,14 +57,31 @@ export function renderBentoGallery(attrs: BentoGalleryAttrs): BentoGalleryRender
     attrs.wideImageUrl;
   if (!hasAny) return { html: "" };
 
-  const mainCol = `<div class="md:col-span-8 h-[600px]">${img(attrs.mainImageUrl, attrs.mainImageAlt, "w-full h-full object-cover transition-transform duration-500 hover:scale-[1.02]")}</div>`;
-  const subCol = `<div class="md:col-span-4 h-[600px] flex flex-col gap-8"><div class="h-1/2">${img(attrs.subTopImageUrl, attrs.subTopImageAlt, "w-full h-full object-cover transition-transform duration-500 hover:scale-[1.02]", attrs.subTopGrayscale)}</div><div class="h-1/2">${img(attrs.subBottomImageUrl, attrs.subBottomImageAlt, "w-full h-full object-cover transition-transform duration-500 hover:scale-[1.02]")}</div></div>`;
+  const hasSubs = Boolean(attrs.subTopImageUrl || attrs.subBottomImageUrl);
+  const hasTopRow = Boolean(attrs.mainImageUrl || hasSubs);
+
+  // Main image spans the full row when there are no sub images.
+  const mainCol = attrs.mainImageUrl || hasSubs
+    ? cell(
+        attrs.mainImageUrl,
+        attrs.mainImageAlt,
+        hasSubs ? "aspect-[4/3] md:col-span-8" : "aspect-[4/3] md:col-span-12",
+      )
+    : "";
+  const subCol = hasSubs
+    ? `<div class="md:col-span-4 grid grid-cols-1 md:grid-rows-2 gap-4 md:gap-6">${cell(
+        attrs.subTopImageUrl,
+        attrs.subTopImageAlt,
+        "aspect-[4/3] md:aspect-auto",
+        attrs.subTopGrayscale,
+      )}${cell(attrs.subBottomImageUrl, attrs.subBottomImageAlt, "aspect-[4/3] md:aspect-auto")}</div>`
+    : "";
   const wideCol = attrs.wideImageUrl
-    ? `<div class="md:col-span-12 h-[600px] md:h-[800px]">${img(attrs.wideImageUrl, attrs.wideImageAlt, "w-full h-full object-cover transition-transform duration-500 hover:scale-[1.02]")}</div>`
+    ? cell(attrs.wideImageUrl, attrs.wideImageAlt, "aspect-[4/3] md:aspect-[16/9] md:col-span-12")
     : "";
 
   return {
-    html: `<section class="portfolio-bento px-margin-edge-mobile md:px-margin-edge py-section-gap-mobile md:py-section-gap bg-surface-container-lowest"><div class="max-w-container-max mx-auto grid grid-cols-1 md:grid-cols-12 gap-8">${mainCol}${subCol}${wideCol}</div></section>`,
+    html: `<section class="portfolio-bento my-12 md:my-16"><div class="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">${hasTopRow ? mainCol + subCol : ""}${wideCol}</div></section>`,
   };
 }
 

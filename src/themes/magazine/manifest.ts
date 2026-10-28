@@ -33,7 +33,7 @@ import { transformBodyHtml } from "./blocks/transforms";
 export const manifest: ThemeManifest<MagazineThemeConfig> = {
   id: "magazine",
   name: "Magazine",
-  version: "1.1.1",
+  version: "1.1.2",
   description:
     "Editorial magazine theme inspired by long-form journalism — Tailwind-based, with an editable Material 3 palette.",
   // Convention name used by build-themes.mjs only as a fallback when

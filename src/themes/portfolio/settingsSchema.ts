@@ -35,22 +35,22 @@ export const SETTINGS_SCHEMA: SettingsSchema = {
     description: "Render the project hero photo in black and white (the original look). false = the photo's own colours.",
   },
   "single.showNextProject": {
-    description: "Next-project teaser toggle. Not read by the templates yet — the teaser comes from the portfolio/next-project block in the post body.",
+    description: "Show the next-project teasers (portfolio/next-project blocks) placed in post and page bodies. false = every such block is removed from the published single pages; the block content stays in the post.",
   },
   "single.defaultServicesLabel": {
-    description: "Default 'Services' label for the project meta column. Not read by the templates yet (the portfolio/project-meta block carries its own labels).",
+    description: "Label of the category row in the project page's left meta column. Empty (or the legacy default \"SERVICES\") = the translated 'Category' label of the site language (CATEGORY / CATÉGORIE); any other value replaces it verbatim on every language.",
   },
   "single.defaultYearLabel": {
-    description: "Default 'Year' label for the project meta column. Not read by the templates yet (the portfolio/project-meta block carries its own labels).",
+    description: "Label of the year row in the project page's left meta column. Empty (or the legacy default \"YEAR\") = the translated 'Year' label (YEAR / ANNÉE); any other value replaces it verbatim. The value shown is the Year row of a portfolio/project-meta block in the post when there is one, else the publication year.",
   },
   "single.defaultAwardsLabel": {
-    description: "Default 'Awards' label for the project meta column. Not read by the templates yet (the portfolio/project-meta block carries its own labels).",
+    description: "Reserved — no effect (the project page's meta column has no awards row; put awards in a portfolio/project-meta block, which carries its own labels).",
   },
   "author.showExperience": {
-    description: "Show the 'Select Experience' list on author archive pages.",
+    description: "Allow the 'Select Experience' section on author archive pages. It only renders when it has items, and no content source exists yet — so currently no visible effect.",
   },
   "author.showRecognition": {
-    description: "Show the 'Recognition' list on author archive pages.",
+    description: "Allow the 'Recognition' section on author archive pages. It only renders when it has items, and no content source exists yet — so currently no visible effect.",
   },
   "footer.copyright": {
     description: "Footer copyright line. Empty = '© <year> <site title>. All rights reserved.'",

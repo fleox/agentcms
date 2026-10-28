@@ -33,9 +33,16 @@ export async function siteFromAdminUrl(opts: {
     throw new CliError("not-installed", "That admin has no configuration yet (config.js is empty).", "Install it first (`agentcms install` or the setup wizard).");
   }
 
-  const siteUrl = (opts.siteUrl ?? new URL("..", admin).href).replace(/\/+$/, "");
-  if (!admin.href.startsWith(siteUrl + "/")) throw new CliError("usage", `The admin URL is not under the site URL ${siteUrl}.`, "Pass --site-url.", 2);
-  const adminFolder = decodeURIComponent(admin.href.slice(siteUrl.length + 1)).replace(/\/+$/, "");
+  // Where the admin is served may differ from the public site URL (S3: the
+  // admin over the bucket's https endpoint, the site on the http website
+  // endpoint). The folder is taken from the admin URL; the public URL comes
+  // from --site-url, else the publish target stored in the content, else
+  // the admin's parent folder.
+  const adminParent = new URL("..", admin).href.replace(/\/+$/, "");
+  let siteUrl = (opts.siteUrl ?? adminParent).replace(/\/+$/, "");
+  const adminFolder = admin.href.startsWith(siteUrl + "/")
+    ? decodeURIComponent(admin.href.slice(siteUrl.length + 1)).replace(/\/+$/, "")
+    : decodeURIComponent(admin.href.slice(adminParent.length + 1)).replace(/\/+$/, "");
 
   let hosting: SiteRecord["hosting"] = { connectorId: "", settings: {} };
   const credentials: SiteRecord["credentials"] = {};
@@ -84,17 +91,19 @@ export async function siteFromAdminUrl(opts: {
     }
   } else if (runtime.backend === "sqlite-file") {
     // Default: the database sits on the hosting itself.
-    hosting = { connectorId: runtime.sqlite.connectorId, settings: { ...runtime.sqlite.settings, siteUrl } };
+    hosting = { connectorId: runtime.sqlite.connectorId, settings: { siteUrl, ...runtime.sqlite.settings } };
     if (opts.passphraseCredential) {
       parseAccount(opts.passphraseCredential);
       credentials.passphrase = opts.passphraseCredential;
     }
-    // With the data location's credential, read the real publish target
-    // from the database (it may be a separate private location).
-    if (opts.dataCredential) {
-      credentials.data = opts.dataCredential;
+    // With the data location's credential (the hosting's one when the
+    // database sits on the hosting), read the real publish target from the
+    // database (it may be a separate private location).
+    const locationCredential = opts.dataCredential ?? opts.hostingCredential;
+    if (locationCredential) {
+      if (opts.dataCredential) credentials.data = opts.dataCredential;
       loadSqlWasm();
-      const location = { connectorId: runtime.sqlite.connectorId, settings: { ...runtime.sqlite.settings, ...requireCredential(opts.dataCredential).values } };
+      const location = { connectorId: runtime.sqlite.connectorId, settings: { ...runtime.sqlite.settings, ...requireCredential(locationCredential).values } };
       const bytes = await hostingConnector(location).getBytes?.(runtime.sqlite.path);
       if (bytes) {
         const passphrase = opts.passphraseCredential ? requireCredential(opts.passphraseCredential).values.passphrase : null;
@@ -111,6 +120,10 @@ export async function siteFromAdminUrl(opts: {
     parseAccount(opts.hostingCredential);
     credentials.hosting = opts.hostingCredential;
   }
+
+  const storedSiteUrl = typeof hosting.settings.siteUrl === "string" ? hosting.settings.siteUrl.replace(/\/+$/, "") : "";
+  if (!opts.siteUrl && storedSiteUrl && storedSiteUrl !== siteUrl) siteUrl = storedSiteUrl;
+  hosting = { ...hosting, settings: { ...hosting.settings, siteUrl } };
 
   const hosted = await fetchHostedAdmin(admin.href);
   const now = new Date().toISOString();

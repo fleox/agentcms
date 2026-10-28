@@ -50,6 +50,16 @@ export function SettingsPage({ config, save }: PluginSettingsPageProps<Multilang
     }));
   }
 
+  function setSiteText(lang: string, field: "title" | "description", value: string) {
+    setDraft((d) => ({
+      ...d,
+      siteTexts: {
+        ...(d.siteTexts ?? {}),
+        [lang]: { ...(d.siteTexts?.[lang] ?? {}), [field]: value },
+      },
+    }));
+  }
+
   const sitePrimary = (settings.language || "en").split("-")[0];
 
   return (
@@ -135,6 +145,40 @@ export function SettingsPage({ config, save }: PluginSettingsPageProps<Multilang
                       </option>
                     ))}
                 </select>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {draft.enabledLanguages.length > 0 && (
+        <section className="card p-4 space-y-3">
+          <h3 className="font-medium">{t("settings.siteTexts.title")}</h3>
+          <p className="text-xs text-surface-500 dark:text-surface-400">
+            {t("settings.siteTexts.help")}
+          </p>
+          <div className="space-y-3">
+            {draft.enabledLanguages.map((lang) => (
+              <div key={lang} className="flex items-start gap-2">
+                <span className="text-[10px] uppercase font-semibold w-8 pt-2">{lang}</span>
+                <div className="flex-1 space-y-2">
+                  <input
+                    type="text"
+                    className="input w-full"
+                    aria-label={`${t("settings.siteTexts.siteTitle")} (${lang})`}
+                    placeholder={settings.title || t("settings.siteTexts.siteTitle")}
+                    value={draft.siteTexts?.[lang]?.title ?? ""}
+                    onChange={(e) => setSiteText(lang, "title", e.target.value)}
+                  />
+                  <textarea
+                    className="input w-full"
+                    rows={2}
+                    aria-label={`${t("settings.siteTexts.siteDescription")} (${lang})`}
+                    placeholder={settings.description || t("settings.siteTexts.siteDescription")}
+                    value={draft.siteTexts?.[lang]?.description ?? ""}
+                    onChange={(e) => setSiteText(lang, "description", e.target.value)}
+                  />
+                </div>
               </div>
             ))}
           </div>

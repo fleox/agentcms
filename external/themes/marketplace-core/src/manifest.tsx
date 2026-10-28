@@ -61,7 +61,7 @@ type ManifestWithSeed = ThemeManifest<MarketplaceThemeConfig> & {
 const manifest: ManifestWithSeed = {
   id: "marketplace-core",
   name: "Marketplace Core",
-  version: "1.7.2",
+  version: "1.7.3",
   description:
     "App-store style theme for listing themes / plugins. Modern Corporate aesthetic with ambient shadows and rounded XL corners.",
   scssEntry: "theme.css",

@@ -257,26 +257,30 @@ export function buildAllFontsPreviewUrl(): string {
   return `https://fonts.googleapis.com/css2?${segments.join("&")}&display=swap`;
 }
 
-// Hex (`#RRGGBB` or `#RGB`) → space-separated RGB triplet ("r g b") —
-// the format the corporate theme's `:root` block expects so Tailwind's
-// `rgb(var(--color-X) / <alpha-value>)` formula keeps working.
-// Non-hex values pass through unchanged so power users can paste
-// arbitrary CSS.
-function normalizeColor(value: string): string {
+// Hex (`#RGB`, `#RGBA`, `#RRGGBB`, `#RRGGBBAA`) → space-separated RGB
+// triplet ("r g b") — the format every `--color-*` variable of the
+// corporate theme must hold, because Tailwind reads them through
+// `rgb(var(--color-X) / <alpha-value>)`. An alpha channel is dropped
+// (the alpha modifier supplies it). Anything else — a value already
+// given as a triplet, `rgb(...)`, a keyword — passes through unchanged.
+export function normalizeColor(value: string): string {
   const v = value.trim();
-  const match = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec(v);
+  const match = /^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.exec(v);
   if (!match) return v;
-  const hex = match[1];
-  if (hex.length === 3) {
-    const r = parseInt(hex[0] + hex[0], 16);
-    const g = parseInt(hex[1] + hex[1], 16);
-    const b = parseInt(hex[2] + hex[2], 16);
-    return `${r} ${g} ${b}`;
-  }
+  let hex = match[1];
+  if (hex.length <= 4) hex = hex.split("").map((c) => c + c).join("");
   const r = parseInt(hex.slice(0, 2), 16);
   const g = parseInt(hex.slice(2, 4), 16);
   const b = parseInt(hex.slice(4, 6), 16);
   return `${r} ${g} ${b}`;
+}
+
+// Every `--color-*` variable is consumed as an RGB triplet, whether or
+// not it is listed in THEME_VAR_SPECS (the Style tab only shows a
+// subset; settings.schema / the CLI can set any of them).
+function isColorVar(name: string): boolean {
+  if (name.startsWith("--color-")) return true;
+  return THEME_VAR_SPECS.some((s) => s.name === name && s.type === "color");
 }
 
 function quoteFontName(name: string): string {
@@ -322,13 +326,11 @@ export function buildCustomCss(baseCssText: string, style: StyleOverrides): stri
     );
   }
 
-  // Build the override `:root` block. Color values get hex→RGB-triplet
-  // normalization; lengths pass through verbatim.
-  const specByName = new Map(THEME_VAR_SPECS.map((s) => [s.name, s] as const));
+  // Build the override `:root` block. Every color variable given as hex
+  // gets hex→RGB-triplet normalization; lengths pass through verbatim.
   const decls = Object.entries(filteredVars)
     .map(([k, v]) => {
-      const spec = specByName.get(k);
-      const normalized = spec?.type === "color" ? normalizeColor(v) : v;
+      const normalized = isColorVar(k) ? normalizeColor(v) : v;
       return `${k}:${normalized};`;
     })
     .join("");

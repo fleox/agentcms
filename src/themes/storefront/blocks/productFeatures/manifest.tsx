@@ -4,6 +4,7 @@ import { NodeViewWrapper } from "@tiptap/react";
 import type { Editor } from "@tiptap/core";
 import type { BlockManifest } from "@agent-cms/runtime";
 import { blockNodeName, createBlockNode } from "../createBlockNode";
+import { ATTRS_SCHEMA } from "./attrsSchema";
 import type { FeatureItem, ProductFeaturesAttrs } from "./render";
 
 const SUB_ID = "product-features";
@@ -146,5 +147,6 @@ export const productFeaturesBlock: BlockManifest<ProductFeaturesAttrs> = {
     chain.focus().insertContent({ type: NODE_NAME, attrs: { attrs: DEFAULT_ATTRS } }).run();
   },
   isActive: (editor) => editor.isActive(NODE_NAME),
+  attrsSchema: ATTRS_SCHEMA,
   inspector: (props) => <Inspector editor={props.editor} />,
 };

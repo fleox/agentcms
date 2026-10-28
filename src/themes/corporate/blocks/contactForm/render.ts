@@ -122,8 +122,8 @@ export function renderContactForm(attrs: ContactFormAttrs): ContactFormRenderRes
   const labelMessage = attrs.labelMessage ?? "Message";
   const submitLabel = attrs.submitLabel ?? "Send inquiry";
   const successMessage =
-    attrs.successMessage ?? "Thanks — we'll get back to you within 24 business hours.";
-  const errorMessage = attrs.errorMessage ?? "Something went wrong. Please try again or email us directly.";
+    attrs.successMessage || "Thanks — we'll get back to you within 24 business hours.";
+  const errorMessage = attrs.errorMessage || "Something went wrong. Please try again or email us directly.";
 
   const subjectOptionsRaw = (attrs.subjectOptions ?? "")
     .split("\n")

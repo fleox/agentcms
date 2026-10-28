@@ -5,6 +5,7 @@ import type { Editor } from "@tiptap/core";
 import type { BlockManifest } from "@agent-cms/runtime";
 import { blockNodeName, createBlockNode } from "../createBlockNode";
 import { DEFAULT_FEATURE_ROW, type FeatureRowAttrs } from "./render";
+import { ATTRS_SCHEMA } from "./attrsSchema";
 
 const SUB_ID = "feature-row";
 const NODE_NAME = blockNodeName(SUB_ID);
@@ -137,5 +138,6 @@ export const featureRowBlock: BlockManifest<FeatureRowAttrs> = {
       .run();
   },
   isActive: (editor) => (editor as Editor).isActive(NODE_NAME),
+  attrsSchema: ATTRS_SCHEMA,
   inspector: (props) => <Inspector editor={props.editor as Editor} />,
 };

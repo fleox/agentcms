@@ -90,7 +90,20 @@ export async function fallbackRegistry(site: SiteRecord, reader: StorageConnecto
 // The plugins bundled with this CLI's admin build (external.default.json),
 // imported like the admin loads them — for local renders (ext preview /
 // check) that have no hosted admin to read them from.
-export async function loadBundledPluginManifests(skip: Set<string> = new Set()): Promise<unknown[]> {
+// Imported once per process: an imported module is never freed, and
+// checks / previews run many renders in one process (tests).
+const bundledCache = new Map<string, Promise<Array<{ id: string; manifest: unknown }>>>();
+
+export async function loadBundledPluginManifests(skip: Set<string> = new Set(), kind: "plugins" | "themes" = "plugins"): Promise<unknown[]> {
+  let all = bundledCache.get(kind);
+  if (!all) {
+    all = importBundled(kind);
+    bundledCache.set(kind, all);
+  }
+  return (await all).filter((e) => !skip.has(e.id)).map((e) => e.manifest);
+}
+
+async function importBundled(kind: "plugins" | "themes"): Promise<Array<{ id: string; manifest: unknown }>> {
   const { existsSync, readFileSync } = await import("node:fs");
   const { join } = await import("node:path");
   const { distRoot } = await import("../paths");
@@ -99,14 +112,13 @@ export async function loadBundledPluginManifests(skip: Set<string> = new Set()):
   const file = join(root, "external.default.json");
   if (!existsSync(file)) return [];
   const registry = parseRegistry(readFileSync(file, "utf8"));
-  const out: unknown[] = [];
-  for (const entry of registry?.plugins ?? []) {
-    if (skip.has(entry.id)) continue;
-    const bundle = join(root, entry.entryPath ?? `plugins/${entry.id}/bundle.js`);
+  const out: Array<{ id: string; manifest: unknown }> = [];
+  for (const entry of registry?.[kind] ?? []) {
+    const bundle = join(root, entry.entryPath ?? `${kind}/${entry.id}/bundle.js`);
     if (!existsSync(bundle)) continue;
     try {
       const { manifest } = await importExtensionBundle(readFileSync(bundle, "utf8"));
-      if ((manifest as { id?: string } | null)?.id === entry.id) out.push(manifest);
+      if ((manifest as { id?: string } | null)?.id === entry.id) out.push({ id: entry.id, manifest });
     } catch {
       /* a broken bundled plugin must not stop a preview */
     }

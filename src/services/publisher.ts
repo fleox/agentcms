@@ -902,12 +902,13 @@ async function unpublishPostUnbatched(
 ): Promise<void> {
   const post = ctx.posts.find((p) => p.id === postId) ?? ctx.pages.find((p) => p.id === postId);
   if (!post) throw new Error(`Post ${postId} not found.`);
-  // Wipe every known historical path so unpublishing never leaves a
-  // visible file on the public site. `keepPath: ""` makes cleanupStalePaths
+  // Wipe every known historical path — translations included
+  // (lastPublishedPathsByLocale, kept for the next publish's orphan diff)
+  // — so unpublishing never leaves a visible file on the public site. `keepPath: ""` makes cleanupStalePaths
   // attempt every path it sees (the empty string is filtered out by the
   // truthy check inside).
   await cleanupStalePaths(
-    [post.lastPublishedPath ?? "", ...(post.previousPublishedPaths ?? [])],
+    [post.lastPublishedPath ?? "", ...(post.previousPublishedPaths ?? []), ...Object.values(post.lastPublishedPathsByLocale ?? {})],
     "",
     log,
   );
@@ -1265,7 +1266,7 @@ async function deletePostAndUnpublishUnbatched(
   // be removed by the caller, so even paths whose deletion still fails
   // become unrecoverable orphans — best-effort is the right policy here.
   await cleanupStalePaths(
-    [post.lastPublishedPath ?? "", ...(post.previousPublishedPaths ?? [])],
+    [post.lastPublishedPath ?? "", ...(post.previousPublishedPaths ?? []), ...Object.values(post.lastPublishedPathsByLocale ?? {})],
     "",
     log,
   );

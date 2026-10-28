@@ -5,6 +5,7 @@ import type { Editor } from "@tiptap/core";
 import type { BlockManifest } from "@agent-cms/runtime";
 import { blockNodeName, createBlockNode } from "../createBlockNode";
 import { DEFAULT_FEATURES, type FeaturesAttrs } from "./render";
+import { ATTRS_SCHEMA } from "./attrsSchema";
 import { IconPicker } from "./IconPicker";
 
 const SUB_ID = "features";
@@ -116,5 +117,6 @@ export const featuresBlock: BlockManifest<FeaturesAttrs> = {
       .run();
   },
   isActive: (editor) => (editor as Editor).isActive(NODE_NAME),
+  attrsSchema: ATTRS_SCHEMA,
   inspector: (props) => <Inspector editor={props.editor as Editor} />,
 };

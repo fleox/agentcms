@@ -240,6 +240,17 @@ describe("media, users, transfer, stats (fake GitHub)", () => {
     const text = readFileSync(out, "utf8");
     expect(text).not.toContain(TOKEN);
     expect(exp.body.data.result.counts).toMatchObject({ posts: 1, media: 2, users: 1 });
+    // The plugins / themes the site runs travel with it, even when no
+    // registry was stored yet (the hosted admin's defaults).
+    const exported = JSON.parse(text);
+    const reg = exported.collections.config.find((d: { id: string }) => d.id === "externalRegistry");
+    expect(reg.plugins.length).toBeGreaterThan(0);
+    // An export carrying an EMPTY registry (older CLI) never unloads the
+    // target's plugins.
+    const emptyReg = join(root, "empty-registry.json");
+    writeFileSync(emptyReg, JSON.stringify({ ...exported, collections: { config: [{ id: "externalRegistry", plugins: [], themes: [] }] } }));
+    expect((await run(["transfer", "import", emptyReg, "--site", "copy", "--mode", "merge", "--keep-target", "--yes"])).code).toBe(0);
+    expect((await run(["plugins", "list", "--site", "copy"])).body.data.result.some((p: { id: string }) => p.id === "agentcms-sitemaps")).toBe(true);
 
     // Something only the second site has.
     expect((await run(["content", "create", "--site", "copy", "--title", "Local only"])).code).toBe(0);

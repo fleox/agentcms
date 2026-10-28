@@ -15,7 +15,7 @@ Every command is `npx -y @agent-cms/agentcms@0.3.1 <command> … --site <alias> 
 - The output is one JSON object on stdout, `{ ok, data: { site, result, log, notices, warnings } }`. Progress lines go to stderr: don't merge the two streams when you parse the JSON.
 - When `ok` is false, act on `error.hint`.
 - `--help` after a command prints all its options.
-- `site use <alias>` makes a site the default, so `--site` can be left out. Still name the site to the user.
+- **Always pass `--site <alias>`.** `site use` sets a default shared by every process on this computer: another agent or terminal can change it between two of your commands. Check `data.site` in each result.
 
 ## How it works
 
@@ -97,7 +97,7 @@ Details, examples and every option: [references/content.md](references/content.m
 - Before deleting a post, page or category, read the plan: `menuItems` lists the menu entries that still point to it. Remove them with `menus remove <id> --menu <menu>`, or the menu keeps a dead link.
 - Keep the user's voice. Ask before deleting, unpublishing or overwriting someone else's text.
 - Images: always set `--alt`. Upload JPEG, PNG, WebP or GIF (convert SVG and HEIC first, e.g. `sips -s format jpeg` on macOS). The site makes its own resized variants.
-- **Git sites:** every command is one commit and one Pages build; avoid loops of tiny commands when one command can take several items (`content publish a b c`, `media upload --data @media.json`).
+- **Git sites:** every command is one commit to the published site and one Pages build (content saves on Markdown sites are separate commits marked `[skip ci]`); avoid loops of tiny commands when one command can take several items (`content publish a b c`, `media upload --data @media.json`).
 - **SQLite sites:** one writer at a time, and the CLI locks the site while it writes. If the user is editing in the admin at the same time, a save can hit a conflict. Retry, or ask them to reload the admin.
 - **Version mismatch:** if `warnings` say the hosted admin and this tool differ, offer `deploy-admin` (see `agentcms-manage`).
 - **Firebase sites:** the CLI keeps the sign-in between commands, but Firebase still rate-limits bursts. If a command fails with `firebase-rate-limited`, wait a few minutes. Prefer one command over many small ones.

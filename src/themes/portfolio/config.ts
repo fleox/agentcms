@@ -45,8 +45,10 @@ export interface PortfolioSingleConfig {
   heroGrayscale: boolean;
   // Toggle the next-project teaser at the bottom of every single page.
   showNextProject: boolean;
-  // Default "services" labels shown on every project's left meta col
-  // when the post doesn't carry its own portfolio/project-meta block.
+  // Label overrides for the project page's left meta column. Empty
+  // (or the legacy "SERVICES" / "YEAR" defaults) = the translated
+  // "Category" / "Year" labels of the site language. The awards label
+  // is reserved (the sidebar has no awards row).
   defaultServicesLabel: string;
   defaultYearLabel: string;
   defaultAwardsLabel: string;
@@ -56,9 +58,9 @@ export const DEFAULT_PORTFOLIO_SINGLE: PortfolioSingleConfig = {
   showHero: true,
   heroGrayscale: true,
   showNextProject: true,
-  defaultServicesLabel: "SERVICES",
-  defaultYearLabel: "YEAR",
-  defaultAwardsLabel: "AWARDS",
+  defaultServicesLabel: "",
+  defaultYearLabel: "",
+  defaultAwardsLabel: "",
 };
 
 export interface PortfolioAuthorConfig {
@@ -122,3 +124,15 @@ export const DEFAULT_PORTFOLIO_CONFIG: PortfolioThemeConfig = {
   style: DEFAULT_STYLE,
   cssUpdatedAt: 0,
 };
+
+// Values earlier versions stored as the label defaults — treated as
+// "not customised" so those sites get the translated labels.
+const LEGACY_DEFAULT_LABELS = new Set(["SERVICES", "YEAR", "AWARDS"]);
+
+// Returns the user's label override, or "" when the stored value is
+// empty or one of the legacy defaults.
+export function customLabel(value: string | undefined | null): string {
+  const v = (value ?? "").trim();
+  if (!v || LEGACY_DEFAULT_LABELS.has(v.toUpperCase())) return "";
+  return v;
+}

@@ -5,6 +5,7 @@ import type { Editor } from "@tiptap/core";
 import type { BlockManifest } from "../../../../core/blockRegistry";
 import { useCmsData } from "../../../../context/CmsDataContext";
 import { blockNodeName, createBlockNode } from "../createBlockNode";
+import { ATTRS_SCHEMA } from "./attrsSchema";
 import type { PostsListAttrs } from "./render";
 
 const SUB_ID = "posts-list";
@@ -221,6 +222,7 @@ export const postsListBlock: BlockManifest<PostsListAttrs> = {
   namespace: "theme-default",
   icon: ListOrdered,
   category: "layout",
+  attrsSchema: ATTRS_SCHEMA,
   extensions: [postsListNode],
   insert: (chain) => {
     chain.focus().insertContent({ type: NODE_NAME }).run();

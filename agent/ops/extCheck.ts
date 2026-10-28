@@ -49,6 +49,8 @@ export interface CheckReport {
   errors: CheckIssue[];
   warnings: CheckIssue[];
   registered: Registrations | null;
+  // settings.schema (API 1.5): documented settings, null when absent.
+  settingsSchema: { documented: number; paths: string[] } | null;
   // Editor blocks: inserted in an editor configured like the admin's,
   // round-tripped through Markdown, then published in a demo page.
   blocks: Array<{ id: string; markdown: string | null; published: string | null }>;
@@ -88,6 +90,7 @@ export const KNOWN_FILTERS = [
   "sitemap.urls.extra",
   "sitemap.index.extra",
   "sitemap.news.locales",
+  "search.index.locales",
   "rss.site.locales",
 ];
 // Filters applied with applyFiltersSync: an async callback throws.
@@ -437,6 +440,7 @@ export async function checkExtension(pkg: ExtensionPackage, opts: CheckOptions =
     errors: [],
     warnings: [],
     registered: null,
+    settingsSchema: null,
     blocks: [],
     output: null,
   };
@@ -516,6 +520,9 @@ export async function checkExtension(pkg: ExtensionPackage, opts: CheckOptions =
   if (opts.kind && opts.kind !== kind) issues.push({ level: "error", code: "kind", message: `Expected a ${opts.kind}, the bundle is a ${kind}.` });
   if (mj.kind && mj.kind !== kind) issues.push({ level: "warn", code: "manifest-kind", message: `manifest.json kind "${mj.kind}" but the bundle is a ${kind}.` });
 
+  const schema = (m.settings as { schema?: Record<string, unknown> } | undefined)?.schema;
+  if (schema && typeof schema === "object") report.settingsSchema = { documented: Object.keys(schema).length, paths: Object.keys(schema) };
+  else if (m.settings) issues.push({ level: "warn", code: "settings-undocumented", message: "settings has no schema: agents get the defaults without explanations from `config --schema`.", hint: "Add settings.schema (API 1.5): { \"<path>\": { description, values?, min?, max?, format? } }." });
   const rec = emptyRegistrations();
   report.registered = rec;
   const blockManifests: BlockManifest[] = [];
@@ -544,6 +551,19 @@ export async function checkExtension(pkg: ExtensionPackage, opts: CheckOptions =
     for (const b of m.blocks ?? []) {
       rec.blocks.push(String((b as { id?: string }).id));
       blockManifests.push(b);
+    }
+  }
+  // Block attribute docs (API 1.6), read by `content blocks <id>`.
+  for (const b of blockManifests) {
+    const schema = (b as { attrsSchema?: Record<string, { description?: unknown }> }).attrsSchema;
+    if (schema === undefined) {
+      issues.push({ level: "warn", code: "block-undocumented", message: `Block ${b.id} has no attrsSchema: agents writing its marker can't tell what each attribute does.`, hint: "Add attrsSchema (API 1.6): { \"<attr>\": { description, values?, min?, max?, format? } }." });
+    } else if (typeof schema !== "object" || schema === null) {
+      issues.push({ level: "error", code: "block-attrs-schema", message: `Block ${b.id}: attrsSchema must be an object keyed by attribute.` });
+    } else {
+      for (const [k, d] of Object.entries(schema)) {
+        if (!d || typeof d.description !== "string" || !d.description.trim()) issues.push({ level: "warn", code: "block-attrs-description", message: `Block ${b.id}: attrsSchema["${k}"] has no description.` });
+      }
     }
   }
   for (const f of rec.filters) {

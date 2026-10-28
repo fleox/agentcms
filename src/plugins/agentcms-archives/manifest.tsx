@@ -43,7 +43,7 @@ async function regenerate(post: Post, ctx: PublishContext): Promise<void> {
 export const manifest: PluginManifest<ArchivesConfig> = {
   id: PLUGIN_ID,
   name: "Archives",
-  version: "1.0.2",
+  version: "1.0.3",
   author: "AgentCMS",
   description:
     "Generates static archive pages grouped by year (and optionally month or ISO week) and adds a 'See full archives' link to home / category listings — a static-friendly alternative to pagination.",

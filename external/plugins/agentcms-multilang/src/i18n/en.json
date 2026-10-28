@@ -19,12 +19,22 @@
       "help": "Optional: pick a static page (in the corresponding language) to render at /<lang>/. Leave empty for a basic latest-posts list.",
       "none": "— Latest posts —"
     },
+    "siteTexts": {
+      "title": "Site title and description per language",
+      "help": "Optional: shown instead of the site title and description (Settings → General) on the pages of each language — header, footer, page titles, RSS channel. Leave empty to keep the primary-language texts. Apply with Regenerate → Everything.",
+      "siteTitle": "Site title",
+      "siteDescription": "Site description"
+    },
     "switcher": {
       "title": "Language switcher",
       "help": "Show a language switcher on the public site. Themes must include a [data-cms-langswitch] container in their Header / Footer for the switcher to appear (built-in themes already do).",
       "header": "Show switcher in the site header",
       "footer": "Show switcher in the site footer"
     }
+  },
+  "regenerationTarget": {
+    "label": "Multi-language files",
+    "description": "Per-language data files (/<lang>/data/*.json) + removal of the files of languages no longer enabled"
   },
   "tab": {
     "label": "Translations",

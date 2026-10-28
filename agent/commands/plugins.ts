@@ -54,6 +54,9 @@ function nextSteps(id: string, alias: string): string[] {
     case "agentcms-favicon":
     case "agentcms-import":
       return [];
+    // Languages change URLs, listings, sitemaps, feeds and search indexes.
+    case "agentcms-multilang":
+      return [`agentcms regenerate everything --site ${alias}`];
     default:
       return [all];
   }
@@ -525,10 +528,11 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
         const prev = pluginConfigOf(s, manifest);
         if (req.mode === "get") return { id: manifest.id, config: prev, stored: s.settings().pluginConfigs?.[manifest.id] ?? null };
         const { deepMerge, shapeWarnings, changedKeys, schemaErrors } = await import("../ops/configEdit");
-        const next = req.mode === "set" ? req.value : deepMerge(prev, req.value);
+        const { keepManaged } = await import("../ops/configEdit");
+        const next = req.mode === "set" ? keepManaged(prev, req.value, manifest.settings.schema) : deepMerge(prev, req.value);
         const invalid = schemaErrors(manifest.settings.schema, next, prev);
         if (invalid.length) throw new CliError("invalid-value", `${manifest.id}: ${invalid.join(" ")}`, `See \`agentcms plugins config ${manifest.id} --schema\`.`, 2);
-        const warnings = shapeWarnings(defaults, req.value, manifest.id);
+        const warnings = shapeWarnings(defaults, req.value, manifest.id, manifest.settings.schema);
         if (!mu && s.settings().enabledPlugins?.[manifest.id] === false) warnings.push(`${manifest.id} is disabled: the settings are saved but have no effect until \`agentcms plugins enable ${manifest.id}\`.`);
         const { saved, effects } = await applyConfig(s, manifest, prev, next);
         return { id: manifest.id, config: saved, changed: changedKeys(prev, saved), effects, warnings, next: nextSteps(manifest.id, s.site.alias) };

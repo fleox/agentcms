@@ -80,3 +80,88 @@ describe("agentcms-search runtime modal", () => {
     expect(modal.style.getPropertyValue("--cms-search-accent")).toBe("");
   });
 });
+
+// Multilingual sites: the runtime loads the page language's index.
+async function setupLocale(opts: {
+  url: string;
+  lang: string;
+  head?: string;
+  scriptAttr?: string;
+  available: Record<string, unknown>;
+}) {
+  const dom = new JSDOM(
+    `<!doctype html><html lang="${opts.lang}"><head>${opts.head ?? ""}</head><body><button data-cms-search>Search</button></body></html>`,
+    { url: opts.url, runScripts: "outside-only", pretendToBeVisual: true },
+  );
+  const win = dom.window as unknown as Window & { eval(src: string): void };
+  const fetched: string[] = [];
+  (win as unknown as { fetch: unknown }).fetch = (url: string) => {
+    fetched.push(url);
+    const body = opts.available[url];
+    return Promise.resolve(
+      body
+        ? { ok: true, status: 200, json: () => Promise.resolve(body) }
+        : { ok: false, status: 404, json: () => Promise.reject(new Error("404")) },
+    );
+  };
+  // document.currentScript: run the source from a real <script> element
+  // carrying the attribute the plugin writes at publish time.
+  const doc = dom.window.document as Document;
+  if (opts.scriptAttr !== undefined) {
+    const el = doc.createElement("script");
+    el.setAttribute("data-cms-search-index", opts.scriptAttr);
+    doc.body.appendChild(el);
+    Object.defineProperty(doc, "currentScript", { configurable: true, get: () => el });
+  }
+  win.eval(SRC);
+  await tick();
+  (doc.querySelector("[data-cms-search]") as HTMLElement).click();
+  await tick();
+  return { doc, fetched };
+}
+
+const EN_INDEX = { meta: { placeholder: "Search…", noResults: "No results" }, items: [] };
+const FR_INDEX = { meta: { placeholder: "Rechercher…" }, items: [] };
+
+describe("agentcms-search runtime — per-language index", () => {
+  it("loads the index named by data-cms-search-index, under the base path", async () => {
+    const { doc, fetched } = await setupLocale({
+      url: "https://site.com/repo/en/news/a.html",
+      lang: "en",
+      head: '<meta name="x-cms-base" content="/repo/">',
+      scriptAttr: "en/search-index.json",
+      available: { "/repo/en/search-index.json": EN_INDEX, "/repo/search-index.json": FR_INDEX },
+    });
+    expect(fetched).toEqual(["/repo/en/search-index.json"]);
+    expect((doc.querySelector(".cms-search-header input") as HTMLInputElement).placeholder).toBe("Search…");
+  });
+
+  it("falls back to the first path segment matching <html lang> (pages without the attribute)", async () => {
+    const { fetched } = await setupLocale({
+      url: "https://site.com/en/news/a.html",
+      lang: "en-US",
+      available: { "/en/search-index.json": EN_INDEX },
+    });
+    expect(fetched).toEqual(["/en/search-index.json"]);
+  });
+
+  it("uses the root index on primary-language pages", async () => {
+    const { doc, fetched } = await setupLocale({
+      url: "https://site.com/actualites/a.html",
+      lang: "fr",
+      available: { "/search-index.json": FR_INDEX },
+    });
+    expect(fetched).toEqual(["/search-index.json"]);
+    expect((doc.querySelector(".cms-search-header input") as HTMLInputElement).placeholder).toBe("Rechercher…");
+  });
+
+  it("falls back to the root index when the language index is missing", async () => {
+    const { fetched } = await setupLocale({
+      url: "https://site.com/en/a.html",
+      lang: "en",
+      scriptAttr: "en/search-index.json",
+      available: { "/search-index.json": FR_INDEX },
+    });
+    expect(fetched).toEqual(["/en/search-index.json", "/search-index.json"]);
+  });
+});

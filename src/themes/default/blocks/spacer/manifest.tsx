@@ -4,6 +4,7 @@ import { NodeViewWrapper } from "@tiptap/react";
 import type { Editor } from "@tiptap/core";
 import type { BlockManifest } from "../../../../core/blockRegistry";
 import { blockNodeName, createBlockNode } from "../createBlockNode";
+import { ATTRS_SCHEMA } from "./attrsSchema";
 import type { SpacerAttrs } from "./render";
 
 const SUB_ID = "spacer";
@@ -84,6 +85,7 @@ export const spacerBlock: BlockManifest<SpacerAttrs> = {
   namespace: "theme-default",
   icon: Minus,
   category: "layout",
+  attrsSchema: ATTRS_SCHEMA,
   extensions: [node],
   insert: (chain) => {
     chain.focus().insertContent({ type: NODE_NAME }).run();

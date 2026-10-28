@@ -6,21 +6,36 @@ import { adminUrlOf, publicUrlOf, secureAdminUrlOf } from "../remote";
 import { getSite, listSites, putSite, removeSite, renameSite, resolveSite, setDefaultSite, validateAlias } from "../sites";
 import type { Command } from "./types";
 
+// What the CLI will need to manage this site and isn't recorded.
+function missingCredentials(site: import("../sites").SiteRecord): string[] {
+  const out: string[] = [];
+  const c = site.credentials;
+  const set = `\`agentcms site credentials ${site.alias} --<role>-credential <account>\``;
+  if (site.runtime.backend === "sqlite-file") {
+    if (!c.data && !c.hosting) out.push(`No credential can open the database: add a hosting (or data location) credential with ${set}.`);
+    if (site.runtime.sqlite.encrypted && !c.passphrase) out.push(`The database is encrypted and no passphrase credential is recorded: store it (\`! agentcms credentials set passphrase:${site.alias}\`) then ${set}.`);
+  }
+  if (site.runtime.backend === "firebase" && !c.data) out.push(`Firebase sites need the admin login: \`! agentcms credentials set firebase:<name>\` then ${set}.`);
+  if (!c.hosting && site.runtime.backend !== "local") out.push(`No hosting credential: publishing commands will fail until one is added with ${set}.`);
+  return out;
+}
+
 export const siteCommand: Command = {
   name: "site",
   summary:
-    "Manage the registry of sites this computer drives: list, show, use <alias> (default), rename <from> <to>, forget <alias> (local only — nothing is deleted online), add <alias> --admin-url <url> (register an existing site), screenshot [path…] (PNG captures of the live public site, desktop + mobile; default: the home page).",
-  usage: "site <list|show|use|rename|forget|add|screenshot> [args] [--site <alias>] [--admin-url <url>] [--site-url <url>] [--data-credential <account>] [--hosting-credential <account>] [--passphrase-credential <account>]",
+    "Manage the registry of sites this computer drives: list, show, use <alias> (default), rename <from> <to>, forget <alias> (local only — nothing is deleted online), add <alias> --admin-url <url> (register an existing site; warns about missing credentials), credentials <alias> --data-credential|--hosting-credential|--passphrase-credential <account> (attach accounts to a registered site), screenshot [path…] (PNG captures of the live public site, desktop + mobile; default: the home page).",
+  usage: "site <list|show|use|rename|forget|add|credentials|screenshot> [args] [--site <alias>] [--admin-url <url>] [--site-url <url>] [--data-credential <account>] [--hosting-credential <account>] [--passphrase-credential <account>] [--out <dir>] [--max-height <px>] [--color-scheme light|dark] [--screenshot-js <code>]",
   options: [
     { name: "site", type: "string", description: "Site alias (show, screenshot)." },
     { name: "out", type: "string", description: "screenshot: folder for the PNGs (default: <system temp>/agentcms-screenshots/<alias>; absolute paths in the result)." },
     { name: "screenshot-js", type: "string", description: "screenshot: JavaScript run in each page before the capture (await allowed), e.g. 'document.querySelector(\"[data-cms-search]\")?.click()'." },
+    { name: "color-scheme", type: "string", description: "screenshots: prefers-color-scheme of the captures, light (default) or dark." },
     { name: "max-height", type: "string", description: "screenshot: cap each capture's height in CSS px (default: the whole page, up to 6000). Use the viewport height (800 desktop / 844 mobile) for above-the-fold only." },
     { name: "admin-url", type: "string", description: "add: URL of the hosted admin, e.g. https://example.com/admin/." },
     { name: "site-url", type: "string", description: "add: public site URL when it isn't the admin's parent folder." },
-    { name: "data-credential", type: "string", description: "add: account of the content repo token (Markdown in git) or of the SQLite data location." },
-    { name: "hosting-credential", type: "string", description: "add: account used to write to the hosting." },
-    { name: "passphrase-credential", type: "string", description: "add: passphrase account of an encrypted SQLite database." },
+    { name: "data-credential", type: "string", description: "add / credentials: account of the content repo token (Markdown in git) or of the SQLite data location." },
+    { name: "hosting-credential", type: "string", description: "add / credentials: account used to write to the hosting." },
+    { name: "passphrase-credential", type: "string", description: "add / credentials: passphrase account of an encrypted SQLite database." },
   ],
   async run({ io, options, positionals }) {
     const [action = "list", a, b] = positionals;
@@ -83,7 +98,33 @@ export const siteCommand: Command = {
           passphraseCredential: options["passphrase-credential"] as string | undefined,
         });
         putSite(site);
-        printResult(io, site, () => `Registered ${a}: ${site.siteUrl} [${site.runtime.backend} → ${site.hosting.connectorId || "unknown hosting"}]`);
+        const warnings = missingCredentials(site);
+        printResult(io, { ...site, warnings }, () => [`Registered ${a}: ${site.siteUrl} [${site.runtime.backend} → ${site.hosting.connectorId || "unknown hosting"}]`, ...warnings.map((w) => `  warning: ${w}`)].join("\n"));
+        return;
+      }
+      case "credentials": {
+        // Attach (or change) the accounts a registered site uses.
+        const site = resolveSite(a ?? (options.site as string | undefined));
+        const { parseAccount, getCredential } = await import("../credentials");
+        const roles = { data: "data-credential", hosting: "hosting-credential", passphrase: "passphrase-credential" } as const;
+        const next = { ...site.credentials };
+        let changed = false;
+        for (const [role, flag] of Object.entries(roles) as Array<[keyof typeof roles, string]>) {
+          const v = options[flag];
+          if (typeof v !== "string") continue;
+          if (v === "") delete next[role];
+          else {
+            parseAccount(v);
+            if (!getCredential(v)) throw new CliError("credential-missing", `${v} is not stored on this computer.`, `Store it first: \`! agentcms credentials set ${v}\`.`, 2);
+            next[role] = v;
+          }
+          changed = true;
+        }
+        if (!changed) throw new CliError("usage", "site credentials needs --data-credential, --hosting-credential and/or --passphrase-credential (\"\" removes one).", undefined, 2);
+        const updated = { ...site, credentials: next, updatedAt: new Date().toISOString() };
+        putSite(updated);
+        const warnings = missingCredentials(updated);
+        printResult(io, { alias: site.alias, credentials: next, warnings }, () => [`${site.alias}: ${JSON.stringify(next)}`, ...warnings.map((w) => `  warning: ${w}`)].join("\n"));
         return;
       }
       case "screenshot": {
@@ -96,7 +137,8 @@ export const siteCommand: Command = {
           pages[label] = path;
         }
         const { resolve } = await import("node:path");
-        const { screenshotPages } = await import("../ops/extScreenshot");
+        const { screenshotPages, setScreenshotColorScheme } = await import("../ops/extScreenshot");
+    setScreenshotColorScheme(options["color-scheme"]);
         // Default: the system temp folder, never the user's project.
         const outDir = resolve(String(options.out ?? join(tmpdir(), "agentcms-screenshots", site.alias)));
         const base = publicUrlOf(site);
@@ -109,7 +151,7 @@ export const siteCommand: Command = {
         return r.errors.length ? 1 : 0;
       }
       default:
-        throw new CliError("usage", `Unknown action "${action}".`, "Use list, show, use, rename, forget, add or screenshot.", 2);
+        throw new CliError("usage", `Unknown action "${action}".`, "Use list, show, use, rename, forget, add, credentials or screenshot.", 2);
     }
   },
 };

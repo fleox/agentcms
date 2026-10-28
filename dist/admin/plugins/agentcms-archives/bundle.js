@@ -762,7 +762,7 @@ async function Fe(e) {
   for (const { language: i, isPrimary: l } of ie(n)) {
     const c = re(n, i, l);
     if (!c) continue;
-    const s = N(i, l ? i : "__primary__"), d = B(i, l ? i : "__primary__"), g = K(i, l ? i : "__primary__"), p = await Ye({
+    const s = N(i, l ? i : "__primary__"), d = B(i, l ? i : "__primary__"), g = K(i, l ? i : "__primary__"), p = await Je({
       data: c,
       config: a,
       touchedPost: t,
@@ -784,10 +784,15 @@ function Re(e) {
   return a.length === 0 ? null : { primaryLanguage: n, enabledLanguages: a };
 }
 function $e(e, t) {
+  var i, l, c, s;
+  const n = (i = e.pluginConfigs) == null ? void 0 : i["agentcms-multilang"], a = (l = n == null ? void 0 : n.siteTexts) == null ? void 0 : l[t], r = {};
+  return (c = a == null ? void 0 : a.title) != null && c.trim() && (r.title = a.title.trim()), (s = a == null ? void 0 : a.description) != null && s.trim() && (r.description = a.description.trim()), r;
+}
+function Oe(e, t) {
   const n = e.translations, a = n == null ? void 0 : n[t];
   return !a || !a.slug || !a.title ? null : a;
 }
-function Oe(e, t) {
+function We(e, t) {
   const n = e.translations, a = n == null ? void 0 : n[t];
   return !a || !a.slug || !a.name ? null : a;
 }
@@ -796,10 +801,10 @@ function re(e, t, n) {
     return { ...e, settings: { ...e.settings, language: t } };
   const a = `${t}/`, r = e.terms.map((s) => {
     if (s.type !== "category") return s;
-    const d = Oe(s, t);
+    const d = We(s, t);
     return d ? { ...s, name: d.name, slug: `${a}${d.slug}` } : s;
   }), i = (s) => {
-    const d = $e(s, t);
+    const d = Oe(s, t);
     if (!d) return null;
     const g = s.type !== "post" || !s.primaryTermId;
     return {
@@ -812,7 +817,7 @@ function re(e, t, n) {
     posts: l,
     pages: c,
     terms: r,
-    settings: { ...e.settings, language: t }
+    settings: { ...e.settings, ...$e(e.settings, t), language: t }
   };
 }
 function ie(e) {
@@ -832,7 +837,7 @@ async function oe(e) {
     if (!l) continue;
     const c = N(r, i ? r : "__primary__"), s = B(r, i ? r : "__primary__"), d = K(r, i ? r : "__primary__");
     await ge(c), n.wipedFolders.push(`${c}/`);
-    const g = await We({
+    const g = await je({
       data: l,
       config: t,
       root: c,
@@ -844,8 +849,8 @@ async function oe(e) {
   }
   return n;
 }
-async function We(e) {
-  const { data: t, config: n, root: a, indexPath: r, indexHref: i, currentLocale: l } = e, c = { uploaded: [], deleted: [] }, s = ne(t, n), d = te(t), g = se(d, l), p = ze(s, n.drillDown), m = [];
+async function je(e) {
+  const { data: t, config: n, root: a, indexPath: r, indexHref: i, currentLocale: l } = e, c = { uploaded: [], deleted: [] }, s = ne(t, n), d = te(t), g = se(d, l), p = Ye(s, n.drillDown), m = [];
   for (const h of p.years) m.push(h);
   for (const h of p.drills) m.push(h);
   for (const h of m) {
@@ -859,7 +864,7 @@ async function We(e) {
       indexHref: i,
       currentLocale: l
     });
-    await T({ path: v, content: f }), c.uploaded.push(v), await je(75);
+    await T({ path: v, content: f }), c.uploaded.push(v), await ze(75);
   }
   const b = de({
     data: t,
@@ -879,10 +884,10 @@ function se(e, t) {
 function R(e, t = y) {
   return e.kind === "year" ? U(e, t) : e.kind === "month" ? q(e, t) : G(e, t);
 }
-function je(e) {
+function ze(e) {
   return new Promise((t) => setTimeout(t, e));
 }
-function ze(e, t) {
+function Ye(e, t) {
   const n = /* @__PURE__ */ new Map(), a = /* @__PURE__ */ new Map();
   for (const l of e) {
     const c = L(l, t);
@@ -948,7 +953,7 @@ function de(e) {
     currentLocale: e.currentLocale
   });
 }
-async function Ye(e) {
+async function Je(e) {
   const { data: t, config: n, touchedPost: a, currentLocale: r } = e, i = e.root ?? y, l = e.indexPath ?? V, c = e.indexHref, s = { uploaded: [], deleted: [] }, d = ne(t, n), g = te(t), p = se(g, r), m = L(a, n.drillDown), b = [];
   m && (b.push(m.year), m.drill && b.push(m.drill));
   for (const v of b) {
@@ -983,7 +988,7 @@ async function Ye(e) {
   });
   return await T({ path: l, content: h }), s.uploaded.push(l), s;
 }
-function Je(e) {
+function Ee(e) {
   const t = e.wipedFolders ?? [], n = t.length ? ` (rebuilt ${t.join(", ")})` : "", a = e.deleted.length ? `, ${e.deleted.length} removed` : "";
   return `Archives: ${e.uploaded.length} page(s) uploaded${a}${n}.`;
 }
@@ -993,14 +998,14 @@ function Je(e) {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Ee = (e) => e.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), he = (...e) => e.filter((t, n, a) => !!t && t.trim() !== "" && a.indexOf(t) === n).join(" ").trim();
+const Ve = (e) => e.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), he = (...e) => e.filter((t, n, a) => !!t && t.trim() !== "" && a.indexOf(t) === n).join(" ").trim();
 /**
  * @license lucide-react v0.460.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-var Ve = {
+var Ue = {
   xmlns: "http://www.w3.org/2000/svg",
   width: 24,
   height: 24,
@@ -1017,7 +1022,7 @@ var Ve = {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Ue = E(
+const qe = E(
   ({
     color: e = "currentColor",
     size: t = 24,
@@ -1031,7 +1036,7 @@ const Ue = E(
     "svg",
     {
       ref: s,
-      ...Ve,
+      ...Ue,
       width: t,
       height: t,
       stroke: e,
@@ -1053,10 +1058,10 @@ const Ue = E(
  */
 const $ = (e, t) => {
   const n = E(
-    ({ className: a, ...r }, i) => M(Ue, {
+    ({ className: a, ...r }, i) => M(qe, {
       ref: i,
       iconNode: t,
-      className: he(`lucide-${Ee(e)}`, a),
+      className: he(`lucide-${Ve(e)}`, a),
       ...r
     })
   );
@@ -1077,7 +1082,7 @@ const z = $("LoaderCircle", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const qe = $("RefreshCw", [
+const Ge = $("RefreshCw", [
   ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
   ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
   ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
@@ -1089,7 +1094,7 @@ const qe = $("RefreshCw", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Ge = $("Save", [
+const Be = $("Save", [
   [
     "path",
     {
@@ -1100,7 +1105,7 @@ const Ge = $("Save", [
   ["path", { d: "M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7", key: "1ydtos" }],
   ["path", { d: "M7 3v4a1 1 0 0 0 1 1h7", key: "t51u73" }]
 ]);
-function Be({
+function Ke({
   config: e,
   save: t
 }) {
@@ -1214,7 +1219,7 @@ function Be({
           disabled: c,
           children: /* @__PURE__ */ u("span", { className: "inline-flex items-center justify-center gap-1.5", children: [
             /* @__PURE__ */ o(z, { className: "h-4 w-4 animate-spin " + (c ? "" : "hidden") }),
-            /* @__PURE__ */ o(Ge, { className: "h-4 w-4 " + (c ? "hidden" : "") }),
+            /* @__PURE__ */ o(Be, { className: "h-4 w-4 " + (c ? "hidden" : "") }),
             /* @__PURE__ */ o("span", { children: n(c ? "settings.saving" : "settings.save") })
           ] })
         }
@@ -1234,7 +1239,7 @@ function Be({
           disabled: d,
           children: /* @__PURE__ */ u("span", { className: "inline-flex items-center justify-center gap-1.5", children: [
             /* @__PURE__ */ o(z, { className: "h-4 w-4 animate-spin " + (d ? "" : "hidden") }),
-            /* @__PURE__ */ o(qe, { className: "h-4 w-4 " + (d ? "hidden" : "") }),
+            /* @__PURE__ */ o(Ge, { className: "h-4 w-4 " + (d ? "hidden" : "") }),
             /* @__PURE__ */ o("span", { children: n(d ? "settings.forceRegenerating" : "settings.forceRegenerate") })
           ] })
         }
@@ -1242,7 +1247,7 @@ function Be({
     ] })
   ] });
 }
-const Ke = {
+const Xe = {
   drillDown: {
     description: "Sub-pages under each year archive: none (year pages only), month (/archives/<year>/<mm>/) or ISO week (/archives/<year>/W<ww>/). Changing it needs a full archives regeneration, which rebuilds /archives/ from scratch.",
     values: ["none", "month", "week"]
@@ -1259,7 +1264,7 @@ const Ke = {
   addArchivesLinkToCategory: {
     description: `Add a "See full archives" link below every category archive's post list. Shows after the category pages are regenerated.`
   }
-}, Xe = `# Archives
+}, Ze = `# Archives
 
 Static archive pages — a search-engine-friendly, static-hosting-friendly alternative to pagination.
 
@@ -1389,19 +1394,19 @@ async function I(e, t) {
     console.error("[agentcms-archives] regeneration failed:", n);
   }
 }
-const nt = {
+const at = {
   id: S,
   name: "Archives",
-  version: "1.0.2",
+  version: "1.0.3",
   author: "AgentCMS",
   description: "Generates static archive pages grouped by year (and optionally month or ISO week) and adds a 'See full archives' link to home / category listings — a static-friendly alternative to pagination.",
-  readme: Xe,
+  readme: Ze,
   i18n: { en: we, fr: _e, de: Se, es: Ae, nl: Te, pt: xe, ko: De },
   settings: {
     navLabelKey: "title",
     defaultConfig: Q,
-    component: Be,
-    schema: Ke
+    component: Ke,
+    schema: Xe
   },
   register(e) {
     e.addAction("publish.complete", async (t, n) => {
@@ -1423,11 +1428,11 @@ const nt = {
           terms: t.terms,
           settings: t.settings
         });
-        n({ level: "success", message: Je(a) });
+        n({ level: "success", message: Ee(a) });
       }
     });
   }
 };
 export {
-  nt as manifest
+  at as manifest
 };

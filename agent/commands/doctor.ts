@@ -1,7 +1,7 @@
 import { getCredential } from "../credentials";
 import { printResult } from "../output";
 import { readVersionInfo } from "../paths";
-import { adminUrlOf, secureAdminUrlOf, fetchHostedAdmin, fetchText, findSecretKeys, parseConfigJs } from "../remote";
+import { adminUrlOf, publicUrlOf, secureAdminUrlOf, fetchHostedAdmin, fetchText, findSecretKeys, parseConfigJs } from "../remote";
 import { compareVersions } from "../semver";
 import { resolveSite, type SiteRecord } from "../sites";
 import { installBrowserEnv } from "../browserEnv";
@@ -40,7 +40,9 @@ export async function runDoctor(site: SiteRecord, opts: { deep?: boolean; fetchI
   );
 
   const pagesHost = site.hosting?.connectorId === "git-pages";
-  const home = await fetchText(`${siteUrl}/`, f);
+  // The public address (an S3 site registered by its https REST endpoint
+  // serves no index documents there: use the website URL).
+  const home = await fetchText(`${publicUrlOf(site)}/`, f);
   add(
     home.ok
       ? /\/theme-assets\//.test(home.text ?? "")
@@ -52,7 +54,7 @@ export async function runDoctor(site: SiteRecord, opts: { deep?: boolean; fetchI
             fix: `${pagesHost ? "Pages hosts take a minute or two after a commit: wait, then re-run doctor. " : ""}Otherwise publish something or run \`agentcms regenerate everything --site ${site.alias}\`.`,
           }
       : home.status === 404
-        ? { id: "site", status: "warn", message: "No home page yet (404).", fix: "Publish a post or run Regenerate → Everything in the admin." }
+        ? { id: "site", status: "warn", message: "No home page yet (404).", fix: `Publish a post or run \`agentcms regenerate everything --site ${site.alias}\`.` }
         : { id: "site", status: "fail", message: `Site not reachable: ${home.error ?? `HTTP ${home.status}`}.`, fix: "Check siteUrl, DNS, and that the host serves the bucket / repo (GitHub Pages enabled, S3 website hosting on)." },
   );
 
@@ -84,6 +86,40 @@ export async function runDoctor(site: SiteRecord, opts: { deep?: boolean; fetchI
     }
   }
 
+  // Missing URLs should show this site's 404.html. A bucket has ONE error
+  // document: a site in a sub-folder of a shared bucket shows another
+  // site's 404 page.
+  if (home.ok) {
+    const missing = await fetchText(`${publicUrlOf(site)}/agentcms-doctor-missing-page.html`, f);
+    const own = await fetchText(`${publicUrlOf(site)}/404.html`, f);
+    if (own.ok && missing.status === 404) {
+      const norm = (t: string) => t.replace(/\s+/g, " ").trim();
+      add(
+        norm(missing.text) === norm(own.text)
+          ? { id: "not-found-page", status: "ok", message: "Missing pages show this site's 404 page." }
+          : {
+              id: "not-found-page",
+              status: "warn",
+              message: "Missing pages show another page than this site's 404.html (the hosting's error page belongs to another site or the bucket root).",
+              fix: site.hosting.connectorId === "s3"
+                ? "A bucket has a single error document: give the site its own bucket (or point the bucket's error document at this site's 404.html if it is the main site)."
+                : "Check the host's custom 404 setting.",
+            },
+      );
+    }
+  }
+
+  // Markdown content in the published repository is served with the site.
+  if (site.runtime.backend === "markdown-git" && home.ok) {
+    const dir = String(site.runtime.git.contentDir ?? "").replace(/^\/+|\/+$/g, "");
+    const probe = await fetchText(`${publicUrlOf(site)}/${dir ? `${dir}/` : ""}settings/site.json`, f);
+    add(
+      probe.ok && /^\s*\{/.test(probe.text)
+        ? { id: "content-exposure", status: "warn", message: "The content repository is served by the public site: drafts and users.json (editors' emails) are downloadable.", fix: "Move the content to a separate private repository (`transfer export` → new site), or publish the site from a `docs` folder." }
+        : { id: "content-exposure", status: "ok", message: "Content files are not served by the public site." },
+    );
+  }
+
   const css = await fetchText(`${siteUrl}/theme-assets/default.css`, f);
   add(
     css.ok && css.contentType.includes("text/css")
@@ -100,7 +136,8 @@ export async function runDoctor(site: SiteRecord, opts: { deep?: boolean; fetchI
   if (!adminUrl) {
     add({ id: "admin", status: "skip", message: "Admin not hosted on this site." });
   } else {
-    const index = await fetchText(adminUrl, f);
+    // index.html named: the S3 REST endpoint has no index documents.
+    const index = await fetchText(`${adminUrl}index.html`, f);
     if (!index.ok || !index.contentType.includes("text/html")) {
       add({
         id: "admin",
@@ -109,7 +146,8 @@ export async function runDoctor(site: SiteRecord, opts: { deep?: boolean; fetchI
         fix: `\`agentcms deploy-admin --site ${site.alias}\`; on GitHub Pages wait a minute after a commit.`,
       });
     } else {
-      add({ id: "admin", status: "ok", message: `Admin page served at ${adminUrl}.` });
+      const openAt = secureAdmin ?? adminUrl;
+      add({ id: "admin", status: "ok", message: `Admin served; open it at ${openAt}.` });
       const hosted = await fetchHostedAdmin(adminUrl, f);
       const refs = [...index.text.matchAll(/(?:src|href)="\.\/([^"?#]+)"/g)].map((m) => m[1]);
       const missing = refs.filter((r) => r !== "config.js" && !hosted.files.includes(r));
@@ -201,6 +239,26 @@ export async function runDoctor(site: SiteRecord, opts: { deep?: boolean; fetchI
     }
   }
 
+  if (opts.deep && (site.runtime.backend === "sqlite-file" || site.runtime.backend === "markdown-git")) {
+    // Open the content like any admin command would (keys, passphrase).
+    try {
+      installBrowserEnv();
+      const { openSiteStore } = await import("../ops/siteData");
+      const store = await openSiteStore(site);
+      await store.ready();
+      add({ id: "data-access", status: "ok", message: `Content readable (${store.list("posts").length} posts and pages).` });
+    } catch (err) {
+      const { CliError } = await import("../output");
+      const reason = (err as { name?: string; reason?: string }).name === "SqlitePassphraseError" ? (err as { reason?: string }).reason : null;
+      add({
+        id: "data-access",
+        status: "fail",
+        message: reason === "wrong" ? "Wrong passphrase: the database can't be decrypted." : reason === "missing" ? "The database is encrypted and no passphrase credential is recorded." : `Content not readable: ${(err as Error).message}`,
+        fix: err instanceof CliError && err.hint ? err.hint : `Check the site's credentials (\`agentcms site show ${site.alias}\`), store the right secret with \`! agentcms credentials set <account>\`, attach it with \`agentcms site credentials ${site.alias} …\`.`,
+      });
+    }
+  }
+
   if (opts.deep) {
     if (!hostingCred) {
       add({ id: "hosting-access", status: "skip", message: "No hosting credential to test." });
@@ -221,7 +279,7 @@ export async function runDoctor(site: SiteRecord, opts: { deep?: boolean; fetchI
 export const doctorCommand: Command = {
   name: "doctor",
   summary:
-    "Health check of a site: HTTPS, home page, pending deployment (served home vs the hosting's), theme assets, hosted admin (consistent build, JavaScript content type, version), config.js without secrets, stored credentials, GitHub Pages. --deep also tests write access.",
+    "Health check of a site (--deep also opens the content and tests write access): HTTPS, home page, pending deployment (served home vs the hosting's), theme assets, hosted admin (consistent build, JavaScript content type, version), config.js without secrets, stored credentials, GitHub Pages.",
   usage: "doctor [--site <alias>] [--deep]",
   options: [
     { name: "site", type: "string", description: "Site alias." },

@@ -7,6 +7,7 @@ import {
   DEFAULT_COLS,
 } from "./extension";
 import { ColumnsInspector } from "./inspector";
+import { ATTRS_SCHEMA } from "./attrsSchema";
 
 const PLUGIN_ID = "agentcms-blocks";
 const SUB_ID = "columns";
@@ -30,6 +31,7 @@ export const columnsBlock: BlockManifest = {
   namespace: PLUGIN_ID,
   icon: Columns3,
   category: "layout",
+  attrsSchema: ATTRS_SCHEMA,
   extensions: [ColumnsContainer, Column],
   insert: (chain) => {
     chain

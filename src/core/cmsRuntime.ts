@@ -300,7 +300,11 @@ declare global {
 // (SettingsSchema) on plugin and theme manifests, read by
 // `agentcms plugins|themes config <id> --schema`. Backwards
 // compatible — every 1.4.x bundle still loads.
-export const CMS_API_VERSION = "1.5.0";
+// 1.6.0 — `search.index.locales` filter (per-language search indexes,
+// SearchLocaleEntry) and BlockManifest.attrsSchema (documented block
+// attributes for `agentcms content blocks`). Backwards compatible — every 1.5.x bundle still
+// loads.
+export const CMS_API_VERSION = "1.6.0";
 export const CMS_API_MIN_VERSION = "1.0.0";
 
 // Snapshot of the public runtime API. Each named property is

@@ -7,6 +7,7 @@ import type { Post } from "../../../../core/types";
 import { postSortMillis } from "../../../../core/postSort";
 import { useAllPosts } from "../../../../hooks/useAllPosts";
 import { blockNodeName, createBlockNode } from "../createBlockNode";
+import { ATTRS_SCHEMA } from "./attrsSchema";
 import type { HeroAttrs } from "./render";
 
 const SUB_ID = "hero";
@@ -148,6 +149,7 @@ export const heroBlock: BlockManifest<HeroAttrs> = {
   namespace: "theme-default",
   icon: Star,
   category: "layout",
+  attrsSchema: ATTRS_SCHEMA,
   extensions: [heroNode],
   insert: (chain) => {
     chain.focus().insertContent({ type: NODE_NAME }).run();

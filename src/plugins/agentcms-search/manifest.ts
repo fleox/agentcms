@@ -10,6 +10,7 @@ import {
   DEFAULT_SEARCH_CONFIG,
   PLUGIN_ID,
   SEARCH_RUNTIME_PATH,
+  localeIndexPathFor,
   type SearchConfig,
 } from "./config";
 import { ensureRuntime, regenerateAll, regenerateIndex } from "./generator";
@@ -60,7 +61,7 @@ async function regenerate(_post: Post, ctx: PublishContext): Promise<void> {
 export const manifest: PluginManifest<SearchConfig> = {
   id: PLUGIN_ID,
   name: "Search",
-  version: "1.0.2",
+  version: "1.0.3",
   author: "AgentCMS",
   description:
     "Generates /search-index.json + a search runtime that opens a modal anywhere a [data-cms-search] trigger is present in your theme.",
@@ -93,10 +94,16 @@ export const manifest: PluginManifest<SearchConfig> = {
     // The brief between-uploads window in which a visitor could 404
     // on /search.js is acceptable: the page itself stays valid (the
     // browser ignores the failing script) and the next reload works.
+    //
+    // Pages of a secondary language (agentcms-multilang) name their
+    // language's index in `data-cms-search-index` so the runtime loads
+    // the translated entries + UI strings. Relative value: the runtime
+    // prefixes it with the x-cms-base path itself.
     api.addFilter<string>("page.body.end", (current, ...rest) => {
       const props = rest[0] as BaseLayoutProps | undefined;
-      void props;
-      const tag = `<script src="/${SEARCH_RUNTIME_PATH}" defer></script>`;
+      const localeIndex = localeIndexPathFor(props);
+      const attr = localeIndex ? ` data-cms-search-index="${localeIndex}"` : "";
+      const tag = `<script src="/${SEARCH_RUNTIME_PATH}"${attr} defer></script>`;
       return [current, tag].filter(Boolean).join("");
     });
 
@@ -126,7 +133,13 @@ export const manifest: PluginManifest<SearchConfig> = {
         if (JSON.stringify(result.nextConfig) !== JSON.stringify(config)) {
           await updatePluginConfig(PLUGIN_ID, result.nextConfig);
         }
-        log({ level: "success", message: "Search: runtime + index uploaded." });
+        const locales = result.nextConfig.lastLocalePaths ?? [];
+        log({
+          level: "success",
+          message: locales.length
+            ? `Search: runtime + index uploaded (+ ${locales.join(", ")}).`
+            : "Search: runtime + index uploaded.",
+        });
       },
     });
   },

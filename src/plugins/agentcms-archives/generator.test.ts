@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Post, SiteSettings } from "../../core/types";
 
 const ops: string[] = [];
+const titles: string[] = [];
 vi.mock("@agent-cms/runtime", async () => {
   const slug = await import("../../core/slug");
   return {
@@ -9,7 +10,7 @@ vi.mock("@agent-cms/runtime", async () => {
     i18n: { getFixedT: () => (key: string) => key },
     pickPublicLocale: () => "en",
     getActiveTheme: () => ({ templates: { base: () => null } }),
-    buildSiteContext: (ctx: { settings: SiteSettings }) => ({
+    buildSiteContext: (ctx: { settings: SiteSettings }) => (titles.push(`${ctx.settings.language}:${ctx.settings.title}`), {
       settings: ctx.settings,
       resolvedMenus: { header: [], footer: [] },
       themeCssPath: "theme-assets/default.css",
@@ -84,5 +85,16 @@ describe("agentcms-archives forceRegenerate — truthful counts", () => {
     expect(
       forceRegenerateSummary({ uploaded: ["archives/index.html"], deleted: ["archives/2024/index.html"] }),
     ).toBe("Archives: 1 page(s) uploaded, 1 removed.");
+  });
+});
+
+describe("agentcms-archives — localized archives", () => {
+  it("use agentcms-multilang's translated site title", async () => {
+    titles.length = 0;
+    const p = { ...post("hello", "2026-03-01T00:00:00Z"), translations: { fr: { title: "Bonjour", slug: "bonjour" } } } as unknown as Post;
+    const ml = { primaryLanguage: "en", enabledLanguages: ["fr"], siteTexts: { fr: { title: "Site FR" } } };
+    await forceRegenerate({ posts: [p], pages: [], terms: [], settings: { ...settings, pluginConfigs: { ...settings.pluginConfigs, "agentcms-multilang": ml } } as unknown as SiteSettings });
+    expect(titles).toContain("fr:Site FR");
+    expect(titles).toContain("en:Site");
   });
 });

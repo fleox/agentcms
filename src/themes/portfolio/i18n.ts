@@ -15,6 +15,7 @@ const publicBakedEn = {
   all: "ALL",
   // Single-post chrome
   servicesLabel: "SERVICES",
+  categoryLabel: "CATEGORY",
   yearLabel: "YEAR",
   awardsLabel: "AWARDS",
   nextProject: "NEXT PROJECT",
@@ -28,6 +29,10 @@ const publicBakedEn = {
   loadMore: "LOAD MORE",
   // Footer
   rightsReserved: "ALL RIGHTS RESERVED.",
+  // 404 page
+  notFoundBody:
+    "This page does not exist. The page may have moved, or you typed an address that was never published here.",
+  notFoundCta: "Return home",
 };
 
 const blocksEn = {
@@ -181,6 +186,7 @@ const publicBakedFr = {
   primaryNavMobile: "Navigation principale",
   all: "TOUS",
   servicesLabel: "SERVICES",
+  categoryLabel: "CATÉGORIE",
   yearLabel: "ANNÉE",
   awardsLabel: "RÉCOMPENSES",
   nextProject: "PROJET SUIVANT",
@@ -191,6 +197,9 @@ const publicBakedFr = {
   recognition: "Distinctions",
   loadMore: "VOIR PLUS",
   rightsReserved: "TOUS DROITS RÉSERVÉS.",
+  notFoundBody:
+    "Cette page n'existe pas. Elle a peut-être été déplacée, ou l'adresse saisie n'a jamais été publiée ici.",
+  notFoundCta: "Retour à l'accueil",
 };
 
 const blocksFr = {

@@ -4,7 +4,7 @@
 
 - **Content** (Markdown backend): a repository holding posts as `.md` files. Make it **private** - it contains drafts.
 - **Site** (GitHub Pages): a repository the admin publishes HTML into. On free GitHub plans Pages only works on **public** repositories.
-- Use two repositories. Content inside the public site repository would publish the drafts too.
+- Use two repositories, the content one **private**. Pages serves the whole published repository: content kept in it (even in a `content/` folder) is public — drafts, unpublished pages and `users.json` with the editors' emails. `install` and `doctor` (`content-exposure`) warn about it. If the user insists on one repository, publish the site from a `docs` folder (`hosting.settings.dir: "docs"`) so the content folder isn't served.
 - An empty repository is fine: the first install commit creates the branch.
 - Everything in the site repository is public on the site, including a `README.md` GitHub created: remove it with `agentcms files delete README.md --site <alias> --yes` if the user doesn't want it served.
 

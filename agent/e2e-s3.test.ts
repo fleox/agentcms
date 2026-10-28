@@ -99,6 +99,25 @@ describe("SQLite on S3 (fake S3)", () => {
       hosting: hosting("shop"),
     });
     expect((await run(["install", "--plan", other, "--dry-run"])).body.error?.code).toBe("check-failed");
+
+    // Registering it from another computer: the passphrase errors say
+    // what to do, credentials can be attached later, doctor --deep proves them.
+    const admin = `${s3.websiteUrl("shop")}/admin/`;
+    expect((await run(["site", "add", "shop2", "--admin-url", admin, "--hosting-credential", "s3:main"])).body.error?.code).toBe("passphrase-required");
+    process.env.E2E_WRONG_PASS = "not-the-passphrase";
+    expect((await run(["credentials", "set", "passphrase:wrong", "--from-env", "E2E_WRONG_PASS"])).code).toBe(0);
+    expect((await run(["site", "add", "shop2", "--admin-url", admin, "--hosting-credential", "s3:main", "--passphrase-credential", "passphrase:wrong"])).body.error?.code).toBe("passphrase-wrong");
+    const added = await run(["site", "add", "shop2", "--admin-url", admin, "--hosting-credential", "s3:main", "--passphrase-credential", "passphrase:shop"]);
+    expect(added.body.data).toMatchObject({ siteUrl: s3.websiteUrl("shop"), warnings: [] });
+    const wrong = await run(["site", "credentials", "shop2", "--passphrase-credential", "passphrase:wrong"]);
+    expect(wrong.body.data.credentials.passphrase).toBe("passphrase:wrong");
+    expect(checks((await run(["doctor", "--site", "shop2", "--deep"])).body)["data-access"]).toBe("fail");
+    expect((await run(["content", "list", "--site", "shop2"])).body.error?.code).toBe("passphrase-wrong");
+    await run(["site", "credentials", "shop2", "--passphrase-credential", "passphrase:shop"]);
+    expect(checks((await run(["doctor", "--site", "shop2", "--deep"])).body)["data-access"]).toBe("ok");
+    const none = await run(["site", "credentials", "shop2", "--passphrase-credential", ""]);
+    expect(none.body.data.warnings.join(" ")).toContain("encrypted");
+    await run(["site", "forget", "shop2"]);
   }, 60_000);
 
   it("flags a plain database served by the public site", async () => {

@@ -91,20 +91,43 @@ async function check({ io, options, positionals }: CommandContext) {
   return report.valid ? 0 : 1;
 }
 
+async function freePort(from: number): Promise<number> {
+  const { createServer } = await import("node:net");
+  for (let p = from; p < from + 50; p++) {
+    const free = await new Promise<boolean>((resolve) => {
+      const srv = createServer();
+      srv.once("error", () => resolve(false));
+      srv.listen(p, "127.0.0.1", () => srv.close(() => resolve(true)));
+    });
+    if (free) return p;
+  }
+  return from;
+}
+
 async function preview({ io, options, positionals }: CommandContext) {
   const paths = positionals.slice(1);
   const exts = await loadAll(paths);
   const { renderPreview } = await import("../ops/extPreview");
-  const port = Number(options.port ?? 4321);
+  // Links in the rendered pages carry the port: pick it before rendering.
+  // Without --port, the first free one from 4321 (other previews may run).
+  const port = options.port !== undefined ? Number(options.port) : await freePort(4321);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new CliError("usage", `Invalid port: ${options.port}`, undefined, 2);
   const outDir = resolve(String(options.out ?? join(tmpdir(), `agentcms-preview-${exts.map((e) => e.id).join("+") || "default"}`)));
   let content;
   let siteAlias: string | undefined;
+  let siteTheme: { kind: "theme"; id: string; manifest: never } | null = null;
   if (options.site) {
     const { snapshotSiteContent } = await import("../ops/extSiteContent");
     const snap = await snapshotSiteContent(String(options.site));
     content = snap.content;
     siteAlias = snap.alias;
+    // Previewing a plugin: render it inside the site's own theme.
+    if (snap.themeBundle && !exts.some((e) => e.kind === "theme") && !options.theme) {
+      const { importExtensionBundle } = await import("../ops/extHost");
+      const { manifest } = await importExtensionBundle(snap.themeBundle);
+      const m = manifest as { id?: string; templates?: unknown } | null;
+      if (m?.id && m.templates) siteTheme = { kind: "theme" as const, id: m.id, manifest: m as never };
+    }
   }
   const rawBase = options["base-path"] ? String(options["base-path"]) : "";
   if (rawBase && !/^\/?[a-z0-9._~-]+(?:\/[a-z0-9._~-]+)*\/?$/i.test(rawBase)) {
@@ -117,8 +140,8 @@ async function preview({ io, options, positionals }: CommandContext) {
   const res = await renderPreview({
     outDir,
     baseUrl,
-    extensions: exts.map(({ kind, id, manifest }) => ({ kind, id, manifest })),
-    themeId: options.theme as string | undefined,
+    extensions: [...exts.map(({ kind, id, manifest }) => ({ kind, id, manifest })), ...(siteTheme ? [siteTheme] : [])],
+    themeId: (options.theme as string | undefined) ?? siteTheme?.id,
     enablePlugins: list(options.enable),
     themeConfig: parseJsonOption("theme-config", options["theme-config"]),
     pluginConfigs: parseJsonOption("plugin-configs", options["plugin-configs"]),
@@ -140,7 +163,8 @@ async function preview({ io, options, positionals }: CommandContext) {
     }
   }
   if (options.screenshots) {
-    const { screenshotPages } = await import("../ops/extScreenshot");
+    const { screenshotPages, setScreenshotColorScheme } = await import("../ops/extScreenshot");
+    setScreenshotColorScheme(options["color-scheme"]);
     screenshots = await screenshotPages(baseUrl, res.pages, join(res.outDir, ".screenshots"), options["screenshot-js"] ? String(options["screenshot-js"]) : undefined, options["max-height"] ? Number(options["max-height"]) : undefined);
   }
   const data = {
@@ -220,7 +244,7 @@ export const extCommand: Command = {
   summary:
     "Build, test and ship plugins and themes: new <plugin|theme> <id> (scaffold a project), check <path> (validate + render a demo site, exit 1 on errors), preview <path…> (render a full demo site locally; --serve, --screenshots, --site <alias> for a site's real content), pack <project> (ZIP for the admin's Install button), install <zip> --site <alias> (upload to a site; plan first, --yes to apply), list --site <alias>, uninstall <id> --site <alias>.",
   usage:
-    "ext new <plugin|theme> <id> [--with <features>] [--dir <path>] [--name <name>] [--description <text>] [--author <name>] [--force] | ext check <path> [--kind <plugin|theme>] [--out <dir>] | ext preview <path…> [--theme <id>] [--enable <ids>] [--settings <json>] [--theme-config <json>] [--plugin-configs <json>] [--site <alias>] [--out <dir>] [--port <n>] [--base-path </dir>] [--home blocks] [--demo empty] [--screenshots] [--screenshot-js <code>] [--max-height <px>] [--serve] | ext pack <project> [--out <zip>] | ext install <zip|folder> --site <alias> [--activate] [--no-regenerate] [--yes] | ext list --site <alias> | ext uninstall <id> --site <alias> [--yes]",
+    "ext new <plugin|theme> <id> [--with <features>] [--dir <path>] [--name <name>] [--description <text>] [--author <name>] [--force] | ext check <path> [--kind <plugin|theme>] [--out <dir>] | ext preview <path…> [--theme <id>] [--enable <ids>] [--settings <json>] [--theme-config <json>] [--plugin-configs <json>] [--site <alias>] [--out <dir>] [--port <n>] [--base-path </dir>] [--home blocks] [--demo empty] [--screenshots] [--screenshot-js <code>] [--max-height <px>] [--color-scheme light|dark] [--serve] | ext pack <project> [--out <zip>] | ext install <zip|folder> --site <alias> [--activate] [--no-regenerate] [--yes] | ext list --site <alias> | ext uninstall <id> --site <alias> [--yes]",
   options: [
     { name: "dir", type: "string", description: "new: target folder (default: ./<id>)." },
     { name: "name", type: "string", description: "new: display name." },
@@ -244,6 +268,7 @@ export const extCommand: Command = {
     { name: "screenshot-js", type: "string", description: "preview: JavaScript run in every page before its screenshot (after load), e.g. to click a consent button or open the menu. Async code is awaited." },
     { name: "screenshots", type: "boolean", description: "preview: PNG screenshots (desktop + mobile) of each kind of page with a local Chrome/Chromium/Edge." },
     { name: "site", type: "string", description: "preview: render a registered site's real content (read-only copy). install/list/uninstall: the site." },
+    { name: "color-scheme", type: "string", description: "screenshots: prefers-color-scheme of the captures, light (default) or dark." },
     { name: "max-height", type: "string", description: "preview --screenshots: cap each capture's height in CSS px (default: the whole page, up to 6000)." },
     { name: "activate", type: "boolean", description: "install: also activate it (theme: make it the active theme; plugin: enable it), then regenerate the whole site." },
     { name: "no-regenerate", type: "boolean", description: "install: don't regenerate the site (by default it is regenerated when the package is activated, or upgrades the active theme / an enabled plugin)." },

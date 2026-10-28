@@ -42,8 +42,8 @@ export function renderNewsletter(attrs: NewsletterAttrs): NewsletterRenderResult
     ? `<p class="font-body-md text-body-md ${variant === "banner" ? "text-on-primary/80" : "text-on-surface-variant"} mb-stack-md">${escapeText(attrs.subtitle)}</p>`
     : "";
 
-  const successHtml = `<p class="text-xs ${variant === "banner" ? "text-on-primary/90" : "text-primary"}" data-cms-form-success hidden>${escapeText(attrs.successMessage ?? "Thanks — you're on the list.")}</p>`;
-  const errorHtml = `<p class="text-xs text-error" data-cms-form-error hidden>${escapeText(attrs.errorMessage ?? "Something went wrong. Please try again.")}</p>`;
+  const successHtml = `<p class="text-xs ${variant === "banner" ? "text-on-primary/90" : "text-primary"}" data-cms-form-success hidden>${escapeText(attrs.successMessage || "Thanks — you're on the list.")}</p>`;
+  const errorHtml = `<p class="text-xs text-error" data-cms-form-error hidden>${escapeText(attrs.errorMessage || "Something went wrong. Please try again.")}</p>`;
 
   const formHtml = `<form class="flex flex-col sm:flex-row gap-stack-sm" data-cms-form="${mode}" data-cms-form-endpoint="${escapeAttr(attrs.endpoint ?? "")}" data-cms-form-mailto="${escapeAttr(attrs.mailto ?? "")}">
 <input type="email" name="email" required placeholder="${escapeAttr(placeholder)}" class="${variant === "banner" ? "bg-on-primary/10 border border-on-primary/30 text-on-primary placeholder-on-primary/60" : "bg-surface border border-outline-variant"} flex-1 rounded-full px-5 py-3 focus:ring-primary focus:border-primary outline-none" />

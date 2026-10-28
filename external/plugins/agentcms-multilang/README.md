@@ -10,6 +10,9 @@ Multi-language support for AgentCMS — translated posts, pages, categories and 
 - **SEO**: `<link rel="alternate" hreflang="…">` for every language plus `x-default`, `og:locale` and `og:locale:alternate` on every published page, and `<html lang>` per page (`BaseLayoutProps.currentLocale`). The canonical link stays the theme's job: the publisher hands the theme the localized `currentPath`, so a theme that emits `canonicalUrl(baseUrl, currentPath)` gets the right per-language canonical.
 - **Sitemaps** (with `agentcms-sitemaps` enabled): `<xhtml:link rel="alternate">` entries inside each `<url>`, the translated URLs in the yearly sitemaps, and — when News is enabled — one `sitemaps/sitemap-news-<lang>.xml` per secondary language, referenced from the index.
 - **RSS** (with `agentcms-rss` enabled and its site feed on): one `/<lang>/rss.xml` per secondary language, through the RSS plugin's `rss.site.locales` filter. Legacy `/<lang>/feed.xml` and per-category `/<lang>/<slug>/<slug>.xml` files from versions ≤ 1.6.1 are deleted on the next publish.
+- **Search** (with `agentcms-search` enabled): one `/<lang>/search-index.json` per secondary language (translated titles, excerpts, categories and URLs, UI strings in that language), through the search plugin's `search.index.locales` filter. The search modal on `/<lang>/` pages loads it.
+- **Site title and description per language** (`siteTexts`, optional): replace the site title / description of Settings → General on that language's pages (header, footer, `<title>`, data JSON) and as its RSS channel title.
+- **Removing a language**: the plugin remembers the languages it published (`lastPublishedLanguages`); after a language leaves the list, the next listing pass (any publish, or **Regenerate → Everything**) deletes its whole `/<lang>/` tree — folder delete when the hosting supports it, else the known files.
 - **Language switcher**: a small script injected through `page.body.end` fills `[data-cms-langswitch="header"]` and `[data-cms-langswitch="footer"]` containers with links to the current page's alternates (toggles in the plugin settings). The in-tree themes (default, magazine, corporate, storefront, portfolio) ship these containers; other themes just add an empty `<div data-cms-langswitch="header"></div>`.
 
 ## Requirements
@@ -35,7 +38,7 @@ Multi-language support for AgentCMS — translated posts, pages, categories and 
 - Per-post translations live on `Post.translations[<lang>]` (`{ slug, title, contentMarkdown, excerpt, seo }`).
 - Per-term translations live on `Term.translations[<lang>]` (`{ slug, name, description, seo }`).
 - Published translation paths are tracked in `Post.lastPublishedPathsByLocale` (orphan cleanup).
-- Plugin config (languages, primary, per-language home page, menu label overrides, switcher toggles) lives in `settings.pluginConfigs["agentcms-multilang"]`.
+- Plugin config (languages, primary, per-language home page, per-language site texts, switcher toggles, published-languages bookkeeping) lives in `settings.pluginConfigs["agentcms-multilang"]`.
 
 All storage flows through the standard backend dispatcher — it works the same on every data backend (Firebase, SQLite file, Markdown in git, this browser).
 
@@ -53,4 +56,6 @@ Block markers in translated content go through the same `post.html.body` filters
 
 - Theme-specific rich homes (e.g. magazine's hero / sidebar widgets) are not replicated in secondary languages. Pick a **static page** as the home of each language for full control.
 - `post.markdown.before` and `post.template.props` filters don't run for translated renders.
+- The archives plugin's per-language pages (`/<lang>/archives/…`) don't use the translated site texts yet.
+- Adding a language needs **Regenerate → Everything** (translations, homes, archives, data JSON, feeds, sitemaps, search).
 - Concurrent edits to one post's translations are last-write-wins (one document / row per post).

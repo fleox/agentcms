@@ -64,6 +64,11 @@ function readUsersOnce(): Promise<Array<{ id: string }>> {
   });
 }
 
+function isEmptyRegistry(value: unknown): boolean {
+  const r = value as { plugins?: unknown[]; themes?: unknown[] } | null;
+  return !r || ((r.plugins?.length ?? 0) === 0 && (r.themes?.length ?? 0) === 0);
+}
+
 export async function exportContent(): Promise<ContentExport> {
   const [posts, pages, terms, media, users, settings, registry, storage] = await Promise.all([
     fetchAllPosts({ type: "post" }),
@@ -76,7 +81,10 @@ export async function exportContent(): Promise<ContentExport> {
     getStorageConfig().catch(() => null),
   ]);
   const config: StoredDoc[] = [];
-  if (registry) config.push({ ...(toPlain(registry) as Record<string, unknown>), id: "externalRegistry" });
+  // An empty registry means "nothing read" (e.g. a headless export before
+  // the admin ever stored one), never "no plugins": leave it out so an
+  // import keeps the target's plugins and theme.
+  if (registry && !isEmptyRegistry(registry)) config.push({ ...(toPlain(registry) as Record<string, unknown>), id: "externalRegistry" });
   if (storage) config.push({ ...(splitSecrets(toPlain(storage) as Record<string, unknown>).clean), id: "storage" });
   return {
     format: EXPORT_FORMAT,
@@ -127,6 +135,9 @@ export async function importContent(
     }
     for (const doc of list) {
       if (!doc || typeof doc.id !== "string") continue;
+      // Exports made before this check could carry an empty registry:
+      // importing it would unload every plugin and theme of the site.
+      if (collection === "config" && doc.id === "externalRegistry" && isEmptyRegistry(doc)) continue;
       mutations.push({ op: "set", collection, doc });
     }
     counts[collection] = list.length;

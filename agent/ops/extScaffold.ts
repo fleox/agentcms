@@ -271,6 +271,22 @@ function pluginFiles(c: Ctx): Record<string, string> {
   const configRead = c.has("settings")
     ? `      const config = { ...DEFAULT_CONFIG, ...((site.settings.pluginConfigs?.["${c.id}"] as Partial<${configType}>) ?? {}) };\n      if (!config.enabled || !config.message) return head;\n      return \`\${head}<meta name="${c.id}" content="\${escapeAttr(config.message)}" />\\n\`;`
     : `      return \`\${head}<meta name="generator-extension" content="${c.id}" />\\n\`;`;
+  // The <head> example: the settings-driven meta tag, or a marker on a
+  // bare plugin. Admin-only plugins (a block, a dashboard card) get none:
+  // it would add public output nobody asked for.
+  const headFilter =
+    c.has("settings") || (!c.has("block") && !c.has("dashboard-card"))
+      ? `    // <head> of every published page. SYNC filter: never async.
+    // Args: (html so far, baseProps) — baseProps.site.settings is the
+    // live site settings, plugin configs included.
+    api.addFilter<string>("page.head.extra", (head, ...args) => {
+      const { site } = args[0] as Omit<BaseLayoutProps, "children">;
+${configRead}
+    });
+
+`
+      : "";
+  if (!headFilter) imports[0] = `import type { PluginManifest } from "@agent-cms/runtime";`;
   files["src/manifest.tsx"] = `${imports.join("\n")}
 
 // Plugin entry point. The admin imports dist/bundle.js and reads its
@@ -279,11 +295,11 @@ function pluginFiles(c: Ctx): Record<string, string> {
 // registry, so it must only register things (no side effects, no I/O).
 
 const PLUGIN_ID = "${c.id}";
-
+${c.has("settings") ? `
 function escapeAttr(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 }
-
+` : ""}
 const manifest: PluginManifest${c.has("settings") ? `<${configType}>` : ""} = {
   id: PLUGIN_ID,
   name: ${JSON.stringify(c.name)},
@@ -292,15 +308,7 @@ const manifest: PluginManifest${c.has("settings") ? `<${configType}>` : ""} = {
   author: ${JSON.stringify(c.author)},
   readme,
 ${fields.join("\n")}${fields.length ? "\n" : ""}  register(api) {
-    // <head> of every published page. SYNC filter: never async.
-    // Args: (html so far, baseProps) — baseProps.site.settings is the
-    // live site settings, plugin configs included.
-    api.addFilter<string>("page.head.extra", (head, ...args) => {
-      const { site } = args[0] as Omit<BaseLayoutProps, "children">;
-${configRead}
-    });
-
-    // To maintain files of your own (feeds, indexes…), react to
+${headFilter}    // To maintain files of your own (feeds, indexes…), react to
     // "publish.complete" / "post.unpublished" / "post.deleted" (args:
     // post, ctx) AND register the same rebuild as a regeneration target —
     // bulk publishing, imports and Regenerate don't fire those actions:
@@ -461,7 +469,7 @@ function pluginCallout(c: Ctx, ns: string): string {
   return `import { Node, mergeAttributes } from "@tiptap/core";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { BlockManifest } from "@agent-cms/runtime";
+import type { BlockManifest, SettingsSchema } from "@agent-cms/runtime";
 
 // A "callout" editor block.
 //
@@ -629,6 +637,12 @@ export const calloutBlock: BlockManifest = {
   insert: (chain) => chain.insertContent({ type: NODE_NAME, attrs: { attrs: { ...DEFAULTS, text: "Write something here" } } }).run(),
   isActive: (editor) => editor.isActive(NODE_NAME),
   inspector: CalloutInspector,
+  // What each attribute does, for agents: \`agentcms content blocks ${c.id}/callout\`
+  // (closed lists in \`values\` are enforced on --attrs).
+  attrsSchema: {
+    tone: { description: "Color and icon of the callout.", values: TONES },
+    text: { description: "Text of the callout (plain text)." },
+  } satisfies SettingsSchema,
 };
 `;
 }

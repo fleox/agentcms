@@ -1,6 +1,7 @@
 import type { ChainedCommands, Editor, Extensions } from "@tiptap/core";
 import { NodeSelection } from "@tiptap/pm/state";
 import type { ComponentType } from "react";
+import type { SettingsSchema } from "./types";
 
 // Block registry — the source of truth for every editor block the user
 // can insert. Two registration channels exist:
@@ -74,6 +75,11 @@ export interface BlockManifest<TAttrs = Record<string, unknown>> {
   // block is active. Receives the resolved attrs and an updater that
   // writes them back into the underlying Tiptap node.
   inspector?: ComponentType<BlockInspectorProps<TAttrs>>;
+  // Optional (API ≥ 1.6): what each attribute of the block's marker does
+  // and accepts, keyed by attr path ("items" for an array — describe the
+  // item shape in `description` / `format`). Shown by `agentcms content
+  // blocks <id>`; closed lists / ranges are checked on `--attrs`.
+  attrsSchema?: SettingsSchema;
 }
 
 const blocks = new Map<string, BlockManifest<unknown>>();

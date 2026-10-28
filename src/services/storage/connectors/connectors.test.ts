@@ -63,6 +63,12 @@ describe("git-pages connector", () => {
     expect(await c.get("news/a.html")).toBe("a");
   });
 
+  it("marks commits to the SQLite data branch [skip ci] (no build per save)", async () => {
+    const c = createGitPagesConnector({ ...base, branch: "agentcms-data", host: "other", siteUrl: "" });
+    await c.commitBatch!([{ type: "put", path: "data/site.sqlite", content: "x" }]);
+    expect(remote.commits[0].message).toBe("Publish site (1 updated) — AgentCMS [skip ci]");
+  });
+
   it("expands prefix deletes from the tree and lists site-relative paths", async () => {
     remote.files.set("media/x/a.webp", "1");
     remote.files.set("media/x/b.webp", "2");

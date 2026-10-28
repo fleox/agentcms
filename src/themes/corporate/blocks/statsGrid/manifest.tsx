@@ -4,6 +4,7 @@ import { NodeViewWrapper } from "@tiptap/react";
 import type { Editor } from "@tiptap/core";
 import type { BlockManifest } from "@agent-cms/runtime";
 import { blockNodeName, createBlockNode } from "../createBlockNode";
+import { ATTRS_SCHEMA } from "./attrsSchema";
 import type { StatItem, StatsGridAttrs } from "./render";
 
 const SUB_ID = "stats-grid";
@@ -200,6 +201,7 @@ export const statsGridBlock: BlockManifest<StatsGridAttrs> = {
   namespace: "theme-corporate",
   icon: BarChart3,
   category: "layout",
+  attrsSchema: ATTRS_SCHEMA,
   extensions: [node],
   insert: (chain) => {
     chain.focus().insertContent({ type: NODE_NAME }).run();

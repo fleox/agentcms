@@ -13,6 +13,7 @@ import { en, fr, de, es, nl, pt, ko } from "./i18n";
 import { createSliderNode, sliderNodeName } from "./nodes";
 import { SLIDERS, SLIDER_LIST, type SliderKind } from "./sliders";
 import { SliderInspector } from "./SliderInspector";
+import { ATTRS_SCHEMAS } from "./attrsSchema";
 import {
   consumeDetectedScripts,
   getDetectedStyles,
@@ -67,6 +68,7 @@ const manifest: PluginManifest = {
             .insertContent({ type: sliderNodeName(def.kind), attrs: { attrs: def.defaults } })
             .run();
         },
+        attrsSchema: ATTRS_SCHEMAS[def.kind],
         isActive: (editor) => (editor as Editor).isActive(sliderNodeName(def.kind)),
         // The EditorInspector's auto-attrs plumbing is bypassed —
         // SliderInspector reads attrs itself off the editor on every

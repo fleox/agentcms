@@ -588,12 +588,23 @@ export async function regenerateRobotsTxt(args: {
   let content: string;
   if (args.discourageIndexing) {
     content = "User-agent: *\nDisallow: /\n";
-  } else if (args.config.robotsTxt && args.config.robotsTxt.trim().length > 0) {
+  } else if (args.config.robotsTxt && args.config.robotsTxt.trim().length > 0 && !isStaleDefaultRobots(args.config.robotsTxt, baseUrl, args.config.newsEnabled)) {
     content = args.config.robotsTxt;
   } else {
     content = defaultRobotsTxt(baseUrl, args.config.newsEnabled);
   }
   await uploadFile({ path: ROBOTS_PATH, content });
+}
+
+// A default inserted ("Insert default") before the default learnt about
+// sub-folder sites — `Disallow: /admin/` while the admin lives under
+// `<base>/admin/` — is treated as the default, so it follows the site.
+function isStaleDefaultRobots(stored: string, baseUrl: string, newsEnabled: boolean): boolean {
+  const base = basePathFromBaseUrl(baseUrl);
+  if (!base) return false;
+  const current = defaultRobotsTxt(baseUrl, newsEnabled);
+  const legacy = current.replace(`Disallow: ${base}/admin/`, "Disallow: /admin/");
+  return stored.trim() === legacy.trim();
 }
 
 // Uploads the XSL stylesheets referenced by every sitemap file's

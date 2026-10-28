@@ -27,8 +27,14 @@ export const calloutBlock: BlockManifest = {
   insert: (chain, ctx) => chain.insertContent({ type: "acmeToolsCallout", attrs: { attrs: DEFAULTS } }).run(),
   isActive: (editor) => editor.isActive("acmeToolsCallout"), // fallback only
   inspector: CalloutInspector,   // optional Block-tab UI
+  attrsSchema: {                 // API 1.6: what each attribute does, for agents
+    tone: { description: "Color and icon of the callout.", values: ["info", "warning", "success"] },
+    text: { description: "Text of the callout (plain text)." },
+  },
 };
 ```
+
+- **`attrsSchema`** (API ≥ 1.6, optional but expected): one entry per attribute of the marker — `{ description, values?, min?, max?, format? }`; arrays get one entry describing the item shape (`format: "array of objects"`). Agents read it with `agentcms content blocks <id>` and the CLI refuses `--attrs` values outside `values` / `min`–`max`, so list every accepted value. `ext check` warns `block-undocumented` without it.
 
 - **Registration.** Register with `api.registerBlock(calloutBlock)` in a plugin's `register`, or list the block in a theme's `blocks: []` (active only while that theme is active).
 - **`nodeName`** is how the admin recognises the selected block. Without it, the admin looks for a node named after the `id`, which can never match a node name containing `/`. The block is then never "active" and its inspector never shows.

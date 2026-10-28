@@ -313,6 +313,21 @@
     margin: 2rem 0;
   }
 
+  /* Bento gallery cells are aspect-ratio boxes with an absolutely
+     positioned cover image — the generic prose / page-body `img` rules
+     above (height: auto + vertical margins) must not apply to them,
+     otherwise the images shrink to their intrinsic height and leave
+     empty panels inside the cells. */
+  .portfolio-prose .portfolio-bento img,
+  .portfolio-page-body .portfolio-bento img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    margin: 0;
+  }
+
   /* ───── Static page body (type: page) ───── */
   .portfolio-page-body {
     max-width: 800px;

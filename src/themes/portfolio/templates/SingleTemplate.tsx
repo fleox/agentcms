@@ -1,16 +1,22 @@
 import type { SingleTemplateProps, SiteContext } from "@agent-cms/runtime";
 import { i18n, pickFormat, pickPublicLocale } from "@agent-cms/runtime";
 import type { PortfolioThemeConfig } from "../config";
-import { DEFAULT_PORTFOLIO_SINGLE } from "../config";
+import { DEFAULT_PORTFOLIO_SINGLE, customLabel } from "../config";
+import { extractProjectMetaYear } from "../blocks/projectMeta/render";
+
+// Rendered portfolio/next-project banners (see blocks/nextProject/render.ts
+// — the section has no nested <section>, so a lazy match is exact).
+const NEXT_PROJECT_SECTION_REGEX =
+  /<section class="portfolio-next-project[^"]*">[\s\S]*?<\/section>/g;
 
 // Portfolio single — full-bleed hero (grayscale unless turned off), 4-col meta + 8-col
 // intro, body markdown below in `portfolio-prose`. Pages
 // (`post.type === "page"`) bypass the hero / meta and render in a
 // constrained `portfolio-page-body` container.
 //
-// Phase 1: minimal version without the bento gallery / storytelling
-// / next-project teaser blocks — those come in Phase 3 as inserted
-// blocks the user puts into the post body.
+// The left meta column shows the primary category (label: translated
+// "Category", overridable via `single.defaultServicesLabel`) and the
+// year (a project-meta block's Year row, else the publication year).
 export function SingleTemplate({
   post,
   bodyHtml,
@@ -23,13 +29,18 @@ export function SingleTemplate({
   const themeConfig = site.themeConfig as PortfolioThemeConfig | undefined;
   const single = { ...DEFAULT_PORTFOLIO_SINGLE, ...(themeConfig?.single ?? {}) };
   const isPage = post.type === "page";
+  // `single.showNextProject: false` hides every next-project teaser
+  // (portfolio/next-project block) from project pages and static pages.
+  const body = single.showNextProject
+    ? bodyHtml
+    : bodyHtml.replace(NEXT_PROJECT_SECTION_REGEX, "");
 
   if (isPage) {
     return (
       <article className="pt-section-gap-mobile md:pt-section-gap pb-section-gap-mobile md:pb-section-gap">
         <div
           className="portfolio-page-body"
-          dangerouslySetInnerHTML={{ __html: bodyHtml }}
+          dangerouslySetInnerHTML={{ __html: body }}
         />
       </article>
     );
@@ -40,8 +51,15 @@ export function SingleTemplate({
     (post.publishedAt as { toMillis?: () => number } | undefined)?.toMillis?.() ??
     (post.createdAt as { toMillis?: () => number } | undefined)?.toMillis?.() ??
     null;
-  const year = ms ? new Date(ms).getUTCFullYear() : "";
-  const eyebrow = [primaryTerm?.name?.toUpperCase(), year ? String(year) : ""]
+  // A portfolio/project-meta block's "Year" row wins over the
+  // publication year (a project's year is rarely the day it was posted).
+  const year =
+    extractProjectMetaYear(bodyHtml, post.contentMarkdown) ||
+    (ms ? String(new Date(ms).getUTCFullYear()) : "");
+  const categoryLabel =
+    customLabel(single.defaultServicesLabel) || t("publicBaked.categoryLabel");
+  const yearLabel = customLabel(single.defaultYearLabel) || t("publicBaked.yearLabel");
+  const eyebrow = [primaryTerm?.name?.toUpperCase(), year]
     .filter(Boolean)
     .join(" / ");
 
@@ -74,7 +92,7 @@ export function SingleTemplate({
           {primaryTerm && (
             <div className="flex flex-col gap-2">
               <span className="font-sans text-label-sm uppercase text-secondary">
-                {t("publicBaked.servicesLabel")}
+                {categoryLabel}
               </span>
               <p className="font-sans text-body-md text-on-surface">
                 {primaryTerm.name}
@@ -84,7 +102,7 @@ export function SingleTemplate({
           {year && (
             <div className="flex flex-col gap-2">
               <span className="font-sans text-label-sm uppercase text-secondary">
-                {t("publicBaked.yearLabel")}
+                {yearLabel}
               </span>
               <p className="font-sans text-body-md text-on-surface">{year}</p>
             </div>
@@ -99,7 +117,7 @@ export function SingleTemplate({
           )}
           <div
             className="portfolio-prose"
-            dangerouslySetInnerHTML={{ __html: bodyHtml }}
+            dangerouslySetInnerHTML={{ __html: body }}
           />
         </div>
       </section>

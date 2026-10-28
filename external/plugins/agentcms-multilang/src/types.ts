@@ -49,6 +49,22 @@ export interface MultilangConfig {
   // are hidden entirely in that case regardless of these flags.
   showHeaderSwitcher?: boolean;
   showFooterSwitcher?: boolean;
+  // Optional per-language site title / description, keyed by secondary
+  // language code. Applied to `settings.title` / `settings.description`
+  // whenever a page of that language is rendered (single, home, category
+  // archive, data JSON, RSS channel). Empty / missing fields fall back
+  // to the primary-language values from Settings → General.
+  siteTexts?: Record<string, SiteTexts>;
+  // Managed by the plugin: secondary languages whose files were
+  // published on the last listing pass. A language that drops out of
+  // `enabledLanguages` gets its `<lang>/` tree deleted on the next
+  // pass (see publisher/languageCleanup.ts).
+  lastPublishedLanguages?: string[];
+}
+
+export interface SiteTexts {
+  title?: string;
+  description?: string;
 }
 
 export const DEFAULT_MULTILANG_CONFIG: MultilangConfig = {
@@ -58,6 +74,7 @@ export const DEFAULT_MULTILANG_CONFIG: MultilangConfig = {
   menuTranslations: {},
   showHeaderSwitcher: true,
   showFooterSwitcher: false,
+  siteTexts: {},
 };
 
 export const PLUGIN_ID = "agentcms-multilang";

@@ -213,7 +213,7 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
         const { updateMedia, listAllMedia } = await import("../../src/services/media");
         await updateMedia(m.id, { alt, caption });
         const fresh = (await listAllMedia()).find((x) => x.id === m.id) ?? m;
-        return { id: m.id, alt: fresh.alt ?? null, caption: fresh.caption ?? null, note: "Published pages keep the old alt text until they are republished (`agentcms regenerate all`)." };
+        return { id: m.id, alt: fresh.alt ?? null, caption: fresh.caption ?? null, note: `Published pages keep the old alt text until they are republished (\`agentcms regenerate all --site ${s.site.alias}\`).` };
       }, (r) => `Updated ${r.id}: alt=${JSON.stringify(r.alt)} caption=${JSON.stringify(r.caption)}\n${r.note}`);
     }
 

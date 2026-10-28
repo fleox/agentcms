@@ -119,6 +119,34 @@ describe("content on markdown-git + GitHub Pages", () => {
     expect(gh.commits("me/site").length - before).toBe(1);
   }, 60_000);
 
+  it("documents block attributes and checks --attrs against them", async () => {
+    const [spacer] = (await ok(["content", "blocks", "default/spacer"])).result;
+    expect(spacer.attrsSchema).toContainEqual(expect.objectContaining({ path: "size", values: ["sm", "md", "lg"], description: expect.any(String) }));
+    expect((await run(["content", "blocks", "default/spacer", "--attrs", '{"size":"xl"}'])).body.error?.code).toBe("invalid-value");
+    const [lg] = (await ok(["content", "blocks", "default/spacer", "--attrs", '{"size":"lg"}'])).result;
+    expect(lg.attrs).toMatchObject({ size: "lg" });
+    expect(lg.markdown).toContain('data-cms-block="default/spacer"');
+  }, 60_000);
+
+  it("unpublishing deletes the translated pages too", async () => {
+    await ok(["plugins", "config", "agentcms-multilang", "--merge", '{"primaryLanguage":"en","enabledLanguages":["fr"]}']);
+    // Without a translated category the fr version isn't published: warned.
+    const warned = await run(["content", "update", "hello-world", "--lang", "fr", "--title", "Bonjour", "--body", "Salut."]);
+    expect(warned.body.data.warnings.join(" ")).toContain("has no fr translation");
+    await ok(["terms", "update", "news", "--type", "category", "--lang", "fr", "--name", "Actus", "--slug", "actus"]);
+    await ok(["content", "publish", "hello-world"]);
+    expect(site().has("fr/actus/bonjour.html")).toBe(true);
+    // Removing the translation republishes without it.
+    await ok(["content", "update", "hello-world", "--lang", "fr", "--remove"]);
+    expect(site().has("fr/actus/bonjour.html")).toBe(false);
+    await ok(["content", "update", "hello-world", "--lang", "fr", "--title", "Bonjour", "--body", "Salut."]);
+    expect(site().has("fr/actus/bonjour.html")).toBe(true);
+    await ok(["content", "unpublish", "hello-world"]);
+    expect(site().has("fr/actus/bonjour.html")).toBe(false);
+    await ok(["content", "publish", "hello-world"]);
+    await ok(["plugins", "config", "agentcms-multilang", "--merge", '{"enabledLanguages":[]}']);
+  }, 60_000);
+
   it("unpublishes, previews and deletes (plan first)", async () => {
     const un = await ok(["content", "unpublish", "hello-world"]);
     expect(un.result[0]).toMatchObject({ ok: true, status: "draft", path: null });

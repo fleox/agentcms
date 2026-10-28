@@ -4,6 +4,7 @@ import { NodeViewWrapper } from "@tiptap/react";
 import type { Editor } from "@tiptap/core";
 import type { BlockManifest } from "@agent-cms/runtime";
 import { blockNodeName, createBlockNode } from "../createBlockNode";
+import { ATTRS_SCHEMA } from "./attrsSchema";
 import type { HeroSplitAttrs } from "./render";
 
 const SUB_ID = "hero-split";
@@ -170,6 +171,7 @@ export const heroSplitBlock: BlockManifest<HeroSplitAttrs> = {
   namespace: "theme-corporate",
   icon: LayoutPanelLeft,
   category: "layout",
+  attrsSchema: ATTRS_SCHEMA,
   extensions: [node],
   insert: async (chain, ctx) => {
     const picked = ctx.pickMedia ? await ctx.pickMedia() : null;

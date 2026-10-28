@@ -279,7 +279,16 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
         const kind = await backend();
         refuseNoAccounts(kind, "A role");
         const selfId = await ensureSelf();
-        const user = findUser(await loadUsers(s), ref, selfId);
+        const users = await loadUsers(s);
+        const user = findUser(users, ref, selfId);
+        // Like the admin's Users page: never leave the site without an
+        // active admin, and demoting yourself needs an explicit --force.
+        // (Firebase only: elsewhere the role is informational.)
+        if (kind === "firebase" && role === "editor" && user.role === "admin") {
+          const otherAdmins = users.filter((u) => u.id !== user.id && u.role === "admin" && !u.disabled);
+          if (!otherAdmins.length) throw new CliError("last-admin", `${user.email} is the only active admin of ${s.site.alias}.`, "Make another user admin first.", 2);
+          if (user.id === selfId && !options.force) throw new CliError("self-demote", "This would remove your own admin rights (the account this computer signs in with).", "Re-run with --force if that is really intended.", 2);
+        }
         const { setUserRole } = await import("../../src/services/users");
         await setUserRole(user.id, role);
         return {
@@ -375,6 +384,7 @@ export const usersCommand: Command = {
     },
     { name: "data", type: "string", description: "update: fields as JSON (or @file.json): firstName, lastName, title, bio, avatarMediaId, socials { network: { url, visible } } (replaces all). Flags override it." },
     { name: "yes", type: "boolean", description: "delete: apply (otherwise only the plan)." },
+    { name: "force", type: "boolean", description: "role: allow demoting your own account (never the last admin)." },
   ],
   run,
 };

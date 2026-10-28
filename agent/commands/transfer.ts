@@ -44,9 +44,17 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
   switch (action) {
     case "export": {
       const out = resolve(String(options.out ?? file ?? `agentcms-export-${new Date().toISOString().slice(0, 10)}.json`));
-      return runAdmin(io, alias, {}, async () => {
+      return runAdmin(io, alias, {}, async (s) => {
         const { exportContent } = await import("../../src/services/contentTransfer");
         const data = await exportContent();
+        // No registry stored yet (the admin seeds it on first boot): export
+        // the one the site actually runs — the hosted admin's defaults —
+        // so an import elsewhere gets the same plugins and theme.
+        if (!data.collections.config?.some((d) => d.id === "externalRegistry")) {
+          const { fallbackRegistry, siteHostingReader } = await import("../ops/adminFiles");
+          const registry = await fallbackRegistry(s.site, await siteHostingReader(s.site));
+          if (registry.plugins.length || registry.themes.length) (data.collections.config ??= []).push({ ...registry, id: "externalRegistry" } as never);
+        }
         mkdirSync(dirname(out), { recursive: true });
         const text = JSON.stringify(data, null, 2);
         writeFileSync(out, text);

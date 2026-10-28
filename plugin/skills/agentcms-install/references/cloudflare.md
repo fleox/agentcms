@@ -10,6 +10,8 @@ AgentCMS commits the site into a GitHub repository; Cloudflare Pages deploys it 
 
 Cloudflare Pages redirects `page.html` to `page` (308). Links and pages keep working; nothing to do.
 
+Every command that writes is one commit, and Cloudflare builds commits one after the other: after a burst of commands the live site can lag several minutes (check `doctor`'s `deployment`). Database saves on `agentcms-data` are committed with `[skip ci]` so they don't queue builds; group content changes into fewer commands (`content publish a b c`, `media upload --data`).
+
 Plan fragment:
 
 ```json

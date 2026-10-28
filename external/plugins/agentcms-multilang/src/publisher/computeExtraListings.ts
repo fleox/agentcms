@@ -7,6 +7,7 @@ import {
 } from "../core/urls";
 import { renderLocalizedCategory, renderLocalizedHome } from "./render";
 import { refreshAlternatesCache, refreshPathRegistry } from "../core/pathRegistry";
+import { cleanupRemovedLanguages } from "./languageCleanup";
 
 // Handler for `publish.extraListings` — returns per-language homes +
 // category archives so the publisher uploads them alongside the
@@ -19,6 +20,9 @@ export async function computeExtraListings(
   ctx: PublishContext,
 ): Promise<AdditionalListingRender[]> {
   const config = getMultilangConfig(ctx.settings);
+  // Before the early return: removing the LAST secondary language must
+  // still delete its `<lang>/` tree.
+  await cleanupRemovedLanguages(ctx, config);
   if (config.enabledLanguages.length === 0) return existing;
 
   // Same registry refresh as `computeAdditional` — `page.head.extra`

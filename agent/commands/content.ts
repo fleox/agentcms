@@ -217,6 +217,10 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
       return runAdmin(io, alias, { write: true, hosting: !!options.publish, extensions: !!options.publish, lock: true }, async (s) => {
         const { slugify, findAvailableSlug, buildPostUrl } = await import("../../src/core/slug");
         const all = await allEntries();
+        // Resolve every reference before creating anything (terms are
+        // created by resolveTerms): a bad --hero / --author fails cleanly.
+        const heroMediaId = f.hero ? await resolveMediaId(f.hero) : undefined;
+        const authorId = f.author ? await resolveAuthor(f.author) : await currentUserId();
         const { primaryTermId, termIds, terms, createdTerms } = await resolveTerms(f, null, !!options["create-terms"], kind);
         let slug = f.slug;
         if (slug) await checkSlug(slug, kind, primaryTermId, undefined, all, terms);
@@ -235,8 +239,8 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
           slug,
           contentMarkdown: f.body ?? "",
           excerpt: f.excerpt ?? undefined,
-          heroMediaId: f.hero ? await resolveMediaId(f.hero) : undefined,
-          authorId: f.author ? await resolveAuthor(f.author) : await currentUserId(),
+          heroMediaId,
+          authorId,
           termIds,
           primaryTermId,
           seo: f.seo,
@@ -262,7 +266,13 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
         const p = findPost(all, refs[0], type);
         const { updatePost } = await import("../../src/services/posts");
         let createdTerms: Array<{ type: "category" | "tag"; name: string; slug: string }> = [];
-        if (lang) {
+        if (lang && options.remove) {
+          // Drop a translation; republishing (below) deletes its page.
+          if (!p.translations?.[lang]) throw new CliError("not-found", `${p.title} has no ${lang} translation.`, undefined, 2);
+          const rest = { ...(p.translations ?? {}) };
+          delete rest[lang];
+          await updatePost(p.id, { translations: rest });
+        } else if (lang) {
           // A translation (agentcms-multilang): post.translations[lang].
           const tr = { ...((p.translations?.[lang] as Record<string, unknown>) ?? {}) };
           if (f.title !== undefined) tr.title = f.title;
@@ -275,7 +285,18 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
           if (!tr.slug) tr.slug = slugify(String(tr.title));
           if (!isValidSlug(String(tr.slug))) throw new CliError("invalid-slug", `Invalid slug "${tr.slug}".`, undefined, 2);
           await updatePost(p.id, { translations: { ...(p.translations ?? {}), [lang]: tr } });
+          // multilang publishes a translated post only under a translated
+          // category (its URL is <lang>/<translated category>/<slug>.html).
+          if (p.type === "post" && p.primaryTermId) {
+            const cat = (await s.terms()).find((t) => t.id === p.primaryTermId);
+            const catTr = (cat?.translations as Record<string, { slug?: string; name?: string }> | undefined)?.[lang];
+            if (cat && !catTr?.slug && !catTr?.name) {
+              s.warnings.push(`Its category "${cat.name}" has no ${lang} translation, so this ${lang} version is not published. Translate the category first: \`agentcms terms update ${cat.slug} --lang ${lang} --name "…" --slug "…" --site ${s.site.alias}\`, then republish.`);
+            }
+          }
         } else {
+          const heroMediaId = f.hero === undefined ? undefined : f.hero === null ? null : await resolveMediaId(f.hero);
+          const authorId = f.author ? await resolveAuthor(f.author) : undefined;
           const resolved = await resolveTerms(f, p, !!options["create-terms"], p.type);
           createdTerms = resolved.createdTerms;
           const { primaryTermId, termIds, terms } = resolved;
@@ -286,11 +307,11 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
             slug: f.slug,
             contentMarkdown: f.body,
             excerpt: f.excerpt,
-            heroMediaId: f.hero === undefined ? undefined : f.hero === null ? null : await resolveMediaId(f.hero),
+            heroMediaId,
             termIds: f.category !== undefined || f.tags !== undefined ? termIds : undefined,
             primaryTermId: f.category !== undefined ? primaryTermId ?? null : undefined,
             seo: f.seo ? { ...(p.seo ?? {}), ...f.seo } : undefined,
-            authorId: f.author ? await resolveAuthor(f.author) : undefined,
+            authorId,
             createdAt: f.createdAt,
             publishedAt: f.publishedAt,
           });
@@ -434,6 +455,7 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
         let screenshots: Awaited<ReturnType<typeof import("../ops/extScreenshot").screenshotFile>> | null = null;
         if (options.screenshots) {
           const m = await import("../ops/extScreenshot");
+          m.setScreenshotColorScheme(options["color-scheme"]);
           screenshots = await m.screenshotFile(out);
           // Absolute PNG paths (they sit in .screenshots/ next to the file).
           screenshots = { ...screenshots, shots: screenshots.shots.map((sh) => ({ ...sh, file: resolve(sh.file) })) };
@@ -456,20 +478,42 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
       return runAdmin(io, alias, { extensions: true }, async (s) => {
         const { tryBlocks } = await import("../ops/extBlocks");
         const all = s.host.blocks.listBlocks();
-        const wanted = refs[0] ? all.filter((b) => b.id === refs[0]) : all;
-        if (refs[0] && !wanted.length) throw new CliError("not-found", `No block "${refs[0]}" on this site.`, "List them with `agentcms content blocks`.", 2);
+        let wanted = refs[0] ? all.filter((b) => b.id === refs[0]) : all;
+        if (refs[0] && !wanted.length) {
+          // A block of an installed theme that isn't active yet: prepare
+          // content before switching (it renders once the theme is active).
+          for (const theme of s.host.themes.listThemes()) {
+            const found = (theme.blocks ?? []).filter((b) => b.id === refs[0]);
+            if (found.length) {
+              wanted = found;
+              s.warnings.push(`${refs[0]} belongs to the theme ${theme.id}, which is not active: the marker renders only while ${theme.id} is the active theme.`);
+              break;
+            }
+          }
+        }
+        if (refs[0] && !wanted.length) throw new CliError("not-found", `No block "${refs[0]}" on this site.`, "List them with `agentcms content blocks` (blocks of the active theme and plugins; an installed theme's blocks by id).", 2);
         const harbor = (await s.media())[0];
         const trials = await tryBlocks(wanted, harbor ? { id: harbor.id, url: s.host.cmsRuntime.pickMediaUrl(harbor), alt: harbor.alt ?? "" } : undefined);
         const rawAttrs = options.attrs === undefined ? null : (await import("../ops/adminCommon")).readJsonOption(options.attrs, "attrs");
         if (rawAttrs !== null && (typeof rawAttrs !== "object" || Array.isArray(rawAttrs))) throw new CliError("usage", "--attrs must be a JSON object.", undefined, 2);
         const custom = rawAttrs as Record<string, unknown> | null;
+        const { describeSettings, schemaErrors } = await import("../ops/settingsSchema");
         return wanted.map((b) => {
           const t = trials.find((x) => x.id === b.id);
           let markdown = t?.markdown ?? null;
           const enc = markdown ? /data-attrs="([^"]*)"/.exec(markdown)?.[1] : undefined;
-          let attrs: unknown = enc ? decodeB64Json(enc) : null;
+          const sample: unknown = enc ? decodeB64Json(enc) : null;
+          let attrs: unknown = sample;
+          const schema = b.attrsSchema;
           if (custom && markdown && enc) {
             attrs = { ...(attrs as object), ...custom };
+            // Documented closed lists / ranges, like `config --set`.
+            const invalid = schemaErrors(schema, attrs, sample);
+            if (invalid.length) throw new CliError("invalid-value", `${b.id}: ${invalid.join(" ")}`, `See \`agentcms content blocks ${b.id}\` (attrsSchema).`, 2);
+            if (schema) {
+              const unknown = Object.keys(custom).filter((k) => !(sample && typeof sample === "object" && k in sample) && !schema[k]);
+              if (unknown.length) s.warnings.push(`${b.id}: unknown attribute(s) ${unknown.join(", ")} (kept, but the block ignores them).`);
+            }
             markdown = markdown.replace(`data-attrs="${enc}"`, `data-attrs="${encodeB64Json(attrs)}"`);
           }
           return {
@@ -478,6 +522,8 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
             title: s.host.cmsRuntime.i18n.t(b.titleKey, { ns: b.namespace }),
             markdown,
             attrs,
+            // What each attribute does and accepts (when the block documents it).
+            ...(schema ? { attrsSchema: describeSettings(sample ?? {}, schema) } : {}),
             ...(t?.issues.length ? { issues: t.issues } : {}),
           };
         });
@@ -494,7 +540,7 @@ export const contentCommand: Command = {
   summary:
     "Posts and pages, like the admin's editor: list, get <id|slug>, create (draft; --publish to put it online), update <id|slug> (an online entry is republished, like Save; warnings name theme / plugin settings and menu URLs that still link to a moved page, with the fixing command), publish / unpublish <id|slug…> (several = bulk mode, one cascade), delete <id|slug…> (plan first, --yes), preview <id|slug> (HTML file: --out <file>, default in the system temp folder; --screenshots = desktop + phone PNGs in .screenshots/ next to it, absolute paths in the result), blocks [<block id>] (the editor blocks this site offers, as the Markdown to write; --attrs <json> fills a block's attributes).",
   usage:
-    "content <list|get|create|update|publish|unpublish|delete|preview|blocks> [ids…] --site <alias> [--type post|page] [--status draft|online] [--search <q>] [--title <t>] [--slug <s>] [--body <md>|@file|-] [--excerpt <t>] [--category <slug|name>] [--tags a,b] [--create-terms] [--hero <media id>] [--author <user id|email>] [--seo-title <t>] [--seo-description <t>] [--seo-image <url>] [--created-at <iso>] [--published-at <iso>] [--data <json>|@file] [--lang <code>] [--publish] [--no-publish] [--out <file>] [--screenshots] [--attrs <json>] [--yes]",
+    "content <list|get|create|update|publish|unpublish|delete|preview|blocks> [ids…] --site <alias> [--type post|page] [--status draft|online] [--search <q>] [--title <t>] [--slug <s>] [--body <md>|@file|-] [--excerpt <t>] [--category <slug|name>] [--tags a,b] [--create-terms] [--hero <media id>] [--author <user id|email>] [--seo-title <t>] [--seo-description <t>] [--seo-image <url>] [--created-at <iso>] [--published-at <iso>] [--data <json>|@file] [--lang <code> [--remove]] [--publish] [--no-publish] [--out <file>] [--screenshots] [--color-scheme light|dark] [--attrs <json>] [--yes]",
   options: [
     { name: "site", type: "string", description: "Site alias." },
     { name: "type", type: "string", description: "post or page (create: default post)." },
@@ -515,7 +561,9 @@ export const contentCommand: Command = {
     { name: "created-at", type: "string", description: "Creation date (ISO 8601) — drives the ordering." },
     { name: "published-at", type: "string", description: "Publication date (ISO 8601)." },
     { name: "data", type: "string", description: "All fields as JSON (or @file.json): title, slug, body, excerpt, category, tags[], hero, author, seo{title,description,ogImage}, createdAt, publishedAt. Flags override it." },
+    { name: "color-scheme", type: "string", description: "screenshots: prefers-color-scheme of the captures, light (default) or dark." },
     { name: "lang", type: "string", description: "update: edit the translation in this language (agentcms-multilang) instead of the main text." },
+    { name: "remove", type: "boolean", description: "update --lang: delete that translation (an online entry is republished, which removes its page)." },
     { name: "publish", type: "boolean", description: "create: publish right away." },
     { name: "no-publish", type: "boolean", description: "update: don't republish an online entry (its public page stays as it was)." },
     { name: "out", type: "string", description: "preview: output HTML file (default: <temp>/agentcms-preview/preview-<ref>.html)." },

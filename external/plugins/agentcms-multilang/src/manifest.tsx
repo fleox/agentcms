@@ -14,12 +14,20 @@
 //   - publisher/computeExtraListings.ts — `publish.extraListings` handler
 //   - publisher/sitemap.ts           — 5 sitemap hook handlers
 //   - publisher/feeds.ts             — per-language RSS feeds (rss.site.locales)
+//   - publisher/search.ts            — per-language search indexes (search.index.locales)
+//   - publisher/languageCleanup.ts   — deletes the tree of a removed language
 //   - core/switcher.ts               — public language switcher (page.body.end)
 //   - editor/variantProvider.ts      — language tabs above the editor
 //   - editor/TermTranslationsSection.tsx — categories/tags edit row
 //   - settings/SettingsPage.tsx      — /settings/plugin/agentcms-multilang
 
-import { fetchAllPosts, type PluginManifest, type PublishContext, type Post } from "@agent-cms/runtime";
+import {
+  fetchAllPosts,
+  type PluginManifest,
+  type PublishContext,
+  type Post,
+  type SearchLocaleEntry,
+} from "@agent-cms/runtime";
 import { SETTINGS_SCHEMA } from "./settingsSchema";
 import readme from "../README.md?raw";
 import en from "./i18n/en.json";
@@ -49,6 +57,8 @@ import {
   cleanupLegacyLocalizedFeeds,
 } from "./publisher/feeds";
 import { publishLocalizedDataJson } from "./publisher/localizedJson";
+import { buildSearchLocales } from "./publisher/search";
+import { cleanupRemovedLanguages } from "./publisher/languageCleanup";
 import { SettingsPage } from "./settings/SettingsPage";
 import { TermTranslationsSection } from "./editor/TermTranslationsSection";
 import { variantProvider } from "./editor/variantProvider";
@@ -113,7 +123,7 @@ async function warmRegistry(): Promise<void> {
 const manifest: PluginManifest<MultilangConfig> = {
   id: "agentcms-multilang",
   name: "Multi-language",
-  version: "1.6.5",
+  version: "1.6.6",
   description:
     "Multi-language site support — translated posts/pages/terms, hreflang SEO, per-language sitemap entries, per-language RSS feeds.",
   author: "AgentCMS",
@@ -252,6 +262,40 @@ const manifest: PluginManifest<MultilangConfig> = {
         ...(existing as Array<ReturnType<typeof buildLocalizedSiteEntries>[number]>),
         ...buildLocalizedSiteEntries(args),
       ];
+    });
+
+    // Per-locale search indexes — fired by agentcms-search on every
+    // index pass. Each entry becomes `<lang>/search-index.json`;
+    // agentcms-search tracks the paths in its `lastLocalePaths` and
+    // deletes the index of a language we stop returning.
+    api.addFilter<unknown[]>("search.index.locales", (existing, ...rest) => {
+      const args = rest[0] as Parameters<typeof buildSearchLocales>[0] | undefined;
+      if (!args?.settings) return existing;
+      return [...(existing as SearchLocaleEntry[]), ...buildSearchLocales(args)];
+    });
+
+    // ── Regenerate ▾ entry (also part of "Everything") ───────────
+    // Per-language files that no listing pass writes: `<lang>/data/*.json`
+    // (otherwise only refreshed by a single publish), plus the cleanup
+    // of a removed language's `<lang>/` tree (also run by every listing
+    // pass, see computeExtraListings). Together with Regenerate → All
+    // HTML and the RSS / sitemaps / search / archives targets, this is
+    // what makes "regenerate everything" apply an `enabledLanguages`
+    // change.
+    api.registerRegenerationTarget({
+      id: "agentcms-multilang",
+      labelKey: "regenerationTarget.label",
+      descriptionKey: "regenerationTarget.description",
+      priority: 150,
+      run: async (ctx, log) => {
+        const config = getMultilangConfig(ctx.settings);
+        const removed = await cleanupRemovedLanguages(ctx, config);
+        if (removed.length > 0) {
+          log({ level: "info", message: `Multi-language: deleted the files of ${removed.join(", ")}.` });
+        }
+        await publishLocalizedDataJson(ctx);
+        log({ level: "success", message: "Multi-language: per-language data files regenerated." });
+      },
     });
 
     // ── Editor extensibility ─────────────────────────────────────

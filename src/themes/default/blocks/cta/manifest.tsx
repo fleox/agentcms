@@ -4,6 +4,7 @@ import { NodeViewWrapper } from "@tiptap/react";
 import type { Editor } from "@tiptap/core";
 import type { BlockManifest } from "../../../../core/blockRegistry";
 import { blockNodeName, createBlockNode } from "../createBlockNode";
+import { ATTRS_SCHEMA } from "./attrsSchema";
 import type { CtaAttrs } from "./render";
 
 const SUB_ID = "cta";
@@ -117,6 +118,7 @@ export const ctaBlock: BlockManifest<CtaAttrs> = {
   namespace: "theme-default",
   icon: Megaphone,
   category: "layout",
+  attrsSchema: ATTRS_SCHEMA,
   extensions: [node],
   insert: (chain) => {
     chain.focus().insertContent({ type: NODE_NAME }).run();

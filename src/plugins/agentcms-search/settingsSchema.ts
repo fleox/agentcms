@@ -29,5 +29,9 @@ export const SETTINGS_SCHEMA: SettingsSchema = {
   },
   lastIndexHash: { description: "Managed by the plugin — don't set. Hash of the last uploaded search-index.json." },
   lastRuntimeHash: { description: "Managed by the plugin — don't set. Hash of the last uploaded /search.js." },
+  lastLocalePaths: {
+    description:
+      "Managed by the plugin — don't set. Per-language indexes (<lang>/search-index.json, written for agentcms-multilang's languages) uploaded on the last pass; one that is no longer produced gets deleted.",
+  },
   lastIndexedAt: { description: "Managed by the plugin — don't set. Time (epoch ms) of the last index upload." },
 };

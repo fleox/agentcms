@@ -8,7 +8,7 @@ import {
   type RssLocaleEntry,
   type Term,
 } from "@agent-cms/runtime";
-import { getMultilangConfig, isPrimaryLanguage } from "../core/config";
+import { getMultilangConfig, isPrimaryLanguage, localizeSettings } from "../core/config";
 import {
   buildLocalizedHomePath,
   buildLocalizedPostUrl,
@@ -59,13 +59,32 @@ export function buildLocalizedSiteEntries(args: {
     entries.push({
       language,
       path: feedPath(language),
-      channelTitle: `${args.settings.title || "Site"} — ${language.toUpperCase()}`,
+      ...localizedChannelTexts(args.settings, language, config),
       channelLink: pathToPublicUrl(args.baseUrl, buildLocalizedHomePath(language, config)),
-      channelDescription: args.settings.description || args.settings.title || "",
       items,
     });
   }
   return entries;
+}
+
+// Channel title / description of a language's feed. A translated site
+// title (config.siteTexts[lang].title) is used as-is; otherwise the
+// primary title gets the language name appended ("My site (English)")
+// so the feed stays distinguishable from the primary one.
+export function localizedChannelTexts(
+  settings: PublishContext["settings"],
+  language: string,
+  config: ReturnType<typeof getMultilangConfig>,
+): { channelTitle: string; channelDescription: string } {
+  const texts = config.siteTexts?.[language];
+  const localized = localizeSettings(settings, language, config);
+  const channelTitle = texts?.title?.trim()
+    ? localized.title
+    : `${settings.title || "Site"} (${languageName(language)})`;
+  return {
+    channelTitle,
+    channelDescription: localized.description || localized.title || "",
+  };
 }
 
 // Best-effort sweep of files written by the standalone generator that
@@ -158,4 +177,14 @@ function postToRssItem(
     pubDateMs,
     category: termTrans?.name,
   };
+}
+
+// "English", "français"… in the feed's own language (code as fallback).
+function languageName(code: string): string {
+  try {
+    const name = new Intl.DisplayNames([code], { type: "language" }).of(code);
+    return name ? name.charAt(0).toLocaleUpperCase(code) + name.slice(1) : code;
+  } catch {
+    return code.toUpperCase();
+  }
 }

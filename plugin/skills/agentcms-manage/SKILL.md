@@ -24,7 +24,7 @@ npx -y @agent-cms/agentcms@0.3.1 status --json
 It compares this tool (= these skills, same release) with the latest release, and each registered site's hosted admin with this release.
 
 - `data.tool.updateAvailable: true` -> tell the user AgentCMS `data.tool.latest` exists and offer to update the skills **before anything else**: Claude Code `/plugin marketplace update agentcms` then `/reload-plugins`; other agents re-read the skills from the repository. The new skills pin the new CLI, which then sees the new admin.
-- A site with `state: "update"` -> summarise `update.changes` (breaking ones first, `update.breaking`), then **offer** `deploy-admin` (below). Never update silently.
+- A site with `state: "update"` -> summarise the `releaseNotes` of its `update.versions` (breaking ones first, `update.breaking`), then **offer** `deploy-admin` (below). Never update silently.
 - `state: "newer"` -> the hosted admin is newer than this tool: update the skills / tool first, never deploy an older admin.
 - `state: "unreachable"` -> run `doctor` for that site.
 - `data.advice` already phrases these; relay it.
@@ -33,7 +33,7 @@ It compares this tool (= these skills, same release) with the latest release, an
 
 One computer can manage many sites. `npx -y @agent-cms/agentcms@0.3.1 site list --json` lists them.
 
-- Commands take `--site <alias>`. Without it the tool uses the only site, the folder's `agentcms.json` (`{ "site": "<alias>" }`), or the default chosen with `site use` - otherwise it fails with `site-required`: ask the user which site.
+- Commands take `--site <alias>`; always pass it. Without it the tool uses `AGENTCMS_SITE` (environment), the folder's `agentcms.json` (`{ "site": "<alias>" }`), the only site, or the default chosen with `site use` (shared by every process on this computer) - otherwise it fails with `site-required`: ask the user which site.
 - Always say which site you are working on before changing anything ("Working on **my-blog** (https://...)").
 - Never move on to another site without telling the user.
 
@@ -49,7 +49,10 @@ npx -y @agent-cms/agentcms@0.3.1 site add <alias> --admin-url https://example.co
 
 - `--data-credential` is required for Markdown-in-git sites (to read where the site publishes) and for Firebase sites (`firebase:<name>` = the admin's email + password, stored by the user with `! npx -y @agent-cms/agentcms@0.3.1 credentials set firebase:<name>`): the CLI signs in like the admin and reads the publish target from Firestore.
 - `--hosting-credential` is needed to update the hosted admin later; for git hostings on the same account as the content it defaults to the data credential.
-- SQLite sites: `--data-credential` is the account of the database location (it reads the real publish target from the database), `--passphrase-credential passphrase:<name>` the passphrase of an encrypted database (store it first with `credentials set`).
+- SQLite sites: `--hosting-credential` (or `--data-credential` when the database sits in a separate location) opens the database and reads the real publish target from it; an encrypted database also needs `--passphrase-credential passphrase:<name>` (store it first with `credentials set`).
+- S3 sites: pass the admin URL the user opens (the bucket's https address, or the http website one); the public site URL is read from the content. `--site-url` overrides it.
+- The result lists `warnings` for credentials the CLI will need and doesn't have. Add or change accounts later with `site credentials <alias> --hosting-credential <account> --passphrase-credential <account>` (no need to forget and re-add the site).
+- Errors `passphrase-required` / `passphrase-wrong`: store the right passphrase and attach it with `site credentials`. `doctor --site <alias> --deep` opens the content to prove the credentials work.
 - Missing credential -> see "Credentials" in the `agentcms-install` skill (the user stores secrets themselves; never in the chat).
 
 ## Health check
@@ -79,7 +82,7 @@ Add `--deep` to also test write access (writes then deletes a probe file on file
    npx -y @agent-cms/agentcms@0.3.1 deploy-admin --site <alias> --yes --json
    ```
    Add `--theme-assets` when the changes list the `sync-theme-assets` action. `--all` plans / updates every hosted site (list them all to the user first).
-3. Relay `pendingActions` (e.g. `regenerate-all`: in the admin, Regenerate -> Everything) and run `doctor` again.
+3. Run the `pendingActions` (`regenerate-all` → `agentcms regenerate everything --site <alias>`; `sync-theme-assets` → `agentcms regenerate assets`) and run `doctor` again.
 
 ## SQLite sites: encryption and history
 

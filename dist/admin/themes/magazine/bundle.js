@@ -9816,7 +9816,25 @@ function Vt({
 function qt(r) {
   return Dr(r.replace(/-([a-z])/g, (e, t) => t.toUpperCase()));
 }
-const _t = "hero-split", ze = qt(_t), Ur = {
+const qs = {
+  featuredPostId: {
+    description: 'Big 8-column featured article (large image, title, excerpt). "latest" = newest online post; otherwise the id of an online post (an unknown or offline id falls back to the newest).',
+    format: '"latest" or post id'
+  },
+  secondary1PostId: {
+    description: 'Top-right card with image + category + title. "auto" = next newest online post not already shown; otherwise the id of an online post (unknown/offline id = auto).',
+    format: '"auto" or post id'
+  },
+  secondary2PostId: {
+    description: 'Bottom-right text-only card with category, title and author byline. "auto" = next newest online post not already shown; otherwise an online post id (unknown/offline id = auto).',
+    format: '"auto" or post id'
+  },
+  showCategory: { description: "Show the primary category name above each title (default true)." },
+  showAuthor: { description: "Show the author name under the bottom-right card (default true)." },
+  showFeaturedBadge: {
+    description: 'Overlay a "FEATURED" badge on the featured image (localised, or the theme setting home.featuredLabel). Only shown when the post has a featured image. Default true.'
+  }
+}, _t = "hero-split", ze = qt(_t), Ur = {
   featuredPostId: "latest",
   secondary1PostId: "auto",
   secondary2PostId: "auto",
@@ -9824,7 +9842,7 @@ const _t = "hero-split", ze = qt(_t), Ur = {
   showAuthor: !0,
   showFeaturedBadge: !0
 };
-function qs({ attrs: r, selected: e }) {
+function _s({ attrs: r, selected: e }) {
   const { t } = q("theme-magazine"), { posts: n } = Ln("post");
   function i(a, o) {
     var s;
@@ -9859,7 +9877,7 @@ function qs({ attrs: r, selected: e }) {
     }
   );
 }
-function _s({ editor: r }) {
+function Ws({ editor: r }) {
   const { t: e } = q("theme-magazine"), { posts: t } = Ln("post"), n = r.getAttributes(ze), i = { ...Ur, ...n.attrs ?? {} };
   function a(s) {
     r.chain().updateAttributes(ze, { attrs: { ...i, ...s } }).run();
@@ -9946,29 +9964,43 @@ function _s({ editor: r }) {
     ] })
   ] });
 }
-const Ws = Vt({
+const Js = Vt({
   subId: _t,
   defaultAttrs: Ur,
-  view: qs
-}), Js = {
+  view: _s
+}), Gs = {
   id: `magazine/${_t}`,
   nodeName: ze,
   titleKey: "blocks.magazineHero.title",
   namespace: "theme-magazine",
   icon: Vn,
   category: "layout",
-  extensions: [Ws],
+  extensions: [Js],
   insert: (r) => {
     r.focus().insertContent({ type: ze }).run();
   },
   isActive: (r) => r.isActive(ze),
-  inspector: (r) => /* @__PURE__ */ d(_s, { editor: r.editor })
+  attrsSchema: qs,
+  inspector: (r) => /* @__PURE__ */ d(Ws, { editor: r.editor })
+}, Ks = {
+  count: {
+    description: "Number of numbered items (01, 02…) listing the newest online posts, excluding the current page. Clamped to 1–10 (default 4).",
+    min: 1,
+    max: 10
+  },
+  source: {
+    description: 'Where the items come from. Only "latest" (newest online posts) exists today.',
+    values: ["latest"]
+  },
+  showHeading: {
+    description: 'Show the "Most Read" heading above the list (localised, or the theme setting home.mostReadHeading). Off when absent.'
+  }
 }, Wt = "most-read", Ie = qt(Wt), Vr = {
   count: 4,
   source: "latest",
   showHeading: !0
 };
-function Gs({ attrs: r, selected: e }) {
+function Zs({ attrs: r, selected: e }) {
   const { t } = q("theme-magazine");
   return /* @__PURE__ */ d(
     Ut,
@@ -9985,7 +10017,7 @@ function Gs({ attrs: r, selected: e }) {
     }
   );
 }
-function Ks({ editor: r }) {
+function Ys({ editor: r }) {
   const { t: e } = q("theme-magazine"), t = r.getAttributes(Ie), n = { ...Vr, ...t.attrs ?? {} };
   function i(a) {
     r.chain().updateAttributes(Ie, { attrs: { ...n, ...a } }).run();
@@ -10018,23 +10050,38 @@ function Ks({ editor: r }) {
     ] })
   ] });
 }
-const Zs = Vt({
+const Xs = Vt({
   subId: Wt,
   defaultAttrs: Vr,
-  view: Gs
-}), Ys = {
+  view: Zs
+}), Qs = {
   id: `magazine/${Wt}`,
   nodeName: Ie,
   titleKey: "blocks.mostRead.title",
   namespace: "theme-magazine",
   icon: Dn,
   category: "layout",
-  extensions: [Zs],
+  extensions: [Xs],
   insert: (r) => {
     r.focus().insertContent({ type: Ie }).run();
   },
   isActive: (r) => r.isActive(Ie),
-  inspector: (r) => /* @__PURE__ */ d(Ks, { editor: r.editor })
+  attrsSchema: Ks,
+  inspector: (r) => /* @__PURE__ */ d(Ys, { editor: r.editor })
+}, el = {
+  imageUrl: {
+    description: "Square background image: a full image URL, e.g. a media variant URL from `media upload` (formats.<name>.url) or any external URL. The whole card is hidden when both imageUrl and title are empty.",
+    format: "URL"
+  },
+  imageAlt: { description: "Alt text of the image (empty = the title)." },
+  title: { description: "Headline over the image's gradient (empty = no headline)." },
+  eyebrow: {
+    description: 'Small uppercase label above the title. Empty string = no label; a missing key = the localised "Promoted".'
+  },
+  href: {
+    description: 'Click target of the whole card: a URL or a site path ("/contact.html"). Empty = not a link.',
+    format: "URL or site path"
+  }
 }, Jt = "promo-card", Re = qt(Jt), qr = {
   imageUrl: "",
   imageAlt: "",
@@ -10042,7 +10089,7 @@ const Zs = Vt({
   eyebrow: "",
   href: ""
 };
-function Xs({ attrs: r, selected: e }) {
+function tl({ attrs: r, selected: e }) {
   const { t } = q("theme-magazine");
   return /* @__PURE__ */ d(
     Ut,
@@ -10059,7 +10106,7 @@ function Xs({ attrs: r, selected: e }) {
     }
   );
 }
-function Qs({ editor: r }) {
+function nl({ editor: r }) {
   const { t: e } = q("theme-magazine"), t = r.getAttributes(Re), n = { ...qr, ...t.attrs ?? {} };
   function i(a) {
     r.chain().updateAttributes(Re, { attrs: { ...n, ...a } }).run();
@@ -10131,23 +10178,24 @@ function Qs({ editor: r }) {
     ] })
   ] });
 }
-const el = Vt({
+const rl = Vt({
   subId: Jt,
   defaultAttrs: qr,
-  view: Xs
-}), tl = {
+  view: tl
+}), il = {
   id: `magazine/${Jt}`,
   nodeName: Re,
   titleKey: "blocks.promoCard.title",
   namespace: "theme-magazine",
   icon: Un,
   category: "layout",
-  extensions: [el],
+  extensions: [rl],
   insert: (r) => {
     r.focus().insertContent({ type: Re }).run();
   },
   isActive: (r) => r.isActive(Re),
-  inspector: (r) => /* @__PURE__ */ d(Qs, { editor: r.editor })
+  attrsSchema: el,
+  inspector: (r) => /* @__PURE__ */ d(nl, { editor: r.editor })
 };
 function _r(r) {
   return [...r].sort(
@@ -10162,19 +10210,19 @@ function In(r, e) {
     r.ctx.posts.filter((n) => n.status === "online" && n.id !== r.current.id && !e.has(n.id))
   )[0] ?? null;
 }
-function nl(r, e, t) {
+function al(r, e, t) {
   const n = r.primaryTermId ? e.ctx.terms.find((p) => p.id === r.primaryTermId && p.type === "category") : void 0, i = `/${ot({ post: r, primaryTerm: n })}`, a = Pn(e.ctx.media.get(r.heroMediaId ?? "")), o = Y(a, "large"), s = e.showCategory && n ? `<a href="/${F(Et(n))}" class="block text-secondary uppercase tracking-widest text-xs font-semibold">${H(n.name)}</a>` : "", l = `<h2 class="font-serif text-4xl md:text-5xl font-semibold text-on-surface leading-tight"><a href="${F(i)}" class="hover:text-on-surface-variant transition-colors">${H(r.title)}</a></h2>`, c = r.excerpt ? `<p class="text-lg text-on-surface-variant max-w-2xl leading-relaxed">${H(r.excerpt)}</p>` : "", h = t.showBadge && o ? `<span class="absolute top-4 left-4 bg-primary text-on-primary px-3 py-1 text-xs uppercase tracking-widest font-semibold">${H(t.badgeLabel)}</span>` : "";
   return `<div class="lg:col-span-8">${o ? `<div class="relative overflow-hidden mb-stack-md aspect-[16/9]"><a href="${F(i)}" tabindex="-1" aria-hidden="true" class="block group"><img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="${F(o)}" alt="${F((a == null ? void 0 : a.alt) ?? r.title)}" loading="eager" fetchpriority="high" />${h}</a></div>` : ""}<div class="space-y-stack-sm">${s}${l}${c}</div></div>`;
 }
-function rl(r, e) {
+function ol(r, e) {
   const t = r.primaryTermId ? e.ctx.terms.find((c) => c.id === r.primaryTermId && c.type === "category") : void 0, n = `/${ot({ post: r, primaryTerm: t })}`, i = Pn(e.ctx.media.get(r.heroMediaId ?? "")), a = Y(i, "medium"), o = e.showCategory && t ? `<span class="block text-secondary uppercase tracking-widest text-xs font-semibold">${H(t.name)}</span>` : "", s = `<h3 class="font-serif text-xl font-medium text-on-surface"><a href="${F(n)}" class="hover:text-on-surface-variant transition-colors">${H(r.title)}</a></h3>`;
   return `<div>${a ? `<div class="aspect-[16/9] md:aspect-[4/3] overflow-hidden mb-stack-sm"><a href="${F(n)}" tabindex="-1" aria-hidden="true" class="block group"><img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="${F(a)}" alt="${F((i == null ? void 0 : i.alt) ?? r.title)}" loading="lazy" /></a></div>` : ""}<div class="space-y-1">${o}${s}</div></div>`;
 }
-function il(r, e) {
+function sl(r, e) {
   const t = r.primaryTermId ? e.ctx.terms.find((l) => l.id === r.primaryTermId && l.type === "category") : void 0, n = `/${ot({ post: r, primaryTerm: t })}`, i = r.authorId ? e.ctx.authorLookup(r.authorId) : void 0, a = e.showCategory && t ? `<span class="block text-secondary uppercase tracking-widest text-xs font-semibold">${H(t.name)}</span>` : "", o = `<h3 class="font-serif text-xl font-medium text-on-surface"><a href="${F(n)}" class="hover:text-on-surface-variant transition-colors">${H(r.title)}</a></h3>`, s = e.showAuthor && i ? `<p class="text-sm text-on-surface-variant mt-2">${H(i.displayName)}</p>` : "";
   return `<div class="border-t border-outline-variant pt-stack-md space-y-1">${a}${o}${s}</div>`;
 }
-function al(r, e) {
+function ll(r, e) {
   var m, y, w, k;
   const t = new Set([e.current.id].filter((S) => S !== "__home__")), n = xt(r.featuredPostId, e) ?? _r(
     e.ctx.posts.filter((S) => S.status === "online" && !t.has(S.id))
@@ -10189,19 +10237,19 @@ function al(r, e) {
     ctx: e.ctx,
     showCategory: r.showCategory ?? !0,
     showAuthor: r.showAuthor ?? !0
-  }, s = te(e.ctx.settings.language), c = ((k = (w = (y = (m = e.ctx.settings.themeConfigs) == null ? void 0 : m.magazine) == null ? void 0 : y.home) == null ? void 0 : w.featuredLabel) == null ? void 0 : k.trim()) || (ee.getResource(s, "theme-magazine", "blocks.magazineHero.featuredLabel") ?? "FEATURED"), h = nl(n, o, {
+  }, s = te(e.ctx.settings.language), c = ((k = (w = (y = (m = e.ctx.settings.themeConfigs) == null ? void 0 : m.magazine) == null ? void 0 : y.home) == null ? void 0 : w.featuredLabel) == null ? void 0 : k.trim()) || (ee.getResource(s, "theme-magazine", "blocks.magazineHero.featuredLabel") ?? "FEATURED"), h = al(n, o, {
     showBadge: r.showFeaturedBadge ?? !0,
     badgeLabel: c
-  }), u = i ? rl(i, o) : "", p = a ? il(a, o) : "", f = u || p ? `<div class="lg:col-span-4 flex flex-col gap-stack-md">${u}${p}</div>` : "", b = [n.id];
+  }), u = i ? ol(i, o) : "", p = a ? sl(a, o) : "", f = u || p ? `<div class="lg:col-span-4 flex flex-col gap-stack-md">${u}${p}</div>` : "", b = [n.id];
   return i && b.push(i.id), a && b.push(a.id), {
     html: `<section class="grid grid-cols-1 lg:grid-cols-12 gap-gutter mb-stack-lg">${h}${f}</section>`,
     consumedPostIds: b
   };
 }
-function ol(r) {
+function cl(r) {
   return r < 10 ? `0${r}` : String(r);
 }
-function sl(r, e) {
+function dl(r, e) {
   var c, h, u, p;
   const t = Math.max(1, Math.min(10, r.count ?? 4)), n = e.ctx.posts.filter((f) => f.status === "online" && f.id !== e.current.id).sort(
     (f, b) => ne(b) - ne(f)
@@ -10209,14 +10257,14 @@ function sl(r, e) {
   if (!n.length) return { html: "", consumedPostIds: [] };
   const i = te(e.ctx.settings.language), o = ((p = (u = (h = (c = e.ctx.settings.themeConfigs) == null ? void 0 : c.magazine) == null ? void 0 : h.home) == null ? void 0 : u.mostReadHeading) == null ? void 0 : p.trim()) || (ee.getResource(i, "theme-magazine", "blocks.mostRead.heading") ?? "Most Read"), s = n.map((f, b) => {
     const m = f.primaryTermId ? e.ctx.terms.find((k) => k.id === f.primaryTermId && k.type === "category") : void 0, y = `/${ot({ post: f, primaryTerm: m })}`, w = [];
-    return m && w.push(H(m.name)), `<li class="flex gap-stack-md group"><span class="font-serif text-4xl text-outline-variant leading-none shrink-0">${ol(b + 1)}</span><div class="min-w-0"><h4 class="font-serif text-base font-medium text-on-surface group-hover:text-secondary transition-colors leading-tight"><a href="${F(y)}">${H(f.title)}</a></h4>` + (w.length ? `<span class="text-xs text-on-surface-variant uppercase tracking-wider mt-1 block">${w.join(" • ")}</span>` : "") + "</div></li>";
+    return m && w.push(H(m.name)), `<li class="flex gap-stack-md group"><span class="font-serif text-4xl text-outline-variant leading-none shrink-0">${cl(b + 1)}</span><div class="min-w-0"><h4 class="font-serif text-base font-medium text-on-surface group-hover:text-secondary transition-colors leading-tight"><a href="${F(y)}">${H(f.title)}</a></h4>` + (w.length ? `<span class="text-xs text-on-surface-variant uppercase tracking-wider mt-1 block">${w.join(" • ")}</span>` : "") + "</div></li>";
   }).join("");
   return {
     html: `<div class="cms-magazine-most-read">${r.showHeading ?? !1 ? `<h3 class="text-xs uppercase tracking-widest font-semibold pb-2 mb-stack-md border-b border-on-surface">${H(o)}</h3>` : ""}<ul class="space-y-stack-md">${s}</ul></div>`,
     consumedPostIds: []
   };
 }
-function ll(r, e) {
+function ul(r, e) {
   if (!r.imageUrl && !r.title) return { html: "" };
   const t = te(e.ctx.settings.language), n = ee.getResource(t, "theme-magazine", "blocks.promoCard.defaultEyebrow") ?? "Promoted", i = r.eyebrow ?? n, a = i ? `<span class="block text-on-primary/70 uppercase tracking-widest text-xs font-semibold mb-2">${H(i)}</span>` : "", o = r.title ? `<h3 class="font-serif text-xl font-medium text-on-primary leading-tight">${H(r.title)}</h3>` : "", l = `<div class="relative aspect-square overflow-hidden">${r.imageUrl ? `<img class="w-full h-full object-cover" src="${F(r.imageUrl)}" alt="${F(r.imageAlt ?? r.title ?? "")}" loading="lazy" />` : ""}<div class="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/40 to-transparent flex flex-col justify-end p-stack-md">${a}${o}</div></div>`;
   return {
@@ -10224,13 +10272,13 @@ function ll(r, e) {
   };
 }
 const Le = /<div\s+([^>]*data-cms-block="magazine\/([\w-]+)"[^>]*)>\s*<\/div>/g;
-function cl(r, e) {
+function hl(r, e) {
   const t = r.match(
     new RegExp(`${e}=(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`)
   );
   return t ? t[1] ?? t[2] ?? t[3] ?? "" : "";
 }
-function dl(r) {
+function pl(r) {
   const e = [];
   Le.lastIndex = 0;
   let t;
@@ -10238,53 +10286,53 @@ function dl(r) {
     e.push({
       match: t[0],
       blockId: t[2],
-      attrsRaw: cl(t[1], "data-attrs"),
+      attrsRaw: hl(t[1], "data-attrs"),
       index: t.index
     });
   return e;
 }
-function ul(r, e) {
+function fl(r, e) {
   switch (r.blockId) {
     case "hero-split": {
-      const t = Me(r.attrsRaw, {}), n = al(t, e);
+      const t = Me(r.attrsRaw, {}), n = ll(t, e);
       for (const i of n.consumedPostIds) e.used.add(i);
       return n.html;
     }
     case "most-read": {
       const t = Me(r.attrsRaw, {});
-      return sl(t, e).html;
+      return dl(t, e).html;
     }
     case "promo-card": {
       const t = Me(r.attrsRaw, {});
-      return ll(t, { ctx: e.ctx }).html;
+      return ul(t, { ctx: e.ctx }).html;
     }
     default:
       return "";
   }
 }
-function hl(r, e) {
+function ml(r, e) {
   for (const t of r) {
     if (t.blockId !== "hero-split") continue;
-    const n = Me(t.attrsRaw, {}), i = pl(n, e);
+    const n = Me(t.attrsRaw, {}), i = gl(n, e);
     i && e.used.add(i);
   }
 }
-function pl(r, e) {
+function gl(r, e) {
   var n;
   return r.featuredPostId && r.featuredPostId !== "latest" && r.featuredPostId !== "auto" ? r.featuredPostId : ((n = e.ctx.posts.filter((i) => i.status === "online" && i.id !== e.current.id).sort((i, a) => ne(a) - ne(i))[0]) == null ? void 0 : n.id) ?? null;
 }
-function fl(r, e) {
+function bl(r, e) {
   if (!r.includes('data-cms-block="magazine/')) return r;
   const t = ti();
   if (!t)
     return r.replace(Le, "");
-  const n = dl(r);
+  const n = pl(r);
   if (n.length === 0) return r;
   const i = { ctx: t, current: e, used: /* @__PURE__ */ new Set() };
-  hl(n, i);
+  ml(n, i);
   const a = /* @__PURE__ */ new Map();
   for (const c of n)
-    a.set(c.index, ul(c, i));
+    a.set(c.index, fl(c, i));
   let o = "", s = 0;
   Le.lastIndex = 0;
   let l;
@@ -10295,7 +10343,7 @@ function fl(r, e) {
 const Rn = {
   id: "magazine",
   name: "Magazine",
-  version: "1.1.1",
+  version: "1.1.2",
   description: "Editorial magazine theme inspired by long-form journalism — Tailwind-based, with an editable Material 3 palette.",
   // Convention name used by build-themes.mjs only as a fallback when
   // `theme.compiled.css` is missing. The magazine theme uses Tailwind
@@ -10345,14 +10393,14 @@ const Rn = {
   // blocks/transforms.ts for the two-pass dedup pipeline (mirrors
   // the default theme's pattern).
   blocks: [
-    Js,
-    Ys,
-    tl
+    Gs,
+    Qs,
+    il
   ],
   register(r) {
     r.addFilter(
       "post.html.body",
-      (e, ...t) => fl(e, t[0])
+      (e, ...t) => bl(e, t[0])
     );
   }
   // Settings page + compileCss hook land in phase 6.

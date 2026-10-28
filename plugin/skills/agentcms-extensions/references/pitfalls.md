@@ -191,3 +191,5 @@ The tag at the end of each item is the code `ext check` reports for it, when it 
 60. **Partial config objects passed to `save()`.**
     - Symptom: lost keys.
     - Fix: always save the whole object.
+61. **A broad `img { height: auto }` rule (from the scaffold) beats a later, more specific-looking size.** `.acme img` outranks `.acme__avatar`, so avatars or logos get squashed. Give sized images their own selector with the same weight (`.acme img.acme__avatar`) or drop the broad rule.
+62. **Accented headings with display fonts.** Some Google display fonts misplace accents on capitals and lowercase letters in Chrome. Look at accented titles in the screenshots before choosing a font.

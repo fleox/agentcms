@@ -4,6 +4,24 @@ import { buildTermUrl } from "@agent-cms/runtime";
 import { i18n, pickPublicLocale } from "@agent-cms/runtime";
 import { DEFAULT_CORPORATE_SINGLE, type CorporateThemeConfig } from "../config";
 
+// Corporate blocks that are cards meant to sit inside a column (not
+// full-width sections): a page starting with one still gets a title.
+const INLINE_BLOCKS = new Set(["contact-info", "contact-form"]);
+const BLOCK_MARKER = /<div\s[^>]*data-cms-block="corporate\/([\w-]+)"/;
+
+// How a page body is laid out, read from its source (the rendered
+// bodyHtml no longer carries the block markers):
+//   "blocks"   — opens with a full-width corporate block → full-bleed;
+//   "mixed"    — Markdown with corporate blocks further down;
+//   "markdown" — no corporate block at all.
+export function pageBodyLayout(markdown: string): "blocks" | "mixed" | "markdown" {
+  const first = BLOCK_MARKER.exec(markdown);
+  if (!first) return "markdown";
+  const leading = markdown.slice(0, first.index).trim();
+  if (leading === "" && !INLINE_BLOCKS.has(first[1])) return "blocks";
+  return "mixed";
+}
+
 // Corporate single-post layout — applies the Stitch mockup rigorously.
 //
 // Layout:
@@ -21,7 +39,7 @@ import { DEFAULT_CORPORATE_SINGLE, type CorporateThemeConfig } from "../config";
 //
 // Pages (post.type === "page") render WITHOUT hero / meta / sidebar
 // so admins can compose them freely with theme blocks (e.g. the
-// contact page).
+// contact page) — see pageBodyLayout for when they get a title.
 export function SingleTemplate({
   post,
   bodyHtml,
@@ -71,16 +89,49 @@ export function SingleTemplate({
     }
   }
 
-  // Page composition — no hero, no meta, no sidebar. The body is
-  // expected to carry its own composition (hero block, services,
-  // contact form, …).
+  // Page composition — no hero image, no meta, no sidebar.
+  //   - The body opens with a full-width corporate block (hero,
+  //     services, CTA…): the page is a block composition, rendered
+  //     full-bleed exactly as the blocks lay themselves out.
+  //   - Otherwise (plain Markdown "Pricing" / "Contact" / legal pages,
+  //     or Markdown mixed with blocks) the page gets its title and a
+  //     readable column. Corporate blocks keep their own full-width
+  //     layout; Markdown elements around them are constrained to the
+  //     column by `.corporate-page-body` (see theme.css).
   if (isPage) {
+    const layout = pageBodyLayout(post.contentMarkdown ?? "");
+    if (layout === "blocks") {
+      return (
+        <article className="pt-stack-md pb-section-padding">
+          <div
+            className="corporate-page-body"
+            dangerouslySetInnerHTML={{ __html: bodyHtml }}
+          />
+        </article>
+      );
+    }
     return (
-      <article className="pt-stack-md pb-section-padding">
-        <div
-          className="corporate-page-body"
-          dangerouslySetInnerHTML={{ __html: bodyHtml }}
-        />
+      <article className="pt-stack-lg md:pt-section-padding pb-section-padding">
+        {/* Outer gutter + inner 48rem column, the same box as the
+            `.corporate-page-body--flow` children, so title and text align. */}
+        <header className="px-gutter mb-stack-lg">
+          <h1 className="max-w-3xl mx-auto text-h2 md:text-h1 font-bold text-primary leading-tight">
+            {post.title}
+          </h1>
+        </header>
+        {layout === "markdown" ? (
+          <div className="px-gutter">
+            <div
+              className="corporate-prose max-w-3xl mx-auto"
+              dangerouslySetInnerHTML={{ __html: bodyHtml }}
+            />
+          </div>
+        ) : (
+          <div
+            className="corporate-page-body corporate-page-body--flow"
+            dangerouslySetInnerHTML={{ __html: bodyHtml }}
+          />
+        )}
       </article>
     );
   }

@@ -7,6 +7,7 @@ import type { BlockManifest } from "@agent-cms/runtime";
 import { MediaPicker, pickMediaUrl } from "@agent-cms/runtime";
 import { blockNodeName, createBlockNode } from "../createBlockNode";
 import { DEFAULT_GALLERY, type GalleryAttrs } from "./render";
+import { ATTRS_SCHEMA } from "./attrsSchema";
 
 const SUB_ID = "gallery";
 const NODE_NAME = blockNodeName(SUB_ID);
@@ -158,5 +159,6 @@ export const galleryBlock: BlockManifest<GalleryAttrs> = {
       .run();
   },
   isActive: (editor) => (editor as Editor).isActive(NODE_NAME),
+  attrsSchema: ATTRS_SCHEMA,
   inspector: (props) => <Inspector editor={props.editor as Editor} />,
 };

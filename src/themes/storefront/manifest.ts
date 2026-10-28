@@ -77,7 +77,7 @@ const DEFAULT_PRODUCT_INFO_MARKER = `<div data-cms-block="storefront/product-inf
 export const manifest: ManifestWithCatalogJs = {
   id: "storefront",
   name: "Storefront",
-  version: "0.1.1",
+  version: "0.1.2",
   description:
     "Storefront theme for storefront / e-commerce sites — Tailwind-based, sage + terracotta Material 3 palette, Playfair Display + Inter typography. Built for product catalogs with optional client-side filtering.",
   scssEntry: "theme.css",

@@ -21,7 +21,7 @@ vi.mock("@agent-cms/runtime", async () => {
   };
 });
 
-import { DEFAULT_SITEMAPS_CONFIG, isStaticHomePage, regenerateSitemaps } from "./generator";
+import { DEFAULT_SITEMAPS_CONFIG, defaultRobotsTxt, isStaticHomePage, regenerateRobotsTxt, regenerateSitemaps } from "./generator";
 
 const ts = (iso: string) => ({ toMillis: () => Date.parse(iso) });
 const entity = (id: string, type: "post" | "page", slug: string): Post =>
@@ -89,5 +89,17 @@ describe("agentcms-sitemaps — static-page home", () => {
     expect(isStaticHomePage(pages[0], s)).toBe(true);
     expect(isStaticHomePage(pages[1], s)).toBe(false);
     expect(isStaticHomePage(pages[0], { ...s, homeMode: "latest-posts" })).toBe(false);
+  });
+});
+
+describe("robots.txt", () => {
+  it("replaces a stored default from before sub-folder support, keeps real custom ones", async () => {
+    const baseUrl = "https://example.com/blog";
+    const legacy = defaultRobotsTxt(baseUrl, false).replace("Disallow: /blog/admin/", "Disallow: /admin/");
+    await regenerateRobotsTxt({ config: { ...DEFAULT_SITEMAPS_CONFIG, robotsTxt: legacy }, baseUrl });
+    expect(uploads.get("robots.txt")).toContain("Disallow: /blog/admin/");
+    const custom = "User-agent: *\nDisallow: /private/\n";
+    await regenerateRobotsTxt({ config: { ...DEFAULT_SITEMAPS_CONFIG, robotsTxt: custom }, baseUrl });
+    expect(uploads.get("robots.txt")).toBe(custom);
   });
 });

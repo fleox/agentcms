@@ -6,9 +6,8 @@ import { DEFAULT_PORTFOLIO_AUTHOR } from "../config";
 
 // Author archive — 4-col avatar / 8-col bio split, then optional
 // experience + recognition lists, then a uniform grid of the
-// author's projects. Phase 1 ships the layout shell; experience /
-// recognition lists are placeholders here and become editable in
-// Phase 4 via the author's bio markdown or a dedicated theme block.
+// author's projects. The experience / recognition sections only
+// render when they have items (no content source yet).
 export function AuthorTemplate({
   author,
   posts,
@@ -18,6 +17,10 @@ export function AuthorTemplate({
   const t = i18n.getFixedT(pickPublicLocale(settings.language), "theme-portfolio");
   const themeConfig = site.themeConfig as PortfolioThemeConfig | undefined;
   const config = { ...DEFAULT_PORTFOLIO_AUTHOR, ...(themeConfig?.author ?? {}) };
+  // No content source yet — kept as empty lists so the sections stay
+  // hidden until one exists.
+  const experience: string[] = [];
+  const recognition: string[] = [];
   const avatarUrl = author.avatar
     ? pickFormat(author.avatar, "portrait") || pickFormat(author.avatar)
     : "";
@@ -51,21 +54,33 @@ export function AuthorTemplate({
             </div>
           )}
 
-          {config.showExperience && (
+          {/* "Select Experience" / "Recognition" sections: there is no
+              content source for them yet (no author field, no block), so
+              they render only once they have items — never an empty
+              heading. */}
+          {config.showExperience && experience.length > 0 && (
             <section className="mt-16">
               <h2 className="font-sans text-label-sm uppercase tracking-widest text-secondary mb-6">
                 {t("publicBaked.selectExperience")}
               </h2>
-              {/* Phase 4: rendered from a portfolio/experience block */}
+              <ul className="flex flex-col gap-3 font-sans text-body-md text-on-surface">
+                {experience.map((item, i) => (
+                  <li key={i}>{item}</li>
+                ))}
+              </ul>
             </section>
           )}
 
-          {config.showRecognition && (
+          {config.showRecognition && recognition.length > 0 && (
             <section className="mt-16">
               <h2 className="font-sans text-label-sm uppercase tracking-widest text-secondary mb-6">
                 {t("publicBaked.recognition")}
               </h2>
-              {/* Phase 4: rendered from a portfolio/recognition block */}
+              <ul className="flex flex-col gap-3 font-sans text-body-md text-on-surface">
+                {recognition.map((item, i) => (
+                  <li key={i}>{item}</li>
+                ))}
+              </ul>
             </section>
           )}
         </div>

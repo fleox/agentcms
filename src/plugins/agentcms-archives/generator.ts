@@ -278,6 +278,17 @@ function readMultilangConfig(settings: SiteSettings): MultilangConfigSlice | nul
   return { primaryLanguage: primary, enabledLanguages: enabled };
 }
 
+// agentcms-multilang's per-language site title / description
+// (`siteTexts`), so localized archives match the other localized pages.
+function localizedSiteTexts(settings: SiteSettings, language: string): Partial<Pick<SiteSettings, "title" | "description">> {
+  const raw = settings.pluginConfigs?.["agentcms-multilang"] as { siteTexts?: Record<string, { title?: string; description?: string }> } | undefined;
+  const t = raw?.siteTexts?.[language];
+  const out: Partial<Pick<SiteSettings, "title" | "description">> = {};
+  if (t?.title?.trim()) out.title = t.title.trim();
+  if (t?.description?.trim()) out.description = t.description.trim();
+  return out;
+}
+
 function getPostTranslation(post: Post, language: string): PostTranslationSlice | null {
   const map = post.translations as Record<string, PostTranslationSlice> | undefined;
   const t = map?.[language];
@@ -342,7 +353,7 @@ function buildLocalizedData(
     posts: shadowPosts,
     pages: shadowPages,
     terms: shadowTerms,
-    settings: { ...data.settings, language },
+    settings: { ...data.settings, ...localizedSiteTexts(data.settings, language), language },
   };
 }
 

@@ -7,6 +7,7 @@ import type { Post } from "@agent-cms/runtime";
 import { postSortMillis } from "@agent-cms/runtime";
 import { useAllPosts } from "@agent-cms/runtime";
 import { blockNodeName, createBlockNode } from "../createBlockNode";
+import { ATTRS_SCHEMA } from "./attrsSchema";
 import type { MagazineHeroAttrs } from "./render";
 
 const SUB_ID = "hero-split";
@@ -169,5 +170,6 @@ export const magazineHeroBlock: BlockManifest<MagazineHeroAttrs> = {
     chain.focus().insertContent({ type: NODE_NAME }).run();
   },
   isActive: (editor) => editor.isActive(NODE_NAME),
+  attrsSchema: ATTRS_SCHEMA,
   inspector: (props) => <Inspector editor={props.editor} />,
 };

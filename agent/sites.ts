@@ -126,7 +126,9 @@ function siteNotFound(alias: string, data: SitesFile): CliError {
 // must ask the user.
 export function resolveSite(explicit?: string): SiteRecord {
   const data = load();
-  const chosen = explicit || findProjectSite()?.alias;
+  // --site, then AGENTCMS_SITE (per shell / per agent, unlike `site use`
+  // which every process on this computer shares), then ./agentcms.json.
+  const chosen = explicit || process.env.AGENTCMS_SITE?.trim() || findProjectSite()?.alias;
   if (chosen) {
     const site = data.sites[chosen];
     if (!site) throw siteNotFound(chosen, data);

@@ -109,6 +109,15 @@ async function launch(chrome: string): Promise<{ proc: ChildProcess; cdp: Cdp; w
   return { proc, cdp: new Cdp(ws), ws, profile };
 }
 
+// prefers-color-scheme of the captures: light unless asked otherwise, so
+// screenshots don't depend on this computer's appearance setting.
+let colorScheme: "light" | "dark" = "light";
+export function setScreenshotColorScheme(value: unknown): void {
+  if (value === undefined || value === false) return;
+  if (value !== "light" && value !== "dark") throw new Error(`--color-scheme is light or dark, not "${String(value)}".`);
+  colorScheme = value;
+}
+
 async function capture(cdp: Cdp, url: string, vp: (typeof VIEWPORTS)[keyof typeof VIEWPORTS], file: string, script: string | undefined, maxHeight: number): Promise<void> {
   const { targetId } = await cdp.send<{ targetId: string }>("Target.createTarget", { url: "about:blank" });
   const { sessionId } = await cdp.send<{ sessionId: string }>("Target.attachToTarget", { targetId, flatten: true });
@@ -116,6 +125,7 @@ async function capture(cdp: Cdp, url: string, vp: (typeof VIEWPORTS)[keyof typeo
     await cdp.send("Page.enable", {}, sessionId);
     await cdp.send("Emulation.setDeviceMetricsOverride", { width: vp.width, height: vp.height, deviceScaleFactor: vp.scale, mobile: vp.mobile }, sessionId);
     if (vp.mobile) await cdp.send("Emulation.setTouchEmulationEnabled", { enabled: true }, sessionId);
+    await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: colorScheme }] }, sessionId);
     const loaded = cdp.once("Page.loadEventFired", sessionId, 15_000);
     await cdp.send("Page.navigate", { url }, sessionId);
     await loaded;
@@ -206,7 +216,11 @@ async function shoot(
       for (const [name, vp] of Object.entries(VIEWPORTS) as Array<[keyof typeof VIEWPORTS, (typeof VIEWPORTS)[keyof typeof VIEWPORTS]]>) {
         const file = join(outDir, `${label}-${name}.png`);
         try {
-          await capture(session.cdp, `${baseUrl}/${path}`, vp, file, script, cap);
+          // Live sites: a query string skips the CDN's cached copy (Pages
+          // hosts keep serving the previous page for a while after a deploy).
+          const url = `${baseUrl}/${path}`;
+          const fresh = /^https?:\/\//.test(url) && !/^https?:\/\/(127\.0\.0\.1|localhost)[:/]/.test(url) && !url.includes("?") ? `${url}${url.includes("#") ? "" : `?agentcms-shot=${Date.now()}`}` : url;
+          await capture(session.cdp, fresh, vp, file, script, cap);
           shots.push({ page: label, viewport: name, file });
         } catch (err) {
           errors.push(`${label} (${name}): ${(err as Error).message}`);

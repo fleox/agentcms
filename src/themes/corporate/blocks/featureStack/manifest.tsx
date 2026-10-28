@@ -4,6 +4,7 @@ import { NodeViewWrapper } from "@tiptap/react";
 import type { Editor } from "@tiptap/core";
 import type { BlockManifest } from "@agent-cms/runtime";
 import { blockNodeName, createBlockNode } from "../createBlockNode";
+import { ATTRS_SCHEMA } from "./attrsSchema";
 import type { FeatureItem, FeatureStackAttrs } from "./render";
 
 const SUB_ID = "feature-stack";
@@ -282,6 +283,7 @@ export const featureStackBlock: BlockManifest<FeatureStackAttrs> = {
   namespace: "theme-corporate",
   icon: Layers,
   category: "layout",
+  attrsSchema: ATTRS_SCHEMA,
   extensions: [node],
   insert: (chain) => {
     chain.focus().insertContent({ type: NODE_NAME }).run();

@@ -28,7 +28,20 @@ export async function computeAdditional(
   ctx: PublishContext,
 ): Promise<AdditionalRender[]> {
   const config = getMultilangConfig(ctx.settings);
-  if (config.enabledLanguages.length === 0) return existing;
+  if (config.enabledLanguages.length === 0) {
+    // Every secondary language was removed: the publisher deletes the
+    // post's previous variants (orphan diff on lastPublishedPathsByLocale
+    // against this empty result); clear the map so the next publish
+    // doesn't try again.
+    if (post.lastPublishedPathsByLocale && Object.keys(post.lastPublishedPathsByLocale).length > 0) {
+      try {
+        await updatePost(post.id, { lastPublishedPathsByLocale: {} });
+      } catch {
+        // best-effort, same as below
+      }
+    }
+    return existing;
+  }
 
   // Refresh the path / alternates caches synchronously before any
   // rendering. The `page.head.extra` filter (which injects hreflang

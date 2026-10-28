@@ -49,7 +49,7 @@ Regeneration commands:
 
   `menus get` output can be edited and passed back as is.
 - One item at a time:
-  - `menus add --menu header --label "…" --post <ref>|--category <ref>|--url <url>|--home [--position n]`;
+  - `menus add --menu header --label "…" --post <ref>|--category <ref>|--url <url>|--home [--position n]` (positions start at 1);
   - `menus remove <id|label|position> --menu …`;
   - `menus move <id|label|position> --position n --menu …`;
   - `menus update <id|label|position> --menu … [--label "…"] [--lang <code> --label "…"] [--post <ref>|--category <ref>|--url <url>|--home]` edits one item in place. With `--lang`, `--label ""` removes the translated label. Address nested items by id.
@@ -84,7 +84,7 @@ Links typed into theme or plugin settings (promo links, call-to-action URLs…) 
 - **Configuration:**
   - `plugins config <id> --schema` lists every setting (`settings[]`: `path`, `type`, `default`, and when the plugin documents it `description`, accepted `values`, `min` / `max`, `format`). Read it before changing a setting you don't know. A value outside `values` / `min`–`max` is refused (`invalid-value`, nothing saved).
   - `--get` (the default) prints the current config.
-  - `--merge '{…}'` changes some keys; `--set '{…}'` replaces the whole config.
+  - `--merge '{…}'` changes some keys; `--set '{…}'` replaces the whole config (settings the extension manages itself — timestamps, logo flags — are kept). Both accept `@file.json`. Unknown keys are kept but reported in `warnings`: fix typos.
   - Each runs the settings page's side effects.
 - `plugins action <id> <action>` runs a settings-page button.
 
@@ -129,7 +129,7 @@ The admin only shows the active theme's settings. The CLI can prepare an inactiv
 
 - `users list` / `users get <id|email|me>`. On a new site, `users get me` returns `hasRecord: false` until the first `users update me`.
 - **Public author profile:** `users update me --first-name … --last-name … --title … --bio @bio.md --avatar <media id> --social "github=https://github.com/… website=https://…"`. `--social` can be repeated; `network=` removes one; append `,hidden` to keep one off the public page. This republishes the author page and `data/authors.json`; after a name change, run the `regenerate all` given in `next` so bylines and author links on other pages follow. Set the name before writing content when you can.
-- **Firebase sites:** `users role <user> admin|editor`, `users disable|enable <user>`, `users delete <user> --yes` (removes the record only; the login is deleted in the Firebase console). New editors are created in the Firebase console → Authentication. Their record appears at first sign-in.
+- **Firebase sites:** `users role <user> admin|editor`, `users disable|enable <user>`, `users delete <user> --yes` (removes the record only; the login is deleted in the Firebase console). `users role` refuses to demote the last active admin, and demoting the account the CLI signs in with needs `--force`. New editors are created in the Firebase console → Authentication. Their record appears at first sign-in.
 - **Git sites:** the repository permission decides the real role.
 - **SQLite-file sites** have no accounts. There is one profile, `admin` (`users update me`), the author of every post. Its public name is the first + last name (`publicName` in `users get me`); the `displayName` "Admin" is never shown when a name is set.
 - `users locale <en|fr|de|es|nl|pt|ko>` sets the admin language of the signed-in user.
@@ -137,7 +137,7 @@ The admin only shows the active theme's settings. The CLI can prepare an inactiv
 ## Export / import (`transfer`)
 
 - `transfer export --out site.json` writes all content and settings as JSON, on every backend. It has no secrets and no media files; media records point to the hosted files.
-- `transfer import site.json --mode merge|replace [--keep-target]` prints the plan; add `--yes` to apply. Markdown-in-git and SQLite-file sites only. Then run `regenerate everything`.
+- `transfer import site.json --mode merge|replace [--keep-target]` prints the plan; add `--yes` to apply. Markdown-in-git and SQLite-file sites only. The file also carries the installed plugins / themes list (`config/externalRegistry`): check `plugins list` and `themes list` before `regenerate everything`, since regenerating renders every page with what is listed there.
 
 ## Files on the hosting (`files`)
 

@@ -43,19 +43,28 @@ function kind(v: unknown): string {
   return typeof v;
 }
 
-// Unknown top-level keys and top-level type changes become warnings
-// (never errors: configs written by newer versions may carry more).
-export function shapeWarnings(defaults: unknown, value: Record<string, unknown>, label: string): string[] {
+// Unknown keys and type changes become warnings (never errors: configs
+// written by newer versions may carry more), at every level whose
+// default is an object with known keys — not inside maps (an empty
+// default object, or a path the schema documents as a whole).
+export function shapeWarnings(defaults: unknown, value: Record<string, unknown>, label: string, schema?: Record<string, unknown>, prefix = ""): string[] {
   if (!isPlainObject(defaults)) return [];
   const out: string[] = [];
   for (const [k, v] of Object.entries(value)) {
+    const path = prefix ? `${prefix}.${k}` : k;
     if (!(k in defaults)) {
-      out.push(`${label}: "${k}" is not a setting of its default config (kept as is) — see --schema.`);
+      if (!schema?.[path]) out.push(`${label}: "${path}" is not a setting of its default config (kept as is) — see --schema.`);
       continue;
     }
     const d = defaults[k];
     if (d === null || d === undefined || v === null) continue;
-    if (kind(d) !== kind(v)) out.push(`${label}: "${k}" is ${kind(v)}, the default is ${kind(d)}.`);
+    if (kind(d) !== kind(v)) {
+      out.push(`${label}: "${path}" is ${kind(v)}, the default is ${kind(d)}.`);
+      continue;
+    }
+    if (isPlainObject(d) && isPlainObject(v) && Object.keys(d).length > 0 && !schema?.[path]) {
+      out.push(...shapeWarnings(d, v, label, schema, path));
+    }
   }
   return out;
 }
@@ -69,3 +78,15 @@ export function changedKeys(before: unknown, after: unknown): string[] {
 // --schema rows and value checks live in settingsSchema.ts (also used by
 // ext check, without this module's CLI dependencies).
 export { describeSettings, schemaErrors, type SettingField } from "./settingsSchema";
+
+// `--set` replaces the whole config, but settings the extension manages
+// itself (schema description "Managed by …": timestamps, logo flags,
+// published paths) are kept from the stored config unless given.
+export function keepManaged(prev: Record<string, unknown>, next: Record<string, unknown>, schema: Record<string, { description?: string }> | undefined): Record<string, unknown> {
+  const out = { ...next };
+  for (const [path, d] of Object.entries(schema ?? {})) {
+    if (!/^Managed by/i.test(d.description ?? "") || path.includes(".")) continue;
+    if (!(path in out) && path in prev) out[path] = prev[path];
+  }
+  return out;
+}

@@ -1,6 +1,6 @@
 import { installBrowserEnv } from "../browserEnv";
 import { CliError, printResult } from "../output";
-import { adminUrlOf, fetchHostedAdmin } from "../remote";
+import { adminUrlOf, fetchHostedAdmin, secureAdminUrlOf } from "../remote";
 import { compareVersions } from "../semver";
 import { lockSite, resolveSite, type SiteRecord } from "../sites";
 import type { CommandContext } from "../commands/types";
@@ -134,7 +134,8 @@ export async function installExtensionCommand({ io, options, positionals }: Comm
   const entry: ExternalEntry = { id, version: report.version!, apiVersion: report.apiVersion!, entryPath: `${kind}/${id}/${pkg.entry}` };
   const plan = {
     site: site.alias,
-    adminUrl,
+    // The address the admin is opened at (S3: the bucket's https endpoint).
+    adminUrl: secureAdminUrlOf(site) ?? adminUrl,
     action: existing ? "upgrade" : "install",
     kind: report.kind,
     id,
@@ -215,8 +216,10 @@ export async function installExtensionCommand({ io, options, positionals }: Comm
     const { getDocStore } = await import("../../src/services/docstore");
     const current = (getDocStore().get("settings", "site") ?? {}) as { activeThemeId?: string; enabledPlugins?: Record<string, boolean> };
     const inUse = kind === "themes" ? current.activeThemeId === id : current.enabledPlugins?.[id] !== false;
-    const affectsPages = !!activated || (!!existing && inUse);
+    // A plugin is on unless explicitly disabled: a new one runs at once.
+    const affectsPages = !!activated || inUse;
     let regenerated: { seconds: number; errors: string[] } | null = null;
+    let mediaMissingFormats = 0;
     if (affectsPages && !options["no-regenerate"]) {
       io.err(`• ${site.alias}: regenerating the whole site with ${id} ${entry.version}…`);
       const { openSession } = await import("./session");
@@ -235,6 +238,10 @@ export async function installExtensionCommand({ io, options, positionals }: Comm
         for (const e of s.entries) if (e.level === "error") errors.push(e.message);
         for (const w of s.warnings) toasts.notices.push({ level: "warn", message: w });
         regenerated = { seconds: r.seconds, errors };
+        if (kind === "themes" && activated) {
+          const { planMediaRegeneration } = await import("../../src/services/mediaRegenerate");
+          mediaMissingFormats = planMediaRegeneration(await s.media(), s.settings()).filter((m) => m.formats.length).length;
+        }
       } finally {
         stopToasts();
         s.close();
@@ -251,7 +258,8 @@ export async function installExtensionCommand({ io, options, positionals }: Comm
     } else {
       nextSteps.push(`Disabled on this site: \`agentcms plugins enable ${id} --site ${site.alias}\`, then \`${regenCmd}\`.`);
     }
-    nextSteps.push(`Browsers that already opened the admin (${adminUrl}) load the new bundle after a reload.`);
+    if (mediaMissingFormats) nextSteps.push(`${mediaMissingFormats} media lack ${id}'s image formats: \`agentcms media regenerate --site ${site.alias} --yes\`, then \`agentcms regenerate all --site ${site.alias}\`.`);
+    nextSteps.push(`Browsers that already opened the admin (${plan.adminUrl}) load the new bundle after a reload.`);
     printResult(io, { installed: true, ...plan, seededRegistry: seeded, activated, regenerated, next: nextSteps, notices: toasts.notices }, () =>
       [`${plan.action === "upgrade" ? "Upgraded" : "Installed"} ${plan.kind} ${id} ${plan.to} on ${site.alias}.${activated ? ` ${activated}.` : ""}`, ...nextSteps].join("\n"),
     );

@@ -28,7 +28,7 @@ Everything else (`@tiptap/*`, `lucide-react`, `react-dom/server`, `react/jsx-dev
 
 ## Versions
 
-`manifest.json`'s `apiVersion` must be within `[CMS_API_MIN_VERSION, CMS_API_VERSION]` (exported constants) — currently `[1.0.0, 1.5.0]` — or the admin refuses the install and skips the bundle at boot. Declare the **lowest** version that has everything you use:
+`manifest.json`'s `apiVersion` must be within `[CMS_API_MIN_VERSION, CMS_API_VERSION]` (exported constants) — currently `[1.0.0, 1.6.0]` — or the admin refuses the install and skips the bundle at boot. Declare the **lowest** version that has everything you use:
 
 | API | Adds |
 |---|---|
@@ -38,6 +38,7 @@ Everything else (`@tiptap/*`, `lucide-react`, `react-dom/server`, `react/jsx-dev
 | 1.3.0 | `registerEditorVariantProvider` |
 | 1.4.0 | publish connectors (site files routed to the active target, `getStorageCapabilities`, `withStorageBatch`, `StorageError`, `registerStorageConnector`), `basePathFromBaseUrl` / `withBasePath`, `publish.before(post, ctx)`, `regenerate.listings.before`, `sitemap.news.locales` |
 | 1.5.0 | `settings.schema` (`SettingsSchema` / `SettingDoc`) on plugin and theme manifests: documents each setting for `agentcms … config <id> --schema` |
+| 1.6.0 | `search.index.locales` filter (`SearchLocaleEntry`): per-language search indexes (agentcms-search ↔ agentcms-multilang); `BlockManifest.attrsSchema` (documented block attributes, shown by `agentcms content blocks <id>`) |
 
 The loader does not gate features by `apiVersion`; an older admin simply lacks the function (`api.registerEditorVariantProvider` is `undefined` before 1.3).
 
@@ -78,8 +79,9 @@ Filters must return the (possibly modified) value; extra args are untyped — na
 | `sitemap.index.extra` | SYNC | `(SitemapIndexExtraEntry[], { settings })` | Extra `<sitemap>` references. |
 | `sitemap.news.locales` | async | `(NewsLocaleEntry[], { posts, pages, terms, settings, config })` | When News is enabled: extra per-language news sitemaps. |
 | `rss.site.locales` | async | `(RssLocaleEntry[], { posts, terms, mediaMap, settings, config, baseUrl, xslHref })` | `agentcms-rss`, site feed: extra per-language feeds. |
+| `search.index.locales` | async | `(SearchLocaleEntry[], { posts, pages, terms, settings, config })` | `agentcms-search`, every index pass: extra per-language `search-index.json` files (paths tracked; one no longer returned is deleted). |
 
-The sitemap and RSS filters fire only when those (bundled) plugins are enabled.
+The sitemap, RSS and search filters fire only when those (bundled) plugins are enabled.
 
 ### Actions
 

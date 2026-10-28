@@ -281,6 +281,12 @@ export async function renderPreview(opts: PreviewOptions): Promise<PreviewResult
       host.plugins.loadExternalPluginTranslations(m as PluginManifest);
       host.registry.registerExternalPlugin(m as PluginManifest);
     }
+    // Bundled themes too, so --theme <bundled id> works (a plugin tried
+    // inside magazine, corporate…).
+    for (const m of await loadBundledPluginManifests(new Set(opts.extensions.map((e) => e.id)), "themes")) {
+      host.themes.loadExternalThemeTranslations(m as ThemeManifest);
+      host.registry.registerExternalTheme(m as ThemeManifest);
+    }
     registerExtensions(host, opts.extensions);
     const themes = opts.extensions.filter((e) => e.kind === "theme");
     const themeId = opts.themeId ?? (themes.length === 1 ? themes[0].id : themes.length === 0 ? "default" : undefined);
@@ -455,7 +461,9 @@ export async function renderPreview(opts: PreviewOptions): Promise<PreviewResult
     const p = (slug: string | undefined, type: string) =>
       slug ? files.find((f) => f.endsWith(`/${slug}.html`) || f === `${slug}.html`) : files.find((f) => f.startsWith(type));
     const firstPost = posts.find((x) => x.type === "post" && x.status === "online" && x.primaryTermId);
-    const firstPage = posts.find((x) => x.type === "page" && x.status === "online");
+    // Not the static home page: it is published as index.html.
+    const homePageId = settings.homeMode === "static-page" ? settings.homePageId : null;
+    const firstPage = posts.find((x) => x.type === "page" && x.status === "online" && x.id !== homePageId && files.some((f) => f.endsWith(`${x.slug}.html`)));
     const cat = fixture.terms.find((t) => t.type === "category");
     return {
       outDir,

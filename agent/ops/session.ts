@@ -215,8 +215,23 @@ export async function openSession(alias: string | undefined, opts: OpenOptions =
   const adminUrl = adminUrlOf(site);
   const hosted = adminUrl ? await fetchHostedAdmin(adminUrl) : null;
   if (hosted?.version && compareVersions(hosted.version, info.version) !== 0) {
+    // Just deployed? The hosting may already hold this version while the
+    // host still serves the previous one.
+    const { readAdminFile, siteHostingReader } = await import("./adminFiles");
+    const onHosting = await readAdminFile(site, "admin-files.json", await siteHostingReader(site), {
+      accept: (t) => {
+        try {
+          return typeof (JSON.parse(t) as { version?: unknown }).version === "string";
+        } catch {
+          return false;
+        }
+      },
+    }).catch(() => null);
+    const hostingVersion = onHosting?.source === "hosting" ? (JSON.parse(onHosting.text) as { version: string }).version : null;
     warnings.push(
-      `The site's admin is ${hosted.version}, this tool is ${info.version}: pages are rendered with ${info.version}'s publisher. Update the hosted admin (deploy-admin) to keep both in step.`,
+      hostingVersion === info.version
+        ? `Admin ${info.version} is on the hosting but the site still serves ${hosted.version}: the deployment is pending (Pages build / CDN). Nothing to do.`
+        : `The site's admin is ${hosted.version}, this tool is ${info.version}: pages are rendered with ${info.version}'s publisher. Update the hosted admin (deploy-admin) to keep both in step.`,
     );
   }
   if (opts.write && hosted?.dataSchema != null && hosted.dataSchema > info.dataSchema) {

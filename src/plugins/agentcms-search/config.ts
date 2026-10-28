@@ -33,6 +33,10 @@ export interface SearchConfig {
   // the runtime when the bundled file hasn't changed (i.e. on every
   // ordinary publish, only the index changes).
   lastRuntimeHash?: string;
+  // Per-language index files (`<lang>/search-index.json`) written on
+  // the last pass through the `search.index.locales` filter. A path
+  // that drops out (language removed, multilang disabled) is deleted.
+  lastLocalePaths?: string[];
   // Epoch ms of the last successful index upload — surfaced in the
   // settings page so the user has a "last regenerated" indicator.
   lastIndexedAt?: number;
@@ -55,3 +59,18 @@ export const PLUGIN_ID = "agentcms-search";
 // had to read the config too, complicating things for no real benefit.
 export const SEARCH_INDEX_PATH = "search-index.json";
 export const SEARCH_RUNTIME_PATH = "search.js";
+
+// Index of a page's language, for the runtime <script> tag
+// (`data-cms-search-index`). A page rendered for a secondary language
+// (agentcms-multilang: `currentLocale` set AND `currentPath` under
+// `<locale>/`) reads `<locale>/search-index.json`; anything else
+// (primary pages, unilingual sites) → null = the root index.
+export function localeIndexPathFor(
+  props: { currentLocale?: string; currentPath?: string } | undefined,
+): string | null {
+  const locale = props?.currentLocale?.trim();
+  if (!locale || !/^[a-z0-9-]+$/i.test(locale)) return null;
+  const path = (props?.currentPath ?? "").replace(/^\/+/, "");
+  if (!path.startsWith(`${locale}/`)) return null;
+  return `${locale}/${SEARCH_INDEX_PATH}`;
+}

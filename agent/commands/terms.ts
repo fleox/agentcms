@@ -160,7 +160,7 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
       const f = await readFields(options);
       const name = f.name?.trim();
       if (!name) throw new CliError("usage", "terms create needs --name.", undefined, 2);
-      return runAdmin(io, alias, { write: true, lock: true }, async () => {
+      return runAdmin(io, alias, { write: true, lock: true }, async (session) => {
         const { slugify, findAvailableSlug, detectTermSlugCollision } = await import("../../src/core/slug");
         const { createTerm, updateTerm } = await import("../../src/services/taxonomies");
         const terms = await freshTerms();
@@ -176,7 +176,7 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
           name,
           slug,
           archivePath: archivePath({ type, slug }),
-          next: ["Nothing is published yet: the archive appears once a post of this category is published, or with `agentcms regenerate all`."],
+          next: [`Nothing is published yet: the archive appears once a post of this category is published, or with \`agentcms regenerate all --site ${session.site.alias}\`.`],
         };
       }, (r) => `Created ${r.type} ${r.id} (${r.slug}).`);
     }
@@ -199,7 +199,9 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
         if (lang) {
           // agentcms-multilang: translations[lang] = { name, slug, description, seo }.
           const langs = multilangLanguages(s.settings());
-          if (langs === null) s.warnings.push("agentcms-multilang is not configured on this site: the translation is stored but nothing renders it.");
+          if (remove) {
+            /* removing a stale translation: nothing to warn about */
+          } else if (langs === null) s.warnings.push("agentcms-multilang is not configured on this site: the translation is stored but nothing renders it.");
           else if (!langs.includes(lang)) s.warnings.push(`"${lang}" is not one of the site's enabled languages (${langs.join(", ") || "none"}): the translation is stored but not published.`);
           const current = { ...((t.translations ?? {}) as Record<string, Record<string, unknown>>) };
           if (remove) {
@@ -223,7 +225,7 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
             current[lang] = tr;
           }
           await updateTerm(t.id, { translations: current });
-          next.push(t.type === "category" ? "Run `agentcms regenerate everything` to publish the translated archive and post URLs (and the plugin files that list them: sitemaps, RSS feeds, search index)." : "Run `agentcms regenerate everything` so the published pages and plugin files show the translated tag.");
+          next.push(t.type === "category" ? `Run \`agentcms regenerate everything --site ${s.site.alias}\` to publish the translated archive and post URLs (and the plugin files that list them: sitemaps, RSS feeds, search index).` : `Run \`agentcms regenerate everything --site ${s.site.alias}\` so the published pages and plugin files show the translated tag.`);
           if (!remove && f.name !== undefined) {
             for (const m of menuLabelHints(s.settings(), "term", t.id, String(current[lang].name), s.site.alias, lang)) {
               next.push(`Menu item ${m.id} (${m.menu}) has ${m.label ? `the ${lang} label "${m.label}"` : `no ${lang} label`}: \`${m.fix}\`.`);
@@ -283,10 +285,10 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
         }
         const after = (await freshTerms()).find((x) => x.id === t.id)!;
         if (patch.slug && t.type === "category") {
-          next.push("Run `agentcms regenerate repair` to move this category's posts to their new URLs, then `agentcms regenerate everything` so the archives, listings and plugin files (sitemaps, RSS feeds, search index) use the new URLs.");
+          next.push(`Run \`agentcms regenerate repair --site ${s.site.alias}\` to move this category's posts to their new URLs, then \`agentcms regenerate everything --site ${s.site.alias}\` so the archives, listings and plugin files (sitemaps, RSS feeds, search index) use the new URLs.`);
           if (!archiveRemoved) next.push(`The old archive ${staleArchive} is still published: delete it with \`agentcms terms update ${after.slug} --type category --remove-archive --old-slug ${t.slug} --site ${s.site.alias}\` (or pass --remove-archive with --slug).`);
         } else if (Object.keys(patch).length) {
-          next.push("Run `agentcms regenerate everything` so published pages and plugin files (sitemaps, RSS feeds, search index) show the change (saving a term republishes nothing).");
+          next.push(`Run \`agentcms regenerate everything --site ${s.site.alias}\` so published pages and plugin files (sitemaps, RSS feeds, search index) show the change (saving a term republishes nothing).`);
         }
         // Menu items keep their own label: say which ones no longer match.
         const menuLabels = patch.name ? menuLabelHints(s.settings(), "term", t.id, patch.name, s.site.alias) : [];
@@ -387,7 +389,7 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
                 : "No post uses it.",
               ...(p.conflicts.length ? [`Blocked: ${p.conflicts.map((c) => `${c.path} (${c.title}) is already used by ${c.usedBy}`).join("; ")} — rename those posts first or pick another --move-to.`] : []),
               ...menuHints(s.site.alias, p, menuItems),
-              ...(p.archivePath ? [removeArchive ? `${p.archivePath} will be deleted from the site.` : `${p.archivePath} stays published; add --remove-archive to delete it.`] : []),
+              ...(p.archivePath ? [removeArchive ? `${p.archivePath} will be deleted from the site.` : `${p.archivePath} (if it was published) stays online; add --remove-archive to delete it.`] : []),
             ],
           };
         }, (r) => `Would delete ${r.delete.type} "${r.delete.name}". ${r.notes.join(" ")} Nothing changed — re-run with --yes once the user agrees.`);

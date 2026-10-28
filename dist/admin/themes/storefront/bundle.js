@@ -1,12 +1,12 @@
-import { jsxs as f, Fragment as se, jsx as c } from "react/jsx-runtime";
-import { i18n as ce, pickPublicLocale as de, uploadFile as hn, canonicalUrl as Va, pickFormat as Re, buildTermUrl as mn, SocialIcon as qa, socialLabel as Rr, publishProductsJson as Ja, buildSiteContext as Wa, renderPageToHtml as Ka, deleteFile as Ga, useCmsData as tr, logoPath as Ya, FontSelect as Pr, MediaPicker as Xa, pickMediaUrl as Za, toast as B, buildAuthorLookup as Qa, buildPublishContext as eo, fetchAllPosts as bt, publishMenuJson as gn, uploadThemeLogo as to, removeThemeLogo as ro } from "@agent-cms/runtime";
+import { jsxs as h, Fragment as se, jsx as c } from "react/jsx-runtime";
+import { i18n as ce, pickPublicLocale as de, uploadFile as fn, canonicalUrl as Va, pickFormat as Oe, buildTermUrl as mn, SocialIcon as qa, socialLabel as Or, publishProductsJson as Ja, buildSiteContext as Wa, renderPageToHtml as Ga, deleteFile as Ka, useCmsData as tr, logoPath as Ya, FontSelect as Pr, MediaPicker as Xa, pickMediaUrl as Za, toast as B, buildAuthorLookup as Qa, buildPublishContext as eo, fetchAllPosts as bt, publishMenuJson as gn, uploadThemeLogo as to, removeThemeLogo as ro } from "@agent-cms/runtime";
 import D, { forwardRef as rr, createElement as yt, useState as U, useRef as no, createRef as ao, memo as oo, createContext as bn, version as Fr, useContext as io } from "react";
 import { useTranslation as $ } from "react-i18next";
 import so, { flushSync as lo } from "react-dom";
 function co({ site: r }) {
   const { settings: e } = r, t = ce.getFixedT(de(e.language), "theme-storefront");
-  return /* @__PURE__ */ f(se, { children: [
-    /* @__PURE__ */ c("header", { className: "sticky top-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur-md border-b border-outline-variant/30 h-16", children: /* @__PURE__ */ f("div", { className: "flex justify-between items-center w-full px-gutter md:px-gutter-desktop max-w-container-max mx-auto h-full", children: [
+  return /* @__PURE__ */ h(se, { children: [
+    /* @__PURE__ */ c("header", { className: "sticky top-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur-md border-b border-outline-variant/30 h-16", children: /* @__PURE__ */ h("div", { className: "flex justify-between items-center w-full px-gutter md:px-gutter-desktop max-w-container-max mx-auto h-full", children: [
       /* @__PURE__ */ c("div", { className: "flex items-center gap-4", children: /* @__PURE__ */ c(
         "button",
         {
@@ -27,7 +27,7 @@ function co({ site: r }) {
           children: e.title
         }
       ),
-      /* @__PURE__ */ f("div", { className: "flex items-center gap-3", children: [
+      /* @__PURE__ */ h("div", { className: "flex items-center gap-3", children: [
         /* @__PURE__ */ c("div", { "data-cms-langswitch": "header", "aria-hidden": "true" }),
         /* @__PURE__ */ c(
           "button",
@@ -263,11 +263,11 @@ function Br(r, e) {
   };
   return t[r] ?? t[e];
 }
-function fo(r, e) {
+function ho(r, e) {
   const t = Br(r, Pe), n = Br(e, Fe);
   return t === n ? `https://fonts.googleapis.com/css2?family=${t}&display=swap` : `https://fonts.googleapis.com/css2?family=${t}&family=${n}&display=swap`;
 }
-function ho() {
+function fo() {
   return `https://fonts.googleapis.com/css2?${[
     ...Object.keys(le.serif),
     ...Object.keys(le.sans)
@@ -289,20 +289,20 @@ function $r(r) {
 }
 function xn(r, e) {
   const t = {};
-  for (const [p, h] of Object.entries(e.vars ?? {}))
-    h && h.trim() && (t[p] = h.trim());
+  for (const [p, f] of Object.entries(e.vars ?? {}))
+    f && f.trim() && (t[p] = f.trim());
   const n = e.fontSerif || Pe, a = e.fontSans || Fe, o = n !== Pe || a !== Fe, i = Object.keys(t).length > 0;
   if (!o && !i) return r;
   let s = r;
   if (o) {
-    const p = fo(n, a);
+    const p = ho(n, a);
     s = s.replace(
       /@import\s*(?:url\(\s*)?"https:\/\/fonts\.googleapis\.com[^"]*"(?:\s*\))?\s*;/,
       `@import url("${p}");`
     );
   }
-  const l = new Map(lt.map((p) => [p.name, p])), d = Object.entries(t).map(([p, h]) => {
-    const m = l.get(p), v = (m == null ? void 0 : m.type) === "color" ? mo(h) : h;
+  const l = new Map(lt.map((p) => [p.name, p])), d = Object.entries(t).map(([p, f]) => {
+    const m = l.get(p), v = (m == null ? void 0 : m.type) === "color" ? mo(f) : f;
     return `${p}:${v};`;
   }).join(""), u = o ? `--font-serif:${$r(n)};--font-sans:${$r(a)};` : "";
   return s += `
@@ -311,7 +311,7 @@ function xn(r, e) {
 }
 async function go(r) {
   const e = xn(r.baseCssText, r.style);
-  await hn({
+  await fn({
     path: "theme-assets/storefront.css",
     content: e,
     encoding: "utf-8"
@@ -486,11 +486,11 @@ const bo = "https://images.unsplash.com/photo-1487530811176-3780de880c2d?auto=fo
 };
 function Ao({ site: r }) {
   const { settings: e } = r, t = ce.getFixedT(de(e.language), "theme-storefront"), a = (r.themeConfig ?? An).footer, o = a.tagline.trim() || e.description || "", i = (/* @__PURE__ */ new Date()).getFullYear();
-  return /* @__PURE__ */ c("footer", { className: "bg-surface-container-highest/40 border-t border-outline-variant/40 pt-section-gap-mobile md:pt-section-gap-desktop pb-stack-lg", children: /* @__PURE__ */ f("div", { className: "grid grid-cols-1 md:grid-cols-12 gap-stack-lg px-gutter md:px-gutter-desktop max-w-container-max mx-auto", children: [
-    /* @__PURE__ */ f("div", { className: "md:col-span-4", children: [
+  return /* @__PURE__ */ c("footer", { className: "bg-surface-container-highest/40 border-t border-outline-variant/40 pt-section-gap-mobile md:pt-section-gap-desktop pb-stack-lg", children: /* @__PURE__ */ h("div", { className: "grid grid-cols-1 md:grid-cols-12 gap-stack-lg px-gutter md:px-gutter-desktop max-w-container-max mx-auto", children: [
+    /* @__PURE__ */ h("div", { className: "md:col-span-4", children: [
       /* @__PURE__ */ c("span", { className: "font-serif text-headline-sm text-primary block mb-stack-md font-bold", children: e.title }),
       o && /* @__PURE__ */ c("p", { className: "text-body-md text-on-surface-variant mb-stack-lg max-w-xs", children: o }),
-      a.showSocials && /* @__PURE__ */ f("div", { className: "flex gap-3", "data-cms-footer-socials": !0, children: [
+      a.showSocials && /* @__PURE__ */ h("div", { className: "flex gap-3", "data-cms-footer-socials": !0, children: [
         /* @__PURE__ */ c(
           "a",
           {
@@ -520,8 +520,8 @@ function Ao({ site: r }) {
         children: /* @__PURE__ */ c("ul", { className: "flex flex-wrap gap-x-8 gap-y-3 text-body-md text-on-surface-variant" })
       }
     ),
-    /* @__PURE__ */ f("div", { className: "md:col-span-12 mt-stack-lg pt-stack-md border-t border-outline-variant/30 flex flex-col md:flex-row justify-between items-center gap-stack-sm", children: [
-      /* @__PURE__ */ f("p", { className: "text-body-md text-on-surface-variant opacity-70", children: [
+    /* @__PURE__ */ h("div", { className: "md:col-span-12 mt-stack-lg pt-stack-md border-t border-outline-variant/30 flex flex-col md:flex-row justify-between items-center gap-stack-sm", children: [
+      /* @__PURE__ */ h("p", { className: "text-body-md text-on-surface-variant opacity-70", children: [
         "© ",
         i,
         " ",
@@ -541,9 +541,9 @@ function Tn({
   children: i
 }) {
   var g;
-  const s = (g = r.themeConfig) == null ? void 0 : g.cssUpdatedAt, l = s ? `/${r.themeCssPath}?v=${s}` : `/${r.themeCssPath}`, d = r.themeCssPath.replace(/^theme-assets\//, "").replace(/\.css$/, ""), u = `/theme-assets/${d}-menu.js`, p = `/theme-assets/${d}-posts.js`, h = `/theme-assets/${d}-catalog.js`, m = r.settings.baseUrl && a ? Va(r.settings.baseUrl, a) : void 0, v = e ? `${e} — ${r.settings.title}` : r.settings.title;
-  return /* @__PURE__ */ f("html", { lang: o || r.settings.language || "en", children: [
-    /* @__PURE__ */ f("head", { children: [
+  const s = (g = r.themeConfig) == null ? void 0 : g.cssUpdatedAt, l = s ? `/${r.themeCssPath}?v=${s}` : `/${r.themeCssPath}`, d = r.themeCssPath.replace(/^theme-assets\//, "").replace(/\.css$/, ""), u = `/theme-assets/${d}-menu.js`, p = `/theme-assets/${d}-posts.js`, f = `/theme-assets/${d}-catalog.js`, m = r.settings.baseUrl && a ? Va(r.settings.baseUrl, a) : void 0, v = e ? `${e} — ${r.settings.title}` : r.settings.title;
+  return /* @__PURE__ */ h("html", { lang: o || r.settings.language || "en", children: [
+    /* @__PURE__ */ h("head", { children: [
       /* @__PURE__ */ c("meta", { charSet: "UTF-8" }),
       /* @__PURE__ */ c("meta", { name: "viewport", content: "width=device-width, initial-scale=1" }),
       /* @__PURE__ */ c("title", { children: v }),
@@ -559,13 +559,13 @@ function Tn({
       /* @__PURE__ */ c("meta", { property: "og:type", content: "website" }),
       /* @__PURE__ */ c("meta", { name: "x-cms-head-extra" })
     ] }),
-    /* @__PURE__ */ f("body", { className: "bg-background text-on-surface", children: [
+    /* @__PURE__ */ h("body", { className: "bg-background text-on-surface", children: [
       /* @__PURE__ */ c(co, { site: r }),
       /* @__PURE__ */ c("main", { children: i }),
       /* @__PURE__ */ c(Ao, { site: r }),
       /* @__PURE__ */ c("script", { src: u, defer: !0 }),
       /* @__PURE__ */ c("script", { src: p, defer: !0 }),
-      /* @__PURE__ */ c("script", { src: h, defer: !0 }),
+      /* @__PURE__ */ c("script", { src: f, defer: !0 }),
       /* @__PURE__ */ c("script", { type: "application/x-cms-body-end" })
     ] })
   ] });
@@ -611,7 +611,7 @@ function Ve(r, e, t = "en") {
     return `${r.toFixed(2)} ${e || ""}`.trim();
   }
 }
-function Mn(r) {
+function Ln(r) {
   if (!r.title && !r.subtitle && !r.imageUrl)
     return { html: "" };
   const e = r.imageUrl ? `<img class="w-full h-full object-cover" src="${S(r.imageUrl)}" alt="${S(r.imageAlt ?? "")}" loading="eager" fetchpriority="high" />` : "", t = r.eyebrow ? `<span class="inline-block font-label-caps text-label-caps text-primary uppercase tracking-widest mb-stack-md">${x(r.eyebrow)}</span>` : "", n = r.title ? `<h1 class="display-serif text-display-md md:text-display-lg text-on-surface mb-stack-md leading-tight">${x(r.title)}${r.titleItalicTail ? `<br/><span class="display-italic">${x(r.titleItalicTail)}</span>` : ""}</h1>` : "", a = r.subtitle ? `<p class="font-body-lg text-body-lg text-on-surface-variant mb-stack-lg max-w-md">${x(r.subtitle)}</p>` : "", o = r.primaryCtaLabel && r.primaryCtaHref ? `<a href="${S(r.primaryCtaHref)}" class="bg-primary text-on-primary px-8 py-4 rounded-full font-label-caps text-label-caps uppercase tracking-widest hover:bg-primary-container hover:text-on-primary-container transition-all">${x(r.primaryCtaLabel)}</a>` : "", i = r.secondaryCtaLabel && r.secondaryCtaHref ? `<a href="${S(r.secondaryCtaHref)}" class="border border-secondary text-secondary px-8 py-4 rounded-full font-label-caps text-label-caps uppercase tracking-widest hover:bg-secondary-container hover:text-on-secondary-container hover:border-transparent transition-all">${x(r.secondaryCtaLabel)}</a>` : "", s = o || i ? `<div class="flex flex-wrap gap-stack-md">${o}${i}</div>` : "";
@@ -622,7 +622,7 @@ function Mn(r) {
 </section>`
   };
 }
-function Ln(r) {
+function Rn(r) {
   const e = Array.isArray(r.cards) ? r.cards : [];
   if (e.length === 0) return { html: "" };
   const t = r.title || r.subtitle || r.viewAllLabel ? `<div class="flex flex-col md:flex-row justify-between items-end mb-stack-lg gap-stack-md">
@@ -638,7 +638,7 @@ function Ln(r) {
     html: `<section class="py-section-gap-mobile md:py-section-gap-desktop max-w-container-max mx-auto px-gutter md:px-gutter-desktop">${t}<div class="grid grid-cols-1 md:grid-cols-12 gap-stack-md md:gap-stack-lg auto-rows-[280px] md:auto-rows-[300px]">${n}</div></section>`
   };
 }
-function On(r) {
+function Mn(r) {
   if (!r.title && !r.subtitle && !r.imageUrl)
     return { html: "" };
   const e = r.imageUrl ? `<div class="relative">
@@ -693,23 +693,23 @@ function Io(r) {
 </section>`
   };
 }
-function Mo(r) {
+function Lo(r) {
   if (!r.eyebrow && !r.title && !r.viewAllLabel) return "";
   const e = r.eyebrow ? `<p class="font-label-caps text-label-caps text-secondary uppercase tracking-widest mb-stack-sm">${x(r.eyebrow)}</p>` : "", t = r.title ? `<h2 class="display-serif text-headline-md md:text-display-md text-on-surface">${x(r.title)}</h2>` : "", n = r.viewAllLabel && r.viewAllHref ? `<a class="font-label-caps text-label-caps text-primary border-b border-primary pb-1 uppercase tracking-widest hover:text-primary-container transition-colors shrink-0" href="${S(r.viewAllHref)}">${x(r.viewAllLabel)}</a>` : "";
   return !r.title && !r.viewAllLabel ? `<div class="text-center mb-stack-lg">${e}${t}</div>` : `<div class="flex flex-col md:flex-row md:items-end md:justify-between gap-stack-md mb-stack-lg">
 <div>${e}${t}</div>${n}</div>`;
 }
-function Lo(r, e) {
+function Ro(r, e) {
   const t = r.badge ? `<span class="absolute top-3 left-3 bg-secondary/90 text-on-secondary text-label-caps font-semibold px-3 py-1 rounded-full backdrop-blur uppercase tracking-widest">${x(r.badge)}</span>` : "", n = e ? `<a href="${S(r.url)}" class="absolute bottom-0 left-0 right-0 bg-primary/90 text-on-primary text-center py-3 font-label-caps text-label-caps uppercase tracking-widest translate-y-full group-hover:translate-y-0 transition-transform duration-300">${x(e)}</a>` : "", a = r.priceLabel ? r.promoLabel ? `<p class="font-label-caps text-label-caps"><span class="storefront-price-promo">${x(r.promoLabel)}</span><span class="storefront-price-strike">${x(r.priceLabel)}</span></p>` : `<p class="font-label-caps text-label-caps text-primary font-bold">${x(r.priceLabel)}</p>` : "";
   return `<article class="storefront-product-card flex flex-col group">
 <div class="relative aspect-[4/5] overflow-hidden rounded-2xl bg-surface-container-lowest mb-stack-md shadow-sm">
 <a href="${S(r.url)}" class="block w-full h-full">${r.imageUrl ? `<img src="${S(r.imageUrl)}" alt="${S(r.imageAlt ?? r.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />` : ""}</a>${t}${n}</div>
 <h3 class="display-serif text-[1.125rem] text-on-surface leading-tight mb-1"><a href="${S(r.url)}" class="hover:text-primary transition-colors">${x(r.title)}</a></h3>${r.subtitle ? `<p class="font-body-md text-body-md text-on-surface-variant mb-stack-sm">${x(r.subtitle)}</p>` : ""}${a}</article>`;
 }
-function zr(r) {
+function Hr(r) {
   const { attrs: e, cards: t, quickAddLabel: n } = r;
   if (t.length === 0) return { html: "" };
-  const a = e.layout ?? "grid", i = (e.variant ?? "band") === "band" ? "bg-surface-container-low py-section-gap-mobile md:py-section-gap-desktop" : "py-section-gap-mobile md:py-section-gap-desktop", s = t.map((d) => Lo(d, n)).join(""), l = a === "slider" ? `<div class="relative">
+  const a = e.layout ?? "grid", i = (e.variant ?? "band") === "band" ? "bg-surface-container-low py-section-gap-mobile md:py-section-gap-desktop" : "py-section-gap-mobile md:py-section-gap-desktop", s = t.map((d) => Ro(d, n)).join(""), l = a === "slider" ? `<div class="relative">
 <div data-cms-row-track class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth gap-stack-md md:gap-stack-lg storefront-no-scrollbar pb-2">${s.replace(
     /<article class="storefront-product-card/g,
     '<article class="storefront-product-card storefront-row-slide snap-start'
@@ -719,7 +719,7 @@ function zr(r) {
 </div>` : `<div class="grid grid-cols-2 md:grid-cols-4 gap-stack-md md:gap-stack-lg">${s}</div>`;
   return {
     html: `<section class="${i}">
-<div class="max-w-container-max mx-auto px-gutter md:px-gutter-desktop">${Mo(e)}${l}</div>
+<div class="max-w-container-max mx-auto px-gutter md:px-gutter-desktop">${Lo(e)}${l}</div>
 </section>`
   };
 }
@@ -734,22 +734,22 @@ function Wt(r, e, t, n) {
     badge: Array.isArray(o.badges) && o.badges.length > 0 ? o.badges[0] : ""
   };
 }
-const Oo = {
+const Mo = {
   "in-stock": "storefront-stock-in",
   "low-stock": "storefront-stock-low",
   "out-of-stock": "storefront-stock-out",
   "on-order": "storefront-stock-order"
-}, Rn = /<div\s+([^>]*data-cms-block="storefront\/product-info"[^>]*)>\s*<\/div>/;
+}, On = /<div\s+([^>]*data-cms-block="storefront\/product-info"[^>]*)>\s*<\/div>/;
 function Pn(r) {
-  const e = r.match(Rn);
+  const e = r.match(On);
   if (!e) return null;
   const t = e[1].match(
     /data-attrs=(?:"([^"]*)"|'([^']*)'|([^\s>]+))/
   ), n = t ? t[1] ?? t[2] ?? t[3] ?? "" : "";
   return { attrs: re(n, ct), markerMatch: e[0] };
 }
-function Ro(r) {
-  return r.replace(Rn, "");
+function Oo(r) {
+  return r.replace(On, "");
 }
 const ct = {
   priceHT: 0,
@@ -773,9 +773,9 @@ function Po(r) {
 <p class="display-serif text-headline-md text-secondary">${x(Ve(e.promoTTC, o, n))}</p>
 <p class="text-on-surface-variant line-through text-body-md">${x(Ve(e.priceTTC, o, n))}</p>
 </div>` : l = `<p class="display-serif text-headline-md text-primary mb-stack-md">${x(Ve(e.priceTTC, o, n))}</p>`);
-  const d = e.stockStatus ? `<p class="${Oo[e.stockStatus] ?? "storefront-stock-pill"} mb-stack-md storefront-stock-pill">${x(Fo(e.stockStatus, t))}</p>` : "", u = e.variants && e.variants.length > 0 ? `<div class="grid ${e.variants.length > 1 ? "grid-cols-2" : "grid-cols-1"} gap-stack-md mb-stack-md">${e.variants.map(
+  const d = e.stockStatus ? `<p class="${Mo[e.stockStatus] ?? "storefront-stock-pill"} mb-stack-md storefront-stock-pill">${x(Fo(e.stockStatus, t))}</p>` : "", u = e.variants && e.variants.length > 0 ? `<div class="grid ${e.variants.length > 1 ? "grid-cols-2" : "grid-cols-1"} gap-stack-md mb-stack-md">${e.variants.map(
     (y) => `<div><label class="block font-label-caps text-[10px] text-on-surface-variant mb-1 uppercase tracking-widest">${x(y.label)}</label><select name="variant_${S(y.label.toLowerCase().replace(/\s+/g, "_"))}" class="w-full bg-surface border border-outline-variant rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary outline-none">${y.options.map((b) => `<option>${x(b)}</option>`).join("")}</select></div>`
-  ).join("")}</div>` : "", p = e.ctaPrimaryLabel || a.ctaLabel, h = e.ctaPrimaryHref || a.ctaHref, m = p && h ? `<a href="${S(h)}" class="block w-full text-center bg-primary text-on-primary py-4 rounded-full font-label-caps text-label-caps uppercase tracking-widest hover:bg-primary-container hover:text-on-primary-container transition-all shadow-lg">${x(p)}</a>` : "", v = e.ctaSecondaryLabel && e.ctaSecondaryHref ? `<a href="${S(e.ctaSecondaryHref)}" class="block w-full text-center border border-secondary text-secondary py-4 rounded-full font-label-caps text-label-caps uppercase tracking-widest hover:bg-secondary-fixed hover:border-transparent transition-all">${x(e.ctaSecondaryLabel)}</a>` : "", g = m || v ? `<div class="space-y-stack-sm">${m}${v}</div>` : "";
+  ).join("")}</div>` : "", p = e.ctaPrimaryLabel || a.ctaLabel, f = e.ctaPrimaryHref || a.ctaHref, m = p && f ? `<a href="${S(f)}" class="block w-full text-center bg-primary text-on-primary py-4 rounded-full font-label-caps text-label-caps uppercase tracking-widest hover:bg-primary-container hover:text-on-primary-container transition-all shadow-lg">${x(p)}</a>` : "", v = e.ctaSecondaryLabel && e.ctaSecondaryHref ? `<a href="${S(e.ctaSecondaryHref)}" class="block w-full text-center border border-secondary text-secondary py-4 rounded-full font-label-caps text-label-caps uppercase tracking-widest hover:bg-secondary-fixed hover:border-transparent transition-all">${x(e.ctaSecondaryLabel)}</a>` : "", g = m || v ? `<div class="space-y-stack-sm">${m}${v}</div>` : "";
   return [
     s,
     l,
@@ -805,7 +805,7 @@ function Bo({
   staticPage: e,
   site: t
 }) {
-  var C, A, R, P, O;
+  var C, A, O, P, M;
   const n = ce.getFixedT(de(t.settings.language), "theme-storefront");
   if (e)
     return /* @__PURE__ */ c(
@@ -825,7 +825,7 @@ function Bo({
     bento: { ...ee.bento, ...((A = a == null ? void 0 : a.home) == null ? void 0 : A.bento) ?? {} },
     trending: {
       ...ee.trending,
-      ...((R = a == null ? void 0 : a.home) == null ? void 0 : R.trending) ?? {}
+      ...((O = a == null ? void 0 : a.home) == null ? void 0 : O.trending) ?? {}
     },
     journal: {
       ...ee.journal,
@@ -833,9 +833,9 @@ function Bo({
     },
     reviews: {
       ...ee.reviews,
-      ...((O = a == null ? void 0 : a.home) == null ? void 0 : O.reviews) ?? {}
+      ...((M = a == null ? void 0 : a.home) == null ? void 0 : M.reviews) ?? {}
     }
-  }, l = s.showHero ? Mn(s.hero).html : "", d = s.bento.enabled ? Ln({
+  }, l = s.showHero ? Ln(s.hero).html : "", d = s.bento.enabled ? Rn({
     eyebrow: s.bento.eyebrow,
     title: s.bento.title,
     subtitle: s.bento.subtitle,
@@ -845,13 +845,13 @@ function Bo({
   }).html : "";
   let u = r;
   if (s.trending.enabled && s.trending.mode === "category" && s.trending.categoryId) {
-    const N = r.filter((z) => z.primaryTermId === s.trending.categoryId);
+    const N = r.filter((H) => H.primaryTermId === s.trending.categoryId);
     N.length > 0 && (u = N);
   }
   u = u.slice(0, Math.max(1, s.trending.count));
   const p = u.map((N) => {
     var ie;
-    const z = Wt(
+    const H = Wt(
       N.contentMarkdown ?? "",
       i,
       o.currency,
@@ -861,13 +861,13 @@ function Bo({
       url: `/${N.url}`,
       title: N.title,
       subtitle: N.excerpt ?? "",
-      imageUrl: N.hero ? Re(N.hero, "medium") : "",
+      imageUrl: N.hero ? Oe(N.hero, "medium") : "",
       imageAlt: ((ie = N.hero) == null ? void 0 : ie.alt) ?? N.title,
-      priceLabel: z.priceLabel,
-      promoLabel: z.promoLabel,
-      badge: z.badge
+      priceLabel: H.priceLabel,
+      promoLabel: H.promoLabel,
+      badge: H.badge
     };
-  }), h = s.trending.enabled && p.length > 0 ? zr({
+  }), f = s.trending.enabled && p.length > 0 ? Hr({
     attrs: {
       eyebrow: s.trending.eyebrow,
       title: s.trending.title,
@@ -876,11 +876,11 @@ function Bo({
     cards: p,
     quickAddLabel: n("publicBaked.quickAdd")
   }).html : "", v = (Array.isArray(s.categoryRows) ? s.categoryRows : []).filter((N) => N.enabled).map((N) => {
-    var Mr, Lr;
+    var Lr, Rr;
     const ie = (N.categoryId ? r.filter((Y) => Y.primaryTermId === N.categoryId) : r).slice(0, Math.max(1, N.count));
     if (ie.length === 0) return "";
     const Da = ie.map((Y) => {
-      var Or;
+      var Mr;
       const Ft = Wt(
         Y.contentMarkdown ?? "",
         i,
@@ -891,14 +891,14 @@ function Bo({
         url: `/${Y.url}`,
         title: Y.title,
         subtitle: Y.excerpt ?? "",
-        imageUrl: Y.hero ? Re(Y.hero, "medium") : "",
-        imageAlt: ((Or = Y.hero) == null ? void 0 : Or.alt) ?? Y.title,
+        imageUrl: Y.hero ? Oe(Y.hero, "medium") : "",
+        imageAlt: ((Mr = Y.hero) == null ? void 0 : Mr.alt) ?? Y.title,
         priceLabel: Ft.priceLabel,
         promoLabel: Ft.promoLabel,
         badge: Ft.badge
       };
-    }), Ir = (Lr = (Mr = ie.find((Y) => Y.category)) == null ? void 0 : Mr.category) == null ? void 0 : Lr.url, Ua = N.viewAllHref || (Ir ? `/${Ir}` : ""), _a = N.viewAllLabel || "";
-    return zr({
+    }), Ir = (Rr = (Lr = ie.find((Y) => Y.category)) == null ? void 0 : Lr.category) == null ? void 0 : Rr.url, Ua = N.viewAllHref || (Ir ? `/${Ir}` : ""), _a = N.viewAllLabel || "";
+    return Hr({
       attrs: {
         eyebrow: N.eyebrow,
         title: N.title,
@@ -923,7 +923,7 @@ function Bo({
     hours: g.hours,
     ctaLabel: g.ctaLabel,
     ctaHref: g.ctaHref
-  }).html : "", b = s.journal.enabled ? On({
+  }).html : "", b = s.journal.enabled ? Mn({
     imageUrl: s.journal.imageUrl,
     imageAlt: s.journal.imageAlt,
     eyebrow: s.journal.eyebrow,
@@ -933,10 +933,10 @@ function Bo({
     ctaLabel: s.journal.ctaLabel,
     ctaHref: s.journal.ctaHref
   }).html : "";
-  return /* @__PURE__ */ f(se, { children: [
+  return /* @__PURE__ */ h(se, { children: [
     l && /* @__PURE__ */ c("div", { dangerouslySetInnerHTML: { __html: l } }),
     d && /* @__PURE__ */ c("div", { dangerouslySetInnerHTML: { __html: d } }),
-    h && /* @__PURE__ */ c("div", { dangerouslySetInnerHTML: { __html: h } }),
+    f && /* @__PURE__ */ c("div", { dangerouslySetInnerHTML: { __html: f } }),
     v && /* @__PURE__ */ c("div", { dangerouslySetInnerHTML: { __html: v } }),
     y && /* @__PURE__ */ c("div", { dangerouslySetInnerHTML: { __html: y } }),
     b && /* @__PURE__ */ c("div", { dangerouslySetInnerHTML: { __html: b } })
@@ -962,7 +962,7 @@ function $o({
         dangerouslySetInnerHTML: { __html: e }
       }
     ) });
-  const p = Pn(e), h = p ? Ro(e) : e, m = p ? Po({
+  const p = Pn(e), f = p ? Oo(e) : e, m = p ? Po({
     attrs: p.attrs,
     labels: {
       inStock: i("publicBaked.inStock"),
@@ -981,11 +981,11 @@ function $o({
       inquiryOnly: d.inquiryOnly
     }
   }) : "";
-  return /* @__PURE__ */ f("article", { className: "max-w-container-max mx-auto px-gutter md:px-gutter-desktop pt-stack-lg pb-section-gap-desktop", children: [
-    /* @__PURE__ */ f("nav", { className: "flex items-center gap-2 mb-stack-lg text-on-surface-variant text-label-caps font-semibold uppercase tracking-widest", children: [
+  return /* @__PURE__ */ h("article", { className: "max-w-container-max mx-auto px-gutter md:px-gutter-desktop pt-stack-lg pb-section-gap-desktop", children: [
+    /* @__PURE__ */ h("nav", { className: "flex items-center gap-2 mb-stack-lg text-on-surface-variant text-label-caps font-semibold uppercase tracking-widest", children: [
       /* @__PURE__ */ c("a", { className: "hover:text-primary transition-colors", href: o.homePath ?? "/index.html", children: i("publicBaked.home") }),
       /* @__PURE__ */ c("span", { className: "material-symbols-outlined text-[14px]", children: "chevron_right" }),
-      n ? /* @__PURE__ */ f(se, { children: [
+      n ? /* @__PURE__ */ h(se, { children: [
         /* @__PURE__ */ c(
           "a",
           {
@@ -998,32 +998,32 @@ function $o({
       ] }) : null,
       /* @__PURE__ */ c("span", { className: "text-primary", children: r.title })
     ] }),
-    /* @__PURE__ */ f("div", { className: "grid grid-cols-1 lg:grid-cols-12 gap-stack-lg mb-section-gap-mobile lg:mb-section-gap-desktop", children: [
+    /* @__PURE__ */ h("div", { className: "grid grid-cols-1 lg:grid-cols-12 gap-stack-lg mb-section-gap-mobile lg:mb-section-gap-desktop", children: [
       /* @__PURE__ */ c("div", { className: "lg:col-span-7", children: t && /* @__PURE__ */ c("div", { className: "aspect-[4/5] overflow-hidden rounded-3xl bg-surface-container-low shadow-sm sticky top-24", children: /* @__PURE__ */ c(
         "img",
         {
-          src: Re(t, "large"),
+          src: Oe(t, "large"),
           alt: t.alt ?? r.title,
           className: "w-full h-full object-cover",
           fetchPriority: "high"
         }
       ) }) }),
-      /* @__PURE__ */ f("div", { className: "lg:col-span-5 flex flex-col", children: [
+      /* @__PURE__ */ h("div", { className: "lg:col-span-5 flex flex-col", children: [
         /* @__PURE__ */ c("h1", { className: "display-serif text-display-md md:text-display-lg text-on-surface mb-stack-sm leading-tight", children: r.title }),
         r.excerpt && /* @__PURE__ */ c("p", { className: "text-body-lg text-on-surface-variant leading-relaxed mb-stack-lg", children: r.excerpt }),
         m && /* @__PURE__ */ c("div", { dangerouslySetInnerHTML: { __html: m } })
       ] })
     ] }),
-    /* @__PURE__ */ f("div", { className: "grid grid-cols-1 lg:grid-cols-12 gap-stack-lg", children: [
-      /* @__PURE__ */ f("div", { className: l.showCareKit ? "lg:col-span-8" : "lg:col-span-12", children: [
+    /* @__PURE__ */ h("div", { className: "grid grid-cols-1 lg:grid-cols-12 gap-stack-lg", children: [
+      /* @__PURE__ */ h("div", { className: l.showCareKit ? "lg:col-span-8" : "lg:col-span-12", children: [
         /* @__PURE__ */ c(
           "div",
           {
             className: "storefront-prose",
-            dangerouslySetInnerHTML: { __html: h }
+            dangerouslySetInnerHTML: { __html: f }
           }
         ),
-        a.length > 0 && /* @__PURE__ */ c("div", { className: "mt-stack-lg pt-stack-md border-t border-outline-variant/30 flex flex-wrap gap-2", children: a.map((v) => /* @__PURE__ */ f(
+        a.length > 0 && /* @__PURE__ */ c("div", { className: "mt-stack-lg pt-stack-md border-t border-outline-variant/30 flex flex-wrap gap-2", children: a.map((v) => /* @__PURE__ */ h(
           "span",
           {
             className: "px-3 py-1 bg-surface-container-high rounded-full text-label-caps font-semibold text-primary uppercase tracking-widest",
@@ -1035,10 +1035,10 @@ function $o({
           v.id
         )) })
       ] }),
-      l.showCareKit && /* @__PURE__ */ c("aside", { className: "lg:col-span-4", children: /* @__PURE__ */ f("div", { className: "lg:sticky lg:top-24 p-6 md:p-8 bg-surface-container-highest/40 rounded-3xl border border-outline-variant/30", children: [
+      l.showCareKit && /* @__PURE__ */ c("aside", { className: "lg:col-span-4", children: /* @__PURE__ */ h("div", { className: "lg:sticky lg:top-24 p-6 md:p-8 bg-surface-container-highest/40 rounded-3xl border border-outline-variant/30", children: [
         /* @__PURE__ */ c("h4", { className: "display-serif text-headline-sm text-primary mb-stack-sm", children: l.careKitTitle }),
         l.careKitDescription && /* @__PURE__ */ c("p", { className: "font-body-md text-on-surface-variant mb-stack-md", children: l.careKitDescription }),
-        l.careKitItems && l.careKitItems.length > 0 && /* @__PURE__ */ c("ul", { className: "space-y-stack-sm", children: l.careKitItems.map((v, g) => /* @__PURE__ */ f(
+        l.careKitItems && l.careKitItems.length > 0 && /* @__PURE__ */ c("ul", { className: "space-y-stack-sm", children: l.careKitItems.map((v, g) => /* @__PURE__ */ h(
           "li",
           {
             className: "flex items-center gap-stack-sm text-on-surface",
@@ -1075,7 +1075,7 @@ function $o({
     )
   ] });
 }
-function zo({
+function Ho({
   term: r,
   posts: e,
   allCategories: t,
@@ -1087,20 +1087,20 @@ function zo({
     ...$e,
     ...(s == null ? void 0 : s.productDefaults) ?? {}
   }, d = o.settings.language || "en";
-  return /* @__PURE__ */ f("main", { className: "max-w-container-max mx-auto px-gutter md:px-gutter-desktop py-stack-lg md:py-stack-lg pb-section-gap-desktop", children: [
-    /* @__PURE__ */ f("nav", { className: "flex items-center gap-2 mb-stack-lg text-on-surface-variant text-label-caps font-semibold uppercase tracking-widest", children: [
+  return /* @__PURE__ */ h("main", { className: "max-w-container-max mx-auto px-gutter md:px-gutter-desktop py-stack-lg md:py-stack-lg pb-section-gap-desktop", children: [
+    /* @__PURE__ */ h("nav", { className: "flex items-center gap-2 mb-stack-lg text-on-surface-variant text-label-caps font-semibold uppercase tracking-widest", children: [
       /* @__PURE__ */ c("a", { className: "hover:text-primary transition-colors", href: o.homePath ?? "/index.html", children: i("publicBaked.home") }),
       /* @__PURE__ */ c("span", { className: "material-symbols-outlined text-[14px]", children: "chevron_right" }),
       /* @__PURE__ */ c("span", { className: "text-primary", children: r.name })
     ] }),
-    /* @__PURE__ */ f("header", { className: "mb-stack-lg", children: [
+    /* @__PURE__ */ h("header", { className: "mb-stack-lg", children: [
       /* @__PURE__ */ c("h1", { className: "display-serif text-display-md md:text-display-lg text-on-surface mb-stack-sm leading-tight", children: r.name }),
       r.description && /* @__PURE__ */ c("p", { className: "text-body-lg text-on-surface-variant max-w-2xl", children: r.description }),
       /* @__PURE__ */ c("p", { className: "text-on-surface-variant text-body-md mt-stack-md", children: e.length === 1 ? i("publicBaked.productCountOne") : i("publicBaked.productCount", { count: e.length }) })
     ] }),
-    /* @__PURE__ */ f("div", { className: "grid grid-cols-1 lg:grid-cols-12 gap-stack-lg", children: [
-      /* @__PURE__ */ c("aside", { className: "lg:col-span-3", children: /* @__PURE__ */ f("div", { className: "lg:sticky lg:top-24 space-y-stack-lg", children: [
-        t && t.length > 0 && /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { className: "grid grid-cols-1 lg:grid-cols-12 gap-stack-lg", children: [
+      /* @__PURE__ */ c("aside", { className: "lg:col-span-3", children: /* @__PURE__ */ h("div", { className: "lg:sticky lg:top-24 space-y-stack-lg", children: [
+        t && t.length > 0 && /* @__PURE__ */ h("div", { children: [
           /* @__PURE__ */ c("h3", { className: "font-label-caps text-label-caps text-primary uppercase tracking-widest mb-stack-md", children: i("publicBaked.allCategories") }),
           /* @__PURE__ */ c("ul", { className: "space-y-stack-sm", children: t.map((u) => {
             const p = u.id === r.id;
@@ -1114,7 +1114,7 @@ function zo({
             ) }, u.id);
           }) })
         ] }),
-        n && /* @__PURE__ */ f(
+        n && /* @__PURE__ */ h(
           "a",
           {
             href: n,
@@ -1126,7 +1126,7 @@ function zo({
           }
         )
       ] }) }),
-      /* @__PURE__ */ f("section", { className: "lg:col-span-9", children: [
+      /* @__PURE__ */ h("section", { className: "lg:col-span-9", children: [
         e.length === 0 ? /* @__PURE__ */ c("p", { className: "text-on-surface-variant italic py-section-gap-mobile text-center", children: i("publicBaked.noPostsCategory") }) : /* @__PURE__ */ c("div", { className: "grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-stack-md md:gap-stack-lg", children: e.map((u) => {
           const p = Wt(
             u.contentMarkdown ?? "",
@@ -1134,16 +1134,16 @@ function zo({
             l.currency,
             l.inquiryOnly
           );
-          return /* @__PURE__ */ f(
+          return /* @__PURE__ */ h(
             "article",
             {
               className: "storefront-product-card flex flex-col group",
               children: [
-                /* @__PURE__ */ f("div", { className: "relative aspect-[4/5] overflow-hidden rounded-2xl bg-surface-container-lowest mb-stack-md shadow-sm", children: [
+                /* @__PURE__ */ h("div", { className: "relative aspect-[4/5] overflow-hidden rounded-2xl bg-surface-container-lowest mb-stack-md shadow-sm", children: [
                   /* @__PURE__ */ c("a", { href: `/${u.url}`, className: "block w-full h-full", children: u.hero && /* @__PURE__ */ c(
                     "img",
                     {
-                      src: Re(u.hero, "medium"),
+                      src: Oe(u.hero, "medium"),
                       alt: u.hero.alt ?? u.title,
                       className: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500",
                       loading: "lazy"
@@ -1160,7 +1160,7 @@ function zo({
                   }
                 ) }),
                 u.excerpt && /* @__PURE__ */ c("p", { className: "font-body-md text-body-md text-on-surface-variant line-clamp-2 mb-1", children: u.excerpt }),
-                p.priceLabel && /* @__PURE__ */ c("p", { className: "font-label-caps text-label-caps", children: p.promoLabel ? /* @__PURE__ */ f(se, { children: [
+                p.priceLabel && /* @__PURE__ */ c("p", { className: "font-label-caps text-label-caps", children: p.promoLabel ? /* @__PURE__ */ h(se, { children: [
                   /* @__PURE__ */ c("span", { className: "storefront-price-promo", children: p.promoLabel }),
                   /* @__PURE__ */ c("span", { className: "storefront-price-strike", children: p.priceLabel })
                 ] }) : /* @__PURE__ */ c("span", { className: "text-primary font-bold", children: p.priceLabel }) })
@@ -1174,14 +1174,14 @@ function zo({
     ] })
   ] });
 }
-function Ho({
+function zo({
   author: r,
   posts: e,
   site: t
 }) {
-  const n = ce.getFixedT(de(t.settings.language), "theme-storefront"), a = r.avatar ? Re(r.avatar, "medium") : "";
-  return /* @__PURE__ */ f(se, { children: [
-    /* @__PURE__ */ c("header", { className: "bg-surface-container-low py-section-gap-mobile md:py-section-gap-desktop", children: /* @__PURE__ */ c("div", { className: "max-w-container-max mx-auto px-gutter md:px-gutter-desktop", children: /* @__PURE__ */ f("div", { className: "flex flex-col items-center text-center max-w-2xl mx-auto", children: [
+  const n = ce.getFixedT(de(t.settings.language), "theme-storefront"), a = r.avatar ? Oe(r.avatar, "medium") : "";
+  return /* @__PURE__ */ h(se, { children: [
+    /* @__PURE__ */ c("header", { className: "bg-surface-container-low py-section-gap-mobile md:py-section-gap-desktop", children: /* @__PURE__ */ c("div", { className: "max-w-container-max mx-auto px-gutter md:px-gutter-desktop", children: /* @__PURE__ */ h("div", { className: "flex flex-col items-center text-center max-w-2xl mx-auto", children: [
       a && /* @__PURE__ */ c("div", { className: "w-32 h-32 rounded-full overflow-hidden mb-stack-md ring-4 ring-surface-container-lowest", children: /* @__PURE__ */ c(
         "img",
         {
@@ -1199,17 +1199,17 @@ function Ho({
           href: o.url,
           target: "_blank",
           rel: "noopener noreferrer",
-          "aria-label": Rr(o.network),
-          title: Rr(o.network),
+          "aria-label": Or(o.network),
+          title: Or(o.network),
           className: "w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-primary hover:text-on-primary hover:border-transparent transition-all",
           children: /* @__PURE__ */ c(qa, { network: o.network })
         },
         o.network
       )) })
     ] }) }) }),
-    /* @__PURE__ */ c("section", { className: "max-w-container-max mx-auto px-gutter md:px-gutter-desktop py-section-gap-mobile md:py-section-gap-desktop", children: e.length === 0 ? /* @__PURE__ */ c("p", { className: "text-on-surface-variant", children: n("publicBaked.noPostsAuthor") }) : /* @__PURE__ */ f(se, { children: [
+    /* @__PURE__ */ c("section", { className: "max-w-container-max mx-auto px-gutter md:px-gutter-desktop py-section-gap-mobile md:py-section-gap-desktop", children: e.length === 0 ? /* @__PURE__ */ c("p", { className: "text-on-surface-variant", children: n("publicBaked.noPostsAuthor") }) : /* @__PURE__ */ h(se, { children: [
       /* @__PURE__ */ c("h2", { className: "display-serif text-headline-md md:text-display-md text-on-surface mb-stack-lg", children: n("publicBaked.signatureCollection") }),
-      /* @__PURE__ */ c("div", { className: "grid grid-cols-2 md:grid-cols-4 gap-stack-md md:gap-stack-lg", children: e.map((o) => /* @__PURE__ */ f("article", { className: "storefront-product-card flex flex-col", children: [
+      /* @__PURE__ */ c("div", { className: "grid grid-cols-2 md:grid-cols-4 gap-stack-md md:gap-stack-lg", children: e.map((o) => /* @__PURE__ */ h("article", { className: "storefront-product-card flex flex-col", children: [
         o.hero && /* @__PURE__ */ c(
           "a",
           {
@@ -1218,7 +1218,7 @@ function Ho({
             children: /* @__PURE__ */ c(
               "img",
               {
-                src: Re(o.hero, "medium"),
+                src: Oe(o.hero, "medium"),
                 alt: o.hero.alt ?? o.title,
                 className: "w-full h-full object-cover"
               }
@@ -1235,10 +1235,10 @@ function jo({
   site: e
 }) {
   const t = ce.getFixedT(de(e.settings.language), "theme-storefront");
-  return /* @__PURE__ */ c("section", { className: "max-w-container-max mx-auto px-gutter md:px-gutter-desktop py-section-gap-mobile md:py-section-gap-desktop", children: /* @__PURE__ */ f("div", { className: "max-w-2xl mx-auto text-center", children: [
+  return /* @__PURE__ */ c("section", { className: "max-w-container-max mx-auto px-gutter md:px-gutter-desktop py-section-gap-mobile md:py-section-gap-desktop", children: /* @__PURE__ */ h("div", { className: "max-w-2xl mx-auto text-center", children: [
     /* @__PURE__ */ c("p", { className: "text-label-caps font-semibold text-secondary uppercase tracking-widest mb-stack-md", children: t("publicBaked.notFoundTitle") }),
     /* @__PURE__ */ c("h1", { className: "display-serif text-display-md md:text-display-lg text-on-surface mb-stack-md", children: r ?? t("publicBaked.notFoundMessage") }),
-    /* @__PURE__ */ f(
+    /* @__PURE__ */ h(
       "a",
       {
         href: "/index.html",
@@ -1251,7 +1251,7 @@ function jo({
     )
   ] }) });
 }
-const Hr = '@import"https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap";@import"https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap";*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.19 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:var(--font-sans),Inter,system-ui,sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}:root{--color-primary:71 87 59;--color-on-primary:255 255 255;--color-primary-container:95 111 82;--color-on-primary-container:223 241 205;--color-primary-fixed:214 232 197;--color-primary-fixed-dim:187 204 170;--color-on-primary-fixed:18 31 9;--color-on-primary-fixed-variant:60 75 49;--color-secondary:145 74 54;--color-on-secondary:255 255 255;--color-secondary-container:253 162 136;--color-on-secondary-container:119 54 35;--color-secondary-fixed:255 219 209;--color-secondary-fixed-dim:255 181 160;--color-on-secondary-fixed:59 9 0;--color-on-secondary-fixed-variant:116 52 33;--color-tertiary:81 82 79;--color-on-tertiary:255 255 255;--color-tertiary-container:105 106 103;--color-on-tertiary-container:236 235 231;--color-tertiary-fixed:227 226 223;--color-tertiary-fixed-dim:199 199 195;--color-background:252 249 248;--color-surface:252 249 248;--color-surface-bright:252 249 248;--color-surface-dim:220 217 217;--color-surface-container-lowest:255 255 255;--color-surface-container-low:246 243 242;--color-surface-container:240 237 237;--color-surface-container-high:234 231 231;--color-surface-container-highest:228 226 225;--color-on-surface:27 28 28;--color-on-surface-variant:68 72 64;--color-outline:117 120 111;--color-outline-variant:197 200 189;--color-error:186 26 26;--color-on-error:255 255 255;--font-serif:"Playfair Display";--font-sans:"Inter"}body{background-color:rgb(var(--color-background));color:rgb(var(--color-on-surface));font-family:var(--font-sans),system-ui,sans-serif;-webkit-font-smoothing:antialiased}.container{width:100%}@media(min-width:640px){.container{max-width:640px}}@media(min-width:768px){.container{max-width:768px}}@media(min-width:1024px){.container{max-width:1024px}}@media(min-width:1280px){.container{max-width:1280px}}@media(min-width:1536px){.container{max-width:1536px}}.display-serif{font-weight:700;letter-spacing:-.02em}.display-italic,.display-serif{font-family:var(--font-serif),Georgia,serif}.display-italic{font-style:italic;font-weight:400}.storefront-prose{font-size:1rem;line-height:1.6;color:rgb(var(--color-on-surface-variant))}.storefront-prose>p{margin-bottom:1.5rem}.storefront-prose>h2{font-size:2rem;line-height:1.3;margin-top:2.5rem;margin-bottom:1rem}.storefront-prose>h2,.storefront-prose>h3{font-family:var(--font-serif),Georgia,serif;font-weight:600;color:rgb(var(--color-on-surface))}.storefront-prose>h3{font-size:1.5rem;line-height:1.4;margin-top:2rem;margin-bottom:.75rem}.storefront-prose>blockquote{margin:2rem 0;border-left:3px solid rgb(var(--color-primary));padding:.5rem 1.5rem;font-family:var(--font-serif),Georgia,serif;font-style:italic;font-size:1.125rem;color:rgb(var(--color-on-surface))}.storefront-prose>ol,.storefront-prose>ul{padding-left:1.5rem;margin-bottom:1.5rem}.storefront-prose>ul{list-style-type:disc}.storefront-prose>ol{list-style-type:decimal}.storefront-prose>ol>li,.storefront-prose>ul>li{margin-bottom:.5rem}.storefront-prose figure img,.storefront-prose img{border-radius:1rem;margin:1.5rem 0}.storefront-prose a{color:rgb(var(--color-primary));font-weight:500;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}.storefront-prose a:hover{color:rgb(var(--color-secondary))}.storefront-prose code{background:rgb(var(--color-surface-container));padding:.125rem .375rem;border-radius:.25rem;font-size:.95em;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}.storefront-page-body{max-width:768px;margin-left:auto;margin-right:auto;padding-left:1rem;padding-right:1rem;font-size:1rem;line-height:1.65;color:rgb(var(--color-on-surface-variant))}@media(min-width:768px){.storefront-page-body{padding-left:2rem;padding-right:2rem}}.storefront-page-body p{margin-bottom:1.5rem}.storefront-page-body h1{font-family:var(--font-serif),Georgia,serif;font-size:2.75rem;font-weight:700;line-height:1.15;letter-spacing:-.02em;color:rgb(var(--color-on-surface));margin-top:2rem;margin-bottom:1.5rem}@media(min-width:768px){.storefront-page-body h1{font-size:3.5rem}}.storefront-page-body h2{font-size:2rem;line-height:1.3;margin-top:3rem;margin-bottom:1rem}.storefront-page-body h2,.storefront-page-body h3{font-family:var(--font-serif),Georgia,serif;font-weight:600;color:rgb(var(--color-on-surface))}.storefront-page-body h3{font-size:1.5rem;line-height:1.4;margin-top:2.25rem;margin-bottom:.75rem}.storefront-page-body h4,.storefront-page-body h5,.storefront-page-body h6{font-weight:600;color:rgb(var(--color-on-surface));margin-top:1.75rem;margin-bottom:.5rem}.storefront-page-body blockquote{margin:2rem 0;border-left:3px solid rgb(var(--color-primary));padding:.5rem 1.5rem;font-family:var(--font-serif),Georgia,serif;font-style:italic;font-size:1.125rem;color:rgb(var(--color-on-surface))}.storefront-page-body ol,.storefront-page-body ul{padding-left:1.5rem;margin-bottom:1.5rem}.storefront-page-body ul{list-style-type:disc}.storefront-page-body ol{list-style-type:decimal}.storefront-page-body li{margin-bottom:.5rem}.storefront-page-body img{width:100%;height:auto;border-radius:1rem;margin:2.5rem 0;box-shadow:0 8px 24px -12px #0000002e}.storefront-page-body a{color:rgb(var(--color-primary));font-weight:500;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}.storefront-page-body a:hover{color:rgb(var(--color-secondary))}.storefront-page-body code{background:rgb(var(--color-surface-container));padding:.125rem .375rem;border-radius:.25rem;font-size:.95em;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}.storefront-page-body table{width:100%;border-collapse:collapse;margin:2rem 0;font-size:.9375rem}.storefront-page-body td,.storefront-page-body th{padding:.625rem .875rem;border-bottom:1px solid rgb(var(--color-outline-variant));text-align:left}.storefront-page-body th{font-weight:600;color:rgb(var(--color-on-surface));background:rgb(var(--color-surface-container-low))}.storefront-page-body hr{border:0;border-top:1px solid rgb(var(--color-outline-variant));margin:3rem 0}.material-symbols-outlined{font-variation-settings:"FILL" 0,"wght" 400,"GRAD" 0,"opsz" 24;vertical-align:middle;line-height:1}.burger-toggle{background:transparent;border:0;cursor:pointer;padding:.25rem;line-height:0}.burger-menu{position:fixed;top:0;left:0;height:100vh;width:min(360px,80vw);background:rgb(var(--color-background));border-right:1px solid rgb(var(--color-outline-variant));transform:translate(-100%);transition:transform .25s ease;z-index:60;padding:4rem 1.5rem 1.5rem;overflow-y:auto}.burger-menu.is-open{transform:translate(0)}.burger-menu ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.25rem}.burger-menu a{display:block;padding:.625rem 0;color:rgb(var(--color-on-surface));font-family:var(--font-serif),Georgia,serif;font-size:1.125rem;font-weight:500;text-decoration:none}.burger-menu a:hover{color:rgb(var(--color-primary))}.burger-menu a[aria-current=page]{color:rgb(var(--color-primary));font-weight:700}.burger-menu .menu-children{margin-left:1rem;margin-top:.25rem}.burger-menu .menu-children a{font-size:1rem;font-weight:400}.burger-close{position:absolute;top:1rem;right:1rem;background:transparent;border:0;color:rgb(var(--color-on-surface));cursor:pointer;padding:.5rem}.burger-backdrop{position:fixed;top:0;right:0;bottom:0;left:0;background:#0006;opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:55}.burger-backdrop.is-open{opacity:1;pointer-events:auto}body.burger-open{overflow:hidden}.storefront-product-card{transition:transform .3s ease,box-shadow .3s ease}.storefront-product-card:hover{transform:translateY(-4px);box-shadow:0 8px 25px -5px #5f6f5226}.storefront-no-scrollbar{scrollbar-width:none;-ms-overflow-style:none}.storefront-no-scrollbar::-webkit-scrollbar{display:none}.storefront-row-slide{flex:0 0 calc(50% - .5rem);min-width:0}@media(min-width:768px){.storefront-row-slide{flex:0 0 calc(33.33333% - .66667rem)}}@media(min-width:1024px){.storefront-row-slide{flex:0 0 calc(25% - 1.5rem)}}.storefront-price-promo{color:rgb(var(--color-secondary));font-weight:700}.storefront-price-strike{color:rgb(var(--color-on-surface-variant));text-decoration:line-through;font-weight:400;margin-left:.5rem}.storefront-stock-pill{display:inline-flex;align-items:center;gap:.375rem;padding:.25rem .75rem;border-radius:9999px;font-size:.6875rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase}.storefront-stock-pill:before{content:"";width:.5rem;height:.5rem;border-radius:9999px;background:currentColor}.storefront-stock-in{background:rgb(var(--color-primary-fixed));color:rgb(var(--color-on-primary-fixed-variant))}.storefront-stock-low{background:rgb(var(--color-secondary-fixed));color:rgb(var(--color-on-secondary-fixed-variant))}.storefront-stock-out{background:rgb(var(--color-surface-container-high));color:rgb(var(--color-on-surface-variant))}.storefront-stock-order{background:rgb(var(--color-tertiary-fixed));color:rgb(var(--color-on-tertiary-fixed))}.storefront-catalog-tags-host{scrollbar-width:thin;scrollbar-color:rgb(var(--color-outline-variant)) transparent;-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 1.5rem),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 1.5rem),transparent)}.storefront-catalog-tags-host::-webkit-scrollbar{width:6px}.storefront-catalog-tags-host::-webkit-scrollbar-track{background:transparent}.storefront-catalog-tags-host::-webkit-scrollbar-thumb{background:rgb(var(--color-outline-variant));border-radius:3px}.storefront-catalog-tags-host:not(.is-overflowing){-webkit-mask-image:none;mask-image:none}.storefront-catalog-grid{display:grid;gap:1.5rem;grid-template-columns:repeat(2,minmax(0,1fr))}@media(min-width:768px){.storefront-catalog-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(min-width:1024px){.storefront-catalog-grid.is-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.storefront-catalog-grid.is-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.storefront-catalog-grid.is-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}}.storefront-catalog-card{transition:transform .4s ease;will-change:transform}.storefront-catalog-card.is-hidden{display:none}.storefront-catalog-empty{grid-column:1/-1;text-align:center;padding:4rem 1rem;color:rgb(var(--color-on-surface-variant));font-style:italic}.storefront-filter-checkbox{width:1rem;height:1rem;border:1px solid rgb(var(--color-outline));border-radius:.25rem;accent-color:rgb(var(--color-primary))}.storefront-filter-chip{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem 1rem;border-radius:9999px;border:1px solid rgb(var(--color-outline-variant));background:rgb(var(--color-surface));color:rgb(var(--color-on-surface));font-weight:500;cursor:pointer;transition:background-color .15s ease,border-color .15s ease}.storefront-filter-chip:hover{background:rgb(var(--color-surface-container))}.storefront-filter-chip.is-active{background:rgb(var(--color-primary));color:rgb(var(--color-on-primary));border-color:rgb(var(--color-primary))}.storefront-bio-card{background:rgb(var(--color-surface-container-lowest));border:1px solid rgb(var(--color-outline-variant)/.4);border-radius:1rem;padding:2rem}.storefront-bio-eyebrow{font-size:.75rem;font-weight:600;letter-spacing:.1em;color:rgb(var(--color-primary));text-transform:uppercase;margin-bottom:1rem}.storefront-bio-row{display:flex;align-items:center;gap:1rem;margin-bottom:1rem}.storefront-bio-avatar{width:4rem;height:4rem;border-radius:9999px;-o-object-fit:cover;object-fit:cover}.storefront-bio-name{font-family:var(--font-serif),Georgia,serif;font-size:1.25rem;font-weight:600;color:rgb(var(--color-on-surface))}.storefront-bio-title{font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase}.storefront-bio-bio,.storefront-bio-title{color:rgb(var(--color-on-surface-variant))}.storefront-bio-bio{font-size:.9375rem;line-height:1.6;margin-bottom:1rem}.storefront-bio-socials{display:flex;gap:.5rem}.storefront-bio-social{display:inline-flex;align-items:center;justify-content:center;width:2.25rem;height:2.25rem;border-radius:9999px;color:rgb(var(--color-on-surface-variant));transition:color .15s ease,background-color .15s ease}.storefront-bio-social:hover{color:rgb(var(--color-on-primary));background:rgb(var(--color-primary))}.storefront-related-card{background:rgb(var(--color-surface-container-highest)/.4);border:1px solid rgb(var(--color-outline-variant)/.3);border-radius:1rem;padding:2rem}.storefront-related-heading{font-family:var(--font-serif),Georgia,serif;font-size:1.5rem;font-weight:600;color:rgb(var(--color-on-surface));margin-bottom:1.5rem}.storefront-related-list{display:grid;gap:1rem;grid-template-columns:1fr 1fr}.storefront-related-item{display:block;text-decoration:none}.storefront-related-thumb{aspect-ratio:3/4;border-radius:.75rem;overflow:hidden;background:rgb(var(--color-surface-container));margin-bottom:.5rem}.storefront-related-thumb img{width:100%;height:100%;-o-object-fit:cover;object-fit:cover;transition:transform .4s ease}.storefront-related-item:hover .storefront-related-thumb img{transform:scale(1.05)}.storefront-related-title{font-family:var(--font-serif),Georgia,serif;font-size:1rem;font-weight:600;color:rgb(var(--color-on-surface));line-height:1.3}.storefront-related-price{color:rgb(var(--color-primary));font-size:.875rem;font-weight:600}.floating-label-group{position:relative}.floating-label-group input,.floating-label-group label,.floating-label-group textarea{background:rgb(var(--color-surface-container-lowest))}.floating-label-group label{position:absolute;top:1rem;left:1rem;pointer-events:none;transition:all .2s ease;color:rgb(var(--color-outline));padding:0 .25rem}.floating-label-group input:not(:-moz-placeholder)~label,.floating-label-group textarea:not(:-moz-placeholder)~label{top:-.5rem;left:.75rem;font-size:.75rem;color:rgb(var(--color-primary))}.floating-label-group input:focus~label,.floating-label-group input:not(:placeholder-shown)~label,.floating-label-group textarea:focus~label,.floating-label-group textarea:not(:placeholder-shown)~label,.floating-label-group.is-filled label{top:-.5rem;left:.75rem;font-size:.75rem;color:rgb(var(--color-primary))}.visible{visibility:visible}.invisible{visibility:hidden}.static{position:static}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{top:0;right:0;bottom:0;left:0}.-bottom-8{bottom:-2rem}.-left-4{left:-1rem}.-right-4{right:-1rem}.-right-8{right:-2rem}.bottom-0{bottom:0}.bottom-6{bottom:1.5rem}.left-0{left:0}.left-3{left:.75rem}.left-6{left:1.5rem}.right-0{right:0}.right-6{right:1.5rem}.top-0{top:0}.top-1\\/3{top:33.333333%}.top-24{top:6rem}.top-3{top:.75rem}.-z-10{z-index:-10}.z-0{z-index:0}.z-10{z-index:10}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.my-4{margin-top:1rem;margin-bottom:1rem}.\\!mb-0{margin-bottom:0!important}.-mb-px{margin-bottom:-1px}.-mt-2{margin-top:-.5rem}.mb-1{margin-bottom:.25rem}.mb-2{margin-bottom:.5rem}.mb-3{margin-bottom:.75rem}.mb-section-gap-mobile{margin-bottom:3rem}.mb-stack-lg{margin-bottom:2rem}.mb-stack-md{margin-bottom:1rem}.mb-stack-sm{margin-bottom:.5rem}.mt-1{margin-top:.25rem}.mt-3{margin-top:.75rem}.mt-section-gap-mobile{margin-top:3rem}.mt-stack-lg{margin-top:2rem}.mt-stack-md{margin-top:1rem}.mt-stack-sm{margin-top:.5rem}.line-clamp-2{overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}.block{display:block}.inline-block{display:inline-block}.inline{display:inline}.flex{display:flex}.inline-flex{display:inline-flex}.table{display:table}.\\!grid{display:grid!important}.grid{display:grid}.hidden{display:none}.aspect-\\[4\\/5\\]{aspect-ratio:4/5}.aspect-square{aspect-ratio:1/1}.aspect-video{aspect-ratio:16/9}.h-10{height:2.5rem}.h-12{height:3rem}.h-16{height:4rem}.h-3\\.5{height:.875rem}.h-32{height:8rem}.h-4{height:1rem}.h-48{height:12rem}.h-5{height:1.25rem}.h-8{height:2rem}.h-full{height:100%}.max-h-24{max-height:6rem}.max-h-64{max-height:16rem}.min-h-\\[280px\\]{min-height:280px}.min-h-\\[600px\\]{min-height:600px}.w-10{width:2.5rem}.w-12{width:3rem}.w-14{width:3.5rem}.w-3\\.5{width:.875rem}.w-32{width:8rem}.w-4{width:1rem}.w-48{width:12rem}.w-5{width:1.25rem}.w-auto{width:auto}.w-full{width:100%}.min-w-0{min-width:0}.max-w-2xl{max-width:42rem}.max-w-3xl{max-width:48rem}.max-w-container-max{max-width:1280px}.max-w-md{max-width:28rem}.max-w-xl{max-width:36rem}.max-w-xs{max-width:20rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.translate-y-full{--tw-translate-y:100%}.transform,.translate-y-full{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes spin{to{transform:rotate(1turn)}}.animate-spin{animation:spin 1s linear infinite}.cursor-pointer{cursor:pointer}.snap-x{scroll-snap-type:x var(--tw-scroll-snap-strictness)}.snap-mandatory{--tw-scroll-snap-strictness:mandatory}.snap-start{scroll-snap-align:start}.auto-rows-\\[280px\\]{grid-auto-rows:280px}.grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-end{align-items:flex-end}.items-center{align-items:center}.items-baseline{align-items:baseline}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:.25rem}.gap-1\\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.gap-stack-lg{gap:2rem}.gap-stack-md{gap:1rem}.gap-stack-sm{gap:.5rem}.gap-x-8{-moz-column-gap:2rem;column-gap:2rem}.gap-y-3{row-gap:.75rem}.-space-x-1>:not([hidden])~:not([hidden]){--tw-space-x-reverse:0;margin-right:calc(-.25rem*var(--tw-space-x-reverse));margin-left:calc(-.25rem*(1 - var(--tw-space-x-reverse)))}.space-y-1>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.25rem*var(--tw-space-y-reverse))}.space-y-2>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem*var(--tw-space-y-reverse))}.space-y-3>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.75rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.75rem*var(--tw-space-y-reverse))}.space-y-6>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem*var(--tw-space-y-reverse))}.space-y-stack-lg>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(2rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(2rem*var(--tw-space-y-reverse))}.space-y-stack-sm>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem*var(--tw-space-y-reverse))}.self-start{align-self:flex-start}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.scroll-smooth{scroll-behavior:smooth}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rounded{border-radius:.25rem}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:.5rem}.rounded-md{border-radius:.375rem}.border{border-width:1px}.border-0{border-width:0}.border-y{border-top-width:1px}.border-b,.border-y{border-bottom-width:1px}.border-b-2{border-bottom-width:2px}.border-l-2{border-left-width:2px}.border-t{border-top-width:1px}.border-dashed{border-style:dashed}.border-amber-400{--tw-border-opacity:1;border-color:rgb(251 191 36/var(--tw-border-opacity,1))}.border-blue-600{--tw-border-opacity:1;border-color:rgb(37 99 235/var(--tw-border-opacity,1))}.border-on-primary\\/30{border-color:rgb(var(--color-on-primary)/.3)}.border-outline-variant{--tw-border-opacity:1;border-color:rgb(var(--color-outline-variant)/var(--tw-border-opacity,1))}.border-outline-variant\\/20{border-color:rgb(var(--color-outline-variant)/.2)}.border-outline-variant\\/30{border-color:rgb(var(--color-outline-variant)/.3)}.border-outline-variant\\/40{border-color:rgb(var(--color-outline-variant)/.4)}.border-primary{--tw-border-opacity:1;border-color:rgb(var(--color-primary)/var(--tw-border-opacity,1))}.border-red-300{--tw-border-opacity:1;border-color:rgb(252 165 165/var(--tw-border-opacity,1))}.border-secondary{--tw-border-opacity:1;border-color:rgb(var(--color-secondary)/var(--tw-border-opacity,1))}.border-surface-container-high{--tw-border-opacity:1;border-color:rgb(var(--color-surface-container-high)/var(--tw-border-opacity,1))}.border-transparent{border-color:transparent}.bg-amber-50{--tw-bg-opacity:1;background-color:rgb(255 251 235/var(--tw-bg-opacity,1))}.bg-background{--tw-bg-opacity:1;background-color:rgb(var(--color-background)/var(--tw-bg-opacity,1))}.bg-black\\/10{background-color:#0000001a}.bg-blue-50{--tw-bg-opacity:1;background-color:rgb(239 246 255/var(--tw-bg-opacity,1))}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235/var(--tw-bg-opacity,1))}.bg-on-primary{--tw-bg-opacity:1;background-color:rgb(var(--color-on-primary)/var(--tw-bg-opacity,1))}.bg-on-primary\\/10{background-color:rgb(var(--color-on-primary)/.1)}.bg-primary{--tw-bg-opacity:1;background-color:rgb(var(--color-primary)/var(--tw-bg-opacity,1))}.bg-primary-fixed{--tw-bg-opacity:1;background-color:rgb(var(--color-primary-fixed)/var(--tw-bg-opacity,1))}.bg-primary\\/10{background-color:rgb(var(--color-primary)/.1)}.bg-primary\\/50{background-color:rgb(var(--color-primary)/.5)}.bg-primary\\/90{background-color:rgb(var(--color-primary)/.9)}.bg-secondary-fixed\\/40{background-color:rgb(var(--color-secondary-fixed)/.4)}.bg-secondary\\/90{background-color:rgb(var(--color-secondary)/.9)}.bg-surface{--tw-bg-opacity:1;background-color:rgb(var(--color-surface)/var(--tw-bg-opacity,1))}.bg-surface-container{--tw-bg-opacity:1;background-color:rgb(var(--color-surface-container)/var(--tw-bg-opacity,1))}.bg-surface-container-high{--tw-bg-opacity:1;background-color:rgb(var(--color-surface-container-high)/var(--tw-bg-opacity,1))}.bg-surface-container-highest\\/40{background-color:rgb(var(--color-surface-container-highest)/.4)}.bg-surface-container-low{--tw-bg-opacity:1;background-color:rgb(var(--color-surface-container-low)/var(--tw-bg-opacity,1))}.bg-surface-container-lowest{--tw-bg-opacity:1;background-color:rgb(var(--color-surface-container-lowest)/var(--tw-bg-opacity,1))}.bg-surface\\/85{background-color:rgb(var(--color-surface)/.85)}.bg-surface\\/90{background-color:rgb(var(--color-surface)/.9)}.bg-gradient-to-t{background-image:linear-gradient(to top,var(--tw-gradient-stops))}.from-black\\/55{--tw-gradient-from:rgba(0,0,0,.55) var(--tw-gradient-from-position);--tw-gradient-to:transparent var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.via-black\\/15{--tw-gradient-to:transparent var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),rgba(0,0,0,.15) var(--tw-gradient-via-position),var(--tw-gradient-to)}.to-transparent{--tw-gradient-to:transparent var(--tw-gradient-to-position)}.object-cover{-o-object-fit:cover;object-fit:cover}.p-1{padding:.25rem}.p-3{padding:.75rem}.p-4{padding:1rem}.p-6{padding:1.5rem}.p-8{padding:2rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.px-8{padding-left:2rem;padding-right:2rem}.px-gutter{padding-left:1rem;padding-right:1rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-3{padding-top:.75rem;padding-bottom:.75rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-section-gap-mobile{padding-top:3rem;padding-bottom:3rem}.py-stack-lg{padding-top:2rem;padding-bottom:2rem}.pb-1{padding-bottom:.25rem}.pb-2{padding-bottom:.5rem}.pb-section-gap-desktop{padding-bottom:6rem}.pb-stack-lg{padding-bottom:2rem}.pb-stack-md{padding-bottom:1rem}.pl-3{padding-left:.75rem}.pr-1{padding-right:.25rem}.pt-3{padding-top:.75rem}.pt-section-gap-mobile{padding-top:3rem}.pt-stack-lg{padding-top:2rem}.pt-stack-md{padding-top:1rem}.text-left{text-align:left}.text-center{text-align:center}.font-serif{font-family:var(--font-serif),Georgia,serif}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\\[1\\.125rem\\]{font-size:1.125rem}.text-\\[10px\\]{font-size:10px}.text-\\[11px\\]{font-size:11px}.text-\\[12px\\]{font-size:12px}.text-\\[14px\\]{font-size:14px}.text-\\[18px\\]{font-size:18px}.text-base{font-size:1rem;line-height:1.5rem}.text-body-lg{font-size:1.125rem;line-height:1.6}.text-body-lg,.text-body-md{letter-spacing:0;font-weight:400}.text-body-md{font-size:1rem;line-height:1.5}.text-display-md{font-size:2.25rem;line-height:1.2;letter-spacing:-.01em;font-weight:700}.text-headline-md{font-size:2rem;line-height:1.3;letter-spacing:0;font-weight:600}.text-headline-sm{font-size:1.5rem;line-height:1.4;letter-spacing:0;font-weight:600}.text-label-caps{font-size:.75rem;line-height:1;letter-spacing:.1em;font-weight:600}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xs{font-size:.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.italic{font-style:italic}.leading-relaxed{line-height:1.625}.leading-tight{line-height:1.25}.tracking-tight{letter-spacing:-.025em}.tracking-wide{letter-spacing:.025em}.tracking-widest{letter-spacing:.1em}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6/var(--tw-text-opacity,1))}.text-amber-700{--tw-text-opacity:1;color:rgb(180 83 9/var(--tw-text-opacity,1))}.text-amber-700\\/80{color:#b45309cc}.text-blue-500{--tw-text-opacity:1;color:rgb(59 130 246/var(--tw-text-opacity,1))}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235/var(--tw-text-opacity,1))}.text-error{--tw-text-opacity:1;color:rgb(var(--color-error)/var(--tw-text-opacity,1))}.text-on-primary{--tw-text-opacity:1;color:rgb(var(--color-on-primary)/var(--tw-text-opacity,1))}.text-on-primary-fixed-variant{--tw-text-opacity:1;color:rgb(var(--color-on-primary-fixed-variant)/var(--tw-text-opacity,1))}.text-on-primary\\/80{color:rgb(var(--color-on-primary)/.8)}.text-on-primary\\/90{color:rgb(var(--color-on-primary)/.9)}.text-on-secondary{--tw-text-opacity:1;color:rgb(var(--color-on-secondary)/var(--tw-text-opacity,1))}.text-on-surface{--tw-text-opacity:1;color:rgb(var(--color-on-surface)/var(--tw-text-opacity,1))}.text-on-surface-variant{--tw-text-opacity:1;color:rgb(var(--color-on-surface-variant)/var(--tw-text-opacity,1))}.text-primary{--tw-text-opacity:1;color:rgb(var(--color-primary)/var(--tw-text-opacity,1))}.text-red-500{--tw-text-opacity:1;color:rgb(239 68 68/var(--tw-text-opacity,1))}.text-red-600{--tw-text-opacity:1;color:rgb(220 38 38/var(--tw-text-opacity,1))}.text-secondary{--tw-text-opacity:1;color:rgb(var(--color-secondary)/var(--tw-text-opacity,1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.underline{text-decoration-line:underline}.line-through{text-decoration-line:line-through}.placeholder-on-primary\\/60::-moz-placeholder{color:rgb(var(--color-on-primary)/.6)}.placeholder-on-primary\\/60::placeholder{color:rgb(var(--color-on-primary)/.6)}.accent-primary{accent-color:rgb(var(--color-primary)/1)}.opacity-40{opacity:.4}.opacity-70{opacity:.7}.shadow{--tw-shadow:0 1px 3px 0 rgba(0,0,0,.1),0 1px 2px -1px rgba(0,0,0,.1);--tw-shadow-colored:0 1px 3px 0 var(--tw-shadow-color),0 1px 2px -1px var(--tw-shadow-color)}.shadow,.shadow-2xl{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgba(0,0,0,.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color),0 4px 6px -4px var(--tw-shadow-color)}.shadow-lg,.shadow-sm{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgba(0,0,0,.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color)}.outline-none{outline:2px solid transparent;outline-offset:2px}.outline{outline-style:solid}.ring-1{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color)}.ring-1,.ring-2{box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.ring-2{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color)}.ring-4{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(4px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.ring-amber-500\\/60{--tw-ring-color:rgba(245,158,11,.6)}.ring-blue-500\\/60{--tw-ring-color:rgba(59,130,246,.6)}.ring-surface-container-lowest{--tw-ring-opacity:1;--tw-ring-color:rgb(var(--color-surface-container-lowest)/var(--tw-ring-opacity,1))}.blur-3xl{--tw-blur:blur(64px)}.blur-3xl,.filter{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur{--tw-backdrop-blur:blur(8px)}.backdrop-blur,.backdrop-blur-md{-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.duration-300{transition-duration:.3s}.duration-500{transition-duration:.5s}.duration-700{transition-duration:.7s}.hover\\:gap-4:hover{gap:1rem}.hover\\:border-transparent:hover{border-color:transparent}.hover\\:bg-blue-700:hover{--tw-bg-opacity:1;background-color:rgb(29 78 216/var(--tw-bg-opacity,1))}.hover\\:bg-on-primary\\/90:hover{background-color:rgb(var(--color-on-primary)/.9)}.hover\\:bg-primary:hover{--tw-bg-opacity:1;background-color:rgb(var(--color-primary)/var(--tw-bg-opacity,1))}.hover\\:bg-primary-container:hover{--tw-bg-opacity:1;background-color:rgb(var(--color-primary-container)/var(--tw-bg-opacity,1))}.hover\\:bg-red-50:hover{--tw-bg-opacity:1;background-color:rgb(254 242 242/var(--tw-bg-opacity,1))}.hover\\:bg-secondary-container:hover{--tw-bg-opacity:1;background-color:rgb(var(--color-secondary-container)/var(--tw-bg-opacity,1))}.hover\\:bg-secondary-fixed:hover{--tw-bg-opacity:1;background-color:rgb(var(--color-secondary-fixed)/var(--tw-bg-opacity,1))}.hover\\:bg-surface-container:hover{--tw-bg-opacity:1;background-color:rgb(var(--color-surface-container)/var(--tw-bg-opacity,1))}.hover\\:text-amber-700:hover{--tw-text-opacity:1;color:rgb(180 83 9/var(--tw-text-opacity,1))}.hover\\:text-blue-700:hover{--tw-text-opacity:1;color:rgb(29 78 216/var(--tw-text-opacity,1))}.hover\\:text-on-primary:hover{--tw-text-opacity:1;color:rgb(var(--color-on-primary)/var(--tw-text-opacity,1))}.hover\\:text-on-primary-container:hover{--tw-text-opacity:1;color:rgb(var(--color-on-primary-container)/var(--tw-text-opacity,1))}.hover\\:text-on-secondary-container:hover{--tw-text-opacity:1;color:rgb(var(--color-on-secondary-container)/var(--tw-text-opacity,1))}.hover\\:text-primary:hover{--tw-text-opacity:1;color:rgb(var(--color-primary)/var(--tw-text-opacity,1))}.hover\\:text-primary-container:hover{--tw-text-opacity:1;color:rgb(var(--color-primary-container)/var(--tw-text-opacity,1))}.hover\\:text-red-700:hover{--tw-text-opacity:1;color:rgb(185 28 28/var(--tw-text-opacity,1))}.hover\\:text-secondary:hover{--tw-text-opacity:1;color:rgb(var(--color-secondary)/var(--tw-text-opacity,1))}.hover\\:shadow-xl:hover{--tw-shadow:0 20px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color),0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.focus\\:border-primary:focus{--tw-border-opacity:1;border-color:rgb(var(--color-primary)/var(--tw-border-opacity,1))}.focus\\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.focus\\:ring-blue-500:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(59 130 246/var(--tw-ring-opacity,1))}.focus\\:ring-primary:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(var(--color-primary)/var(--tw-ring-opacity,1))}.active\\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.disabled\\:opacity-50:disabled{opacity:.5}.group:hover .group-hover\\:translate-y-0{--tw-translate-y:0px}.group:hover .group-hover\\:scale-105,.group:hover .group-hover\\:translate-y-0{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.group:hover .group-hover\\:scale-105{--tw-scale-x:1.05;--tw-scale-y:1.05}.group:hover .group-hover\\:bg-primary{--tw-bg-opacity:1;background-color:rgb(var(--color-primary)/var(--tw-bg-opacity,1))}.group:hover .group-hover\\:text-on-primary{--tw-text-opacity:1;color:rgb(var(--color-on-primary)/var(--tw-text-opacity,1))}@media(min-width:640px){.sm\\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.sm\\:flex-row{flex-direction:row}}@media(min-width:768px){.md\\:col-span-12{grid-column:span 12/span 12}.md\\:col-span-4{grid-column:span 4/span 4}.md\\:col-span-5{grid-column:span 5/span 5}.md\\:col-span-7{grid-column:span 7/span 7}.md\\:col-span-8{grid-column:span 8/span 8}.md\\:col-start-5{grid-column-start:5}.md\\:flex{display:flex}.md\\:aspect-\\[16\\/10\\]{aspect-ratio:16/10}.md\\:aspect-auto{aspect-ratio:auto}.md\\:min-h-0{min-height:0}.md\\:min-h-\\[360px\\]{min-height:360px}.md\\:min-h-\\[760px\\]{min-height:760px}.md\\:auto-rows-\\[300px\\]{grid-auto-rows:300px}.md\\:grid-cols-12{grid-template-columns:repeat(12,minmax(0,1fr))}.md\\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.md\\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.md\\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.md\\:flex-row{flex-direction:row}.md\\:items-end{align-items:flex-end}.md\\:items-center{align-items:center}.md\\:justify-between{justify-content:space-between}.md\\:gap-16{gap:4rem}.md\\:gap-stack-lg{gap:2rem}.md\\:p-12{padding:3rem}.md\\:p-8{padding:2rem}.md\\:px-gutter-desktop{padding-left:2rem;padding-right:2rem}.md\\:py-section-gap-desktop{padding-top:6rem;padding-bottom:6rem}.md\\:py-stack-lg{padding-top:2rem;padding-bottom:2rem}.md\\:pt-section-gap-desktop{padding-top:6rem}.md\\:text-display-lg{font-size:3rem;line-height:1.1;letter-spacing:-.02em;font-weight:700}.md\\:text-display-md{font-size:2.25rem;line-height:1.2;letter-spacing:-.01em;font-weight:700}}@media(min-width:1024px){.lg\\:sticky{position:sticky}.lg\\:top-24{top:6rem}.lg\\:col-span-12{grid-column:span 12/span 12}.lg\\:col-span-3{grid-column:span 3/span 3}.lg\\:col-span-4{grid-column:span 4/span 4}.lg\\:col-span-5{grid-column:span 5/span 5}.lg\\:col-span-7{grid-column:span 7/span 7}.lg\\:col-span-8{grid-column:span 8/span 8}.lg\\:col-span-9{grid-column:span 9/span 9}.lg\\:mb-section-gap-desktop{margin-bottom:6rem}.lg\\:mt-section-gap-desktop{margin-top:6rem}.lg\\:grid-cols-12{grid-template-columns:repeat(12,minmax(0,1fr))}.lg\\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.lg\\:p-16{padding:4rem}}@media(min-width:1280px){.xl\\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(prefers-color-scheme:dark){.dark\\:border-amber-700{--tw-border-opacity:1;border-color:rgb(180 83 9/var(--tw-border-opacity,1))}.dark\\:border-blue-500{--tw-border-opacity:1;border-color:rgb(59 130 246/var(--tw-border-opacity,1))}.dark\\:bg-amber-950\\/30{background-color:#451a034d}.dark\\:bg-blue-950\\/30{background-color:#1725544d}.dark\\:text-amber-400{--tw-text-opacity:1;color:rgb(251 191 36/var(--tw-text-opacity,1))}.dark\\:text-amber-400\\/80{color:#fbbf24cc}}', Do = `/**
+const zr = '@import"https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap";@import"https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap";*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.19 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:var(--font-sans),Inter,system-ui,sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}:root{--color-primary:71 87 59;--color-on-primary:255 255 255;--color-primary-container:95 111 82;--color-on-primary-container:223 241 205;--color-primary-fixed:214 232 197;--color-primary-fixed-dim:187 204 170;--color-on-primary-fixed:18 31 9;--color-on-primary-fixed-variant:60 75 49;--color-secondary:145 74 54;--color-on-secondary:255 255 255;--color-secondary-container:253 162 136;--color-on-secondary-container:119 54 35;--color-secondary-fixed:255 219 209;--color-secondary-fixed-dim:255 181 160;--color-on-secondary-fixed:59 9 0;--color-on-secondary-fixed-variant:116 52 33;--color-tertiary:81 82 79;--color-on-tertiary:255 255 255;--color-tertiary-container:105 106 103;--color-on-tertiary-container:236 235 231;--color-tertiary-fixed:227 226 223;--color-tertiary-fixed-dim:199 199 195;--color-background:252 249 248;--color-surface:252 249 248;--color-surface-bright:252 249 248;--color-surface-dim:220 217 217;--color-surface-container-lowest:255 255 255;--color-surface-container-low:246 243 242;--color-surface-container:240 237 237;--color-surface-container-high:234 231 231;--color-surface-container-highest:228 226 225;--color-on-surface:27 28 28;--color-on-surface-variant:68 72 64;--color-outline:117 120 111;--color-outline-variant:197 200 189;--color-error:186 26 26;--color-on-error:255 255 255;--font-serif:"Playfair Display";--font-sans:"Inter"}body{background-color:rgb(var(--color-background));color:rgb(var(--color-on-surface));font-family:var(--font-sans),system-ui,sans-serif;-webkit-font-smoothing:antialiased}.container{width:100%}@media(min-width:640px){.container{max-width:640px}}@media(min-width:768px){.container{max-width:768px}}@media(min-width:1024px){.container{max-width:1024px}}@media(min-width:1280px){.container{max-width:1280px}}@media(min-width:1536px){.container{max-width:1536px}}.display-serif{font-weight:700;letter-spacing:-.02em}.display-italic,.display-serif{font-family:var(--font-serif),Georgia,serif}.display-italic{font-style:italic;font-weight:400}.storefront-prose{font-size:1rem;line-height:1.6;color:rgb(var(--color-on-surface-variant))}.storefront-prose>p{margin-bottom:1.5rem}.storefront-prose>h2{font-size:2rem;line-height:1.3;margin-top:2.5rem;margin-bottom:1rem}.storefront-prose>h2,.storefront-prose>h3{font-family:var(--font-serif),Georgia,serif;font-weight:600;color:rgb(var(--color-on-surface))}.storefront-prose>h3{font-size:1.5rem;line-height:1.4;margin-top:2rem;margin-bottom:.75rem}.storefront-prose>blockquote{margin:2rem 0;border-left:3px solid rgb(var(--color-primary));padding:.5rem 1.5rem;font-family:var(--font-serif),Georgia,serif;font-style:italic;font-size:1.125rem;color:rgb(var(--color-on-surface))}.storefront-prose>ol,.storefront-prose>ul{padding-left:1.5rem;margin-bottom:1.5rem}.storefront-prose>ul{list-style-type:disc}.storefront-prose>ol{list-style-type:decimal}.storefront-prose>ol>li,.storefront-prose>ul>li{margin-bottom:.5rem}.storefront-prose figure img,.storefront-prose img{border-radius:1rem;margin:1.5rem 0}.storefront-prose a{color:rgb(var(--color-primary));font-weight:500;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}.storefront-prose a:hover{color:rgb(var(--color-secondary))}.storefront-prose code{background:rgb(var(--color-surface-container));padding:.125rem .375rem;border-radius:.25rem;font-size:.95em;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}.storefront-page-body{max-width:768px;margin-left:auto;margin-right:auto;padding-left:1rem;padding-right:1rem;font-size:1rem;line-height:1.65;color:rgb(var(--color-on-surface-variant))}@media(min-width:768px){.storefront-page-body{padding-left:2rem;padding-right:2rem}}.storefront-page-body p{margin-bottom:1.5rem}.storefront-page-body h1{font-family:var(--font-serif),Georgia,serif;font-size:2.75rem;font-weight:700;line-height:1.15;letter-spacing:-.02em;color:rgb(var(--color-on-surface));margin-top:2rem;margin-bottom:1.5rem}@media(min-width:768px){.storefront-page-body h1{font-size:3.5rem}}.storefront-page-body h2{font-size:2rem;line-height:1.3;margin-top:3rem;margin-bottom:1rem}.storefront-page-body h2,.storefront-page-body h3{font-family:var(--font-serif),Georgia,serif;font-weight:600;color:rgb(var(--color-on-surface))}.storefront-page-body h3{font-size:1.5rem;line-height:1.4;margin-top:2.25rem;margin-bottom:.75rem}.storefront-page-body h4,.storefront-page-body h5,.storefront-page-body h6{font-weight:600;color:rgb(var(--color-on-surface));margin-top:1.75rem;margin-bottom:.5rem}.storefront-page-body blockquote{margin:2rem 0;border-left:3px solid rgb(var(--color-primary));padding:.5rem 1.5rem;font-family:var(--font-serif),Georgia,serif;font-style:italic;font-size:1.125rem;color:rgb(var(--color-on-surface))}.storefront-page-body ol,.storefront-page-body ul{padding-left:1.5rem;margin-bottom:1.5rem}.storefront-page-body ul{list-style-type:disc}.storefront-page-body ol{list-style-type:decimal}.storefront-page-body li{margin-bottom:.5rem}.storefront-page-body img{width:100%;height:auto;border-radius:1rem;margin:2.5rem 0;box-shadow:0 8px 24px -12px #0000002e}.storefront-page-body a{color:rgb(var(--color-primary));font-weight:500;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}.storefront-page-body a:hover{color:rgb(var(--color-secondary))}.storefront-page-body code{background:rgb(var(--color-surface-container));padding:.125rem .375rem;border-radius:.25rem;font-size:.95em;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}.storefront-page-body table{width:100%;border-collapse:collapse;margin:2rem 0;font-size:.9375rem}.storefront-page-body td,.storefront-page-body th{padding:.625rem .875rem;border-bottom:1px solid rgb(var(--color-outline-variant));text-align:left}.storefront-page-body th{font-weight:600;color:rgb(var(--color-on-surface));background:rgb(var(--color-surface-container-low))}.storefront-page-body hr{border:0;border-top:1px solid rgb(var(--color-outline-variant));margin:3rem 0}.material-symbols-outlined{font-variation-settings:"FILL" 0,"wght" 400,"GRAD" 0,"opsz" 24;vertical-align:middle;line-height:1}.burger-toggle{background:transparent;border:0;cursor:pointer;padding:.25rem;line-height:0}.burger-menu{position:fixed;top:0;left:0;height:100vh;width:min(360px,80vw);background:rgb(var(--color-background));border-right:1px solid rgb(var(--color-outline-variant));transform:translate(-100%);transition:transform .25s ease;z-index:60;padding:4rem 1.5rem 1.5rem;overflow-y:auto}.burger-menu.is-open{transform:translate(0)}.burger-menu ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.25rem}.burger-menu a{display:block;padding:.625rem 0;color:rgb(var(--color-on-surface));font-family:var(--font-serif),Georgia,serif;font-size:1.125rem;font-weight:500;text-decoration:none}.burger-menu a:hover{color:rgb(var(--color-primary))}.burger-menu a[aria-current=page]{color:rgb(var(--color-primary));font-weight:700}.burger-menu .menu-children{margin-left:1rem;margin-top:.25rem}.burger-menu .menu-children a{font-size:1rem;font-weight:400}.burger-close{position:absolute;top:1rem;right:1rem;background:transparent;border:0;color:rgb(var(--color-on-surface));cursor:pointer;padding:.5rem}.burger-backdrop{position:fixed;top:0;right:0;bottom:0;left:0;background:#0006;opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:55}.burger-backdrop.is-open{opacity:1;pointer-events:auto}body.burger-open{overflow:hidden}.storefront-product-card{transition:transform .3s ease,box-shadow .3s ease}.storefront-product-card:hover{transform:translateY(-4px);box-shadow:0 8px 25px -5px #5f6f5226}.storefront-no-scrollbar{scrollbar-width:none;-ms-overflow-style:none}.storefront-no-scrollbar::-webkit-scrollbar{display:none}.storefront-row-slide{flex:0 0 calc(50% - .5rem);min-width:0}@media(min-width:768px){.storefront-row-slide{flex:0 0 calc(33.33333% - .66667rem)}}@media(min-width:1024px){.storefront-row-slide{flex:0 0 calc(25% - 1.5rem)}}.storefront-price-promo{color:rgb(var(--color-secondary));font-weight:700}.storefront-price-strike{color:rgb(var(--color-on-surface-variant));text-decoration:line-through;font-weight:400;margin-left:.5rem}.storefront-stock-pill{display:inline-flex;align-items:center;gap:.375rem;padding:.25rem .75rem;border-radius:9999px;font-size:.6875rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase}.storefront-stock-pill:before{content:"";width:.5rem;height:.5rem;border-radius:9999px;background:currentColor}.storefront-stock-in{background:rgb(var(--color-primary-fixed));color:rgb(var(--color-on-primary-fixed-variant))}.storefront-stock-low{background:rgb(var(--color-secondary-fixed));color:rgb(var(--color-on-secondary-fixed-variant))}.storefront-stock-out{background:rgb(var(--color-surface-container-high));color:rgb(var(--color-on-surface-variant))}.storefront-stock-order{background:rgb(var(--color-tertiary-fixed));color:rgb(var(--color-on-tertiary-fixed))}.storefront-catalog-tags-host{scrollbar-width:thin;scrollbar-color:rgb(var(--color-outline-variant)) transparent;-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 1.5rem),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 1.5rem),transparent)}.storefront-catalog-tags-host::-webkit-scrollbar{width:6px}.storefront-catalog-tags-host::-webkit-scrollbar-track{background:transparent}.storefront-catalog-tags-host::-webkit-scrollbar-thumb{background:rgb(var(--color-outline-variant));border-radius:3px}.storefront-catalog-tags-host:not(.is-overflowing){-webkit-mask-image:none;mask-image:none}.storefront-catalog-grid{display:grid;gap:1.5rem;grid-template-columns:repeat(2,minmax(0,1fr))}@media(min-width:768px){.storefront-catalog-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(min-width:1024px){.storefront-catalog-grid.is-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.storefront-catalog-grid.is-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.storefront-catalog-grid.is-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}}.storefront-catalog-card{transition:transform .4s ease;will-change:transform}.storefront-catalog-card.is-hidden{display:none}.storefront-catalog-empty{grid-column:1/-1;text-align:center;padding:4rem 1rem;color:rgb(var(--color-on-surface-variant));font-style:italic}.storefront-filter-checkbox{width:1rem;height:1rem;border:1px solid rgb(var(--color-outline));border-radius:.25rem;accent-color:rgb(var(--color-primary))}.storefront-filter-chip{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem 1rem;border-radius:9999px;border:1px solid rgb(var(--color-outline-variant));background:rgb(var(--color-surface));color:rgb(var(--color-on-surface));font-weight:500;cursor:pointer;transition:background-color .15s ease,border-color .15s ease}.storefront-filter-chip:hover{background:rgb(var(--color-surface-container))}.storefront-filter-chip.is-active{background:rgb(var(--color-primary));color:rgb(var(--color-on-primary));border-color:rgb(var(--color-primary))}.storefront-bio-card{background:rgb(var(--color-surface-container-lowest));border:1px solid rgb(var(--color-outline-variant)/.4);border-radius:1rem;padding:2rem}.storefront-bio-eyebrow{font-size:.75rem;font-weight:600;letter-spacing:.1em;color:rgb(var(--color-primary));text-transform:uppercase;margin-bottom:1rem}.storefront-bio-row{display:flex;align-items:center;gap:1rem;margin-bottom:1rem}.storefront-bio-avatar{width:4rem;height:4rem;border-radius:9999px;-o-object-fit:cover;object-fit:cover}.storefront-bio-name{font-family:var(--font-serif),Georgia,serif;font-size:1.25rem;font-weight:600;color:rgb(var(--color-on-surface))}.storefront-bio-title{font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase}.storefront-bio-bio,.storefront-bio-title{color:rgb(var(--color-on-surface-variant))}.storefront-bio-bio{font-size:.9375rem;line-height:1.6;margin-bottom:1rem}.storefront-bio-socials{display:flex;gap:.5rem}.storefront-bio-social{display:inline-flex;align-items:center;justify-content:center;width:2.25rem;height:2.25rem;border-radius:9999px;color:rgb(var(--color-on-surface-variant));transition:color .15s ease,background-color .15s ease}.storefront-bio-social:hover{color:rgb(var(--color-on-primary));background:rgb(var(--color-primary))}.storefront-related-card{background:rgb(var(--color-surface-container-highest)/.4);border:1px solid rgb(var(--color-outline-variant)/.3);border-radius:1rem;padding:2rem}.storefront-related-heading{font-family:var(--font-serif),Georgia,serif;font-size:1.5rem;font-weight:600;color:rgb(var(--color-on-surface));margin-bottom:1.5rem}.storefront-related-list{display:grid;gap:1rem;grid-template-columns:1fr 1fr}.storefront-related-item{display:block;text-decoration:none}.storefront-related-thumb{aspect-ratio:3/4;border-radius:.75rem;overflow:hidden;background:rgb(var(--color-surface-container));margin-bottom:.5rem}.storefront-related-thumb img{width:100%;height:100%;-o-object-fit:cover;object-fit:cover;transition:transform .4s ease}.storefront-related-item:hover .storefront-related-thumb img{transform:scale(1.05)}.storefront-related-title{font-family:var(--font-serif),Georgia,serif;font-size:1rem;font-weight:600;color:rgb(var(--color-on-surface));line-height:1.3}.storefront-related-price{color:rgb(var(--color-primary));font-size:.875rem;font-weight:600}.floating-label-group{position:relative}.floating-label-group input,.floating-label-group label,.floating-label-group textarea{background:rgb(var(--color-surface-container-lowest))}.floating-label-group label{position:absolute;top:1rem;left:1rem;pointer-events:none;transition:all .2s ease;color:rgb(var(--color-outline));padding:0 .25rem}.floating-label-group input:not(:-moz-placeholder)~label,.floating-label-group textarea:not(:-moz-placeholder)~label{top:-.5rem;left:.75rem;font-size:.75rem;color:rgb(var(--color-primary))}.floating-label-group input:focus~label,.floating-label-group input:not(:placeholder-shown)~label,.floating-label-group textarea:focus~label,.floating-label-group textarea:not(:placeholder-shown)~label,.floating-label-group.is-filled label{top:-.5rem;left:.75rem;font-size:.75rem;color:rgb(var(--color-primary))}.visible{visibility:visible}.invisible{visibility:hidden}.static{position:static}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{top:0;right:0;bottom:0;left:0}.-bottom-8{bottom:-2rem}.-left-4{left:-1rem}.-right-4{right:-1rem}.-right-8{right:-2rem}.bottom-0{bottom:0}.bottom-6{bottom:1.5rem}.left-0{left:0}.left-3{left:.75rem}.left-6{left:1.5rem}.right-0{right:0}.right-6{right:1.5rem}.top-0{top:0}.top-1\\/3{top:33.333333%}.top-24{top:6rem}.top-3{top:.75rem}.-z-10{z-index:-10}.z-0{z-index:0}.z-10{z-index:10}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.my-4{margin-top:1rem;margin-bottom:1rem}.\\!mb-0{margin-bottom:0!important}.-mb-px{margin-bottom:-1px}.-mt-2{margin-top:-.5rem}.mb-1{margin-bottom:.25rem}.mb-2{margin-bottom:.5rem}.mb-3{margin-bottom:.75rem}.mb-section-gap-mobile{margin-bottom:3rem}.mb-stack-lg{margin-bottom:2rem}.mb-stack-md{margin-bottom:1rem}.mb-stack-sm{margin-bottom:.5rem}.mt-1{margin-top:.25rem}.mt-3{margin-top:.75rem}.mt-section-gap-mobile{margin-top:3rem}.mt-stack-lg{margin-top:2rem}.mt-stack-md{margin-top:1rem}.mt-stack-sm{margin-top:.5rem}.line-clamp-2{overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}.block{display:block}.inline-block{display:inline-block}.inline{display:inline}.flex{display:flex}.inline-flex{display:inline-flex}.table{display:table}.\\!grid{display:grid!important}.grid{display:grid}.hidden{display:none}.aspect-\\[4\\/5\\]{aspect-ratio:4/5}.aspect-square{aspect-ratio:1/1}.aspect-video{aspect-ratio:16/9}.h-10{height:2.5rem}.h-12{height:3rem}.h-16{height:4rem}.h-3\\.5{height:.875rem}.h-32{height:8rem}.h-4{height:1rem}.h-48{height:12rem}.h-5{height:1.25rem}.h-8{height:2rem}.h-full{height:100%}.max-h-24{max-height:6rem}.max-h-64{max-height:16rem}.min-h-\\[280px\\]{min-height:280px}.min-h-\\[600px\\]{min-height:600px}.w-10{width:2.5rem}.w-12{width:3rem}.w-14{width:3.5rem}.w-3\\.5{width:.875rem}.w-32{width:8rem}.w-4{width:1rem}.w-48{width:12rem}.w-5{width:1.25rem}.w-auto{width:auto}.w-full{width:100%}.min-w-0{min-width:0}.max-w-2xl{max-width:42rem}.max-w-3xl{max-width:48rem}.max-w-container-max{max-width:1280px}.max-w-md{max-width:28rem}.max-w-xl{max-width:36rem}.max-w-xs{max-width:20rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.translate-y-full{--tw-translate-y:100%}.transform,.translate-y-full{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes spin{to{transform:rotate(1turn)}}.animate-spin{animation:spin 1s linear infinite}.cursor-pointer{cursor:pointer}.snap-x{scroll-snap-type:x var(--tw-scroll-snap-strictness)}.snap-mandatory{--tw-scroll-snap-strictness:mandatory}.snap-start{scroll-snap-align:start}.auto-rows-\\[280px\\]{grid-auto-rows:280px}.grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-end{align-items:flex-end}.items-center{align-items:center}.items-baseline{align-items:baseline}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:.25rem}.gap-1\\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.gap-stack-lg{gap:2rem}.gap-stack-md{gap:1rem}.gap-stack-sm{gap:.5rem}.gap-x-8{-moz-column-gap:2rem;column-gap:2rem}.gap-y-3{row-gap:.75rem}.-space-x-1>:not([hidden])~:not([hidden]){--tw-space-x-reverse:0;margin-right:calc(-.25rem*var(--tw-space-x-reverse));margin-left:calc(-.25rem*(1 - var(--tw-space-x-reverse)))}.space-y-1>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.25rem*var(--tw-space-y-reverse))}.space-y-2>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem*var(--tw-space-y-reverse))}.space-y-3>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.75rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.75rem*var(--tw-space-y-reverse))}.space-y-6>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem*var(--tw-space-y-reverse))}.space-y-stack-lg>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(2rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(2rem*var(--tw-space-y-reverse))}.space-y-stack-sm>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem*var(--tw-space-y-reverse))}.self-start{align-self:flex-start}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.scroll-smooth{scroll-behavior:smooth}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rounded{border-radius:.25rem}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:.5rem}.rounded-md{border-radius:.375rem}.border{border-width:1px}.border-0{border-width:0}.border-y{border-top-width:1px}.border-b,.border-y{border-bottom-width:1px}.border-b-2{border-bottom-width:2px}.border-l-2{border-left-width:2px}.border-t{border-top-width:1px}.border-dashed{border-style:dashed}.border-amber-400{--tw-border-opacity:1;border-color:rgb(251 191 36/var(--tw-border-opacity,1))}.border-blue-600{--tw-border-opacity:1;border-color:rgb(37 99 235/var(--tw-border-opacity,1))}.border-on-primary\\/30{border-color:rgb(var(--color-on-primary)/.3)}.border-outline-variant{--tw-border-opacity:1;border-color:rgb(var(--color-outline-variant)/var(--tw-border-opacity,1))}.border-outline-variant\\/20{border-color:rgb(var(--color-outline-variant)/.2)}.border-outline-variant\\/30{border-color:rgb(var(--color-outline-variant)/.3)}.border-outline-variant\\/40{border-color:rgb(var(--color-outline-variant)/.4)}.border-primary{--tw-border-opacity:1;border-color:rgb(var(--color-primary)/var(--tw-border-opacity,1))}.border-red-300{--tw-border-opacity:1;border-color:rgb(252 165 165/var(--tw-border-opacity,1))}.border-secondary{--tw-border-opacity:1;border-color:rgb(var(--color-secondary)/var(--tw-border-opacity,1))}.border-surface-container-high{--tw-border-opacity:1;border-color:rgb(var(--color-surface-container-high)/var(--tw-border-opacity,1))}.border-transparent{border-color:transparent}.bg-amber-50{--tw-bg-opacity:1;background-color:rgb(255 251 235/var(--tw-bg-opacity,1))}.bg-background{--tw-bg-opacity:1;background-color:rgb(var(--color-background)/var(--tw-bg-opacity,1))}.bg-black\\/10{background-color:#0000001a}.bg-blue-50{--tw-bg-opacity:1;background-color:rgb(239 246 255/var(--tw-bg-opacity,1))}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235/var(--tw-bg-opacity,1))}.bg-on-primary{--tw-bg-opacity:1;background-color:rgb(var(--color-on-primary)/var(--tw-bg-opacity,1))}.bg-on-primary\\/10{background-color:rgb(var(--color-on-primary)/.1)}.bg-primary{--tw-bg-opacity:1;background-color:rgb(var(--color-primary)/var(--tw-bg-opacity,1))}.bg-primary-fixed{--tw-bg-opacity:1;background-color:rgb(var(--color-primary-fixed)/var(--tw-bg-opacity,1))}.bg-primary\\/10{background-color:rgb(var(--color-primary)/.1)}.bg-primary\\/50{background-color:rgb(var(--color-primary)/.5)}.bg-primary\\/90{background-color:rgb(var(--color-primary)/.9)}.bg-secondary-fixed\\/40{background-color:rgb(var(--color-secondary-fixed)/.4)}.bg-secondary\\/90{background-color:rgb(var(--color-secondary)/.9)}.bg-surface{--tw-bg-opacity:1;background-color:rgb(var(--color-surface)/var(--tw-bg-opacity,1))}.bg-surface-container{--tw-bg-opacity:1;background-color:rgb(var(--color-surface-container)/var(--tw-bg-opacity,1))}.bg-surface-container-high{--tw-bg-opacity:1;background-color:rgb(var(--color-surface-container-high)/var(--tw-bg-opacity,1))}.bg-surface-container-highest\\/40{background-color:rgb(var(--color-surface-container-highest)/.4)}.bg-surface-container-low{--tw-bg-opacity:1;background-color:rgb(var(--color-surface-container-low)/var(--tw-bg-opacity,1))}.bg-surface-container-lowest{--tw-bg-opacity:1;background-color:rgb(var(--color-surface-container-lowest)/var(--tw-bg-opacity,1))}.bg-surface\\/85{background-color:rgb(var(--color-surface)/.85)}.bg-surface\\/90{background-color:rgb(var(--color-surface)/.9)}.bg-gradient-to-t{background-image:linear-gradient(to top,var(--tw-gradient-stops))}.from-black\\/55{--tw-gradient-from:rgba(0,0,0,.55) var(--tw-gradient-from-position);--tw-gradient-to:transparent var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.via-black\\/15{--tw-gradient-to:transparent var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),rgba(0,0,0,.15) var(--tw-gradient-via-position),var(--tw-gradient-to)}.to-transparent{--tw-gradient-to:transparent var(--tw-gradient-to-position)}.object-cover{-o-object-fit:cover;object-fit:cover}.p-1{padding:.25rem}.p-3{padding:.75rem}.p-4{padding:1rem}.p-6{padding:1.5rem}.p-8{padding:2rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.px-8{padding-left:2rem;padding-right:2rem}.px-gutter{padding-left:1rem;padding-right:1rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-3{padding-top:.75rem;padding-bottom:.75rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-section-gap-mobile{padding-top:3rem;padding-bottom:3rem}.py-stack-lg{padding-top:2rem;padding-bottom:2rem}.pb-1{padding-bottom:.25rem}.pb-2{padding-bottom:.5rem}.pb-section-gap-desktop{padding-bottom:6rem}.pb-stack-lg{padding-bottom:2rem}.pb-stack-md{padding-bottom:1rem}.pl-3{padding-left:.75rem}.pr-1{padding-right:.25rem}.pt-3{padding-top:.75rem}.pt-section-gap-mobile{padding-top:3rem}.pt-stack-lg{padding-top:2rem}.pt-stack-md{padding-top:1rem}.text-left{text-align:left}.text-center{text-align:center}.font-serif{font-family:var(--font-serif),Georgia,serif}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\\[1\\.125rem\\]{font-size:1.125rem}.text-\\[10px\\]{font-size:10px}.text-\\[11px\\]{font-size:11px}.text-\\[12px\\]{font-size:12px}.text-\\[14px\\]{font-size:14px}.text-\\[18px\\]{font-size:18px}.text-base{font-size:1rem;line-height:1.5rem}.text-body-lg{font-size:1.125rem;line-height:1.6}.text-body-lg,.text-body-md{letter-spacing:0;font-weight:400}.text-body-md{font-size:1rem;line-height:1.5}.text-display-md{font-size:2.25rem;line-height:1.2;letter-spacing:-.01em;font-weight:700}.text-headline-md{font-size:2rem;line-height:1.3;letter-spacing:0;font-weight:600}.text-headline-sm{font-size:1.5rem;line-height:1.4;letter-spacing:0;font-weight:600}.text-label-caps{font-size:.75rem;line-height:1;letter-spacing:.1em;font-weight:600}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xs{font-size:.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.italic{font-style:italic}.leading-relaxed{line-height:1.625}.leading-tight{line-height:1.25}.tracking-tight{letter-spacing:-.025em}.tracking-wide{letter-spacing:.025em}.tracking-widest{letter-spacing:.1em}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6/var(--tw-text-opacity,1))}.text-amber-700{--tw-text-opacity:1;color:rgb(180 83 9/var(--tw-text-opacity,1))}.text-amber-700\\/80{color:#b45309cc}.text-blue-500{--tw-text-opacity:1;color:rgb(59 130 246/var(--tw-text-opacity,1))}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235/var(--tw-text-opacity,1))}.text-error{--tw-text-opacity:1;color:rgb(var(--color-error)/var(--tw-text-opacity,1))}.text-on-primary{--tw-text-opacity:1;color:rgb(var(--color-on-primary)/var(--tw-text-opacity,1))}.text-on-primary-fixed-variant{--tw-text-opacity:1;color:rgb(var(--color-on-primary-fixed-variant)/var(--tw-text-opacity,1))}.text-on-primary\\/80{color:rgb(var(--color-on-primary)/.8)}.text-on-primary\\/90{color:rgb(var(--color-on-primary)/.9)}.text-on-secondary{--tw-text-opacity:1;color:rgb(var(--color-on-secondary)/var(--tw-text-opacity,1))}.text-on-surface{--tw-text-opacity:1;color:rgb(var(--color-on-surface)/var(--tw-text-opacity,1))}.text-on-surface-variant{--tw-text-opacity:1;color:rgb(var(--color-on-surface-variant)/var(--tw-text-opacity,1))}.text-primary{--tw-text-opacity:1;color:rgb(var(--color-primary)/var(--tw-text-opacity,1))}.text-red-500{--tw-text-opacity:1;color:rgb(239 68 68/var(--tw-text-opacity,1))}.text-red-600{--tw-text-opacity:1;color:rgb(220 38 38/var(--tw-text-opacity,1))}.text-secondary{--tw-text-opacity:1;color:rgb(var(--color-secondary)/var(--tw-text-opacity,1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.underline{text-decoration-line:underline}.line-through{text-decoration-line:line-through}.placeholder-on-primary\\/60::-moz-placeholder{color:rgb(var(--color-on-primary)/.6)}.placeholder-on-primary\\/60::placeholder{color:rgb(var(--color-on-primary)/.6)}.accent-primary{accent-color:rgb(var(--color-primary)/1)}.opacity-40{opacity:.4}.opacity-70{opacity:.7}.shadow{--tw-shadow:0 1px 3px 0 rgba(0,0,0,.1),0 1px 2px -1px rgba(0,0,0,.1);--tw-shadow-colored:0 1px 3px 0 var(--tw-shadow-color),0 1px 2px -1px var(--tw-shadow-color)}.shadow,.shadow-2xl{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgba(0,0,0,.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color),0 4px 6px -4px var(--tw-shadow-color)}.shadow-lg,.shadow-sm{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgba(0,0,0,.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color)}.outline-none{outline:2px solid transparent;outline-offset:2px}.outline{outline-style:solid}.ring-1{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color)}.ring-1,.ring-2{box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.ring-2{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color)}.ring-4{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(4px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.ring-amber-500\\/60{--tw-ring-color:rgba(245,158,11,.6)}.ring-blue-500\\/60{--tw-ring-color:rgba(59,130,246,.6)}.ring-surface-container-lowest{--tw-ring-opacity:1;--tw-ring-color:rgb(var(--color-surface-container-lowest)/var(--tw-ring-opacity,1))}.blur-3xl{--tw-blur:blur(64px)}.blur-3xl,.filter{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur{--tw-backdrop-blur:blur(8px)}.backdrop-blur,.backdrop-blur-md{-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.duration-300{transition-duration:.3s}.duration-500{transition-duration:.5s}.duration-700{transition-duration:.7s}.hover\\:gap-4:hover{gap:1rem}.hover\\:border-transparent:hover{border-color:transparent}.hover\\:bg-blue-700:hover{--tw-bg-opacity:1;background-color:rgb(29 78 216/var(--tw-bg-opacity,1))}.hover\\:bg-on-primary\\/90:hover{background-color:rgb(var(--color-on-primary)/.9)}.hover\\:bg-primary:hover{--tw-bg-opacity:1;background-color:rgb(var(--color-primary)/var(--tw-bg-opacity,1))}.hover\\:bg-primary-container:hover{--tw-bg-opacity:1;background-color:rgb(var(--color-primary-container)/var(--tw-bg-opacity,1))}.hover\\:bg-red-50:hover{--tw-bg-opacity:1;background-color:rgb(254 242 242/var(--tw-bg-opacity,1))}.hover\\:bg-secondary-container:hover{--tw-bg-opacity:1;background-color:rgb(var(--color-secondary-container)/var(--tw-bg-opacity,1))}.hover\\:bg-secondary-fixed:hover{--tw-bg-opacity:1;background-color:rgb(var(--color-secondary-fixed)/var(--tw-bg-opacity,1))}.hover\\:bg-surface-container:hover{--tw-bg-opacity:1;background-color:rgb(var(--color-surface-container)/var(--tw-bg-opacity,1))}.hover\\:text-amber-700:hover{--tw-text-opacity:1;color:rgb(180 83 9/var(--tw-text-opacity,1))}.hover\\:text-blue-700:hover{--tw-text-opacity:1;color:rgb(29 78 216/var(--tw-text-opacity,1))}.hover\\:text-on-primary:hover{--tw-text-opacity:1;color:rgb(var(--color-on-primary)/var(--tw-text-opacity,1))}.hover\\:text-on-primary-container:hover{--tw-text-opacity:1;color:rgb(var(--color-on-primary-container)/var(--tw-text-opacity,1))}.hover\\:text-on-secondary-container:hover{--tw-text-opacity:1;color:rgb(var(--color-on-secondary-container)/var(--tw-text-opacity,1))}.hover\\:text-primary:hover{--tw-text-opacity:1;color:rgb(var(--color-primary)/var(--tw-text-opacity,1))}.hover\\:text-primary-container:hover{--tw-text-opacity:1;color:rgb(var(--color-primary-container)/var(--tw-text-opacity,1))}.hover\\:text-red-700:hover{--tw-text-opacity:1;color:rgb(185 28 28/var(--tw-text-opacity,1))}.hover\\:text-secondary:hover{--tw-text-opacity:1;color:rgb(var(--color-secondary)/var(--tw-text-opacity,1))}.hover\\:shadow-xl:hover{--tw-shadow:0 20px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color),0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.focus\\:border-primary:focus{--tw-border-opacity:1;border-color:rgb(var(--color-primary)/var(--tw-border-opacity,1))}.focus\\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.focus\\:ring-blue-500:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(59 130 246/var(--tw-ring-opacity,1))}.focus\\:ring-primary:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(var(--color-primary)/var(--tw-ring-opacity,1))}.active\\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.disabled\\:opacity-50:disabled{opacity:.5}.group:hover .group-hover\\:translate-y-0{--tw-translate-y:0px}.group:hover .group-hover\\:scale-105,.group:hover .group-hover\\:translate-y-0{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.group:hover .group-hover\\:scale-105{--tw-scale-x:1.05;--tw-scale-y:1.05}.group:hover .group-hover\\:bg-primary{--tw-bg-opacity:1;background-color:rgb(var(--color-primary)/var(--tw-bg-opacity,1))}.group:hover .group-hover\\:text-on-primary{--tw-text-opacity:1;color:rgb(var(--color-on-primary)/var(--tw-text-opacity,1))}@media(min-width:640px){.sm\\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.sm\\:flex-row{flex-direction:row}}@media(min-width:768px){.md\\:col-span-12{grid-column:span 12/span 12}.md\\:col-span-4{grid-column:span 4/span 4}.md\\:col-span-5{grid-column:span 5/span 5}.md\\:col-span-7{grid-column:span 7/span 7}.md\\:col-span-8{grid-column:span 8/span 8}.md\\:col-start-5{grid-column-start:5}.md\\:flex{display:flex}.md\\:aspect-\\[16\\/10\\]{aspect-ratio:16/10}.md\\:aspect-auto{aspect-ratio:auto}.md\\:min-h-0{min-height:0}.md\\:min-h-\\[360px\\]{min-height:360px}.md\\:min-h-\\[760px\\]{min-height:760px}.md\\:auto-rows-\\[300px\\]{grid-auto-rows:300px}.md\\:grid-cols-12{grid-template-columns:repeat(12,minmax(0,1fr))}.md\\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.md\\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.md\\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.md\\:flex-row{flex-direction:row}.md\\:items-end{align-items:flex-end}.md\\:items-center{align-items:center}.md\\:justify-between{justify-content:space-between}.md\\:gap-16{gap:4rem}.md\\:gap-stack-lg{gap:2rem}.md\\:p-12{padding:3rem}.md\\:p-8{padding:2rem}.md\\:px-gutter-desktop{padding-left:2rem;padding-right:2rem}.md\\:py-section-gap-desktop{padding-top:6rem;padding-bottom:6rem}.md\\:py-stack-lg{padding-top:2rem;padding-bottom:2rem}.md\\:pt-section-gap-desktop{padding-top:6rem}.md\\:text-display-lg{font-size:3rem;line-height:1.1;letter-spacing:-.02em;font-weight:700}.md\\:text-display-md{font-size:2.25rem;line-height:1.2;letter-spacing:-.01em;font-weight:700}}@media(min-width:1024px){.lg\\:sticky{position:sticky}.lg\\:top-24{top:6rem}.lg\\:col-span-12{grid-column:span 12/span 12}.lg\\:col-span-3{grid-column:span 3/span 3}.lg\\:col-span-4{grid-column:span 4/span 4}.lg\\:col-span-5{grid-column:span 5/span 5}.lg\\:col-span-7{grid-column:span 7/span 7}.lg\\:col-span-8{grid-column:span 8/span 8}.lg\\:col-span-9{grid-column:span 9/span 9}.lg\\:mb-section-gap-desktop{margin-bottom:6rem}.lg\\:mt-section-gap-desktop{margin-top:6rem}.lg\\:grid-cols-12{grid-template-columns:repeat(12,minmax(0,1fr))}.lg\\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.lg\\:p-16{padding:4rem}}@media(min-width:1280px){.xl\\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(prefers-color-scheme:dark){.dark\\:border-amber-700{--tw-border-opacity:1;border-color:rgb(180 83 9/var(--tw-border-opacity,1))}.dark\\:border-blue-500{--tw-border-opacity:1;border-color:rgb(59 130 246/var(--tw-border-opacity,1))}.dark\\:bg-amber-950\\/30{background-color:#451a034d}.dark\\:bg-blue-950\\/30{background-color:#1725544d}.dark\\:text-amber-400{--tw-text-opacity:1;color:rgb(251 191 36/var(--tw-text-opacity,1))}.dark\\:text-amber-400\\/80{color:#fbbf24cc}}', Do = `/**
  * Storefront theme — runtime menu loader.
  *
  * Same contract as default / magazine / corporate: fetches /data/menu.json
@@ -2609,7 +2609,7 @@ const Hr = '@import"https://fonts.googleapis.com/css2?family=Playfair+Display:it
     enabled: "Show bottom nav",
     items: "Items"
   }
-}, Vo = Ae, qo = Ae, Jo = Ae, Wo = Ae, Ko = Ae, Go = Ae, Te = {
+}, Vo = Ae, qo = Ae, Jo = Ae, Wo = Ae, Go = Ae, Ko = Ae, Te = {
   unknownBlock: "Unknown block",
   heroOverlay: { title: "Hero — overlay", untitled: "(no title)" },
   categoriesBento: { title: "Curated collections (bento)", preview: "{{count}} cards" },
@@ -3023,7 +3023,7 @@ const Hr = '@import"https://fonts.googleapis.com/css2?family=Playfair+Display:it
     label: "카탈로그 재생성",
     description: "/data/products.json과 카탈로그 HTML 페이지를 다시 빌드합니다."
   }
-}, di = { title: "Theme settings", settings: Ae, publicBaked: Yo, blocks: Te, regenerationTarget: ni }, ui = { title: "Theme settings", settings: Vo, publicBaked: Xo, blocks: Te, regenerationTarget: ai }, pi = { title: "Theme settings", settings: qo, publicBaked: Zo, blocks: Te, regenerationTarget: oi }, fi = { title: "Theme settings", settings: Jo, publicBaked: Qo, blocks: Te, regenerationTarget: ii }, hi = { title: "Theme settings", settings: Wo, publicBaked: ei, blocks: Te, regenerationTarget: si }, mi = { title: "Theme settings", settings: Ko, publicBaked: ti, blocks: Te, regenerationTarget: li }, gi = { title: "Theme settings", settings: Go, publicBaked: ri, blocks: Te, regenerationTarget: ci };
+}, di = { title: "Theme settings", settings: Ae, publicBaked: Yo, blocks: Te, regenerationTarget: ni }, ui = { title: "Theme settings", settings: Vo, publicBaked: Xo, blocks: Te, regenerationTarget: ai }, pi = { title: "Theme settings", settings: qo, publicBaked: Zo, blocks: Te, regenerationTarget: oi }, hi = { title: "Theme settings", settings: Jo, publicBaked: Qo, blocks: Te, regenerationTarget: ii }, fi = { title: "Theme settings", settings: Wo, publicBaked: ei, blocks: Te, regenerationTarget: si }, mi = { title: "Theme settings", settings: Go, publicBaked: ti, blocks: Te, regenerationTarget: li }, gi = { title: "Theme settings", settings: Ko, publicBaked: ri, blocks: Te, regenerationTarget: ci };
 /**
  * @license lucide-react v0.460.0 - ISC
  *
@@ -3165,7 +3165,7 @@ const ar = _("Image", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const zn = _("Images", [
+const Hn = _("Images", [
   ["path", { d: "M18 22H4a2 2 0 0 1-2-2V6", key: "pblm9e" }],
   ["path", { d: "m22 13-1.296-1.296a2.41 2.41 0 0 0-3.408 0L11 18", key: "nf6bnh" }],
   ["circle", { cx: "12", cy: "8", r: "2", key: "1822b1" }],
@@ -3186,7 +3186,7 @@ const vt = _("LoaderCircle", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Hn = _("Mail", [
+const zn = _("Mail", [
   ["rect", { width: "20", height: "16", x: "2", y: "4", rx: "2", key: "18n3k1" }],
   ["path", { d: "m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7", key: "1ocrg3" }]
 ]);
@@ -3348,19 +3348,19 @@ function Ni({ site: r }) {
     ),
     empty: e("publicBaked.catalogEmpty")
   });
-  return /* @__PURE__ */ f("main", { className: "max-w-container-max mx-auto px-gutter md:px-gutter-desktop py-stack-lg pb-section-gap-desktop", children: [
-    /* @__PURE__ */ f("nav", { className: "flex items-center gap-2 mb-stack-lg text-on-surface-variant text-label-caps font-semibold uppercase tracking-widest", children: [
+  return /* @__PURE__ */ h("main", { className: "max-w-container-max mx-auto px-gutter md:px-gutter-desktop py-stack-lg pb-section-gap-desktop", children: [
+    /* @__PURE__ */ h("nav", { className: "flex items-center gap-2 mb-stack-lg text-on-surface-variant text-label-caps font-semibold uppercase tracking-widest", children: [
       /* @__PURE__ */ c("a", { className: "hover:text-primary transition-colors", href: r.homePath ?? "/index.html", children: e("publicBaked.home") }),
       /* @__PURE__ */ c("span", { className: "material-symbols-outlined text-[14px]", children: "chevron_right" }),
       /* @__PURE__ */ c("span", { className: "text-primary", children: n.pageTitle || e("publicBaked.catalogHeading") })
     ] }),
-    /* @__PURE__ */ f("header", { className: "mb-stack-lg", children: [
+    /* @__PURE__ */ h("header", { className: "mb-stack-lg", children: [
       /* @__PURE__ */ c("h1", { className: "display-serif text-display-md md:text-display-lg text-on-surface mb-stack-sm leading-tight", children: n.pageHeading || e("publicBaked.catalogHeading") }),
       n.pageSubtitle && /* @__PURE__ */ c("p", { className: "text-body-lg text-on-surface-variant max-w-2xl", children: n.pageSubtitle })
     ] }),
-    /* @__PURE__ */ f("div", { className: "grid grid-cols-1 lg:grid-cols-12 gap-stack-lg", children: [
-      /* @__PURE__ */ c("aside", { className: "lg:col-span-3", "data-cms-catalog-sidebar": !0, children: /* @__PURE__ */ f("div", { className: "lg:sticky lg:top-24 space-y-stack-lg", children: [
-        n.filters.showSearch && /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { className: "grid grid-cols-1 lg:grid-cols-12 gap-stack-lg", children: [
+      /* @__PURE__ */ c("aside", { className: "lg:col-span-3", "data-cms-catalog-sidebar": !0, children: /* @__PURE__ */ h("div", { className: "lg:sticky lg:top-24 space-y-stack-lg", children: [
+        n.filters.showSearch && /* @__PURE__ */ h("div", { children: [
           /* @__PURE__ */ c("label", { className: "font-label-caps text-label-caps text-primary uppercase tracking-widest mb-stack-sm block", children: e("publicBaked.catalogSearchPlaceholder") }),
           /* @__PURE__ */ c(
             "input",
@@ -3372,14 +3372,14 @@ function Ni({ site: r }) {
             }
           )
         ] }),
-        n.filters.showCategoryFilter && /* @__PURE__ */ f("div", { "data-cms-catalog-categories": !0, children: [
+        n.filters.showCategoryFilter && /* @__PURE__ */ h("div", { "data-cms-catalog-categories": !0, children: [
           /* @__PURE__ */ c("h3", { className: "font-label-caps text-label-caps text-primary uppercase tracking-widest mb-stack-md", children: e("publicBaked.catalogFilterCategories") }),
           /* @__PURE__ */ c("div", { className: "space-y-2 text-body-md text-on-surface-variant", "data-cms-catalog-categories-host": !0 })
         ] }),
-        n.filters.showPriceRange && /* @__PURE__ */ f("div", { "data-cms-catalog-price": !0, children: [
+        n.filters.showPriceRange && /* @__PURE__ */ h("div", { "data-cms-catalog-price": !0, children: [
           /* @__PURE__ */ c("h3", { className: "font-label-caps text-label-caps text-primary uppercase tracking-widest mb-stack-md", children: e("publicBaked.catalogFilterPrice") }),
-          /* @__PURE__ */ f("div", { className: "space-y-2", children: [
-            /* @__PURE__ */ f("div", { className: "flex items-center justify-between text-body-md text-on-surface-variant", children: [
+          /* @__PURE__ */ h("div", { className: "space-y-2", children: [
+            /* @__PURE__ */ h("div", { className: "flex items-center justify-between text-body-md text-on-surface-variant", children: [
               /* @__PURE__ */ c("span", { "data-cms-catalog-price-min": !0, children: "—" }),
               /* @__PURE__ */ c("span", { "data-cms-catalog-price-max": !0, children: "—" })
             ] }),
@@ -3396,7 +3396,7 @@ function Ni({ site: r }) {
             )
           ] })
         ] }),
-        n.filters.showStockFilter && /* @__PURE__ */ f("div", { "data-cms-catalog-stock": !0, children: [
+        n.filters.showStockFilter && /* @__PURE__ */ h("div", { "data-cms-catalog-stock": !0, children: [
           /* @__PURE__ */ c("h3", { className: "font-label-caps text-label-caps text-primary uppercase tracking-widest mb-stack-md", children: e("publicBaked.catalogFilterStock") }),
           /* @__PURE__ */ c("div", { className: "space-y-2 text-body-md", "data-cms-catalog-stock-host": !0 })
         ] }),
@@ -3405,7 +3405,7 @@ function Ni({ site: r }) {
         // The host is also capped at 16rem with overflow-y so
         // even dozens of tags stay inside the panel — the user
         // scrolls the chip cloud instead of the whole sidebar.
-        /* @__PURE__ */ f("div", { "data-cms-catalog-tags": !0, children: [
+        /* @__PURE__ */ h("div", { "data-cms-catalog-tags": !0, children: [
           /* @__PURE__ */ c("h3", { className: "font-label-caps text-label-caps text-primary uppercase tracking-widest mb-stack-md", children: e("publicBaked.catalogFilterTags") }),
           /* @__PURE__ */ c(
             "div",
@@ -3416,10 +3416,10 @@ function Ni({ site: r }) {
           )
         ] })
       ] }) }),
-      /* @__PURE__ */ f("section", { className: "lg:col-span-9", children: [
-        /* @__PURE__ */ f("div", { className: "flex flex-col md:flex-row md:items-center md:justify-between gap-stack-md mb-stack-md", children: [
+      /* @__PURE__ */ h("section", { className: "lg:col-span-9", children: [
+        /* @__PURE__ */ h("div", { className: "flex flex-col md:flex-row md:items-center md:justify-between gap-stack-md mb-stack-md", children: [
           /* @__PURE__ */ c("p", { className: "text-body-md text-on-surface-variant", "data-cms-catalog-count": !0, children: e("publicBaked.catalogLoading") }),
-          n.filters.showSortBy && /* @__PURE__ */ f(
+          n.filters.showSortBy && /* @__PURE__ */ h(
             "select",
             {
               "data-cms-catalog-sort": !0,
@@ -3460,7 +3460,7 @@ async function Ai(r) {
     ...(e == null ? void 0 : e.catalog) ?? {}
   };
   if (!t.enabled) return;
-  const n = (t.slug || Ce.slug).replace(/^\/+/, ""), a = Wa(r), o = Ka({
+  const n = (t.slug || Ce.slug).replace(/^\/+/, ""), a = Wa(r), o = Ga({
     base: Tn,
     baseProps: {
       site: a,
@@ -3472,7 +3472,7 @@ async function Ai(r) {
     template: Ni,
     templateProps: { site: a }
   });
-  await hn({
+  await fn({
     path: n,
     content: o,
     encoding: "utf-8"
@@ -3481,11 +3481,11 @@ async function Ai(r) {
 async function Ti(r, e) {
   if (!(!r || r === e))
     try {
-      await Ga(r);
+      await Ka(r);
     } catch {
     }
 }
-async function Kt(r) {
+async function Gt(r) {
   const e = Vn(r.settings);
   if (!(e != null && e.catalog) || !e.catalog.enabled) return;
   const t = {
@@ -3505,15 +3505,15 @@ async function Kt(r) {
     console.warn("[storefront] catalog republish failed:", n);
   }
 }
-const De = "storefront", Ei = 480, Ii = 144, Mi = "contain", Dr = ["image/jpeg", "image/png", "image/webp"];
-function Li({
+const De = "storefront", Ei = 480, Ii = 144, Li = "contain", Dr = ["image/jpeg", "image/png", "image/webp"];
+function Ri({
   config: r,
   save: e
 }) {
   const { t } = $("theme-storefront"), [n, a] = U("home");
-  return /* @__PURE__ */ f("div", { className: "space-y-6", children: [
+  return /* @__PURE__ */ h("div", { className: "space-y-6", children: [
     /* @__PURE__ */ c("p", { className: "text-sm text-surface-600 dark:text-surface-300", children: t("settings.description") }),
-    /* @__PURE__ */ f(
+    /* @__PURE__ */ h(
       "nav",
       {
         className: "flex flex-wrap gap-1 border-b border-surface-200 dark:border-surface-800",
@@ -3529,11 +3529,11 @@ function Li({
         ]
       }
     ),
-    n === "home" && /* @__PURE__ */ c(Oi, { config: r, save: e }),
+    n === "home" && /* @__PURE__ */ c(Mi, { config: r, save: e }),
     n === "single" && /* @__PURE__ */ c(Bi, { config: r, save: e }),
     n === "productDefaults" && /* @__PURE__ */ c($i, { config: r, save: e }),
-    n === "catalog" && /* @__PURE__ */ c(zi, { config: r, save: e }),
-    n === "footer" && /* @__PURE__ */ c(Hi, { config: r, save: e }),
+    n === "catalog" && /* @__PURE__ */ c(Hi, { config: r, save: e }),
+    n === "footer" && /* @__PURE__ */ c(zi, { config: r, save: e }),
     n === "logo" && /* @__PURE__ */ c(ji, { config: r, save: e }),
     n === "style" && /* @__PURE__ */ c(Di, { config: r, save: e })
   ] });
@@ -3553,15 +3553,15 @@ function me({
     }
   );
 }
-function Oi({ config: r, save: e }) {
-  var d, u, p, h, m, v, g, y;
+function Mi({ config: r, save: e }) {
+  var d, u, p, f, m, v, g, y;
   const { t } = $("theme-storefront"), { terms: n } = tr(), [a, o] = U({
     ...ee,
     ...r.home ?? {},
     hero: { ...ee.hero, ...((d = r.home) == null ? void 0 : d.hero) ?? {} },
     bento: { ...kn, ...((u = r.home) == null ? void 0 : u.bento) ?? {} },
     trending: { ...Sn, ...((p = r.home) == null ? void 0 : p.trending) ?? {} },
-    journal: { ...Cn, ...((h = r.home) == null ? void 0 : h.journal) ?? {} },
+    journal: { ...Cn, ...((f = r.home) == null ? void 0 : f.journal) ?? {} },
     storeInfo: {
       ...Jt,
       ...((m = r.home) == null ? void 0 : m.storeInfo) ?? {},
@@ -3579,8 +3579,8 @@ function Oi({ config: r, save: e }) {
       s(!1);
     }
   }
-  return /* @__PURE__ */ f("div", { className: "space-y-6", children: [
-    /* @__PURE__ */ f(W, { title: t("settings.home.bento.heading"), children: [
+  return /* @__PURE__ */ h("div", { className: "space-y-6", children: [
+    /* @__PURE__ */ h(W, { title: t("settings.home.bento.heading"), children: [
       /* @__PURE__ */ c(
         j,
         {
@@ -3613,7 +3613,7 @@ function Oi({ config: r, save: e }) {
           onChange: (b) => o({ ...a, bento: { ...a.bento, subtitle: b } })
         }
       ),
-      /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-3", children: [
+      /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-3", children: [
         /* @__PURE__ */ c(
           T,
           {
@@ -3632,14 +3632,14 @@ function Oi({ config: r, save: e }) {
         )
       ] }),
       /* @__PURE__ */ c(
-        Ri,
+        Oi,
         {
           cards: a.bento.cards,
           onChange: (b) => o({ ...a, bento: { ...a.bento, cards: b } })
         }
       )
     ] }),
-    /* @__PURE__ */ f(W, { title: t("settings.home.trending.heading"), children: [
+    /* @__PURE__ */ h(W, { title: t("settings.home.trending.heading"), children: [
       /* @__PURE__ */ c(
         j,
         {
@@ -3664,10 +3664,10 @@ function Oi({ config: r, save: e }) {
           onChange: (b) => o({ ...a, trending: { ...a.trending, title: b } })
         }
       ),
-      /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-3", children: [
-        /* @__PURE__ */ f("div", { children: [
+      /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-3", children: [
+        /* @__PURE__ */ h("div", { children: [
           /* @__PURE__ */ c("label", { className: "label", children: t("settings.home.trending.mode") }),
-          /* @__PURE__ */ f(
+          /* @__PURE__ */ h(
             "select",
             {
               className: "input",
@@ -3689,9 +3689,9 @@ function Oi({ config: r, save: e }) {
           }
         )
       ] }),
-      a.trending.mode === "category" && /* @__PURE__ */ f("div", { children: [
+      a.trending.mode === "category" && /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: t("settings.home.trending.categoryId") }),
-        /* @__PURE__ */ f(
+        /* @__PURE__ */ h(
           "select",
           {
             className: "input",
@@ -3705,7 +3705,7 @@ function Oi({ config: r, save: e }) {
         )
       ] })
     ] }),
-    /* @__PURE__ */ f(W, { title: t("settings.home.categoryRows.heading"), children: [
+    /* @__PURE__ */ h(W, { title: t("settings.home.categoryRows.heading"), children: [
       /* @__PURE__ */ c("p", { className: "text-sm text-surface-600 dark:text-surface-300 -mt-2 mb-2", children: t("settings.home.categoryRows.description") }),
       /* @__PURE__ */ c(
         Fi,
@@ -3716,7 +3716,7 @@ function Oi({ config: r, save: e }) {
         }
       )
     ] }),
-    /* @__PURE__ */ f(W, { title: t("settings.home.storeInfo.heading"), children: [
+    /* @__PURE__ */ h(W, { title: t("settings.home.storeInfo.heading"), children: [
       /* @__PURE__ */ c(
         j,
         {
@@ -3742,7 +3742,7 @@ function Oi({ config: r, save: e }) {
         }
       ),
       /* @__PURE__ */ c(
-        Gt,
+        Kt,
         {
           label: t("settings.home.storeInfo.imageUrl"),
           value: a.storeInfo.imageUrl,
@@ -3765,7 +3765,7 @@ function Oi({ config: r, save: e }) {
           onChange: (b) => o({ ...a, storeInfo: { ...a.storeInfo, imageAlt: b } })
         }
       ),
-      /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-3", children: [
+      /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-3", children: [
         /* @__PURE__ */ c(
           T,
           {
@@ -3808,7 +3808,7 @@ function Oi({ config: r, save: e }) {
           })
         }
       ),
-      /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-3", children: [
+      /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-3", children: [
         /* @__PURE__ */ c(
           T,
           {
@@ -3828,7 +3828,7 @@ function Oi({ config: r, save: e }) {
         )
       ] })
     ] }),
-    /* @__PURE__ */ f(W, { title: t("settings.home.journal.heading"), children: [
+    /* @__PURE__ */ h(W, { title: t("settings.home.journal.heading"), children: [
       /* @__PURE__ */ c(
         j,
         {
@@ -3838,7 +3838,7 @@ function Oi({ config: r, save: e }) {
         }
       ),
       /* @__PURE__ */ c(
-        Gt,
+        Kt,
         {
           label: t("settings.home.journal.imageUrl"),
           value: a.journal.imageUrl,
@@ -3868,7 +3868,7 @@ function Oi({ config: r, save: e }) {
           onChange: (b) => o({ ...a, journal: { ...a.journal, eyebrow: b } })
         }
       ),
-      /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-3", children: [
+      /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-3", children: [
         /* @__PURE__ */ c(
           T,
           {
@@ -3894,7 +3894,7 @@ function Oi({ config: r, save: e }) {
           onChange: (b) => o({ ...a, journal: { ...a.journal, subtitle: b } })
         }
       ),
-      /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-3", children: [
+      /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-3", children: [
         /* @__PURE__ */ c(
           T,
           {
@@ -3913,10 +3913,10 @@ function Oi({ config: r, save: e }) {
         )
       ] })
     ] }),
-    /* @__PURE__ */ c(ze, { onSave: l, saving: i })
+    /* @__PURE__ */ c(He, { onSave: l, saving: i })
   ] });
 }
-function Ri({
+function Oi({
   cards: r,
   onChange: e
 }) {
@@ -3932,28 +3932,28 @@ function Ri({
   function a(o, i) {
     e(r.map((s, l) => l === o ? { ...s, ...i } : s));
   }
-  return /* @__PURE__ */ f("div", { className: "border-t border-surface-200 pt-3 mt-3 dark:border-surface-700", children: [
-    /* @__PURE__ */ f("div", { className: "flex items-center justify-between mb-2", children: [
-      /* @__PURE__ */ f("span", { className: "text-sm font-semibold", children: [
+  return /* @__PURE__ */ h("div", { className: "border-t border-surface-200 pt-3 mt-3 dark:border-surface-700", children: [
+    /* @__PURE__ */ h("div", { className: "flex items-center justify-between mb-2", children: [
+      /* @__PURE__ */ h("span", { className: "text-sm font-semibold", children: [
         "Bento cards (",
         r.length,
         ")"
       ] }),
-      /* @__PURE__ */ f("button", { type: "button", onClick: t, className: "text-xs flex items-center gap-1 text-blue-600", children: [
+      /* @__PURE__ */ h("button", { type: "button", onClick: t, className: "text-xs flex items-center gap-1 text-blue-600", children: [
         /* @__PURE__ */ c(oe, { className: "h-3.5 w-3.5" }),
         " Add card"
       ] })
     ] }),
-    /* @__PURE__ */ c("div", { className: "space-y-3", children: r.map((o, i) => /* @__PURE__ */ f("div", { className: "rounded-md border border-surface-200 p-3 space-y-2 dark:border-surface-700", children: [
-      /* @__PURE__ */ f("div", { className: "flex items-center justify-between", children: [
-        /* @__PURE__ */ f("span", { className: "text-xs font-semibold", children: [
+    /* @__PURE__ */ c("div", { className: "space-y-3", children: r.map((o, i) => /* @__PURE__ */ h("div", { className: "rounded-md border border-surface-200 p-3 space-y-2 dark:border-surface-700", children: [
+      /* @__PURE__ */ h("div", { className: "flex items-center justify-between", children: [
+        /* @__PURE__ */ h("span", { className: "text-xs font-semibold", children: [
           "Card ",
           i + 1
         ] }),
         /* @__PURE__ */ c("button", { type: "button", onClick: () => n(i), className: "p-1 text-red-500", children: /* @__PURE__ */ c(te, { className: "h-3.5 w-3.5" }) })
       ] }),
       /* @__PURE__ */ c(
-        Gt,
+        Kt,
         {
           label: "Image URL",
           value: o.imageUrl,
@@ -3982,7 +3982,7 @@ function Ri({
           onChange: (s) => a(i, { label: s.target.value })
         }
       ),
-      /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-2", children: [
+      /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-2", children: [
         /* @__PURE__ */ c(
           "input",
           {
@@ -4002,7 +4002,7 @@ function Ri({
           }
         )
       ] }),
-      /* @__PURE__ */ f(
+      /* @__PURE__ */ h(
         "select",
         {
           className: "input",
@@ -4048,10 +4048,10 @@ function Fi({
   function s(l, d) {
     t(r.map((u, p) => p === l ? { ...u, ...d } : u));
   }
-  return /* @__PURE__ */ f("div", { children: [
-    /* @__PURE__ */ f("div", { className: "flex items-center justify-between mb-2", children: [
+  return /* @__PURE__ */ h("div", { children: [
+    /* @__PURE__ */ h("div", { className: "flex items-center justify-between mb-2", children: [
       /* @__PURE__ */ c("span", { className: "text-sm font-semibold", children: n("settings.home.categoryRows.count", { count: r.length }) }),
-      /* @__PURE__ */ f(
+      /* @__PURE__ */ h(
         "button",
         {
           type: "button",
@@ -4065,14 +4065,14 @@ function Fi({
         }
       )
     ] }),
-    /* @__PURE__ */ c("div", { className: "space-y-3", children: r.map((l, d) => /* @__PURE__ */ f(
+    /* @__PURE__ */ c("div", { className: "space-y-3", children: r.map((l, d) => /* @__PURE__ */ h(
       "div",
       {
         className: "rounded-md border border-surface-200 p-3 space-y-2 dark:border-surface-700",
         children: [
-          /* @__PURE__ */ f("div", { className: "flex items-center justify-between", children: [
+          /* @__PURE__ */ h("div", { className: "flex items-center justify-between", children: [
             /* @__PURE__ */ c("span", { className: "text-xs font-semibold", children: n("settings.home.categoryRows.row", { index: d + 1 }) }),
-            /* @__PURE__ */ f("div", { className: "flex items-center gap-1", children: [
+            /* @__PURE__ */ h("div", { className: "flex items-center gap-1", children: [
               /* @__PURE__ */ c(
                 "button",
                 {
@@ -4105,7 +4105,7 @@ function Fi({
               )
             ] })
           ] }),
-          /* @__PURE__ */ f("label", { className: "flex items-center gap-2 text-sm", children: [
+          /* @__PURE__ */ h("label", { className: "flex items-center gap-2 text-sm", children: [
             /* @__PURE__ */ c(
               "input",
               {
@@ -4117,7 +4117,7 @@ function Fi({
             ),
             /* @__PURE__ */ c("span", { children: n("settings.home.categoryRows.enabled") })
           ] }),
-          /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-2", children: [
+          /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-2", children: [
             /* @__PURE__ */ c(
               "input",
               {
@@ -4137,8 +4137,8 @@ function Fi({
               }
             )
           ] }),
-          /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-2", children: [
-            /* @__PURE__ */ f(
+          /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-2", children: [
+            /* @__PURE__ */ h(
               "select",
               {
                 className: "input",
@@ -4162,7 +4162,7 @@ function Fi({
               }
             )
           ] }),
-          /* @__PURE__ */ f(
+          /* @__PURE__ */ h(
             "select",
             {
               className: "input",
@@ -4174,7 +4174,7 @@ function Fi({
               ]
             }
           ),
-          /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-2", children: [
+          /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-2", children: [
             /* @__PURE__ */ c(
               "input",
               {
@@ -4215,18 +4215,18 @@ function Bi({ config: r, save: e }) {
       i(!1);
     }
   }
-  function l(p, h) {
+  function l(p, f) {
     const m = [...n.careKitItems];
-    m[p] = h, a({ ...n, careKitItems: m });
+    m[p] = f, a({ ...n, careKitItems: m });
   }
   function d(p) {
-    a({ ...n, careKitItems: n.careKitItems.filter((h, m) => m !== p) });
+    a({ ...n, careKitItems: n.careKitItems.filter((f, m) => m !== p) });
   }
   function u() {
     a({ ...n, careKitItems: [...n.careKitItems, ""] });
   }
-  return /* @__PURE__ */ f("div", { className: "space-y-6", children: [
-    /* @__PURE__ */ f(W, { title: t("settings.tabs.single"), children: [
+  return /* @__PURE__ */ h("div", { className: "space-y-6", children: [
+    /* @__PURE__ */ h(W, { title: t("settings.tabs.single"), children: [
       /* @__PURE__ */ c("p", { className: "text-sm text-surface-600 dark:text-surface-300 -mt-2 mb-2", children: t("settings.single.description") }),
       /* @__PURE__ */ c(
         j,
@@ -4260,7 +4260,7 @@ function Bi({ config: r, save: e }) {
           onChange: (p) => a({ ...n, showCareKit: p })
         }
       ),
-      n.showCareKit && /* @__PURE__ */ f(se, { children: [
+      n.showCareKit && /* @__PURE__ */ h(se, { children: [
         /* @__PURE__ */ c(
           T,
           {
@@ -4277,34 +4277,34 @@ function Bi({ config: r, save: e }) {
             onChange: (p) => a({ ...n, careKitDescription: p })
           }
         ),
-        /* @__PURE__ */ f("div", { children: [
-          /* @__PURE__ */ f("div", { className: "flex items-center justify-between mb-2", children: [
-            /* @__PURE__ */ f("span", { className: "label !mb-0", children: [
+        /* @__PURE__ */ h("div", { children: [
+          /* @__PURE__ */ h("div", { className: "flex items-center justify-between mb-2", children: [
+            /* @__PURE__ */ h("span", { className: "label !mb-0", children: [
               t("settings.single.careKitItems"),
               " (",
               n.careKitItems.length,
               ")"
             ] }),
-            /* @__PURE__ */ f("button", { type: "button", onClick: u, className: "text-xs flex items-center gap-1 text-blue-600", children: [
+            /* @__PURE__ */ h("button", { type: "button", onClick: u, className: "text-xs flex items-center gap-1 text-blue-600", children: [
               /* @__PURE__ */ c(oe, { className: "h-3.5 w-3.5" }),
               " Add"
             ] })
           ] }),
-          /* @__PURE__ */ c("div", { className: "space-y-2", children: n.careKitItems.map((p, h) => /* @__PURE__ */ f("div", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ c("div", { className: "space-y-2", children: n.careKitItems.map((p, f) => /* @__PURE__ */ h("div", { className: "flex items-center gap-2", children: [
             /* @__PURE__ */ c(
               "input",
               {
                 className: "input flex-1",
                 value: p,
-                onChange: (m) => l(h, m.target.value)
+                onChange: (m) => l(f, m.target.value)
               }
             ),
-            /* @__PURE__ */ c("button", { type: "button", onClick: () => d(h), className: "p-1 text-red-500", children: /* @__PURE__ */ c(te, { className: "h-3.5 w-3.5" }) })
-          ] }, h)) })
+            /* @__PURE__ */ c("button", { type: "button", onClick: () => d(f), className: "p-1 text-red-500", children: /* @__PURE__ */ c(te, { className: "h-3.5 w-3.5" }) })
+          ] }, f)) })
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ c(ze, { onSave: s, saving: o })
+    /* @__PURE__ */ c(He, { onSave: s, saving: o })
   ] });
 }
 function $i({ config: r, save: e }) {
@@ -4322,8 +4322,8 @@ function $i({ config: r, save: e }) {
       i(!1);
     }
   }
-  return /* @__PURE__ */ f("div", { className: "space-y-6", children: [
-    /* @__PURE__ */ f(W, { title: t("settings.tabs.productDefaults"), children: [
+  return /* @__PURE__ */ h("div", { className: "space-y-6", children: [
+    /* @__PURE__ */ h(W, { title: t("settings.tabs.productDefaults"), children: [
       /* @__PURE__ */ c("p", { className: "text-sm text-surface-600 dark:text-surface-300 -mt-2 mb-2", children: t("settings.productDefaults.description") }),
       /* @__PURE__ */ c(
         T,
@@ -4333,7 +4333,7 @@ function $i({ config: r, save: e }) {
           onChange: (l) => a({ ...n, currency: l.toUpperCase() })
         }
       ),
-      /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-3", children: [
+      /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-3", children: [
         /* @__PURE__ */ c(
           T,
           {
@@ -4360,10 +4360,10 @@ function $i({ config: r, save: e }) {
         }
       )
     ] }),
-    /* @__PURE__ */ c(ze, { onSave: s, saving: o })
+    /* @__PURE__ */ c(He, { onSave: s, saving: o })
   ] });
 }
-function zi({ config: r, save: e }) {
+function Hi({ config: r, save: e }) {
   var g;
   const { t } = $("theme-storefront"), { settings: n, terms: a, users: o, media: i } = tr(), [s, l] = U({
     ...Ce,
@@ -4372,25 +4372,25 @@ function zi({ config: r, save: e }) {
       ...Ce.filters,
       ...((g = r.catalog) == null ? void 0 : g.filters) ?? {}
     }
-  }), [d, u] = U(!1), [p, h] = U(!1);
+  }), [d, u] = U(!1), [p, f] = U(!1);
   async function m() {
     var y;
     u(!0);
     try {
-      const b = (s.slug || "catalog.html").replace(/^\/+/, ""), C = ((y = r.catalog) == null ? void 0 : y.lastPublishedPath) ?? "", A = b, R = {
+      const b = (s.slug || "catalog.html").replace(/^\/+/, ""), C = ((y = r.catalog) == null ? void 0 : y.lastPublishedPath) ?? "", A = b, O = {
         ...s,
         slug: b,
         lastPublishedPath: A
       };
-      await e({ ...r, catalog: R }), await Ti(C, A);
-      const [P, O] = await Promise.all([
+      await e({ ...r, catalog: O }), await Ti(C, A);
+      const [P, M] = await Promise.all([
         bt({ type: "post" }),
         bt({ type: "page" })
       ]), N = {
         ...n,
-        themeConfigs: { ...n.themeConfigs, [De]: { ...r, catalog: R } }
+        themeConfigs: { ...n.themeConfigs, [De]: { ...r, catalog: O } }
       };
-      await gn(N, P, O, a), B.success(t("settings.buttons.saved"));
+      await gn(N, P, M, a), B.success(t("settings.buttons.saved"));
     } catch (b) {
       B.error(b.message);
     } finally {
@@ -4398,20 +4398,20 @@ function zi({ config: r, save: e }) {
     }
   }
   async function v() {
-    h(!0);
+    f(!0);
     try {
       const y = Qa(o, i), b = await eo({ settings: n, terms: a, users: o, authorLookup: y });
-      await Kt(b);
+      await Gt(b);
       const C = { ...s, jsonLastGeneratedAt: Date.now() };
       l(C), await e({ ...r, catalog: C }), B.success(t("settings.buttons.saved"));
     } catch (y) {
       B.error(y.message);
     } finally {
-      h(!1);
+      f(!1);
     }
   }
-  return /* @__PURE__ */ f("div", { className: "space-y-6", children: [
-    /* @__PURE__ */ f(W, { title: t("settings.tabs.catalog"), children: [
+  return /* @__PURE__ */ h("div", { className: "space-y-6", children: [
+    /* @__PURE__ */ h(W, { title: t("settings.tabs.catalog"), children: [
       /* @__PURE__ */ c("p", { className: "text-sm text-surface-600 dark:text-surface-300 -mt-2 mb-2", children: t("settings.catalog.description") }),
       /* @__PURE__ */ c(
         j,
@@ -4431,7 +4431,7 @@ function zi({ config: r, save: e }) {
           onChange: (y) => l({ ...s, slug: y })
         }
       ),
-      /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-3", children: [
+      /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-3", children: [
         /* @__PURE__ */ c(
           T,
           {
@@ -4457,7 +4457,7 @@ function zi({ config: r, save: e }) {
           onChange: (y) => l({ ...s, pageSubtitle: y })
         }
       ),
-      /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-3", children: [
+      /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-3", children: [
         /* @__PURE__ */ c(
           j,
           {
@@ -4476,7 +4476,7 @@ function zi({ config: r, save: e }) {
         )
       ] })
     ] }),
-    /* @__PURE__ */ f(W, { title: t("settings.catalog.filtersHeading"), children: [
+    /* @__PURE__ */ h(W, { title: t("settings.catalog.filtersHeading"), children: [
       /* @__PURE__ */ c(
         j,
         {
@@ -4525,9 +4525,9 @@ function zi({ config: r, save: e }) {
           onChange: (y) => l({ ...s, filters: { ...s.filters, showSortBy: y } })
         }
       ),
-      /* @__PURE__ */ f("div", { children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: t("settings.catalog.initialColumns") }),
-        /* @__PURE__ */ f(
+        /* @__PURE__ */ h(
           "select",
           {
             className: "input",
@@ -4542,15 +4542,15 @@ function zi({ config: r, save: e }) {
         )
       ] })
     ] }),
-    /* @__PURE__ */ f(W, { title: t("settings.catalog.forceRegenerate"), children: [
+    /* @__PURE__ */ h(W, { title: t("settings.catalog.forceRegenerate"), children: [
       /* @__PURE__ */ c("p", { className: "text-sm text-surface-600 dark:text-surface-300", children: t("settings.catalog.forceRegenerateHelp") }),
-      /* @__PURE__ */ f("p", { className: "text-xs text-surface-500", children: [
+      /* @__PURE__ */ h("p", { className: "text-xs text-surface-500", children: [
         t("settings.catalog.lastGenerated"),
         ":",
         " ",
         s.jsonLastGeneratedAt ? new Date(s.jsonLastGeneratedAt).toLocaleString() : t("settings.catalog.never")
       ] }),
-      /* @__PURE__ */ f(
+      /* @__PURE__ */ h(
         "button",
         {
           type: "button",
@@ -4565,10 +4565,10 @@ function zi({ config: r, save: e }) {
         }
       )
     ] }),
-    /* @__PURE__ */ c(ze, { onSave: m, saving: d })
+    /* @__PURE__ */ c(He, { onSave: m, saving: d })
   ] });
 }
-function Hi({ config: r, save: e }) {
+function zi({ config: r, save: e }) {
   const { t } = $("theme-storefront"), [n, a] = U({
     ...Nn,
     ...r.footer ?? {}
@@ -4583,8 +4583,8 @@ function Hi({ config: r, save: e }) {
       i(!1);
     }
   }
-  return /* @__PURE__ */ f("div", { className: "space-y-6", children: [
-    /* @__PURE__ */ f(W, { title: t("settings.tabs.footer"), children: [
+  return /* @__PURE__ */ h("div", { className: "space-y-6", children: [
+    /* @__PURE__ */ h(W, { title: t("settings.tabs.footer"), children: [
       /* @__PURE__ */ c(
         ge,
         {
@@ -4603,7 +4603,7 @@ function Hi({ config: r, save: e }) {
         }
       )
     ] }),
-    /* @__PURE__ */ c(ze, { onSave: s, saving: o })
+    /* @__PURE__ */ c(He, { onSave: s, saving: o })
   ] });
 }
 function ji({ config: r, save: e }) {
@@ -4623,14 +4623,14 @@ function ji({ config: r, save: e }) {
       console.error("[theme-storefront] menu.json refresh failed:", y);
     }
   }
-  async function h(v) {
+  async function f(v) {
     if (!Dr.includes(v.type)) {
       B.error(t("settings.logo.invalidType"));
       return;
     }
     i(!0);
     try {
-      await to({ themeId: De, file: v, width: Ei, height: Ii, fit: Mi });
+      await to({ themeId: De, file: v, width: Ei, height: Ii, fit: Li });
       const g = { ...r, logoEnabled: !0, logoUpdatedAt: Date.now() };
       await e(g), await p(g), B.success(t("settings.logo.saved"));
     } catch (g) {
@@ -4651,10 +4651,10 @@ function ji({ config: r, save: e }) {
       l(!1);
     }
   }
-  return /* @__PURE__ */ c("div", { className: "space-y-6", children: /* @__PURE__ */ f(W, { title: t("settings.tabs.logo"), children: [
+  return /* @__PURE__ */ c("div", { className: "space-y-6", children: /* @__PURE__ */ h(W, { title: t("settings.tabs.logo"), children: [
     /* @__PURE__ */ c("p", { className: "text-sm text-surface-600 dark:text-surface-300 -mt-2 mb-2", children: t("settings.logo.description") }),
     u && /* @__PURE__ */ c("div", { className: "rounded-lg border border-surface-200 bg-surface-50 p-4 dark:border-surface-800 dark:bg-surface-900", children: /* @__PURE__ */ c("img", { src: u, alt: "Logo preview", className: "max-h-24 w-auto" }) }),
-    /* @__PURE__ */ f("div", { className: "flex items-center gap-3", children: [
+    /* @__PURE__ */ h("div", { className: "flex items-center gap-3", children: [
       /* @__PURE__ */ c(
         "input",
         {
@@ -4665,11 +4665,11 @@ function ji({ config: r, save: e }) {
           onChange: (v) => {
             var y;
             const g = (y = v.target.files) == null ? void 0 : y[0];
-            g && h(g);
+            g && f(g);
           }
         }
       ),
-      /* @__PURE__ */ f(
+      /* @__PURE__ */ h(
         "button",
         {
           type: "button",
@@ -4686,7 +4686,7 @@ function ji({ config: r, save: e }) {
           ]
         }
       ),
-      r.logoEnabled && /* @__PURE__ */ f(
+      r.logoEnabled && /* @__PURE__ */ h(
         "button",
         {
           type: "button",
@@ -4714,63 +4714,63 @@ function Di({ config: r, save: e }) {
     i(!0);
     try {
       await e({ ...r, style: n, cssUpdatedAt: Date.now() }), await go({
-        baseCssText: Sd.cssText ?? "",
+        baseCssText: Rd.cssText ?? "",
         style: n
       }), B.success(t("settings.buttons.saved"));
-    } catch (h) {
-      B.error(h.message);
+    } catch (f) {
+      B.error(f.message);
     } finally {
       i(!1);
     }
   }
-  function l(h, m) {
+  function l(f, m) {
     const v = { ...n.vars };
-    m && m.trim() ? v[h] = m : delete v[h], a({ ...n, vars: v });
+    m && m.trim() ? v[f] = m : delete v[f], a({ ...n, vars: v });
   }
-  function d(h) {
+  function d(f) {
     const m = { ...n.vars };
-    delete m[h], a({ ...n, vars: m });
+    delete m[f], a({ ...n, vars: m });
   }
   const u = [
-    ...Object.keys(le.serif).map((h) => ({
-      name: h,
+    ...Object.keys(le.serif).map((f) => ({
+      name: f,
       fallback: "serif"
     })),
-    ...Object.keys(le.sans).map((h) => ({
-      name: h,
+    ...Object.keys(le.sans).map((f) => ({
+      name: f,
       fallback: "sans-serif"
     }))
   ];
-  return /* @__PURE__ */ f("div", { className: "space-y-6", children: [
+  return /* @__PURE__ */ h("div", { className: "space-y-6", children: [
     /* @__PURE__ */ c(Vi, { draft: n, setDraft: a }),
-    /* @__PURE__ */ f(W, { title: t("settings.tabs.style"), children: [
-      /* @__PURE__ */ c("link", { rel: "stylesheet", href: ho() }),
-      /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-3", children: [
-        /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h(W, { title: t("settings.tabs.style"), children: [
+      /* @__PURE__ */ c("link", { rel: "stylesheet", href: fo() }),
+      /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-3", children: [
+        /* @__PURE__ */ h("div", { children: [
           /* @__PURE__ */ c("label", { className: "label", children: t("settings.font.serif") }),
           /* @__PURE__ */ c(
             Pr,
             {
               options: u,
               value: n.fontSerif || Pe,
-              onChange: (h) => a({ ...n, fontSerif: h })
+              onChange: (f) => a({ ...n, fontSerif: f })
             }
           )
         ] }),
-        /* @__PURE__ */ f("div", { children: [
+        /* @__PURE__ */ h("div", { children: [
           /* @__PURE__ */ c("label", { className: "label", children: t("settings.font.sans") }),
           /* @__PURE__ */ c(
             Pr,
             {
               options: u,
               value: n.fontSans || Fe,
-              onChange: (h) => a({ ...n, fontSans: h })
+              onChange: (f) => a({ ...n, fontSans: f })
             }
           )
         ] })
       ] })
     ] }),
-    uo.map((h) => /* @__PURE__ */ c(W, { title: t(`settings.groups.${h}`), children: lt.filter((m) => m.group === h).map((m) => /* @__PURE__ */ c(
+    uo.map((f) => /* @__PURE__ */ c(W, { title: t(`settings.groups.${f}`), children: lt.filter((m) => m.group === f).map((m) => /* @__PURE__ */ c(
       Ui,
       {
         spec: m,
@@ -4780,8 +4780,8 @@ function Di({ config: r, save: e }) {
         labelText: t(`settings.${m.labelKey}`)
       },
       m.name
-    )) }, h)),
-    /* @__PURE__ */ c(ze, { onSave: s, saving: o })
+    )) }, f)),
+    /* @__PURE__ */ c(He, { onSave: s, saving: o })
   ] });
 }
 function Ui({
@@ -4792,7 +4792,7 @@ function Ui({
   labelText: a
 }) {
   const o = e || r.defaultValue;
-  return /* @__PURE__ */ f("div", { className: "flex items-center gap-3", children: [
+  return /* @__PURE__ */ h("div", { className: "flex items-center gap-3", children: [
     /* @__PURE__ */ c("div", { className: "flex-1", children: /* @__PURE__ */ c("label", { className: "text-sm text-surface-700 dark:text-surface-300", children: a }) }),
     r.type === "color" ? /* @__PURE__ */ c(
       "input",
@@ -4825,12 +4825,12 @@ function Ui({
   ] });
 }
 function W({ title: r, children: e }) {
-  return /* @__PURE__ */ f("section", { className: "rounded-lg border border-surface-200 dark:border-surface-800 p-4 space-y-3", children: [
+  return /* @__PURE__ */ h("section", { className: "rounded-lg border border-surface-200 dark:border-surface-800 p-4 space-y-3", children: [
     /* @__PURE__ */ c("h3", { className: "text-sm font-semibold text-surface-900 dark:text-surface-50", children: r }),
     e
   ] });
 }
-function Gt({
+function Kt({
   label: r,
   value: e,
   onChange: t,
@@ -4838,10 +4838,10 @@ function Gt({
   format: a = "large"
 }) {
   const [o, i] = U(!1);
-  return /* @__PURE__ */ f(se, { children: [
-    /* @__PURE__ */ f("div", { children: [
+  return /* @__PURE__ */ h(se, { children: [
+    /* @__PURE__ */ h("div", { children: [
       /* @__PURE__ */ c("label", { className: "label", children: r }),
-      /* @__PURE__ */ f("div", { className: "flex items-center gap-2", children: [
+      /* @__PURE__ */ h("div", { className: "flex items-center gap-2", children: [
         /* @__PURE__ */ c(
           "input",
           {
@@ -4852,7 +4852,7 @@ function Gt({
             onChange: (s) => t(s.target.value)
           }
         ),
-        /* @__PURE__ */ f(
+        /* @__PURE__ */ h(
           "button",
           {
             type: "button",
@@ -4881,8 +4881,8 @@ function Gt({
   ] });
 }
 function j({ label: r, value: e, onChange: t, help: n }) {
-  return /* @__PURE__ */ f("div", { children: [
-    /* @__PURE__ */ f("label", { className: "flex items-center gap-2 cursor-pointer text-sm text-surface-900 dark:text-surface-50", children: [
+  return /* @__PURE__ */ h("div", { children: [
+    /* @__PURE__ */ h("label", { className: "flex items-center gap-2 cursor-pointer text-sm text-surface-900 dark:text-surface-50", children: [
       /* @__PURE__ */ c(
         "input",
         {
@@ -4898,7 +4898,7 @@ function j({ label: r, value: e, onChange: t, help: n }) {
   ] });
 }
 function T({ label: r, value: e, onChange: t, help: n }) {
-  return /* @__PURE__ */ f("div", { children: [
+  return /* @__PURE__ */ h("div", { children: [
     /* @__PURE__ */ c("label", { className: "label", children: r }),
     /* @__PURE__ */ c(
       "input",
@@ -4913,7 +4913,7 @@ function T({ label: r, value: e, onChange: t, help: n }) {
   ] });
 }
 function ge({ label: r, value: e, onChange: t, help: n }) {
-  return /* @__PURE__ */ f("div", { children: [
+  return /* @__PURE__ */ h("div", { children: [
     /* @__PURE__ */ c("label", { className: "label", children: r }),
     /* @__PURE__ */ c(
       "textarea",
@@ -4928,7 +4928,7 @@ function ge({ label: r, value: e, onChange: t, help: n }) {
   ] });
 }
 function _i({ label: r, value: e, onChange: t }) {
-  return /* @__PURE__ */ f("div", { children: [
+  return /* @__PURE__ */ h("div", { children: [
     /* @__PURE__ */ c("label", { className: "label", children: r }),
     /* @__PURE__ */ c(
       "input",
@@ -4942,9 +4942,9 @@ function _i({ label: r, value: e, onChange: t }) {
     )
   ] });
 }
-function ze({ onSave: r, saving: e }) {
+function He({ onSave: r, saving: e }) {
   const { t } = $("theme-storefront");
-  return /* @__PURE__ */ c("div", { className: "flex justify-end gap-2 pt-3 border-t border-surface-200 dark:border-surface-800", children: /* @__PURE__ */ f(
+  return /* @__PURE__ */ c("div", { className: "flex justify-end gap-2 pt-3 border-t border-surface-200 dark:border-surface-800", children: /* @__PURE__ */ h(
     "button",
     {
       type: "button",
@@ -4971,7 +4971,7 @@ function Vi({
       fontSans: o.fontSans
     });
   }
-  return /* @__PURE__ */ f(W, { title: t("settings.presets.title"), children: [
+  return /* @__PURE__ */ h(W, { title: t("settings.presets.title"), children: [
     /* @__PURE__ */ c("p", { className: "text-xs text-surface-500 dark:text-surface-400 mb-3", children: t("settings.presets.help") }),
     /* @__PURE__ */ c("div", { className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2", children: vn.map((o) => {
       const i = o.id === n, s = {
@@ -4981,7 +4981,7 @@ function Vi({
       }, l = o.swatch.map(
         (d) => wn(s, d)
       );
-      return /* @__PURE__ */ f(
+      return /* @__PURE__ */ h(
         "button",
         {
           type: "button",
@@ -4989,8 +4989,8 @@ function Vi({
           className: "text-left p-3 rounded border transition focus:outline-none focus:ring-2 focus:ring-blue-500 " + (i ? "border-blue-600 bg-blue-50 dark:border-blue-500 dark:bg-blue-950/30" : "border-surface-200 hover:border-surface-400 dark:border-surface-700 dark:hover:border-surface-500"),
           "aria-pressed": i,
           children: [
-            /* @__PURE__ */ f("div", { className: "flex items-center justify-between gap-2 mb-2", children: [
-              /* @__PURE__ */ f("span", { className: "text-sm font-medium flex items-center gap-1.5", children: [
+            /* @__PURE__ */ h("div", { className: "flex items-center justify-between gap-2 mb-2", children: [
+              /* @__PURE__ */ h("span", { className: "text-sm font-medium flex items-center gap-1.5", children: [
                 /* @__PURE__ */ c(ki, { className: "h-3.5 w-3.5 text-surface-400" }),
                 t(`settings.presets.${o.id}.label`)
               ] }),
@@ -5148,7 +5148,7 @@ const Ur = [...Object.keys(le.serif), ...Object.keys(le.sans)], je = "Root-absol
   "footer.tagline": { description: "Brand tagline under the footer wordmark. Empty = the site description from Settings → General." }
 };
 function Ji(r) {
-  const e = r.variant ?? "card", t = r.placeholder || "Email address", n = r.ctaLabel || "Subscribe", a = r.mode === "mailto" ? "mailto" : "endpoint", o = r.eyebrow ? `<p class="font-label-caps text-label-caps uppercase tracking-widest mb-stack-sm ${e === "banner" ? "text-on-primary/80" : "text-secondary"}">${x(r.eyebrow)}</p>` : "", i = r.title ? `<h3 class="display-serif text-headline-md md:text-display-md mb-stack-sm leading-tight ${e === "banner" ? "text-on-primary" : "text-on-surface"}">${x(r.title)}</h3>` : "", s = r.subtitle ? `<p class="font-body-md text-body-md ${e === "banner" ? "text-on-primary/80" : "text-on-surface-variant"} mb-stack-md">${x(r.subtitle)}</p>` : "", l = `<p class="text-xs ${e === "banner" ? "text-on-primary/90" : "text-primary"}" data-cms-form-success hidden>${x(r.successMessage ?? "Thanks — you're on the list.")}</p>`, d = `<p class="text-xs text-error" data-cms-form-error hidden>${x(r.errorMessage ?? "Something went wrong. Please try again.")}</p>`, u = `<form class="flex flex-col sm:flex-row gap-stack-sm" data-cms-form="${a}" data-cms-form-endpoint="${S(r.endpoint ?? "")}" data-cms-form-mailto="${S(r.mailto ?? "")}">
+  const e = r.variant ?? "card", t = r.placeholder || "Email address", n = r.ctaLabel || "Subscribe", a = r.mode === "mailto" ? "mailto" : "endpoint", o = r.eyebrow ? `<p class="font-label-caps text-label-caps uppercase tracking-widest mb-stack-sm ${e === "banner" ? "text-on-primary/80" : "text-secondary"}">${x(r.eyebrow)}</p>` : "", i = r.title ? `<h3 class="display-serif text-headline-md md:text-display-md mb-stack-sm leading-tight ${e === "banner" ? "text-on-primary" : "text-on-surface"}">${x(r.title)}</h3>` : "", s = r.subtitle ? `<p class="font-body-md text-body-md ${e === "banner" ? "text-on-primary/80" : "text-on-surface-variant"} mb-stack-md">${x(r.subtitle)}</p>` : "", l = `<p class="text-xs ${e === "banner" ? "text-on-primary/90" : "text-primary"}" data-cms-form-success hidden>${x(r.successMessage || "Thanks — you're on the list.")}</p>`, d = `<p class="text-xs text-error" data-cms-form-error hidden>${x(r.errorMessage || "Something went wrong. Please try again.")}</p>`, u = `<form class="flex flex-col sm:flex-row gap-stack-sm" data-cms-form="${a}" data-cms-form-endpoint="${S(r.endpoint ?? "")}" data-cms-form-mailto="${S(r.mailto ?? "")}">
 <input type="email" name="email" required placeholder="${S(t)}" class="${e === "banner" ? "bg-on-primary/10 border border-on-primary/30 text-on-primary placeholder-on-primary/60" : "bg-surface border border-outline-variant"} flex-1 rounded-full px-5 py-3 focus:ring-primary focus:border-primary outline-none" />
 <button type="submit" class="${e === "banner" ? "bg-on-primary text-primary hover:bg-on-primary/90" : "bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container"} px-8 py-3 rounded-full font-label-caps text-label-caps uppercase tracking-widest transition-all">${x(n)}</button>
 </form>${l}${d}`;
@@ -5189,7 +5189,7 @@ function Wi(r) {
 </section>`
   };
 }
-function Ki(r) {
+function Gi(r) {
   const e = Array.isArray(r.features) ? r.features.filter((n) => n.icon || n.label) : [];
   return e.length === 0 ? { html: "" } : {
     html: `<section class="max-w-container-max mx-auto px-gutter md:px-gutter-desktop">
@@ -5199,7 +5199,7 @@ function Ki(r) {
 </section>`
   };
 }
-function Gi(r) {
+function Ki(r) {
   const e = Math.max(0, Math.floor(r)), t = r - e >= 0.5, n = Math.max(0, 5 - e - (t ? 1 : 0)), a = [];
   for (let o = 0; o < e; o++)
     a.push(
@@ -5221,7 +5221,7 @@ function Yi(r) {
 <div>${r.eyebrow ? `<p class="font-label-caps text-label-caps text-secondary uppercase tracking-widest mb-stack-sm">${x(r.eyebrow)}</p>` : ""}${r.title ? `<h2 class="display-serif text-headline-md md:text-display-md text-on-surface">${x(r.title)}</h2>` : ""}</div>${r.writeReviewLabel && r.writeReviewHref ? `<a href="${S(r.writeReviewHref)}" class="text-primary font-label-caps text-label-caps uppercase tracking-widest underline hover:text-primary-container transition-colors">${x(r.writeReviewLabel)}</a>` : ""}</div>`, n = e.map((a) => `<article class="bg-surface-container-lowest p-6 md:p-8 rounded-2xl shadow-sm border border-outline-variant/30">
 <div class="flex items-center justify-between mb-stack-md">
 <div class="flex items-center gap-stack-sm">${a.authorAvatarUrl ? `<img src="${S(a.authorAvatarUrl)}" alt="${S(a.authorName)}" class="w-12 h-12 rounded-full object-cover" loading="lazy" />` : `<span class="w-12 h-12 rounded-full bg-primary-fixed text-on-primary-fixed-variant inline-flex items-center justify-center font-bold">${x(a.authorInitials || (a.authorName ? a.authorName.slice(0, 2).toUpperCase() : "?"))}</span>`}<div>${a.authorName ? `<p class="font-body-md text-body-md font-semibold text-on-surface">${x(a.authorName)}</p>` : ""}${a.authorRole ? `<p class="text-[12px] text-on-surface-variant">${x(a.authorRole)}</p>` : ""}</div></div>
-<div class="flex">${Gi(a.rating)}</div>
+<div class="flex">${Ki(a.rating)}</div>
 </div>${a.text ? `<p class="font-body-md text-on-surface-variant italic leading-relaxed">"${x(a.text)}"</p>` : ""}${a.dateLabel ? `<p class="text-[12px] text-on-surface-variant mt-stack-sm">${x(a.dateLabel)}</p>` : ""}</article>`).join("");
   return {
     html: `<section class="py-section-gap-mobile md:py-section-gap-desktop max-w-container-max mx-auto px-gutter md:px-gutter-desktop">${t}<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md md:gap-stack-lg">${n}</div></section>`
@@ -5251,15 +5251,15 @@ function Qi(r) {
   switch (r.blockId) {
     case "hero-overlay": {
       const e = re(r.attrsRaw, {});
-      return Mn(e).html;
+      return Ln(e).html;
     }
     case "categories-bento": {
       const e = re(r.attrsRaw, {});
-      return Ln(e).html;
+      return Rn(e).html;
     }
     case "journal-feature": {
       const e = re(r.attrsRaw, {});
-      return On(e).html;
+      return Mn(e).html;
     }
     case "newsletter": {
       const e = re(r.attrsRaw, {});
@@ -5276,7 +5276,7 @@ function Qi(r) {
     }
     case "product-features": {
       const e = re(r.attrsRaw, { features: [] });
-      return Ki(e).html;
+      return Gi(e).html;
     }
     case "reviews-list": {
       const e = re(r.attrsRaw, {
@@ -5306,11 +5306,11 @@ function es(r, e) {
     a += r.slice(o, i.index), a += n.get(i.index) ?? "", o = i.index + i[0].length;
   return a += r.slice(o), a;
 }
-function H(r) {
+function z(r) {
   this.content = r;
 }
-H.prototype = {
-  constructor: H,
+z.prototype = {
+  constructor: z,
   find: function(r) {
     for (var e = 0; e < this.content.length; e += 2)
       if (this.content[e] === r) return e;
@@ -5329,7 +5329,7 @@ H.prototype = {
   // given, the key of the binding will be replaced with that key.
   update: function(r, e, t) {
     var n = t && t != r ? this.remove(t) : this, a = n.find(r), o = n.content.slice();
-    return a == -1 ? o.push(t || r, e) : (o[a + 1] = e, t && (o[a] = t)), new H(o);
+    return a == -1 ? o.push(t || r, e) : (o[a + 1] = e, t && (o[a] = t)), new z(o);
   },
   // :: (string) → OrderedMap
   // Return a map with the given key removed, if it existed.
@@ -5337,25 +5337,25 @@ H.prototype = {
     var e = this.find(r);
     if (e == -1) return this;
     var t = this.content.slice();
-    return t.splice(e, 2), new H(t);
+    return t.splice(e, 2), new z(t);
   },
   // :: (string, any) → OrderedMap
   // Add a new key to the start of the map.
   addToStart: function(r, e) {
-    return new H([r, e].concat(this.remove(r).content));
+    return new z([r, e].concat(this.remove(r).content));
   },
   // :: (string, any) → OrderedMap
   // Add a new key to the end of the map.
   addToEnd: function(r, e) {
     var t = this.remove(r).content.slice();
-    return t.push(r, e), new H(t);
+    return t.push(r, e), new z(t);
   },
   // :: (string, string, any) → OrderedMap
   // Add a key after the given key. If `place` is not found, the new
   // key is added to the end.
   addBefore: function(r, e, t) {
     var n = this.remove(e), a = n.content.slice(), o = n.find(r);
-    return a.splice(o == -1 ? a.length : o, 0, e, t), new H(a);
+    return a.splice(o == -1 ? a.length : o, 0, e, t), new z(a);
   },
   // :: ((key: string, value: any))
   // Call the given function for each key/value pair in the map, in
@@ -5368,20 +5368,20 @@ H.prototype = {
   // Create a new map by prepending the keys in this map that don't
   // appear in `map` before the keys in `map`.
   prepend: function(r) {
-    return r = H.from(r), r.size ? new H(r.content.concat(this.subtract(r).content)) : this;
+    return r = z.from(r), r.size ? new z(r.content.concat(this.subtract(r).content)) : this;
   },
   // :: (union<Object, OrderedMap>) → OrderedMap
   // Create a new map by appending the keys in this map that don't
   // appear in `map` after the keys in `map`.
   append: function(r) {
-    return r = H.from(r), r.size ? new H(this.subtract(r).content.concat(r.content)) : this;
+    return r = z.from(r), r.size ? new z(this.subtract(r).content.concat(r.content)) : this;
   },
   // :: (union<Object, OrderedMap>) → OrderedMap
   // Create a map containing all the keys in this map that don't
   // appear in `map`.
   subtract: function(r) {
     var e = this;
-    r = H.from(r);
+    r = z.from(r);
     for (var t = 0; t < r.content.length; t += 2)
       e = e.remove(r.content[t]);
     return e;
@@ -5400,11 +5400,11 @@ H.prototype = {
     return this.content.length >> 1;
   }
 };
-H.from = function(r) {
-  if (r instanceof H) return r;
+z.from = function(r) {
+  if (r instanceof z) return r;
   var e = [];
   if (r) for (var t in r) e.push(t, r[t]);
-  return new H(e);
+  return new z(e);
 };
 function qn(r, e, t) {
   for (let n = 0; ; n++) {
@@ -5736,7 +5736,7 @@ function xt(r, e) {
   }
   return !0;
 }
-class M {
+class L {
   /**
   @internal
   */
@@ -5834,14 +5834,14 @@ class M {
   */
   static setFrom(e) {
     if (!e || Array.isArray(e) && e.length == 0)
-      return M.none;
-    if (e instanceof M)
+      return L.none;
+    if (e instanceof L)
       return [e];
     let t = e.slice();
     return t.sort((n, a) => n.type.rank - a.type.rank), t;
   }
 }
-M.none = [];
+L.none = [];
 class kt extends Error {
 }
 class k {
@@ -5870,7 +5870,7 @@ class k {
   @internal
   */
   insertAt(e, t) {
-    let n = Kn(this.content, e + this.openStart, t);
+    let n = Gn(this.content, e + this.openStart, t);
     return n && new k(n, this.openStart, this.openEnd);
   }
   /**
@@ -5936,11 +5936,11 @@ function Wn(r, e, t) {
     throw new RangeError("Removing non-flat range");
   return r.replaceChild(n, o.copy(Wn(o.content, e - a - 1, t - a - 1)));
 }
-function Kn(r, e, t, n) {
+function Gn(r, e, t, n) {
   let { index: a, offset: o } = r.findIndex(e), i = r.maybeChild(a);
   if (o == e || i.isText)
     return n && !n.canReplace(a, a, t) ? null : r.cut(0, e).append(t).append(r.cut(e));
-  let s = Kn(i.content, e - o - 1, t, i);
+  let s = Gn(i.content, e - o - 1, t, i);
   return s && r.replaceChild(a, i.copy(s));
 }
 function ts(r, e, t) {
@@ -5948,12 +5948,12 @@ function ts(r, e, t) {
     throw new kt("Inserted content deeper than insertion position");
   if (r.depth - t.openStart != e.depth - t.openEnd)
     throw new kt("Inconsistent open depths");
-  return Gn(r, e, t, 0);
+  return Kn(r, e, t, 0);
 }
-function Gn(r, e, t, n) {
+function Kn(r, e, t, n) {
   let a = r.index(n), o = r.node(n);
   if (a == e.index(n) && n < r.depth - t.openStart) {
-    let i = Gn(r, e, t, n + 1);
+    let i = Kn(r, e, t, n + 1);
     return o.copy(o.content.replaceChild(a, i));
   } else if (t.content.size)
     if (!t.openStart && !t.openEnd && r.depth == n && e.depth == n) {
@@ -6139,7 +6139,7 @@ class rt {
   marks() {
     let e = this.parent, t = this.index();
     if (e.content.size == 0)
-      return M.none;
+      return L.none;
     if (this.textOffset)
       return e.child(t).marks;
     let n = e.maybeChild(t - 1), a = e.maybeChild(t);
@@ -6306,7 +6306,7 @@ let Se = class Xt {
   /**
   @internal
   */
-  constructor(e, t, n, a = M.none) {
+  constructor(e, t, n, a = L.none) {
     this.type = e, this.attrs = t, this.marks = a, this.content = n || w.empty;
   }
   /**
@@ -6420,7 +6420,7 @@ let Se = class Xt {
   attributes, and marks.
   */
   hasMarkup(e, t, n) {
-    return this.type == e && xt(this.attrs, t || e.defaultAttrs || is) && M.sameSet(this.marks, n || M.none);
+    return this.type == e && xt(this.attrs, t || e.defaultAttrs || is) && L.sameSet(this.marks, n || L.none);
   }
   /**
   Create a new node with the same markup as this node, containing
@@ -6630,12 +6630,12 @@ let Se = class Xt {
   */
   check() {
     this.type.checkContent(this.content), this.type.checkAttrs(this.attrs);
-    let e = M.none;
+    let e = L.none;
     for (let t = 0; t < this.marks.length; t++) {
       let n = this.marks[t];
       n.type.checkAttrs(n.attrs), e = n.addToSet(e);
     }
-    if (!M.sameSet(e, this.marks))
+    if (!L.sameSet(e, this.marks))
       throw new RangeError(`Invalid collection of marks for node ${this.type.name}: ${this.marks.map((t) => t.type.name)}`);
     this.content.forEach((t) => t.check());
   }
@@ -6731,7 +6731,7 @@ class Ne {
       return Ne.empty;
     let a = Qn(n);
     n.next && n.err("Unexpected trailing text");
-    let o = hs(fs(a));
+    let o = fs(hs(a));
     return ms(o, n), o;
   }
   /**
@@ -6800,9 +6800,9 @@ class Ne {
         let { type: u, next: p } = i.next[d];
         if (!(u.isText || u.hasRequiredAttrs()) && a.indexOf(p) == -1) {
           a.push(p);
-          let h = o(p, s.concat(u));
-          if (h)
-            return h;
+          let f = o(p, s.concat(u));
+          if (f)
+            return f;
         }
       }
       return null;
@@ -6952,7 +6952,7 @@ function ps(r) {
     return r.pos++, e.length == 1 ? e[0] : { type: "choice", exprs: e };
   }
 }
-function fs(r) {
+function hs(r) {
   let e = [[]];
   return a(o(r, 0), t()), e;
   function t() {
@@ -7023,7 +7023,7 @@ function qr(r, e) {
     }
   }
 }
-function hs(r) {
+function fs(r) {
   let e = /* @__PURE__ */ Object.create(null);
   return t(qr(r, 0));
   function t(n) {
@@ -7178,7 +7178,7 @@ class At {
   create(e = null, t, n) {
     if (this.isText)
       throw new Error("NodeType.create can't construct text nodes");
-    return new Se(this, this.computeAttrs(e), w.from(t), M.setFrom(n));
+    return new Se(this, this.computeAttrs(e), w.from(t), L.setFrom(n));
   }
   /**
   Like [`create`](https://prosemirror.net/docs/ref/#model.NodeType.create), but check the given content
@@ -7186,7 +7186,7 @@ class At {
   if it doesn't match.
   */
   createChecked(e = null, t, n) {
-    return t = w.from(t), this.checkContent(t), new Se(this, this.computeAttrs(e), t, M.setFrom(n));
+    return t = w.from(t), this.checkContent(t), new Se(this, this.computeAttrs(e), t, L.setFrom(n));
   }
   /**
   Like [`create`](https://prosemirror.net/docs/ref/#model.NodeType.create), but see if it is
@@ -7204,7 +7204,7 @@ class At {
       t = i.append(t);
     }
     let a = this.contentMatch.matchFragment(t), o = a && a.fillBefore(w.empty, !0);
-    return o ? new Se(this, e, t.append(o), M.setFrom(n)) : null;
+    return o ? new Se(this, e, t.append(o), L.setFrom(n)) : null;
   }
   /**
   Returns true if the given fragment is valid content for this node
@@ -7260,7 +7260,7 @@ class At {
     let t;
     for (let n = 0; n < e.length; n++)
       this.allowsMarkType(e[n].type) ? t && t.push(e[n]) : t || (t = e.slice(0, n));
-    return t ? t.length ? t : M.none : e;
+    return t ? t.length ? t : L.none : e;
   }
   /**
   @internal
@@ -7301,7 +7301,7 @@ class or {
   constructor(e, t, n, a) {
     this.name = e, this.rank = t, this.schema = n, this.spec = a, this.attrs = aa(e, a.attrs), this.excluded = null;
     let o = ta(this.attrs);
-    this.instance = o ? new M(this, o) : null;
+    this.instance = o ? new L(this, o) : null;
   }
   /**
   Create a mark of this type. `attrs` may be `null` or an object
@@ -7309,7 +7309,7 @@ class or {
   they have defaults, will be added.
   */
   create(e = null) {
-    return !e && this.instance ? this.instance : new M(this, ra(this.attrs, e));
+    return !e && this.instance ? this.instance : new L(this, ra(this.attrs, e));
   }
   /**
   @internal
@@ -7358,7 +7358,7 @@ class ys {
     let t = this.spec = {};
     for (let a in e)
       t[a] = e[a];
-    t.nodes = H.from(e.nodes), t.marks = H.from(e.marks || {}), this.nodes = At.compile(this.spec.nodes, this), this.marks = or.compile(this.spec.marks, this);
+    t.nodes = z.from(e.nodes), t.marks = z.from(e.marks || {}), this.nodes = At.compile(this.spec.nodes, this), this.marks = or.compile(this.spec.marks, this);
     let n = /* @__PURE__ */ Object.create(null);
     for (let a in this.nodes) {
       if (a in this.marks)
@@ -7377,7 +7377,7 @@ class ys {
       let o = this.marks[a], i = o.spec.excludes;
       o.excluded = i == null ? [o] : i == "" ? [] : Jr(this, i.split(" "));
     }
-    this.nodeFromJSON = (a) => Se.fromJSON(this, a), this.markFromJSON = (a) => M.fromJSON(this, a), this.topNodeType = this.nodes[this.spec.topNode || "doc"], this.cached.wrappings = /* @__PURE__ */ Object.create(null);
+    this.nodeFromJSON = (a) => Se.fromJSON(this, a), this.markFromJSON = (a) => L.fromJSON(this, a), this.topNodeType = this.nodes[this.spec.topNode || "doc"], this.cached.wrappings = /* @__PURE__ */ Object.create(null);
   }
   /**
   Create a node in this schema. The `type` may be a string or a
@@ -7400,7 +7400,7 @@ class ys {
   */
   text(e, t) {
     let n = this.nodes.text;
-    return new Nt(n, n.defaultAttrs, e, M.setFrom(t));
+    return new Nt(n, n.defaultAttrs, e, L.setFrom(t));
   }
   /**
   Create a mark with the given type and attributes.
@@ -7440,7 +7440,7 @@ function vs(r) {
 function ws(r) {
   return r.style != null;
 }
-class Oe {
+class Me {
   /**
   Create a parser that targets the given schema, using the given
   parsing rules.
@@ -7466,8 +7466,8 @@ class Oe {
   Parse a document from the content of a DOM node.
   */
   parse(e, t = {}) {
-    let n = new Kr(this, t, !1);
-    return n.addAll(e, M.none, t.from, t.to), n.finish();
+    let n = new Gr(this, t, !1);
+    return n.addAll(e, L.none, t.from, t.to), n.finish();
   }
   /**
   Parses the content of the given DOM node, like
@@ -7478,8 +7478,8 @@ class Oe {
   the left of the input and the end of nodes at the end.
   */
   parseSlice(e, t = {}) {
-    let n = new Kr(this, t, !0);
-    return n.addAll(e, M.none, t.from, t.to), k.maxOpen(n.finish());
+    let n = new Gr(this, t, !0);
+    return n.addAll(e, L.none, t.from, t.to), k.maxOpen(n.finish());
   }
   /**
   @internal
@@ -7535,13 +7535,13 @@ class Oe {
     for (let a in e.marks) {
       let o = e.marks[a].spec.parseDOM;
       o && o.forEach((i) => {
-        n(i = Gr(i)), i.mark || i.ignore || i.clearMark || (i.mark = a);
+        n(i = Kr(i)), i.mark || i.ignore || i.clearMark || (i.mark = a);
       });
     }
     for (let a in e.nodes) {
       let o = e.nodes[a].spec.parseDOM;
       o && o.forEach((i) => {
-        n(i = Gr(i)), i.node || i.ignore || i.mark || (i.node = a);
+        n(i = Kr(i)), i.node || i.ignore || i.mark || (i.node = a);
       });
     }
     return t;
@@ -7552,7 +7552,7 @@ class Oe {
   [priority](https://prosemirror.net/docs/ref/#model.GenericParseRule.priority).
   */
   static fromSchema(e) {
-    return e.cached.domParser || (e.cached.domParser = new Oe(e, Oe.schemaRules(e)));
+    return e.cached.domParser || (e.cached.domParser = new Me(e, Me.schemaRules(e)));
   }
 }
 const oa = {
@@ -7601,7 +7601,7 @@ function Wr(r, e, t) {
 }
 class ut {
   constructor(e, t, n, a, o, i) {
-    this.type = e, this.attrs = t, this.marks = n, this.solid = a, this.options = i, this.content = [], this.activeMarks = M.none, this.match = o || (i & Je ? null : e.contentMatch);
+    this.type = e, this.attrs = t, this.marks = n, this.solid = a, this.options = i, this.content = [], this.activeMarks = L.none, this.match = o || (i & Je ? null : e.contentMatch);
   }
   findWrapping(e) {
     if (!this.match) {
@@ -7632,11 +7632,11 @@ class ut {
     return this.type ? this.type.inlineContent : this.content.length ? this.content[0].isInline : e.parentNode && !oa.hasOwnProperty(e.parentNode.nodeName.toLowerCase());
   }
 }
-class Kr {
+class Gr {
   constructor(e, t, n) {
     this.parser = e, this.options = t, this.isOpen = n, this.open = 0, this.localPreserveWS = !1;
     let a = t.topNode, o, i = Wr(null, t.preserveWhitespace, 0) | (n ? Je : 0);
-    a ? o = new ut(a.type, a.attrs, M.none, !0, t.topMatch || a.type.contentMatch, i) : n ? o = new ut(null, null, M.none, !0, null, i) : o = new ut(e.schema.topNodeType, null, M.none, !0, null, i), this.nodes = [o], this.find = t.findPositions, this.needsBlock = !1;
+    a ? o = new ut(a.type, a.attrs, L.none, !0, t.topMatch || a.type.contentMatch, i) : n ? o = new ut(null, null, L.none, !0, null, i) : o = new ut(e.schema.topNodeType, null, L.none, !0, null, i), this.nodes = [o], this.find = t.findPositions, this.needsBlock = !1;
   }
   get top() {
     return this.nodes[this.open];
@@ -7799,7 +7799,7 @@ class Kr {
       this.closeExtra();
       let o = this.top;
       o.match && (o.match = o.match.matchType(e.type));
-      let i = M.none;
+      let i = L.none;
       for (let s of a.concat(e.marks))
         (o.type ? o.type.allowsMarkType(s.type) : Yr(s.type, e.type)) && (i = s.addToSet(i));
       return o.content.push(e.mark(i)), !0;
@@ -7819,7 +7819,7 @@ class Kr {
     i.match = i.match && i.match.matchType(e);
     let s = Wr(e, o, i.options);
     i.options & Je && i.content.length == 0 && (s |= Je);
-    let l = M.none;
+    let l = L.none;
     return n = n.filter((d) => (i.type ? i.type.allowsMarkType(d.type) : Yr(d.type, e)) ? (l = d.addToSet(l), !1) : !0), this.nodes.push(new ut(e, t, l, a, null, s)), this.open++, n;
   }
   // Make sure all nodes above this.open are finished and added to
@@ -7923,7 +7923,7 @@ function ks(r) {
 function Ss(r, e) {
   return (r.matches || r.msMatchesSelector || r.webkitMatchesSelector || r.mozMatchesSelector).call(r, e);
 }
-function Gr(r) {
+function Kr(r) {
   let e = {};
   for (let t in r)
     e[t] = r[t];
@@ -7994,15 +7994,15 @@ class Zr {
     return (this.delInfo & mt) > 0;
   }
 }
-class G {
+class K {
   /**
   Create a position map. The modifications to the document are
   represented as an array of numbers, in which each group of three
   represents a modified chunk as `[start, oldSize, newSize]`.
   */
   constructor(e, t = !1) {
-    if (this.ranges = e, this.inverted = t, !e.length && G.empty)
-      return G.empty;
+    if (this.ranges = e, this.inverted = t, !e.length && K.empty)
+      return K.empty;
   }
   /**
   @internal
@@ -8031,7 +8031,7 @@ class G {
         break;
       let d = this.ranges[s + o], u = this.ranges[s + i], p = l + d;
       if (e <= p) {
-        let h = d ? e == l ? -1 : e == p ? 1 : t : t, m = l + a + (h < 0 ? 0 : u);
+        let f = d ? e == l ? -1 : e == p ? 1 : t : t, m = l + a + (f < 0 ? 0 : u);
         if (n)
           return m;
         let v = e == (t < 0 ? l : p) ? null : Cs(s / 3, e - l), g = e == l ? da : e == p ? ca : mt;
@@ -8073,7 +8073,7 @@ class G {
   map positions in the post-step document to the pre-step document.
   */
   invert() {
-    return new G(this.ranges, !this.inverted);
+    return new K(this.ranges, !this.inverted);
   }
   /**
   @internal
@@ -8087,10 +8087,10 @@ class G {
   sub-document to a larger document, or vice-versa.
   */
   static offset(e) {
-    return e == 0 ? G.empty : new G(e < 0 ? [0, -e, 0] : [0, 0, e]);
+    return e == 0 ? K.empty : new K(e < 0 ? [0, -e, 0] : [0, 0, e]);
   }
 }
-G.empty = new G([]);
+K.empty = new K([]);
 const $t = /* @__PURE__ */ Object.create(null);
 class q {
   /**
@@ -8099,7 +8099,7 @@ class q {
   and the new document.
   */
   getMap() {
-    return G.empty;
+    return K.empty;
   }
   /**
   Try to merge this step with another one, to be applied directly
@@ -8349,7 +8349,7 @@ class J extends q {
     return this.structure && Qt(e, this.from, this.to) ? F.fail("Structure replace would overwrite content") : F.fromReplace(e, this.from, this.to, this.slice);
   }
   getMap() {
-    return new G([this.from, this.to - this.from, this.slice.size]);
+    return new K([this.from, this.to - this.from, this.slice.size]);
   }
   invert(e) {
     return new J(this.from, this.from + this.slice.size, e.slice(this.from, this.to));
@@ -8385,7 +8385,7 @@ class J extends q {
 }
 J.MAP_BIAS = 1;
 q.jsonID("replace", J);
-class K extends q {
+class G extends q {
   /**
   Create a replace-around step with the given range and gap.
   `insert` should be the point in the slice into which the content
@@ -8405,7 +8405,7 @@ class K extends q {
     return n ? F.fromReplace(e, this.from, this.to, n) : F.fail("Content does not fit in gap");
   }
   getMap() {
-    return new G([
+    return new K([
       this.from,
       this.gapFrom - this.from,
       this.insert,
@@ -8416,11 +8416,11 @@ class K extends q {
   }
   invert(e) {
     let t = this.gapTo - this.gapFrom;
-    return new K(this.from, this.from + this.slice.size + t, this.from + this.insert, this.from + this.insert + t, e.slice(this.from, this.to).removeBetween(this.gapFrom - this.from, this.gapTo - this.from), this.gapFrom - this.from, this.structure);
+    return new G(this.from, this.from + this.slice.size + t, this.from + this.insert, this.from + this.insert + t, e.slice(this.from, this.to).removeBetween(this.gapFrom - this.from, this.gapTo - this.from), this.gapFrom - this.from, this.structure);
   }
   map(e) {
     let t = e.mapResult(this.from, 1), n = e.mapResult(this.to, -1), a = this.from == this.gapFrom ? t.pos : e.map(this.gapFrom, -1), o = this.to == this.gapTo ? n.pos : e.map(this.gapTo, 1);
-    return t.deletedAcross && n.deletedAcross || a < t.pos || o > n.pos ? null : new K(t.pos, n.pos, a, o, this.slice, this.insert, this.structure);
+    return t.deletedAcross && n.deletedAcross || a < t.pos || o > n.pos ? null : new G(t.pos, n.pos, a, o, this.slice, this.insert, this.structure);
   }
   toJSON() {
     let e = {
@@ -8439,10 +8439,10 @@ class K extends q {
   static fromJSON(e, t) {
     if (typeof t.from != "number" || typeof t.to != "number" || typeof t.gapFrom != "number" || typeof t.gapTo != "number" || typeof t.insert != "number")
       throw new RangeError("Invalid input for ReplaceAroundStep.fromJSON");
-    return new K(t.from, t.to, t.gapFrom, t.gapTo, k.fromJSON(e, t.slice), t.insert, !!t.structure);
+    return new G(t.from, t.to, t.gapFrom, t.gapTo, k.fromJSON(e, t.slice), t.insert, !!t.structure);
   }
 }
-q.jsonID("replaceAround", K);
+q.jsonID("replaceAround", G);
 function Qt(r, e, t) {
   let n = r.resolve(e), a = t - e, o = n.depth;
   for (; a > 0 && o > 0 && n.indexAfter(o) == n.node(o).childCount; )
@@ -8460,7 +8460,7 @@ function Qt(r, e, t) {
 function As(r, e, t) {
   return (e == 0 || r.canReplace(e, r.childCount)) && (t == r.childCount || r.canReplace(0, t));
 }
-function He(r) {
+function ze(r) {
   let t = r.parent.content.cutByIndex(r.startIndex, r.endIndex);
   for (let n = r.depth, a = 0, o = 0; ; --n) {
     let i = r.$from.node(n), s = r.$from.index(n) + a, l = r.$to.indexAfter(n) - o;
@@ -8500,13 +8500,13 @@ function ae(r, e, t = 1, n) {
   if (o < 0 || a.parent.type.spec.isolating || !a.parent.canReplace(a.index(), a.parent.childCount) || !i.type.validContent(a.parent.content.cutByIndex(a.index(), a.parent.childCount)))
     return !1;
   for (let d = a.depth - 1, u = t - 2; d > o; d--, u--) {
-    let p = a.node(d), h = a.index(d);
+    let p = a.node(d), f = a.index(d);
     if (p.type.spec.isolating)
       return !1;
-    let m = p.content.cutByIndex(h, p.childCount), v = n && n[u + 1];
+    let m = p.content.cutByIndex(f, p.childCount), v = n && n[u + 1];
     v && (m = m.replaceChild(0, v.type.create(v.attrs)));
     let g = n && n[u] || p;
-    if (!p.canReplace(h + 1, p.childCount) || !g.type.validContent(m))
+    if (!p.canReplace(f + 1, p.childCount) || !g.type.validContent(m))
       return !1;
   }
   let s = a.indexAfter(o), l = n && n[0];
@@ -8514,7 +8514,7 @@ function ae(r, e, t = 1, n) {
 }
 function Ee(r, e) {
   let t = r.resolve(e), n = t.index();
-  return fa(t.nodeBefore, t.nodeAfter) && t.parent.canReplace(n, n + 1);
+  return ha(t.nodeBefore, t.nodeAfter) && t.parent.canReplace(n, n + 1);
 }
 function Is(r, e) {
   e.content.size || r.type.compatibleContent(e.type);
@@ -8526,14 +8526,14 @@ function Is(r, e) {
   }
   return t.validEnd;
 }
-function fa(r, e) {
+function ha(r, e) {
   return !!(r && e && !r.isLeaf && Is(r, e));
 }
-function Rt(r, e, t = -1) {
+function Ot(r, e, t = -1) {
   let n = r.resolve(e);
   for (let a = n.depth; ; a--) {
     let o, i, s = n.index(a);
-    if (a == n.depth ? (o = n.nodeBefore, i = n.nodeAfter) : t > 0 ? (o = n.node(a + 1), s++, i = n.node(a).maybeChild(s)) : (o = n.node(a).maybeChild(s - 1), i = n.node(a + 1)), o && !o.isTextblock && fa(o, i) && n.node(a).canReplace(s, s + 1))
+    if (a == n.depth ? (o = n.nodeBefore, i = n.nodeAfter) : t > 0 ? (o = n.node(a + 1), s++, i = n.node(a).maybeChild(s)) : (o = n.node(a).maybeChild(s - 1), i = n.node(a + 1)), o && !o.isTextblock && ha(o, i) && n.node(a).canReplace(s, s + 1))
       return e;
     if (a == 0)
       break;
@@ -8544,12 +8544,12 @@ function sr(r, e, t = e, n = k.empty) {
   if (e == t && !n.size)
     return null;
   let a = r.resolve(e), o = r.resolve(t);
-  return Ms(a, o, n) ? new J(e, t, n) : new Ls(a, o, n).fit();
+  return Ls(a, o, n) ? new J(e, t, n) : new Rs(a, o, n).fit();
 }
-function Ms(r, e, t) {
+function Ls(r, e, t) {
   return !t.openStart && !t.openEnd && r.start() == e.start() && r.parent.canReplace(r.index(), e.index(), t.content);
 }
-class Ls {
+class Rs {
   constructor(e, t, n) {
     this.$from = e, this.$to = t, this.unplaced = n, this.frontier = [], this.placed = w.empty;
     for (let a = 0; a <= e.depth; a++) {
@@ -8577,7 +8577,7 @@ class Ls {
     for (; i && s && o.childCount == 1; )
       o = o.firstChild.content, i--, s--;
     let l = new k(o, i, s);
-    return e > -1 ? new K(n.pos, e, this.$to.pos, this.$to.end(), l, t) : l.size || n.pos != this.$to.pos ? new J(n.pos, a.pos, l) : null;
+    return e > -1 ? new G(n.pos, e, this.$to.pos, this.$to.end(), l, t) : l.size || n.pos != this.$to.pos ? new J(n.pos, a.pos, l) : null;
   }
   // Find a position on the start spine of `this.unplaced` that has
   // content that can be moved somewhere on the frontier. Returns two
@@ -8595,7 +8595,7 @@ class Ls {
     for (let t = 1; t <= 2; t++)
       for (let n = t == 1 ? e : this.unplaced.openStart; n >= 0; n--) {
         let a, o = null;
-        n ? (o = zt(this.unplaced.content, n - 1).firstChild, a = o.content) : a = this.unplaced.content;
+        n ? (o = Ht(this.unplaced.content, n - 1).firstChild, a = o.content) : a = this.unplaced.content;
         let i = a.firstChild;
         for (let s = this.depth; s >= 0; s--) {
           let { type: l, match: d } = this.frontier[s], u, p = null;
@@ -8609,11 +8609,11 @@ class Ls {
       }
   }
   openMore() {
-    let { content: e, openStart: t, openEnd: n } = this.unplaced, a = zt(e, t);
+    let { content: e, openStart: t, openEnd: n } = this.unplaced, a = Ht(e, t);
     return !a.childCount || a.firstChild.isLeaf ? !1 : (this.unplaced = new k(e, t + 1, Math.max(n, a.size + t >= e.size - n ? t + 1 : 0)), !0);
   }
   dropNode() {
-    let { content: e, openStart: t, openEnd: n } = this.unplaced, a = zt(e, t);
+    let { content: e, openStart: t, openEnd: n } = this.unplaced, a = Ht(e, t);
     if (a.childCount <= 1 && t > 0) {
       let o = e.size - t <= t + a.size;
       this.unplaced = new k(Ue(e, t - 1, 1), t - 1, o ? t - 1 : n);
@@ -8629,7 +8629,7 @@ class Ls {
     if (o)
       for (let g = 0; g < o.length; g++)
         this.openFrontierNode(o[g]);
-    let i = this.unplaced, s = n ? n.content : i.content, l = i.openStart - e, d = 0, u = [], { match: p, type: h } = this.frontier[t];
+    let i = this.unplaced, s = n ? n.content : i.content, l = i.openStart - e, d = 0, u = [], { match: p, type: f } = this.frontier[t];
     if (a) {
       for (let g = 0; g < a.childCount; g++)
         u.push(a.child(g));
@@ -8640,7 +8640,7 @@ class Ls {
       let g = s.child(d), y = p.matchType(g.type);
       if (!y)
         break;
-      d++, (d > 1 || l == 0 || g.content.size) && (p = y, u.push(ha(g.mark(h.allowedMarks(g.marks)), d == 1 ? l : 0, d == s.childCount ? m : -1)));
+      d++, (d > 1 || l == 0 || g.content.size) && (p = y, u.push(fa(g.mark(f.allowedMarks(g.marks)), d == 1 ? l : 0, d == s.childCount ? m : -1)));
     }
     let v = d == s.childCount;
     v || (m = -1), this.placed = _e(this.placed, t, w.from(u)), this.frontier[t].match = p, v && m < 0 && n && n.type == this.frontier[this.depth].type && this.frontier.length > 1 && this.closeFrontierNode();
@@ -8654,7 +8654,7 @@ class Ls {
     if (!this.$to.parent.isTextblock)
       return -1;
     let e = this.frontier[this.depth], t;
-    if (!e.type.isTextblock || !Ht(this.$to, this.$to.depth, e.type, e.match, !1) || this.$to.depth == this.depth && (t = this.findCloseLevel(this.$to)) && t.depth == this.depth)
+    if (!e.type.isTextblock || !zt(this.$to, this.$to.depth, e.type, e.match, !1) || this.$to.depth == this.depth && (t = this.findCloseLevel(this.$to)) && t.depth == this.depth)
       return -1;
     let { depth: n } = this.$to, a = this.$to.after(n);
     for (; n > 1 && a == this.$to.end(--n); )
@@ -8663,10 +8663,10 @@ class Ls {
   }
   findCloseLevel(e) {
     e: for (let t = Math.min(this.depth, e.depth); t >= 0; t--) {
-      let { match: n, type: a } = this.frontier[t], o = t < e.depth && e.end(t + 1) == e.pos + (e.depth - (t + 1)), i = Ht(e, t, a, n, o);
+      let { match: n, type: a } = this.frontier[t], o = t < e.depth && e.end(t + 1) == e.pos + (e.depth - (t + 1)), i = zt(e, t, a, n, o);
       if (i) {
         for (let s = t - 1; s >= 0; s--) {
-          let { match: l, type: d } = this.frontier[s], u = Ht(e, s, d, l, !0);
+          let { match: l, type: d } = this.frontier[s], u = zt(e, s, d, l, !0);
           if (!u || u.childCount)
             continue e;
         }
@@ -8702,25 +8702,25 @@ function Ue(r, e, t) {
 function _e(r, e, t) {
   return e == 0 ? r.append(t) : r.replaceChild(r.childCount - 1, r.lastChild.copy(_e(r.lastChild.content, e - 1, t)));
 }
-function zt(r, e) {
+function Ht(r, e) {
   for (let t = 0; t < e; t++)
     r = r.firstChild.content;
   return r;
 }
-function ha(r, e, t) {
+function fa(r, e, t) {
   if (e <= 0)
     return r;
   let n = r.content;
-  return e > 1 && (n = n.replaceChild(0, ha(n.firstChild, e - 1, n.childCount == 1 ? t - 1 : 0))), e > 0 && (n = r.type.contentMatch.fillBefore(n).append(n), t <= 0 && (n = n.append(r.type.contentMatch.matchFragment(n).fillBefore(w.empty, !0)))), r.copy(n);
+  return e > 1 && (n = n.replaceChild(0, fa(n.firstChild, e - 1, n.childCount == 1 ? t - 1 : 0))), e > 0 && (n = r.type.contentMatch.fillBefore(n).append(n), t <= 0 && (n = n.append(r.type.contentMatch.matchFragment(n).fillBefore(w.empty, !0)))), r.copy(n);
 }
-function Ht(r, e, t, n, a) {
+function zt(r, e, t, n, a) {
   let o = r.node(e), i = a ? r.indexAfter(e) : r.index(e);
   if (i == o.childCount && !t.compatibleContent(o.type))
     return null;
   let s = n.fillBefore(o.content, !0, i);
-  return s && !Os(t, o.content, i) ? s : null;
+  return s && !Ms(t, o.content, i) ? s : null;
 }
-function Os(r, e, t) {
+function Ms(r, e, t) {
   for (let n = t; n < e.childCount; n++)
     if (!r.allowsMarks(e.child(n).marks))
       return !0;
@@ -8745,7 +8745,7 @@ class We extends q {
     return F.fromReplace(e, this.pos, this.pos + 1, new k(w.from(a), 0, t.isLeaf ? 0 : 1));
   }
   getMap() {
-    return G.empty;
+    return K.empty;
   }
   invert(e) {
     return new We(this.pos, this.attr, e.nodeAt(this.pos).attrs[this.attr]);
@@ -8780,7 +8780,7 @@ class Tt extends q {
     return F.ok(n);
   }
   getMap() {
-    return G.empty;
+    return K.empty;
   }
   invert(e) {
     return new Tt(this.attr, e.attrs[this.attr]);
@@ -8815,7 +8815,7 @@ class E {
   `$head`.
   */
   constructor(e, t, n) {
-    this.$anchor = e, this.$head = t, this.ranges = n || [new Rs(e.min(t), e.max(t))];
+    this.$anchor = e, this.$head = t, this.ranges = n || [new Os(e.min(t), e.max(t))];
   }
   /**
   The selection's anchor, as an unresolved position.
@@ -8902,11 +8902,11 @@ class E {
   found.
   */
   static findFrom(e, t, n = !1) {
-    let a = e.parent.inlineContent ? new L(e) : Le(e.node(0), e.parent, e.pos, e.index(), t, n);
+    let a = e.parent.inlineContent ? new R(e) : Re(e.node(0), e.parent, e.pos, e.index(), t, n);
     if (a)
       return a;
     for (let o = e.depth - 1; o >= 0; o--) {
-      let i = t < 0 ? Le(e.node(0), e.node(o), e.before(o + 1), e.index(o), t, n) : Le(e.node(0), e.node(o), e.after(o + 1), e.index(o) + 1, t, n);
+      let i = t < 0 ? Re(e.node(0), e.node(o), e.before(o + 1), e.index(o), t, n) : Re(e.node(0), e.node(o), e.after(o + 1), e.index(o) + 1, t, n);
       if (i)
         return i;
     }
@@ -8927,14 +8927,14 @@ class E {
   exists.
   */
   static atStart(e) {
-    return Le(e, e, 0, 0, 1) || new X(e);
+    return Re(e, e, 0, 0, 1) || new X(e);
   }
   /**
   Find the cursor or leaf node selection closest to the end of the
   given document.
   */
   static atEnd(e) {
-    return Le(e, e, e.content.size, e.childCount, -1) || new X(e);
+    return Re(e, e, e.content.size, e.childCount, -1) || new X(e);
   }
   /**
   Deserialize the JSON representation of a selection. Must be
@@ -8969,11 +8969,11 @@ class E {
   returns the bookmark for that.
   */
   getBookmark() {
-    return L.between(this.$anchor, this.$head).getBookmark();
+    return R.between(this.$anchor, this.$head).getBookmark();
   }
 }
 E.prototype.visible = !0;
-class Rs {
+class Os {
   /**
   Create a range.
   */
@@ -8985,7 +8985,7 @@ let en = !1;
 function tn(r) {
   !en && !r.parent.inlineContent && (en = !0, console.warn("TextSelection endpoint not pointing into a node with inline content (" + r.parent.type.name + ")"));
 }
-class L extends E {
+class R extends E {
   /**
   Construct a text selection between the given points.
   */
@@ -9004,7 +9004,7 @@ class L extends E {
     if (!n.parent.inlineContent)
       return E.near(n);
     let a = e.resolve(t.map(this.anchor));
-    return new L(a.parent.inlineContent ? a : n, n);
+    return new R(a.parent.inlineContent ? a : n, n);
   }
   replace(e, t = k.empty) {
     if (super.replace(e, t), t == k.empty) {
@@ -9013,7 +9013,7 @@ class L extends E {
     }
   }
   eq(e) {
-    return e instanceof L && e.anchor == this.anchor && e.head == this.head;
+    return e instanceof R && e.anchor == this.anchor && e.head == this.head;
   }
   getBookmark() {
     return new Pt(this.anchor, this.head);
@@ -9027,7 +9027,7 @@ class L extends E {
   static fromJSON(e, t) {
     if (typeof t.anchor != "number" || typeof t.head != "number")
       throw new RangeError("Invalid input for TextSelection.fromJSON");
-    return new L(e.resolve(t.anchor), e.resolve(t.head));
+    return new R(e.resolve(t.anchor), e.resolve(t.head));
   }
   /**
   Create a text selection from non-resolved positions.
@@ -9053,10 +9053,10 @@ class L extends E {
       else
         return E.near(t, n);
     }
-    return e.parent.inlineContent || (a == 0 ? e = t : (e = (E.findFrom(e, -n, !0) || E.findFrom(e, n, !0)).$anchor, e.pos < t.pos != a < 0 && (e = t))), new L(e, t);
+    return e.parent.inlineContent || (a == 0 ? e = t : (e = (E.findFrom(e, -n, !0) || E.findFrom(e, n, !0)).$anchor, e.pos < t.pos != a < 0 && (e = t))), new R(e, t);
   }
 }
-E.jsonID("text", L);
+E.jsonID("text", R);
 class Pt {
   constructor(e, t) {
     this.anchor = e, this.head = t;
@@ -9065,7 +9065,7 @@ class Pt {
     return new Pt(e.map(this.anchor), e.map(this.head));
   }
   resolve(e) {
-    return L.between(e.resolve(this.anchor), e.resolve(this.head));
+    return R.between(e.resolve(this.anchor), e.resolve(this.head));
   }
 }
 class I extends E {
@@ -9173,16 +9173,16 @@ const Ps = {
     return new X(r);
   }
 };
-function Le(r, e, t, n, a, o = !1) {
+function Re(r, e, t, n, a, o = !1) {
   if (e.inlineContent)
-    return L.create(r, t);
+    return R.create(r, t);
   for (let i = n - (a > 0 ? 0 : 1); a > 0 ? i < e.childCount : i >= 0; i += a) {
     let s = e.child(i);
     if (s.isAtom) {
       if (!o && I.isSelectable(s))
         return I.create(r, t - (a < 0 ? s.nodeSize : 0));
     } else {
-      let l = Le(r, s, t + a, a < 0 ? s.childCount : 0, a, o);
+      let l = Re(r, s, t + a, a < 0 ? s.childCount : 0, a, o);
       if (l)
         return l;
     }
@@ -9195,7 +9195,7 @@ function rn(r, e, t) {
   if (n < e)
     return;
   let a = r.steps[n];
-  if (!(a instanceof J || a instanceof K))
+  if (!(a instanceof J || a instanceof G))
     return;
   let o = r.mapping.maps[n], i;
   o.forEach((s, l, d, u) => {
@@ -9264,7 +9264,7 @@ const Dt = /* @__PURE__ */ Object.create(null);
 function ga(r) {
   return r in Dt ? r + "$" + ++Dt[r] : (Dt[r] = 0, r + "$");
 }
-class Me {
+class Le {
   /**
   Create a plugin key.
   */
@@ -9296,7 +9296,7 @@ const ya = (r, e, t) => {
     return !1;
   let a = dr(n);
   if (!a) {
-    let i = n.blockRange(), s = i && He(i);
+    let i = n.blockRange(), s = i && ze(i);
     return s == null ? !1 : (e && e(r.tr.lift(i, s).scrollIntoView()), !0);
   }
   let o = a.nodeBefore;
@@ -9353,7 +9353,7 @@ function va(r, e, t) {
     return !1;
   if (t) {
     let u = r.tr.step(d);
-    u.setSelection(L.create(u.doc, o)), t(u.scrollIntoView());
+    u.setSelection(R.create(u.doc, o)), t(u.scrollIntoView());
   }
   return !0;
 }
@@ -9442,24 +9442,24 @@ const $s = (r, e) => {
     if (t.node.isTextblock || !Ee(r.doc, t.from))
       return !1;
     a = t.from;
-  } else if (a = Rt(r.doc, t.from, -1), a == null)
+  } else if (a = Ot(r.doc, t.from, -1), a == null)
     return !1;
   if (e) {
     let o = r.tr.join(a);
     n && o.setSelection(I.create(o.doc, a - r.doc.resolve(a).nodeBefore.nodeSize)), e(o.scrollIntoView());
   }
   return !0;
-}, zs = (r, e) => {
+}, Hs = (r, e) => {
   let t = r.selection, n;
   if (t instanceof I) {
     if (t.node.isTextblock || !Ee(r.doc, t.to))
       return !1;
     n = t.to;
-  } else if (n = Rt(r.doc, t.to, 1), n == null)
+  } else if (n = Ot(r.doc, t.to, 1), n == null)
     return !1;
   return e && e(r.tr.join(n).scrollIntoView()), !0;
-}, Hs = (r, e) => {
-  let { $from: t, $to: n } = r.selection, a = t.blockRange(n), o = a && He(a);
+}, zs = (r, e) => {
+  let { $from: t, $to: n } = r.selection, a = t.blockRange(n), o = a && ze(a);
   return o == null ? !1 : (e && e(r.tr.lift(a, o).scrollIntoView()), !0);
 }, Ca = (r, e) => {
   let { $head: t, $anchor: n } = r.selection;
@@ -9495,7 +9495,7 @@ const js = (r, e) => {
     return !1;
   if (e) {
     let i = (!n.parentOffset && a.index() < a.parent.childCount ? n : a).pos, s = r.tr.insert(i, o.createAndFill());
-    s.setSelection(L.create(s.doc, i + 1)), e(s.scrollIntoView());
+    s.setSelection(R.create(s.doc, i + 1)), e(s.scrollIntoView());
   }
   return !0;
 }, Aa = (r, e) => {
@@ -9507,7 +9507,7 @@ const js = (r, e) => {
     if (ae(r.doc, o))
       return e && e(r.tr.split(o).scrollIntoView()), !0;
   }
-  let n = t.blockRange(), a = n && He(n);
+  let n = t.blockRange(), a = n && ze(n);
   return a == null ? !1 : (e && e(r.tr.lift(n, a).scrollIntoView()), !0);
 };
 function Ds(r) {
@@ -9528,9 +9528,9 @@ function Ds(r) {
         o.unshift(null);
       }
     let u = e.tr;
-    (e.selection instanceof L || e.selection instanceof X) && u.deleteSelection();
-    let p = u.mapping.map(n.pos), h = ae(u.doc, p, o.length, o);
-    if (h || (o[0] = s ? { type: s } : null, h = ae(u.doc, p, o.length, o)), !h)
+    (e.selection instanceof R || e.selection instanceof X) && u.deleteSelection();
+    let p = u.mapping.map(n.pos), f = ae(u.doc, p, o.length, o);
+    if (f || (o[0] = s ? { type: s } : null, f = ae(u.doc, p, o.length, o)), !f)
       return !1;
     if (u.split(p, o.length, o), !l && d && n.node(i).type != s) {
       let m = u.mapping.map(n.before(i)), v = u.doc.resolve(m);
@@ -9558,14 +9558,14 @@ function Ta(r, e, t, n) {
       for (let b = i.length - 1; b >= 0; b--)
         v = w.from(i[b].create(null, v));
       v = w.from(a.copy(v));
-      let g = r.tr.step(new K(e.pos - 1, m, e.pos, m, new k(v, 1, 0), i.length, !0)), y = g.doc.resolve(m + 2 * i.length);
+      let g = r.tr.step(new G(e.pos - 1, m, e.pos, m, new k(v, 1, 0), i.length, !0)), y = g.doc.resolve(m + 2 * i.length);
       y.nodeAfter && y.nodeAfter.type == a.type && Ee(g.doc, y.pos) && g.join(y.pos), t(g.scrollIntoView());
     }
     return !0;
   }
-  let u = o.type.spec.isolating || n > 0 && l ? null : E.findFrom(e, 1), p = u && u.$from.blockRange(u.$to), h = p && He(p);
-  if (h != null && h >= e.depth)
-    return t && t(r.tr.lift(p, h).scrollIntoView()), !0;
+  let u = o.type.spec.isolating || n > 0 && l ? null : E.findFrom(e, 1), p = u && u.$from.blockRange(u.$to), f = p && ze(p);
+  if (f != null && f >= e.depth)
+    return t && t(r.tr.lift(p, f).scrollIntoView()), !0;
   if (d && Be(o, "start", !0) && Be(a, "end")) {
     let m = a, v = [];
     for (; v.push(m), !m.isTextblock; )
@@ -9578,7 +9578,7 @@ function Ta(r, e, t, n) {
         let b = w.empty;
         for (let A = v.length - 1; A >= 0; A--)
           b = w.from(v[A].copy(b));
-        let C = r.tr.step(new K(e.pos - v.length, e.pos + o.nodeSize, e.pos + y, e.pos + o.nodeSize - y, new k(b, v.length, 0), 0, !0));
+        let C = r.tr.step(new G(e.pos - v.length, e.pos + o.nodeSize, e.pos + y, e.pos + o.nodeSize - y, new k(b, v.length, 0), 0, !0));
         t(C.scrollIntoView());
       }
       return !0;
@@ -9594,7 +9594,7 @@ function Ea(r) {
         return !1;
       o--;
     }
-    return a.node(o).isTextblock ? (t && t(e.tr.setSelection(L.create(e.doc, r < 0 ? a.start(o) : a.end(o)))), !0) : !1;
+    return a.node(o).isTextblock ? (t && t(e.tr.setSelection(R.create(e.doc, r < 0 ? a.start(o) : a.end(o)))), !0) : !1;
   };
 }
 const qs = Ea(-1), Js = Ea(1);
@@ -9634,7 +9634,7 @@ function an(r, e = null) {
     return !0;
   };
 }
-function fr(...r) {
+function hr(...r) {
   return function(e, t, n) {
     for (let a = 0; a < r.length; a++)
       if (r[a](e, t, n))
@@ -9642,20 +9642,20 @@ function fr(...r) {
     return !1;
   };
 }
-fr(cr, ya, wa);
-fr(cr, ka, Sa);
-fr(Ca, Na, Aa, Us);
+hr(cr, ya, wa);
+hr(cr, ka, Sa);
+hr(Ca, Na, Aa, Us);
 typeof navigator < "u" ? /Mac|iP(hone|[oa]d)/.test(navigator.platform) : typeof os < "u" && os.platform && os.platform() == "darwin";
-function Ks(r, e = null) {
+function Gs(r, e = null) {
   return function(t, n) {
     let { $from: a, $to: o } = t.selection, i = a.blockRange(o);
     if (!i)
       return !1;
     let s = n ? t.tr : null;
-    return Gs(s, i, r, e) ? (n && n(s.scrollIntoView()), !0) : !1;
+    return Ks(s, i, r, e) ? (n && n(s.scrollIntoView()), !0) : !1;
   };
 }
-function Gs(r, e, t, n = null) {
+function Ks(r, e, t, n = null) {
   let a = !1, o = e, i = e.$from.doc;
   if (e.depth >= 2 && e.$from.node(e.depth - 1).type.compatibleContent(t) && e.startIndex == 0) {
     if (e.$from.index(e.depth - 1) == 0)
@@ -9670,13 +9670,13 @@ function Ys(r, e, t, n, a) {
   let o = w.empty;
   for (let u = t.length - 1; u >= 0; u--)
     o = w.from(t[u].type.create(t[u].attrs, o));
-  r.step(new K(e.start - (n ? 2 : 0), e.end, e.start, e.end, new k(o, 0, 0), t.length, !0));
+  r.step(new G(e.start - (n ? 2 : 0), e.end, e.start, e.end, new k(o, 0, 0), t.length, !0));
   let i = 0;
   for (let u = 0; u < t.length; u++)
     t[u].type == a && (i = u + 1);
   let s = t.length - i, l = e.start + t.length - (n ? 2 : 0), d = e.parent;
-  for (let u = e.startIndex, p = e.endIndex, h = !0; u < p; u++, h = !1)
-    !h && ae(r.doc, l, s) && (r.split(l, s), l += 2 * s), l += d.child(u).nodeSize;
+  for (let u = e.startIndex, p = e.endIndex, f = !0; u < p; u++, f = !1)
+    !f && ae(r.doc, l, s) && (r.split(l, s), l += 2 * s), l += d.child(u).nodeSize;
   return r;
 }
 function Xs(r) {
@@ -9687,8 +9687,8 @@ function Xs(r) {
 }
 function Zs(r, e, t, n) {
   let a = r.tr, o = n.end, i = n.$to.end(n.depth);
-  o < i && (a.step(new K(o - 1, i, o, i, new k(w.from(t.create(null, n.parent.copy())), 1, 0), 1, !0)), n = new Ct(a.doc.resolve(n.$from.pos), a.doc.resolve(i), n.depth));
-  const s = He(n);
+  o < i && (a.step(new G(o - 1, i, o, i, new k(w.from(t.create(null, n.parent.copy())), 1, 0), 1, !0)), n = new Ct(a.doc.resolve(n.$from.pos), a.doc.resolve(i), n.depth));
+  const s = ze(n);
   if (s == null)
     return !1;
   a.lift(n, s);
@@ -9705,8 +9705,8 @@ function Qs(r, e, t) {
   let s = t.startIndex == 0, l = t.endIndex == a.childCount, d = o.node(-1), u = o.index(-1);
   if (!d.canReplace(u + (s ? 0 : 1), u + 1, i.content.append(l ? w.empty : w.from(a))))
     return !1;
-  let p = o.pos, h = p + i.nodeSize;
-  return n.step(new K(p - (s ? 1 : 0), h + (l ? 1 : 0), p + 1, h - 1, new k((s ? w.empty : w.from(a.copy(w.empty))).append(l ? w.empty : w.from(a.copy(w.empty))), s ? 0 : 1, l ? 0 : 1), s ? 0 : 1)), e(n.scrollIntoView()), !0;
+  let p = o.pos, f = p + i.nodeSize;
+  return n.step(new G(p - (s ? 1 : 0), f + (l ? 1 : 0), p + 1, f - 1, new k((s ? w.empty : w.from(a.copy(w.empty))).append(l ? w.empty : w.from(a.copy(w.empty))), s ? 0 : 1, l ? 0 : 1), s ? 0 : 1)), e(n.scrollIntoView()), !0;
 }
 function el(r) {
   return function(e, t) {
@@ -9720,8 +9720,8 @@ function el(r) {
     if (l.type != r)
       return !1;
     if (t) {
-      let d = l.lastChild && l.lastChild.type == s.type, u = w.from(d ? r.create() : null), p = new k(w.from(r.create(null, w.from(s.type.create(null, u)))), d ? 3 : 1, 0), h = o.start, m = o.end;
-      t(e.tr.step(new K(h - (d ? 3 : 1), m, h, m, p, 1, !0)).scrollIntoView());
+      let d = l.lastChild && l.lastChild.type == s.type, u = w.from(d ? r.create() : null), p = new k(w.from(r.create(null, w.from(s.type.create(null, u)))), d ? 3 : 1, 0), f = o.start, m = o.end;
+      t(e.tr.step(new G(f - (d ? 3 : 1), m, f, m, p, 1, !0)).scrollIntoView());
     }
     return !0;
   };
@@ -9775,8 +9775,8 @@ class tl {
     return () => this.createCan();
   }
   createChain(e, t = !0) {
-    const { rawCommands: n, editor: a, state: o } = this, { view: i } = a, s = [], l = !!e, d = e || o.tr, u = () => (!l && t && !d.getMeta("preventDispatch") && !this.hasCustomState && i.dispatch(d), s.every((h) => h === !0)), p = {
-      ...Object.fromEntries(Object.entries(n).map(([h, m]) => [h, (...g) => {
+    const { rawCommands: n, editor: a, state: o } = this, { view: i } = a, s = [], l = !!e, d = e || o.tr, u = () => (!l && t && !d.getMeta("preventDispatch") && !this.hasCustomState && i.dispatch(d), s.every((f) => f === !0)), p = {
+      ...Object.fromEntries(Object.entries(n).map(([f, m]) => [f, (...g) => {
         const y = this.buildProps(d, t), b = m(...g)(y);
         return s.push(b), p;
       }])),
@@ -9833,7 +9833,7 @@ function V(r, e) {
   }
   return r;
 }
-function Ma(...r) {
+function La(...r) {
   return r.filter((e) => !!e).reduce((e, t) => {
     const n = { ...e };
     return Object.entries(t).forEach(([a, o]) => {
@@ -9847,11 +9847,11 @@ function Ma(...r) {
       } else if (a === "style") {
         const s = o ? o.split(";").map((u) => u.trim()).filter(Boolean) : [], l = n[a] ? n[a].split(";").map((u) => u.trim()).filter(Boolean) : [], d = /* @__PURE__ */ new Map();
         l.forEach((u) => {
-          const [p, h] = u.split(":").map((m) => m.trim());
-          d.set(p, h);
+          const [p, f] = u.split(":").map((m) => m.trim());
+          d.set(p, f);
         }), s.forEach((u) => {
-          const [p, h] = u.split(":").map((m) => m.trim());
-          d.set(p, h);
+          const [p, f] = u.split(":").map((m) => m.trim());
+          d.set(p, f);
         }), n[a] = Array.from(d.entries()).map(([u, p]) => `${u}: ${p}`).join("; ");
       } else
         n[a] = o;
@@ -9861,7 +9861,7 @@ function Ma(...r) {
 function nl(r, e) {
   return e.filter((t) => t.type === r.type.name).filter((t) => t.attribute.rendered).map((t) => t.attribute.renderHTML ? t.attribute.renderHTML(r.attrs) || {} : {
     [t.name]: r.attrs[t.name]
-  }).reduce((t, n) => Ma(t, n), {});
+  }).reduce((t, n) => La(t, n), {});
 }
 function al(r) {
   return typeof r == "function";
@@ -9875,13 +9875,13 @@ function ol(r) {
 function il(r) {
   return Object.prototype.toString.call(r).slice(8, -1);
 }
-function ft(r) {
+function ht(r) {
   return il(r) !== "Object" ? !1 : r.constructor === Object && Object.getPrototypeOf(r) === Object.prototype;
 }
-function hr(r, e) {
+function fr(r, e) {
   const t = { ...r };
-  return ft(r) && ft(e) && Object.keys(e).forEach((n) => {
-    ft(e[n]) && ft(r[n]) ? t[n] = hr(r[n], e[n]) : t[n] = e[n];
+  return ht(r) && ht(e) && Object.keys(e).forEach((n) => {
+    ht(e[n]) && ht(r[n]) ? t[n] = fr(r[n], e[n]) : t[n] = e[n];
   }), t;
 }
 class Q {
@@ -9905,7 +9905,7 @@ class Q {
   configure(e = {}) {
     const t = this.extend({
       ...this.config,
-      addOptions: () => hr(this.options, e)
+      addOptions: () => fr(this.options, e)
     });
     return t.name = this.name, t.parent = this.parent, t;
   }
@@ -9925,7 +9925,7 @@ function sl(r, e, t) {
 `, textSerializers: i = {} } = t || {};
   let s = "";
   return r.nodesBetween(n, a, (l, d, u, p) => {
-    var h;
+    var f;
     l.isBlock && d > n && (s += o);
     const m = i == null ? void 0 : i[l.type.name];
     if (m)
@@ -9936,7 +9936,7 @@ function sl(r, e, t) {
         index: p,
         range: e
       })), !1;
-    l.isText && (s += (h = l == null ? void 0 : l.text) === null || h === void 0 ? void 0 : h.slice(Math.max(n, d) - d, a - d));
+    l.isText && (s += (f = l == null ? void 0 : l.text) === null || f === void 0 ? void 0 : f.slice(Math.max(n, d) - d, a - d));
   }), s;
 }
 function ll(r) {
@@ -9952,7 +9952,7 @@ Q.create({
   addProseMirrorPlugins() {
     return [
       new Ie({
-        key: new Me("clipboardTextSerializer"),
+        key: new Le("clipboardTextSerializer"),
         props: {
           clipboardTextSerializer: () => {
             const { editor: r } = this, { state: e, schema: t } = r, { doc: n, selection: a } = e, { ranges: o } = a, i = Math.min(...o.map((u) => u.$from.pos)), s = Math.max(...o.map((u) => u.$to.pos)), l = ll(t);
@@ -9975,10 +9975,10 @@ const cl = () => ({ editor: r, view: e }) => (requestAnimationFrame(() => {
     r.doc.nodesBetween(o.pos, i.pos, (s, l) => {
       if (s.type.isText)
         return;
-      const { doc: d, mapping: u } = e, p = d.resolve(u.map(l)), h = d.resolve(u.map(l + s.nodeSize)), m = p.blockRange(h);
+      const { doc: d, mapping: u } = e, p = d.resolve(u.map(l)), f = d.resolve(u.map(l + s.nodeSize)), m = p.blockRange(f);
       if (!m)
         return;
-      const v = He(m);
+      const v = ze(m);
       if (s.type.isTextblock) {
         const { defaultType: g } = p.parent.contentMatchAt(p.index());
         e.setNodeMarkup(m.start, g);
@@ -9986,11 +9986,11 @@ const cl = () => ({ editor: r, view: e }) => (requestAnimationFrame(() => {
       (v || v === 0) && e.lift(m, v);
     });
   }), !0;
-}, pl = (r) => (e) => r(e), fl = () => ({ state: r, dispatch: e }) => Na(r, e), hl = (r, e) => ({ editor: t, tr: n }) => {
+}, pl = (r) => (e) => r(e), hl = () => ({ state: r, dispatch: e }) => Na(r, e), fl = (r, e) => ({ editor: t, tr: n }) => {
   const { state: a } = t, o = a.doc.slice(r.from, r.to);
   n.deleteRange(r.from, r.to);
   const i = n.mapping.map(e);
-  return n.insert(i, o.content), n.setSelection(new L(n.doc.resolve(Math.max(i - 1, 0)))), !0;
+  return n.insert(i, o.content), n.setSelection(new R(n.doc.resolve(Math.max(i - 1, 0)))), !0;
 }, ml = () => ({ tr: r, dispatch: e }) => {
   const { selection: t } = r, n = t.$anchor.node();
   if (n.content.size > 0)
@@ -10024,7 +10024,7 @@ function Et(r, e, t = { strict: !0 }) {
   const n = Object.keys(e);
   return n.length ? n.every((a) => t.strict ? e[a] === r[a] : ol(e[a]) ? e[a].test(r[a]) : e[a] === r[a]) : !0;
 }
-function La(r, e, t = {}) {
+function Ra(r, e, t = {}) {
   return r.find((n) => n.type === e && Et(
     // Only check equality for the attributes that are provided
     Object.fromEntries(Object.keys(t).map((a) => [a, n.attrs[a]])),
@@ -10032,14 +10032,14 @@ function La(r, e, t = {}) {
   ));
 }
 function on(r, e, t = {}) {
-  return !!La(r, e, t);
+  return !!Ra(r, e, t);
 }
-function Oa(r, e, t) {
+function Ma(r, e, t) {
   var n;
   if (!r || !e)
     return;
   let a = r.parent.childAfter(r.parentOffset);
-  if ((!a.node || !a.node.marks.some((u) => u.type === e)) && (a = r.parent.childBefore(r.parentOffset)), !a.node || !a.node.marks.some((u) => u.type === e) || (t = t || ((n = a.node.marks[0]) === null || n === void 0 ? void 0 : n.attrs), !La([...a.node.marks], e, t)))
+  if ((!a.node || !a.node.marks.some((u) => u.type === e)) && (a = r.parent.childBefore(r.parentOffset)), !a.node || !a.node.marks.some((u) => u.type === e) || (t = t || ((n = a.node.marks[0]) === null || n === void 0 ? void 0 : n.attrs), !Ra([...a.node.marks], e, t)))
     return;
   let i = a.index, s = r.start() + a.offset, l = i + 1, d = s + a.node.nodeSize;
   for (; i > 0 && on([...r.parent.child(i - 1).marks], e, t); )
@@ -10062,10 +10062,10 @@ function ue(r, e) {
 const xl = (r, e = {}) => ({ tr: t, state: n, dispatch: a }) => {
   const o = ue(r, n.schema), { doc: i, selection: s } = t, { $from: l, from: d, to: u } = s;
   if (a) {
-    const p = Oa(l, o, e);
+    const p = Ma(l, o, e);
     if (p && p.from <= d && p.to >= u) {
-      const h = L.create(i, p.from, p.to);
-      t.setSelection(h);
+      const f = R.create(i, p.from, p.to);
+      t.setSelection(f);
     }
   }
   return !0;
@@ -10076,8 +10076,8 @@ const xl = (r, e = {}) => ({ tr: t, state: n, dispatch: a }) => {
       return !0;
   return !1;
 };
-function Ra(r) {
-  return r instanceof L;
+function Oa(r) {
+  return r instanceof R;
 }
 function we(r = 0, e = 0, t = 0) {
   return Math.min(Math.max(r, e), t);
@@ -10091,7 +10091,7 @@ function Sl(r, e = null) {
   if (e === "end")
     return n;
   const a = t.from, o = n.to;
-  return e === "all" ? L.create(r, we(0, a, o), we(r.content.size, a, o)) : L.create(r, we(e, a, o), we(e, a, o));
+  return e === "all" ? R.create(r, we(0, a, o), we(r.content.size, a, o)) : R.create(r, we(e, a, o), we(e, a, o));
 }
 function er() {
   return navigator.platform === "Android" || /android/i.test(navigator.userAgent);
@@ -10121,7 +10121,7 @@ const Nl = (r = null, e = {}) => ({ editor: t, view: n, tr: a, dispatch: o }) =>
   };
   if (n.hasFocus() && r === null || r === !1)
     return !0;
-  if (o && r === null && !Ra(t.state.selection))
+  if (o && r === null && !Oa(t.state.selection))
     return i(), !0;
   const s = Sl(a.doc, r) || t.state.selection, l = t.state.selection.eq(s);
   return o && (l || a.setSelection(s), l && a.storedMarks && a.setStoredMarks(a.storedMarks), i()), !0;
@@ -10133,7 +10133,7 @@ const Nl = (r = null, e = {}) => ({ editor: t, view: n, tr: a, dispatch: o }) =>
   }
   return r;
 };
-function ht(r) {
+function ft(r) {
   const e = `<body>${r}</body>`, t = new window.DOMParser().parseFromString(e, "text/html").body;
   return Pa(t);
 }
@@ -10178,11 +10178,11 @@ function st(r, e, t) {
           }
         })
       });
-      if (t.slice ? Oe.fromSchema(l).parseSlice(ht(r), t.parseOptions) : Oe.fromSchema(l).parse(ht(r), t.parseOptions), t.errorOnInvalidContent && i)
+      if (t.slice ? Me.fromSchema(l).parseSlice(ft(r), t.parseOptions) : Me.fromSchema(l).parse(ft(r), t.parseOptions), t.errorOnInvalidContent && i)
         throw new Error("[tiptap error]: Invalid HTML content", { cause: new Error(`Invalid element found: ${s}`) });
     }
-    const o = Oe.fromSchema(e);
-    return t.slice ? o.parseSlice(ht(r), t.parseOptions).content : o.parse(ht(r), t.parseOptions);
+    const o = Me.fromSchema(e);
+    return t.slice ? o.parseSlice(ft(r), t.parseOptions).content : o.parse(ft(r), t.parseOptions);
   }
   return st("", e, t);
 }
@@ -10191,7 +10191,7 @@ function El(r, e, t) {
   if (n < e)
     return;
   const a = r.steps[n];
-  if (!(a instanceof J || a instanceof K))
+  if (!(a instanceof J || a instanceof G))
     return;
   const o = r.mapping.maps[n];
   let i = 0;
@@ -10199,7 +10199,7 @@ function El(r, e, t) {
     i === 0 && (i = u);
   }), r.setSelection(E.near(r.doc.resolve(i), t));
 }
-const Il = (r) => !("type" in r), Ml = (r, e, t) => ({ tr: n, dispatch: a, editor: o }) => {
+const Il = (r) => !("type" in r), Ll = (r, e, t) => ({ tr: n, dispatch: a, editor: o }) => {
   var i;
   if (a) {
     t = {
@@ -10239,15 +10239,15 @@ const Il = (r) => !("type" in r), Ml = (r, e, t) => ({ tr: n, dispatch: a, edito
     } catch (y) {
       return l(y), !1;
     }
-    let { from: u, to: p } = typeof r == "number" ? { from: r, to: r } : { from: r.from, to: r.to }, h = !0, m = !0;
+    let { from: u, to: p } = typeof r == "number" ? { from: r, to: r } : { from: r.from, to: r.to }, f = !0, m = !0;
     if ((Il(s) ? s : [s]).forEach((y) => {
-      y.check(), h = h ? y.isText && y.marks.length === 0 : !1, m = m ? y.isBlock : !1;
+      y.check(), f = f ? y.isText && y.marks.length === 0 : !1, m = m ? y.isBlock : !1;
     }), u === p && m) {
       const { parent: y } = n.doc.resolve(u);
       y.isTextblock && !y.type.spec.code && !y.childCount && (u -= 1, p += 1);
     }
     let g;
-    if (h) {
+    if (f) {
       if (Array.isArray(e))
         g = e.map((y) => y.text || "").join("");
       else if (e instanceof w) {
@@ -10262,25 +10262,25 @@ const Il = (r) => !("type" in r), Ml = (r, e, t) => ({ tr: n, dispatch: a, edito
     t.updateSelection && El(n, n.steps.length - 1, -1), t.applyInputRules && n.setMeta("applyInputRules", { from: u, text: g }), t.applyPasteRules && n.setMeta("applyPasteRules", { from: u, text: g });
   }
   return !0;
-}, Ll = () => ({ state: r, dispatch: e }) => $s(r, e), Ol = () => ({ state: r, dispatch: e }) => zs(r, e), Rl = () => ({ state: r, dispatch: e }) => ya(r, e), Pl = () => ({ state: r, dispatch: e }) => ka(r, e), Fl = () => ({ state: r, dispatch: e, tr: t }) => {
+}, Rl = () => ({ state: r, dispatch: e }) => $s(r, e), Ml = () => ({ state: r, dispatch: e }) => Hs(r, e), Ol = () => ({ state: r, dispatch: e }) => ya(r, e), Pl = () => ({ state: r, dispatch: e }) => ka(r, e), Fl = () => ({ state: r, dispatch: e, tr: t }) => {
   try {
-    const n = Rt(r.doc, r.selection.$from.pos, -1);
+    const n = Ot(r.doc, r.selection.$from.pos, -1);
     return n == null ? !1 : (t.join(n, 2), e && e(t), !0);
   } catch {
     return !1;
   }
 }, Bl = () => ({ state: r, dispatch: e, tr: t }) => {
   try {
-    const n = Rt(r.doc, r.selection.$from.pos, 1);
+    const n = Ot(r.doc, r.selection.$from.pos, 1);
     return n == null ? !1 : (t.join(n, 2), e && e(t), !0);
   } catch {
     return !1;
   }
-}, $l = () => ({ state: r, dispatch: e }) => Fs(r, e), zl = () => ({ state: r, dispatch: e }) => Bs(r, e);
+}, $l = () => ({ state: r, dispatch: e }) => Fs(r, e), Hl = () => ({ state: r, dispatch: e }) => Bs(r, e);
 function Fa() {
   return typeof navigator < "u" ? /Mac/.test(navigator.platform) : !1;
 }
-function Hl(r) {
+function zl(r) {
   const e = r.split(/-(?!$)/);
   let t = e[e.length - 1];
   t === "Space" && (t = " ");
@@ -10303,7 +10303,7 @@ function Hl(r) {
   return n && (t = `Alt-${t}`), a && (t = `Ctrl-${t}`), i && (t = `Meta-${t}`), o && (t = `Shift-${t}`), t;
 }
 const jl = (r) => ({ editor: e, view: t, tr: n, dispatch: a }) => {
-  const o = Hl(r).split(/-(?!$)/), i = o.find((d) => !["Alt", "Ctrl", "Meta", "Shift"].includes(d)), s = new KeyboardEvent("keydown", {
+  const o = zl(r).split(/-(?!$)/), i = o.find((d) => !["Alt", "Ctrl", "Meta", "Shift"].includes(d)), s = new KeyboardEvent("keydown", {
     key: i === "Space" ? " " : i,
     altKey: o.includes("Alt"),
     ctrlKey: o.includes("Ctrl"),
@@ -10321,10 +10321,10 @@ const jl = (r) => ({ editor: e, view: t, tr: n, dispatch: a }) => {
 };
 function mr(r, e, t = {}) {
   const { from: n, to: a, empty: o } = r.selection, i = e ? V(e, r.schema) : null, s = [];
-  r.doc.nodesBetween(n, a, (p, h) => {
+  r.doc.nodesBetween(n, a, (p, f) => {
     if (p.isText)
       return;
-    const m = Math.max(n, h), v = Math.min(a, h + p.nodeSize);
+    const m = Math.max(n, f), v = Math.min(a, f + p.nodeSize);
     s.push({
       node: p,
       from: m,
@@ -10332,11 +10332,11 @@ function mr(r, e, t = {}) {
     });
   });
   const l = a - n, d = s.filter((p) => i ? i.name === p.node.type.name : !0).filter((p) => Et(p.node.attrs, t, { strict: !1 }));
-  return o ? !!d.length : d.reduce((p, h) => p + h.to - h.from, 0) >= l;
+  return o ? !!d.length : d.reduce((p, f) => p + f.to - f.from, 0) >= l;
 }
 const Dl = (r, e = {}) => ({ state: t, dispatch: n }) => {
   const a = V(r, t.schema);
-  return mr(t, a, e) ? Hs(t, n) : !1;
+  return mr(t, a, e) ? zs(t, n) : !1;
 }, Ul = () => ({ state: r, dispatch: e }) => Aa(r, e), _l = (r) => ({ state: e, dispatch: t }) => {
   const n = V(r, e.schema);
   return Xs(n)(e, t);
@@ -10364,7 +10364,7 @@ const ql = (r, e) => ({ tr: t, state: n, dispatch: a }) => {
     r.setSelection(t);
   }
   return !0;
-}, Kl = () => ({ state: r, dispatch: e }) => wa(r, e), Gl = () => ({ state: r, dispatch: e }) => Sa(r, e), Yl = () => ({ state: r, dispatch: e }) => _s(r, e), Xl = () => ({ state: r, dispatch: e }) => Js(r, e), Zl = () => ({ state: r, dispatch: e }) => qs(r, e);
+}, Gl = () => ({ state: r, dispatch: e }) => wa(r, e), Kl = () => ({ state: r, dispatch: e }) => Sa(r, e), Yl = () => ({ state: r, dispatch: e }) => _s(r, e), Xl = () => ({ state: r, dispatch: e }) => Js(r, e), Zl = () => ({ state: r, dispatch: e }) => qs(r, e);
 function Ql(r, e, t = {}, n = {}) {
   return st(r, e, {
     slice: !1,
@@ -10429,21 +10429,21 @@ function ac(r, e, t = {}) {
     return !!(r.storedMarks || r.selection.$from.marks()).filter((p) => o ? o.name === p.type.name : !0).find((p) => Et(p.attrs, t, { strict: !1 }));
   let i = 0;
   const s = [];
-  if (a.forEach(({ $from: p, $to: h }) => {
-    const m = p.pos, v = h.pos;
+  if (a.forEach(({ $from: p, $to: f }) => {
+    const m = p.pos, v = f.pos;
     r.doc.nodesBetween(m, v, (g, y) => {
       if (!g.isText && !g.marks.length)
         return;
       const b = Math.max(m, y), C = Math.min(v, y + g.nodeSize), A = C - b;
-      i += A, s.push(...g.marks.map((R) => ({
-        mark: R,
+      i += A, s.push(...g.marks.map((O) => ({
+        mark: O,
         from: b,
         to: C
       })));
     });
   }), i === 0)
     return !1;
-  const l = s.filter((p) => o ? o.name === p.mark.type.name : !0).filter((p) => Et(p.mark.attrs, t, { strict: !1 })).reduce((p, h) => p + h.to - h.from, 0), d = s.filter((p) => o ? p.mark.type !== o && p.mark.type.excludes(o) : !0).reduce((p, h) => p + h.to - h.from, 0);
+  const l = s.filter((p) => o ? o.name === p.mark.type.name : !0).filter((p) => Et(p.mark.attrs, t, { strict: !1 })).reduce((p, f) => p + f.to - f.from, 0), d = s.filter((p) => o ? p.mark.type !== o && p.mark.type.excludes(o) : !0).reduce((p, f) => p + f.to - f.from, 0);
   return (l > 0 ? l + d : l) >= i;
 }
 function ln(r, e) {
@@ -10483,18 +10483,18 @@ function oc(r, e, t) {
   var n;
   const { selection: a } = e;
   let o = null;
-  if (Ra(a) && (o = a.$cursor), o) {
+  if (Oa(a) && (o = a.$cursor), o) {
     const s = (n = r.storedMarks) !== null && n !== void 0 ? n : o.marks();
     return !!t.isInSet(s) || !s.some((l) => l.type.excludes(t));
   }
   const { ranges: i } = a;
   return i.some(({ $from: s, $to: l }) => {
     let d = s.depth === 0 ? r.doc.inlineContent && r.doc.type.allowsMarkType(t) : !1;
-    return r.doc.nodesBetween(s.pos, l.pos, (u, p, h) => {
+    return r.doc.nodesBetween(s.pos, l.pos, (u, p, f) => {
       if (d)
         return !1;
       if (u.isInline) {
-        const m = !h || h.type.allowsMarkType(t), v = !!t.isInSet(u.marks) || !u.marks.some((g) => g.type.excludes(t));
+        const m = !f || f.type.allowsMarkType(t), v = !!t.isInSet(u.marks) || !u.marks.some((g) => g.type.excludes(t));
         d = m && v;
       }
       return !d;
@@ -10513,9 +10513,9 @@ const ic = (r, e = {}) => ({ tr: t, state: n, dispatch: a }) => {
     } else
       s.forEach((d) => {
         const u = d.$from.pos, p = d.$to.pos;
-        n.doc.nodesBetween(u, p, (h, m) => {
-          const v = Math.max(m, u), g = Math.min(m + h.nodeSize, p);
-          h.marks.find((b) => b.type === l) ? h.marks.forEach((b) => {
+        n.doc.nodesBetween(u, p, (f, m) => {
+          const v = Math.max(m, u), g = Math.min(m + f.nodeSize, p);
+          f.marks.find((b) => b.type === l) ? f.marks.forEach((b) => {
             l === b.type && t.addMark(v, g, l.create({
               ...b.attrs,
               ...e
@@ -10536,7 +10536,7 @@ const ic = (r, e = {}) => ({ tr: t, state: n, dispatch: a }) => {
   return !0;
 }, dc = (r) => ({ tr: e, dispatch: t }) => {
   if (t) {
-    const { doc: n } = e, { from: a, to: o } = typeof r == "number" ? { from: r, to: r } : r, i = L.atStart(n).from, s = L.atEnd(n).to, l = we(a, i, s), d = we(o, i, s), u = L.create(n, l, d);
+    const { doc: n } = e, { from: a, to: o } = typeof r == "number" ? { from: r, to: r } : r, i = R.atStart(n).from, s = R.atEnd(n).to, l = we(a, i, s), d = we(o, i, s), u = R.create(n, l, d);
     e.setSelection(u);
   }
   return !0;
@@ -10557,27 +10557,27 @@ const pc = ({ keepMarks: r = !0 } = {}) => ({ tr: e, state: t, dispatch: n, edit
     return !s.parentOffset || !ae(i, s.pos) ? !1 : (n && (r && cn(t, a.extensionManager.splittableMarks), e.split(s.pos).scrollIntoView()), !0);
   if (!s.parent.isBlock)
     return !1;
-  const p = l.parentOffset === l.parent.content.size, h = s.depth === 0 ? void 0 : rc(s.node(-1).contentMatchAt(s.indexAfter(-1)));
-  let m = p && h ? [
+  const p = l.parentOffset === l.parent.content.size, f = s.depth === 0 ? void 0 : rc(s.node(-1).contentMatchAt(s.indexAfter(-1)));
+  let m = p && f ? [
     {
-      type: h,
+      type: f,
       attrs: u
     }
   ] : void 0, v = ae(e.doc, e.mapping.map(s.pos), 1, m);
-  if (!m && !v && ae(e.doc, e.mapping.map(s.pos), 1, h ? [{ type: h }] : void 0) && (v = !0, m = h ? [
+  if (!m && !v && ae(e.doc, e.mapping.map(s.pos), 1, f ? [{ type: f }] : void 0) && (v = !0, m = f ? [
     {
-      type: h,
+      type: f,
       attrs: u
     }
   ] : void 0), n) {
-    if (v && (o instanceof L && e.deleteSelection(), e.split(e.mapping.map(s.pos), 1, m), h && !p && !s.parentOffset && s.parent.type !== h)) {
+    if (v && (o instanceof R && e.deleteSelection(), e.split(e.mapping.map(s.pos), 1, m), f && !p && !s.parentOffset && s.parent.type !== f)) {
       const g = e.mapping.map(s.before()), y = e.doc.resolve(g);
-      s.node(-1).canReplaceWith(y.index(), y.index() + 1, h) && e.setNodeMarkup(e.mapping.map(s.before()), h);
+      s.node(-1).canReplaceWith(y.index(), y.index() + 1, f) && e.setNodeMarkup(e.mapping.map(s.before()), f);
     }
     r && cn(t, a.extensionManager.splittableMarks), e.scrollIntoView();
   }
   return v;
-}, fc = (r, e = {}) => ({ tr: t, state: n, dispatch: a, editor: o }) => {
+}, hc = (r, e = {}) => ({ tr: t, state: n, dispatch: a, editor: o }) => {
   var i;
   const s = V(r, n.schema), { $from: l, $to: d } = n.selection, u = n.selection.node;
   if (u && u.isBlock || l.depth < 2 || !l.sameParent(d))
@@ -10585,36 +10585,36 @@ const pc = ({ keepMarks: r = !0 } = {}) => ({ tr: e, state: t, dispatch: n, edit
   const p = l.node(-1);
   if (p.type !== s)
     return !1;
-  const h = o.extensionManager.attributes;
+  const f = o.extensionManager.attributes;
   if (l.parent.content.size === 0 && l.node(-1).childCount === l.indexAfter(-1)) {
     if (l.depth === 2 || l.node(-3).type !== s || l.index(-2) !== l.node(-2).childCount - 1)
       return !1;
     if (a) {
       let b = w.empty;
       const C = l.index(-1) ? 1 : l.index(-2) ? 2 : 3;
-      for (let z = l.depth - C; z >= l.depth - 3; z -= 1)
-        b = w.from(l.node(z).copy(b));
-      const A = l.indexAfter(-1) < l.node(-2).childCount ? 1 : l.indexAfter(-2) < l.node(-3).childCount ? 2 : 3, R = {
-        ...gt(h, l.node().type.name, l.node().attrs),
+      for (let H = l.depth - C; H >= l.depth - 3; H -= 1)
+        b = w.from(l.node(H).copy(b));
+      const A = l.indexAfter(-1) < l.node(-2).childCount ? 1 : l.indexAfter(-2) < l.node(-3).childCount ? 2 : 3, O = {
+        ...gt(f, l.node().type.name, l.node().attrs),
         ...e
-      }, P = ((i = s.contentMatch.defaultType) === null || i === void 0 ? void 0 : i.createAndFill(R)) || void 0;
+      }, P = ((i = s.contentMatch.defaultType) === null || i === void 0 ? void 0 : i.createAndFill(O)) || void 0;
       b = b.append(w.from(s.createAndFill(null, P) || void 0));
-      const O = l.before(l.depth - (C - 1));
-      t.replace(O, l.after(-A), new k(b, 4 - C, 0));
+      const M = l.before(l.depth - (C - 1));
+      t.replace(M, l.after(-A), new k(b, 4 - C, 0));
       let N = -1;
-      t.doc.nodesBetween(O, t.doc.content.size, (z, ie) => {
+      t.doc.nodesBetween(M, t.doc.content.size, (H, ie) => {
         if (N > -1)
           return !1;
-        z.isTextblock && z.content.size === 0 && (N = ie + 1);
-      }), N > -1 && t.setSelection(L.near(t.doc.resolve(N))), t.scrollIntoView();
+        H.isTextblock && H.content.size === 0 && (N = ie + 1);
+      }), N > -1 && t.setSelection(R.near(t.doc.resolve(N))), t.scrollIntoView();
     }
     return !0;
   }
   const m = d.pos === l.end() ? p.contentMatchAt(0).defaultType : null, v = {
-    ...gt(h, p.type.name, p.attrs),
+    ...gt(f, p.type.name, p.attrs),
     ...e
   }, g = {
-    ...gt(h, l.node().type.name, l.node().attrs),
+    ...gt(f, l.node().type.name, l.node().attrs),
     ...e
   };
   t.delete(l.pos, d.pos);
@@ -10625,10 +10625,10 @@ const pc = ({ keepMarks: r = !0 } = {}) => ({ tr: e, state: t, dispatch: n, edit
   if (!ae(t.doc, l.pos, 2))
     return !1;
   if (a) {
-    const { selection: b, storedMarks: C } = n, { splittableMarks: A } = o.extensionManager, R = C || b.$to.parentOffset && b.$from.marks();
-    if (t.split(l.pos, 2, y).scrollIntoView(), !R || !a)
+    const { selection: b, storedMarks: C } = n, { splittableMarks: A } = o.extensionManager, O = C || b.$to.parentOffset && b.$from.marks();
+    if (t.split(l.pos, 2, y).scrollIntoView(), !O || !a)
       return !0;
-    const P = R.filter((O) => A.includes(O.type.name));
+    const P = O.filter((M) => A.includes(M.type.name));
     t.ensureMarks(P);
   }
   return !0;
@@ -10650,20 +10650,20 @@ const pc = ({ keepMarks: r = !0 } = {}) => ({ tr: e, state: t, dispatch: n, edit
     return !0;
   const a = r.doc.nodeAt(n);
   return t.node.type === (a == null ? void 0 : a.type) && Ee(r.doc, n) && r.join(n), !0;
-}, hc = (r, e, t, n = {}) => ({ editor: a, tr: o, state: i, dispatch: s, chain: l, commands: d, can: u }) => {
-  const { extensions: p, splittableMarks: h } = a.extensionManager, m = V(r, i.schema), v = V(e, i.schema), { selection: g, storedMarks: y } = i, { $from: b, $to: C } = g, A = b.blockRange(C), R = y || g.$to.parentOffset && g.$from.marks();
+}, fc = (r, e, t, n = {}) => ({ editor: a, tr: o, state: i, dispatch: s, chain: l, commands: d, can: u }) => {
+  const { extensions: p, splittableMarks: f } = a.extensionManager, m = V(r, i.schema), v = V(e, i.schema), { selection: g, storedMarks: y } = i, { $from: b, $to: C } = g, A = b.blockRange(C), O = y || g.$to.parentOffset && g.$from.marks();
   if (!A)
     return !1;
-  const P = gr((O) => ln(O.type.name, p))(g);
+  const P = gr((M) => ln(M.type.name, p))(g);
   if (A.depth >= 1 && P && A.depth - P.depth <= 1) {
     if (P.node.type === m)
       return d.liftListItem(v);
     if (ln(P.node.type.name, p) && m.validContent(P.node.content) && s)
       return l().command(() => (o.setNodeMarkup(P.pos, m), !0)).command(() => Ut(o, m)).command(() => _t(o, m)).run();
   }
-  return !t || !R || !s ? l().command(() => u().wrapInList(m, n) ? !0 : d.clearNodes()).wrapInList(m, n).command(() => Ut(o, m)).command(() => _t(o, m)).run() : l().command(() => {
-    const O = u().wrapInList(m, n), N = R.filter((z) => h.includes(z.type.name));
-    return o.ensureMarks(N), O ? !0 : d.clearNodes();
+  return !t || !O || !s ? l().command(() => u().wrapInList(m, n) ? !0 : d.clearNodes()).wrapInList(m, n).command(() => Ut(o, m)).command(() => _t(o, m)).run() : l().command(() => {
+    const M = u().wrapInList(m, n), N = O.filter((H) => f.includes(H.type.name));
+    return o.ensureMarks(N), M ? !0 : d.clearNodes();
   }).wrapInList(m, n).command(() => Ut(o, m)).command(() => _t(o, m)).run();
 }, mc = (r, e = {}, t = {}) => ({ state: n, commands: a }) => {
   const { extendEmptyMarkRange: o = !1 } = t, i = ue(r, n.schema);
@@ -10706,12 +10706,12 @@ const pc = ({ keepMarks: r = !0 } = {}) => ({ tr: e, state: t, dispatch: n, edit
   if (!a)
     return !0;
   if (u && i) {
-    let { from: h, to: m } = s;
-    const v = (o = d.marks().find((y) => y.type === l)) === null || o === void 0 ? void 0 : o.attrs, g = Oa(d, l, v);
-    g && (h = g.from, m = g.to), t.removeMark(h, m, l);
+    let { from: f, to: m } = s;
+    const v = (o = d.marks().find((y) => y.type === l)) === null || o === void 0 ? void 0 : o.attrs, g = Ma(d, l, v);
+    g && (f = g.from, m = g.to), t.removeMark(f, m, l);
   } else
-    p.forEach((h) => {
-      t.removeMark(h.$from.pos, h.$to.pos, l);
+    p.forEach((f) => {
+      t.removeMark(f.$from.pos, f.$to.pos, l);
     });
   return t.removeStoredMark(l), !0;
 }, xc = (r, e = {}) => ({ tr: t, state: n, dispatch: a }) => {
@@ -10719,11 +10719,11 @@ const pc = ({ keepMarks: r = !0 } = {}) => ({ tr: e, state: t, dispatch: n, edit
   const s = Ba(typeof r == "string" ? r : r.name, n.schema);
   return s ? (s === "node" && (o = V(r, n.schema)), s === "mark" && (i = ue(r, n.schema)), a && t.selection.ranges.forEach((l) => {
     const d = l.$from.pos, u = l.$to.pos;
-    let p, h, m, v;
+    let p, f, m, v;
     t.selection.empty ? n.doc.nodesBetween(d, u, (g, y) => {
-      o && o === g.type && (m = Math.max(y, d), v = Math.min(y + g.nodeSize, u), p = y, h = g);
+      o && o === g.type && (m = Math.max(y, d), v = Math.min(y + g.nodeSize, u), p = y, f = g);
     }) : n.doc.nodesBetween(d, u, (g, y) => {
-      y < d && o && o === g.type && (m = Math.max(y, d), v = Math.min(y + g.nodeSize, u), p = y, h = g), y >= d && y <= u && (o && o === g.type && t.setNodeMarkup(y, void 0, {
+      y < d && o && o === g.type && (m = Math.max(y, d), v = Math.min(y + g.nodeSize, u), p = y, f = g), y >= d && y <= u && (o && o === g.type && t.setNodeMarkup(y, void 0, {
         ...g.attrs,
         ...e
       }), i && g.marks.length && g.marks.forEach((b) => {
@@ -10735,10 +10735,10 @@ const pc = ({ keepMarks: r = !0 } = {}) => ({ tr: e, state: t, dispatch: n, edit
           }));
         }
       }));
-    }), h && (p !== void 0 && t.setNodeMarkup(p, void 0, {
-      ...h.attrs,
+    }), f && (p !== void 0 && t.setNodeMarkup(p, void 0, {
+      ...f.attrs,
       ...e
-    }), i && h.marks.length && h.marks.forEach((g) => {
+    }), i && f.marks.length && f.marks.forEach((g) => {
       i === g.type && t.addMark(m, v, i.create({
         ...g.attrs,
         ...e
@@ -10750,7 +10750,7 @@ const pc = ({ keepMarks: r = !0 } = {}) => ({ tr: e, state: t, dispatch: n, edit
   return Ws(a, e)(t, n);
 }, Sc = (r, e = {}) => ({ state: t, dispatch: n }) => {
   const a = V(r, t.schema);
-  return Ks(a, e)(t, n);
+  return Gs(a, e)(t, n);
 };
 var Cc = /* @__PURE__ */ Object.freeze({
   __proto__: null,
@@ -10758,8 +10758,8 @@ var Cc = /* @__PURE__ */ Object.freeze({
   clearContent: dl,
   clearNodes: ul,
   command: pl,
-  createParagraphNear: fl,
-  cut: hl,
+  createParagraphNear: hl,
+  cut: fl,
   deleteCurrentNode: ml,
   deleteNode: gl,
   deleteRange: bl,
@@ -10771,15 +10771,15 @@ var Cc = /* @__PURE__ */ Object.freeze({
   focus: Nl,
   forEach: Al,
   insertContent: Tl,
-  insertContentAt: Ml,
-  joinBackward: Rl,
-  joinDown: Ol,
+  insertContentAt: Ll,
+  joinBackward: Ol,
+  joinDown: Ml,
   joinForward: Pl,
   joinItemBackward: Fl,
   joinItemForward: Bl,
   joinTextblockBackward: $l,
-  joinTextblockForward: zl,
-  joinUp: Ll,
+  joinTextblockForward: Hl,
+  joinUp: Rl,
   keyboardShortcut: jl,
   lift: Dl,
   liftEmptyBlock: Ul,
@@ -10788,8 +10788,8 @@ var Cc = /* @__PURE__ */ Object.freeze({
   resetAttributes: ql,
   scrollIntoView: Jl,
   selectAll: Wl,
-  selectNodeBackward: Kl,
-  selectNodeForward: Gl,
+  selectNodeBackward: Gl,
+  selectNodeForward: Kl,
   selectParentNode: Yl,
   selectTextblockEnd: Xl,
   selectTextblockStart: Zl,
@@ -10801,8 +10801,8 @@ var Cc = /* @__PURE__ */ Object.freeze({
   setTextSelection: dc,
   sinkListItem: uc,
   splitBlock: pc,
-  splitListItem: fc,
-  toggleList: hc,
+  splitListItem: hc,
+  toggleList: fc,
   toggleMark: mc,
   toggleNode: gc,
   toggleWrap: bc,
@@ -10826,7 +10826,7 @@ Q.create({
   addProseMirrorPlugins() {
     return [
       new Ie({
-        key: new Me("tiptapDrop"),
+        key: new Le("tiptapDrop"),
         props: {
           handleDrop: (r, e, t, n) => {
             this.editor.emit("drop", {
@@ -10846,7 +10846,7 @@ Q.create({
   addProseMirrorPlugins() {
     return [
       new Ie({
-        key: new Me("editable"),
+        key: new Le("editable"),
         props: {
           editable: () => this.editor.options.editable
         }
@@ -10854,7 +10854,7 @@ Q.create({
     ];
   }
 });
-const Nc = new Me("focusEvents");
+const Nc = new Le("focusEvents");
 Q.create({
   name: "focusEvents",
   addProseMirrorPlugins() {
@@ -10887,7 +10887,7 @@ Q.create({
       () => i.undoInputRule(),
       // maybe convert first text block node to default node
       () => i.command(({ tr: s }) => {
-        const { selection: l, doc: d } = s, { empty: u, $anchor: p } = l, { pos: h, parent: m } = p, v = p.parent.isTextblock && h > 0 ? s.doc.resolve(h - 1) : p, g = v.parent.type.spec.isolating, y = p.pos - p.parentOffset, b = g && v.parent.childCount === 1 ? y === p.pos : E.atStart(d).from === h;
+        const { selection: l, doc: d } = s, { empty: u, $anchor: p } = l, { pos: f, parent: m } = p, v = p.parent.isTextblock && f > 0 ? s.doc.resolve(f - 1) : p, g = v.parent.type.spec.isolating, y = p.pos - p.parentOffset, b = g && v.parent.childCount === 1 ? y === p.pos : E.atStart(d).from === f;
         return !u || !m.type.isTextblock || m.textContent.length || !b || b && p.parent.type.name === "paragraph" ? !1 : i.clearNodes();
       }),
       () => i.deleteSelection(),
@@ -10935,7 +10935,7 @@ Q.create({
       // This is an alternative to ProseMirror's `AllSelection`, which doesn’t work well
       // with many other commands.
       new Ie({
-        key: new Me("clearDocument"),
+        key: new Le("clearDocument"),
         appendTransaction: (r, e, t) => {
           if (r.some((g) => g.getMeta("composition")))
             return;
@@ -10945,15 +10945,15 @@ Q.create({
           const { empty: o, from: i, to: s } = e.selection, l = E.atStart(e.doc).from, d = E.atEnd(e.doc).to;
           if (o || !(i === l && s === d) || !$a(t.doc))
             return;
-          const h = t.tr, m = Ia({
+          const f = t.tr, m = Ia({
             state: t,
-            transaction: h
+            transaction: f
           }), { commands: v } = new tl({
             editor: this.editor,
             state: m
           });
-          if (v.clearNodes(), !!h.steps.length)
-            return h;
+          if (v.clearNodes(), !!f.steps.length)
+            return f;
         }
       })
     ];
@@ -10964,7 +10964,7 @@ Q.create({
   addProseMirrorPlugins() {
     return [
       new Ie({
-        key: new Me("tiptapPaste"),
+        key: new Le("tiptapPaste"),
         props: {
           handlePaste: (r, e, t) => {
             this.editor.emit("paste", {
@@ -10983,7 +10983,7 @@ Q.create({
   addProseMirrorPlugins() {
     return [
       new Ie({
-        key: new Me("tabindex"),
+        key: new Le("tabindex"),
         props: {
           attributes: () => this.editor.isEditable ? { tabindex: "0" } : {}
         }
@@ -11012,7 +11012,7 @@ class It {
   configure(e = {}) {
     const t = this.extend({
       ...this.config,
-      addOptions: () => hr(this.options, e)
+      addOptions: () => fr(this.options, e)
     });
     return t.name = this.name, t.parent = this.parent, t;
   }
@@ -11047,13 +11047,13 @@ let Ac = class {
     const { view: d } = this.editor, u = e.target, p = u.nodeType === 3 ? (t = u.parentElement) === null || t === void 0 ? void 0 : t.closest("[data-drag-handle]") : u.closest("[data-drag-handle]");
     if (!this.dom || !((n = this.contentDOM) === null || n === void 0) && n.contains(u) || !p)
       return;
-    let h = 0, m = 0;
+    let f = 0, m = 0;
     if (this.dom !== p) {
-      const C = this.dom.getBoundingClientRect(), A = p.getBoundingClientRect(), R = (a = e.offsetX) !== null && a !== void 0 ? a : (o = e.nativeEvent) === null || o === void 0 ? void 0 : o.offsetX, P = (i = e.offsetY) !== null && i !== void 0 ? i : (s = e.nativeEvent) === null || s === void 0 ? void 0 : s.offsetY;
-      h = A.x - C.x + R, m = A.y - C.y + P;
+      const C = this.dom.getBoundingClientRect(), A = p.getBoundingClientRect(), O = (a = e.offsetX) !== null && a !== void 0 ? a : (o = e.nativeEvent) === null || o === void 0 ? void 0 : o.offsetX, P = (i = e.offsetY) !== null && i !== void 0 ? i : (s = e.nativeEvent) === null || s === void 0 ? void 0 : s.offsetY;
+      f = A.x - C.x + O, m = A.y - C.y + P;
     }
     const v = this.dom.cloneNode(!0);
-    (l = e.dataTransfer) === null || l === void 0 || l.setDragImage(v, h, m);
+    (l = e.dataTransfer) === null || l === void 0 || l.setDragImage(v, f, m);
     const g = this.getPos();
     if (typeof g != "number")
       return;
@@ -11072,7 +11072,7 @@ let Ac = class {
     const o = e.type.startsWith("drag"), i = e.type === "drop";
     if ((["INPUT", "BUTTON", "SELECT", "TEXTAREA"].includes(n.tagName) || n.isContentEditable) && !i && !o)
       return !0;
-    const { isEditable: l } = this.editor, { isDragging: d } = this, u = !!this.node.type.spec.draggable, p = I.isSelectable(this.node), h = e.type === "copy", m = e.type === "paste", v = e.type === "cut", g = e.type === "mousedown";
+    const { isEditable: l } = this.editor, { isDragging: d } = this, u = !!this.node.type.spec.draggable, p = I.isSelectable(this.node), f = e.type === "copy", m = e.type === "paste", v = e.type === "cut", g = e.type === "mousedown";
     if (!u && p && o && e.target === this.dom && e.preventDefault(), u && o && !d && e.target === this.dom)
       return e.preventDefault(), !1;
     if (u && l && !d && g) {
@@ -11085,7 +11085,7 @@ let Ac = class {
         this.isDragging = !1;
       }, { once: !0 }));
     }
-    return !(d || i || h || m || v || g && p);
+    return !(d || i || f || m || v || g && p);
   }
   /**
    * Called when a DOM [mutation](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver) or a selection change happens within the view.
@@ -11121,7 +11121,7 @@ let Ac = class {
     this.editor.commands.deleteRange({ from: e, to: t });
   }
 };
-var za = { exports: {} }, Vt = {};
+var Ha = { exports: {} }, Vt = {};
 /**
  * @license React
  * use-sync-external-store-shim.production.min.js
@@ -11136,47 +11136,47 @@ function Tc() {
   if (dn) return Vt;
   dn = 1;
   var r = D;
-  function e(p, h) {
-    return p === h && (p !== 0 || 1 / p === 1 / h) || p !== p && h !== h;
+  function e(p, f) {
+    return p === f && (p !== 0 || 1 / p === 1 / f) || p !== p && f !== f;
   }
   var t = typeof Object.is == "function" ? Object.is : e, n = r.useState, a = r.useEffect, o = r.useLayoutEffect, i = r.useDebugValue;
-  function s(p, h) {
-    var m = h(), v = n({ inst: { value: m, getSnapshot: h } }), g = v[0].inst, y = v[1];
+  function s(p, f) {
+    var m = f(), v = n({ inst: { value: m, getSnapshot: f } }), g = v[0].inst, y = v[1];
     return o(function() {
-      g.value = m, g.getSnapshot = h, l(g) && y({ inst: g });
-    }, [p, m, h]), a(function() {
+      g.value = m, g.getSnapshot = f, l(g) && y({ inst: g });
+    }, [p, m, f]), a(function() {
       return l(g) && y({ inst: g }), p(function() {
         l(g) && y({ inst: g });
       });
     }, [p]), i(m), m;
   }
   function l(p) {
-    var h = p.getSnapshot;
+    var f = p.getSnapshot;
     p = p.value;
     try {
-      var m = h();
+      var m = f();
       return !t(p, m);
     } catch {
       return !0;
     }
   }
-  function d(p, h) {
-    return h();
+  function d(p, f) {
+    return f();
   }
   var u = typeof window > "u" || typeof window.document > "u" || typeof window.document.createElement > "u" ? d : s;
   return Vt.useSyncExternalStore = r.useSyncExternalStore !== void 0 ? r.useSyncExternalStore : u, Vt;
 }
-za.exports = Tc();
-var Ha = za.exports;
+Ha.exports = Tc();
+var za = Ha.exports;
 const Ec = (...r) => (e) => {
   r.forEach((t) => {
     typeof t == "function" ? t(e) : t && (t.current = e);
   });
 }, Ic = ({ contentComponent: r }) => {
-  const e = Ha.useSyncExternalStore(r.subscribe, r.getSnapshot, r.getServerSnapshot);
+  const e = za.useSyncExternalStore(r.subscribe, r.getSnapshot, r.getServerSnapshot);
   return D.createElement(D.Fragment, null, Object.values(e));
 };
-function Mc() {
+function Lc() {
   const r = /* @__PURE__ */ new Set();
   let e = {};
   return {
@@ -11212,7 +11212,7 @@ function Mc() {
     }
   };
 }
-class Lc extends D.Component {
+class Rc extends D.Component {
   constructor(e) {
     var t;
     super(e), this.editorContentRef = D.createRef(), this.initialized = !1, this.state = {
@@ -11233,7 +11233,7 @@ class Lc extends D.Component {
       const t = this.editorContentRef.current;
       t.append(...e.options.element.childNodes), e.setOptions({
         element: t
-      }), e.contentComponent = Mc(), this.state.hasContentComponentInitialized || (this.unsubscribeToContentComponent = e.contentComponent.subscribe(() => {
+      }), e.contentComponent = Lc(), this.state.hasContentComponentInitialized || (this.unsubscribeToContentComponent = e.contentComponent.subscribe(() => {
         this.setState((n) => n.hasContentComponentInitialized ? n : {
           hasContentComponentInitialized: !0
         }), this.unsubscribeToContentComponent && this.unsubscribeToContentComponent();
@@ -11261,15 +11261,15 @@ class Lc extends D.Component {
     );
   }
 }
-const Oc = rr((r, e) => {
+const Mc = rr((r, e) => {
   const t = D.useMemo(() => Math.floor(Math.random() * 4294967295).toString(), [r.editor]);
-  return D.createElement(Lc, {
+  return D.createElement(Rc, {
     key: t,
     innerRef: e,
     ...r
   });
 });
-D.memo(Oc);
+D.memo(Mc);
 var qt = {};
 /**
  * @license React
@@ -11281,47 +11281,47 @@ var qt = {};
  * LICENSE file in the root directory of this source tree.
  */
 var un;
-function Rc() {
+function Oc() {
   if (un) return qt;
   un = 1;
-  var r = D, e = Ha;
+  var r = D, e = za;
   function t(d, u) {
     return d === u && (d !== 0 || 1 / d === 1 / u) || d !== d && u !== u;
   }
   var n = typeof Object.is == "function" ? Object.is : t, a = e.useSyncExternalStore, o = r.useRef, i = r.useEffect, s = r.useMemo, l = r.useDebugValue;
-  return qt.useSyncExternalStoreWithSelector = function(d, u, p, h, m) {
+  return qt.useSyncExternalStoreWithSelector = function(d, u, p, f, m) {
     var v = o(null);
     if (v.current === null) {
       var g = { hasValue: !1, value: null };
       v.current = g;
     } else g = v.current;
     v = s(function() {
-      function b(O) {
+      function b(M) {
         if (!C) {
-          if (C = !0, A = O, O = h(O), m !== void 0 && g.hasValue) {
+          if (C = !0, A = M, M = f(M), m !== void 0 && g.hasValue) {
             var N = g.value;
-            if (m(N, O)) return R = N;
+            if (m(N, M)) return O = N;
           }
-          return R = O;
+          return O = M;
         }
-        if (N = R, n(A, O)) return N;
-        var z = h(O);
-        return m !== void 0 && m(N, z) ? N : (A = O, R = z);
+        if (N = O, n(A, M)) return N;
+        var H = f(M);
+        return m !== void 0 && m(N, H) ? N : (A = M, O = H);
       }
-      var C = !1, A, R, P = p === void 0 ? null : p;
+      var C = !1, A, O, P = p === void 0 ? null : p;
       return [function() {
         return b(u());
       }, P === null ? void 0 : function() {
         return b(P());
       }];
-    }, [u, p, h, m]);
+    }, [u, p, f, m]);
     var y = a(d, v[0], v[1]);
     return i(function() {
       g.hasValue = !0, g.value = y;
     }, [y]), l(y), y;
   }, qt;
 }
-Rc();
+Oc();
 const Pc = bn({
   editor: null
 });
@@ -11341,23 +11341,23 @@ const ja = bn({
 function pn(r) {
   return !!(typeof r == "function" && r.prototype && r.prototype.isReactComponent);
 }
-function fn(r) {
+function hn(r) {
   return !!(typeof r == "object" && r.$$typeof && (r.$$typeof.toString() === "Symbol(react.forward_ref)" || r.$$typeof.description === "react.forward_ref"));
 }
 function Bc(r) {
   return !!(typeof r == "object" && r.$$typeof && (r.$$typeof.toString() === "Symbol(react.memo)" || r.$$typeof.description === "react.memo"));
 }
 function $c(r) {
-  if (pn(r) || fn(r))
+  if (pn(r) || hn(r))
     return !0;
   if (Bc(r)) {
     const e = r.type;
     if (e)
-      return pn(e) || fn(e);
+      return pn(e) || hn(e);
   }
   return !1;
 }
-function zc() {
+function Hc() {
   try {
     if (Fr)
       return parseInt(Fr.split(".")[0], 10) >= 19;
@@ -11365,7 +11365,7 @@ function zc() {
   }
   return !1;
 }
-class Hc {
+class zc {
   /**
    * Immediately creates element and renders the provided React component.
    */
@@ -11381,7 +11381,7 @@ class Hc {
    */
   render() {
     var e;
-    const t = this.component, n = this.props, a = this.editor, o = zc(), i = $c(t), s = { ...n };
+    const t = this.component, n = this.props, a = this.editor, o = Hc(), i = $c(t), s = { ...n };
     s.ref && !(o || i) && delete s.ref, !s.ref && (o || i) && (s.ref = (l) => {
       this.ref = l;
     }), this.reactElement = D.createElement(t, { ...s }), (e = a == null ? void 0 : a.contentComponent) === null || e === void 0 || e.setRenderer(this.id, this);
@@ -11452,7 +11452,7 @@ class jc extends Ac {
     let s = this.node.isInline ? "span" : "div";
     this.options.as && (s = this.options.as);
     const { className: l = "" } = this.options;
-    this.handleSelectionUpdate = this.handleSelectionUpdate.bind(this), this.renderer = new Hc(i, {
+    this.handleSelectionUpdate = this.handleSelectionUpdate.bind(this), this.renderer = new zc(i, {
       editor: this.editor,
       props: e,
       as: s,
@@ -11560,7 +11560,7 @@ class jc extends Ac {
 function Dc(r, e) {
   return (t) => t.editor.contentComponent ? new jc(r, t, e) : {};
 }
-function fe({
+function he({
   subId: r,
   defaultAttrs: e,
   view: t
@@ -11589,7 +11589,7 @@ function fe({
     renderHTML({ HTMLAttributes: o }) {
       return [
         "div",
-        Ma(o, { "data-cms-block": n })
+        La(o, { "data-cms-block": n })
       ];
     },
     addNodeView() {
@@ -11602,10 +11602,21 @@ function fe({
     }
   });
 }
-function he(r) {
+function fe(r) {
   return In(r.replace(/-([a-z])/g, (e, t) => t.toUpperCase()));
 }
-const br = "hero-overlay", Ke = he(br), Mt = {
+const Uc = {
+  imageUrl: { description: "Full-bleed background image of the hero (loaded eagerly) — a full image URL, e.g. a media variant URL from `media upload` (formats.<name>.url) or any external URL. Empty = no image.", format: "URL" },
+  imageAlt: { description: "Alt text of the image." },
+  eyebrow: { description: "Small uppercase label above the title (empty = hidden)." },
+  title: { description: "Serif headline (empty = hidden). The block is hidden when title, subtitle and imageUrl are all empty." },
+  titleItalicTail: { description: "Optional second headline line in italics, under title (only shown with a title)." },
+  subtitle: { description: "Paragraph under the headline (empty = hidden)." },
+  primaryCtaLabel: { description: "Filled primary button text. The button shows only when primaryCtaHref is also set." },
+  primaryCtaHref: { description: 'Target of the primary button: a site path ("/shop.html") or a URL.', format: "site path or URL" },
+  secondaryCtaLabel: { description: "Outlined secondary button text. Shown only when secondaryCtaHref is also set." },
+  secondaryCtaHref: { description: 'Target of the secondary button: a site path ("/shop.html") or a URL.', format: "site path or URL" }
+}, br = "hero-overlay", Ge = fe(br), Lt = {
   imageUrl: "",
   imageAlt: "",
   eyebrow: "",
@@ -11617,16 +11628,16 @@ const br = "hero-overlay", Ke = he(br), Mt = {
   secondaryCtaLabel: "",
   secondaryCtaHref: ""
 };
-function Uc({ attrs: r, selected: e }) {
+function _c({ attrs: r, selected: e }) {
   const { t } = $("theme-storefront");
   return /* @__PURE__ */ c(
     pe,
     {
       contentEditable: !1,
       className: "my-4 rounded-lg border border-dashed border-surface-300 bg-surface-50 p-4 dark:border-surface-600 dark:bg-surface-900 " + (e ? "ring-2 ring-blue-500/60" : ""),
-      children: /* @__PURE__ */ f("div", { className: "flex items-start gap-3", children: [
+      children: /* @__PURE__ */ h("div", { className: "flex items-start gap-3", children: [
         /* @__PURE__ */ c(ar, { className: "h-5 w-5 shrink-0 text-blue-500" }),
-        /* @__PURE__ */ f("div", { className: "min-w-0 flex-1", children: [
+        /* @__PURE__ */ h("div", { className: "min-w-0 flex-1", children: [
           /* @__PURE__ */ c("p", { className: "text-xs font-semibold uppercase tracking-wide text-surface-500 dark:text-surface-400", children: t("blocks.heroOverlay.title") }),
           /* @__PURE__ */ c("p", { className: "text-sm text-surface-900 dark:text-surface-50 truncate", children: r.title || t("blocks.heroOverlay.untitled") })
         ] })
@@ -11634,13 +11645,13 @@ function Uc({ attrs: r, selected: e }) {
     }
   );
 }
-function _c({ editor: r }) {
-  const e = r.getAttributes(Ke), t = { ...Mt, ...e.attrs ?? {} };
+function Vc({ editor: r }) {
+  const e = r.getAttributes(Ge), t = { ...Lt, ...e.attrs ?? {} };
   function n(a) {
-    r.chain().updateAttributes(Ke, { attrs: { ...t, ...a } }).run();
+    r.chain().updateAttributes(Ge, { attrs: { ...t, ...a } }).run();
   }
-  return /* @__PURE__ */ f("div", { className: "space-y-3", children: [
-    /* @__PURE__ */ f("div", { children: [
+  return /* @__PURE__ */ h("div", { className: "space-y-3", children: [
+    /* @__PURE__ */ h("div", { children: [
       /* @__PURE__ */ c("label", { className: "label", children: "Background image URL" }),
       /* @__PURE__ */ c(
         "input",
@@ -11653,7 +11664,7 @@ function _c({ editor: r }) {
         }
       )
     ] }),
-    /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { children: [
       /* @__PURE__ */ c("label", { className: "label", children: "Image alt" }),
       /* @__PURE__ */ c(
         "input",
@@ -11665,7 +11676,7 @@ function _c({ editor: r }) {
         }
       )
     ] }),
-    /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { children: [
       /* @__PURE__ */ c("label", { className: "label", children: "Eyebrow" }),
       /* @__PURE__ */ c(
         "input",
@@ -11677,8 +11688,8 @@ function _c({ editor: r }) {
         }
       )
     ] }),
-    /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-3", children: [
-      /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-3", children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: "Title" }),
         /* @__PURE__ */ c(
           "input",
@@ -11690,7 +11701,7 @@ function _c({ editor: r }) {
           }
         )
       ] }),
-      /* @__PURE__ */ f("div", { children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: "Italic tail" }),
         /* @__PURE__ */ c(
           "input",
@@ -11704,7 +11715,7 @@ function _c({ editor: r }) {
         )
       ] })
     ] }),
-    /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { children: [
       /* @__PURE__ */ c("label", { className: "label", children: "Subtitle" }),
       /* @__PURE__ */ c(
         "textarea",
@@ -11716,8 +11727,8 @@ function _c({ editor: r }) {
         }
       )
     ] }),
-    /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-3", children: [
-      /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-3", children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: "Primary CTA label" }),
         /* @__PURE__ */ c(
           "input",
@@ -11729,7 +11740,7 @@ function _c({ editor: r }) {
           }
         )
       ] }),
-      /* @__PURE__ */ f("div", { children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: "Primary CTA link" }),
         /* @__PURE__ */ c(
           "input",
@@ -11742,7 +11753,7 @@ function _c({ editor: r }) {
           }
         )
       ] }),
-      /* @__PURE__ */ f("div", { children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: "Secondary CTA label" }),
         /* @__PURE__ */ c(
           "input",
@@ -11754,7 +11765,7 @@ function _c({ editor: r }) {
           }
         )
       ] }),
-      /* @__PURE__ */ f("div", { children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: "Secondary CTA link" }),
         /* @__PURE__ */ c(
           "input",
@@ -11769,30 +11780,41 @@ function _c({ editor: r }) {
     ] })
   ] });
 }
-const Vc = fe({
+const qc = he({
   subId: br,
-  defaultAttrs: Mt,
-  view: Uc
-}), qc = {
+  defaultAttrs: Lt,
+  view: _c
+}), Jc = {
   id: `storefront/${br}`,
-  nodeName: Ke,
+  nodeName: Ge,
   titleKey: "blocks.heroOverlay.title",
   namespace: "theme-storefront",
   icon: ar,
   category: "layout",
-  extensions: [Vc],
+  extensions: [qc],
   insert: async (r, e) => {
     const t = e.pickMedia ? await e.pickMedia() : null;
     r.focus().insertContent({
-      type: Ke,
+      type: Ge,
       attrs: {
-        attrs: t ? { ...Mt, imageUrl: t.url, imageAlt: t.alt ?? "" } : Mt
+        attrs: t ? { ...Lt, imageUrl: t.url, imageAlt: t.alt ?? "" } : Lt
       }
     }).run();
   },
-  isActive: (r) => r.isActive(Ke),
-  inspector: (r) => /* @__PURE__ */ c(_c, { editor: r.editor })
-}, yr = "categories-bento", Ge = he(yr), Jc = {
+  isActive: (r) => r.isActive(Ge),
+  attrsSchema: Uc,
+  inspector: (r) => /* @__PURE__ */ c(Vc, { editor: r.editor })
+}, Wc = {
+  eyebrow: { description: "Small uppercase label above the section title (empty = hidden)." },
+  title: { description: 'Serif section title (sample "Curated collections"; empty = hidden).' },
+  subtitle: { description: "Paragraph under the title (empty = hidden). The header row is omitted when title, subtitle and viewAllLabel are all empty." },
+  viewAllLabel: { description: 'Text of the "view all" link right of the header. Shown only when viewAllHref is also set.' },
+  viewAllHref: { description: 'Target of the "view all" link: a site path ("/shop.html") or a URL.', format: "site path or URL" },
+  cards: {
+    description: 'Bento cards on a 12-column grid: [{ imageUrl, imageAlt, label, ctaLabel, ctaHref, size }]. imageUrl = background image (a full image URL, e.g. a media variant URL from `media upload` (formats.<name>.url) or any external URL); label = serif card title (empty = none); ctaLabel + ctaHref = arrow link at the bottom, shown only when both are set (a site path ("/shop.html") or a URL); size = "large" (8 columns) or "small" (4 columns, also used for any other value) — alternate large/small per row of 12. No cards = the block is hidden.',
+    format: "array of objects"
+  }
+}, yr = "categories-bento", Ke = fe(yr), Gc = {
   imageUrl: "",
   imageAlt: "",
   label: "",
@@ -11807,7 +11829,7 @@ const Vc = fe({
   viewAllHref: "",
   cards: []
 };
-function Wc({ attrs: r, selected: e }) {
+function Kc({ attrs: r, selected: e }) {
   var a;
   const { t } = $("theme-storefront"), n = ((a = r.cards) == null ? void 0 : a.length) ?? 0;
   return /* @__PURE__ */ c(
@@ -11815,9 +11837,9 @@ function Wc({ attrs: r, selected: e }) {
     {
       contentEditable: !1,
       className: "my-4 rounded-lg border border-dashed border-surface-300 bg-surface-50 p-4 dark:border-surface-600 dark:bg-surface-900 " + (e ? "ring-2 ring-blue-500/60" : ""),
-      children: /* @__PURE__ */ f("div", { className: "flex items-start gap-3", children: [
+      children: /* @__PURE__ */ h("div", { className: "flex items-start gap-3", children: [
         /* @__PURE__ */ c($n, { className: "h-5 w-5 shrink-0 text-blue-500" }),
-        /* @__PURE__ */ f("div", { className: "min-w-0 flex-1", children: [
+        /* @__PURE__ */ h("div", { className: "min-w-0 flex-1", children: [
           /* @__PURE__ */ c("p", { className: "text-xs font-semibold uppercase tracking-wide text-surface-500 dark:text-surface-400", children: t("blocks.categoriesBento.title") }),
           /* @__PURE__ */ c("p", { className: "text-sm text-surface-900 dark:text-surface-50", children: t("blocks.categoriesBento.preview", { count: n }) })
         ] })
@@ -11825,31 +11847,31 @@ function Wc({ attrs: r, selected: e }) {
     }
   );
 }
-function Kc({ editor: r }) {
-  const e = r.getAttributes(Ge), t = { ...vr, ...e.attrs ?? {} }, n = t.cards ?? [];
+function Yc({ editor: r }) {
+  const e = r.getAttributes(Ke), t = { ...vr, ...e.attrs ?? {} }, n = t.cards ?? [];
   function a(u) {
-    r.chain().updateAttributes(Ge, { attrs: { ...t, ...u } }).run();
+    r.chain().updateAttributes(Ke, { attrs: { ...t, ...u } }).run();
   }
   function o(u) {
     a({ cards: u });
   }
   function i() {
-    o([...n, { ...Jc }]);
+    o([...n, { ...Gc }]);
   }
   function s(u) {
-    o(n.filter((p, h) => h !== u));
+    o(n.filter((p, f) => f !== u));
   }
   function l(u, p) {
-    const h = u + p;
-    if (h < 0 || h >= n.length) return;
+    const f = u + p;
+    if (f < 0 || f >= n.length) return;
     const m = n.slice();
-    [m[u], m[h]] = [m[h], m[u]], o(m);
+    [m[u], m[f]] = [m[f], m[u]], o(m);
   }
   function d(u, p) {
-    o(n.map((h, m) => m === u ? { ...h, ...p } : h));
+    o(n.map((f, m) => m === u ? { ...f, ...p } : f));
   }
-  return /* @__PURE__ */ f("div", { className: "space-y-3", children: [
-    /* @__PURE__ */ f("div", { children: [
+  return /* @__PURE__ */ h("div", { className: "space-y-3", children: [
+    /* @__PURE__ */ h("div", { children: [
       /* @__PURE__ */ c("label", { className: "label", children: "Eyebrow" }),
       /* @__PURE__ */ c(
         "input",
@@ -11861,7 +11883,7 @@ function Kc({ editor: r }) {
         }
       )
     ] }),
-    /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { children: [
       /* @__PURE__ */ c("label", { className: "label", children: "Title" }),
       /* @__PURE__ */ c(
         "input",
@@ -11873,7 +11895,7 @@ function Kc({ editor: r }) {
         }
       )
     ] }),
-    /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { children: [
       /* @__PURE__ */ c("label", { className: "label", children: "Subtitle" }),
       /* @__PURE__ */ c(
         "input",
@@ -11885,8 +11907,8 @@ function Kc({ editor: r }) {
         }
       )
     ] }),
-    /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-3", children: [
-      /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-3", children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: "View-all label" }),
         /* @__PURE__ */ c(
           "input",
@@ -11898,7 +11920,7 @@ function Kc({ editor: r }) {
           }
         )
       ] }),
-      /* @__PURE__ */ f("div", { children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: "View-all link" }),
         /* @__PURE__ */ c(
           "input",
@@ -11911,14 +11933,14 @@ function Kc({ editor: r }) {
         )
       ] })
     ] }),
-    /* @__PURE__ */ f("div", { className: "border-t border-surface-200 pt-3 mt-3 dark:border-surface-700", children: [
-      /* @__PURE__ */ f("div", { className: "flex items-center justify-between mb-2", children: [
-        /* @__PURE__ */ f("span", { className: "label !mb-0", children: [
+    /* @__PURE__ */ h("div", { className: "border-t border-surface-200 pt-3 mt-3 dark:border-surface-700", children: [
+      /* @__PURE__ */ h("div", { className: "flex items-center justify-between mb-2", children: [
+        /* @__PURE__ */ h("span", { className: "label !mb-0", children: [
           "Bento cards (",
           n.length,
           ")"
         ] }),
-        /* @__PURE__ */ f(
+        /* @__PURE__ */ h(
           "button",
           {
             type: "button",
@@ -11931,17 +11953,17 @@ function Kc({ editor: r }) {
           }
         )
       ] }),
-      /* @__PURE__ */ c("div", { className: "space-y-3", children: n.map((u, p) => /* @__PURE__ */ f(
+      /* @__PURE__ */ c("div", { className: "space-y-3", children: n.map((u, p) => /* @__PURE__ */ h(
         "div",
         {
           className: "rounded-md border border-surface-200 p-3 space-y-2 dark:border-surface-700",
           children: [
-            /* @__PURE__ */ f("div", { className: "flex items-center justify-between", children: [
-              /* @__PURE__ */ f("span", { className: "text-xs font-semibold text-surface-600 dark:text-surface-300", children: [
+            /* @__PURE__ */ h("div", { className: "flex items-center justify-between", children: [
+              /* @__PURE__ */ h("span", { className: "text-xs font-semibold text-surface-600 dark:text-surface-300", children: [
                 "Card ",
                 p + 1
               ] }),
-              /* @__PURE__ */ f("div", { className: "flex items-center gap-1", children: [
+              /* @__PURE__ */ h("div", { className: "flex items-center gap-1", children: [
                 /* @__PURE__ */ c(
                   "button",
                   {
@@ -11981,7 +12003,7 @@ function Kc({ editor: r }) {
                 className: "input",
                 placeholder: "Image URL",
                 value: u.imageUrl,
-                onChange: (h) => d(p, { imageUrl: h.target.value })
+                onChange: (f) => d(p, { imageUrl: f.target.value })
               }
             ),
             /* @__PURE__ */ c(
@@ -11991,7 +12013,7 @@ function Kc({ editor: r }) {
                 className: "input",
                 placeholder: "Image alt",
                 value: u.imageAlt,
-                onChange: (h) => d(p, { imageAlt: h.target.value })
+                onChange: (f) => d(p, { imageAlt: f.target.value })
               }
             ),
             /* @__PURE__ */ c(
@@ -12001,10 +12023,10 @@ function Kc({ editor: r }) {
                 className: "input",
                 placeholder: "Label",
                 value: u.label,
-                onChange: (h) => d(p, { label: h.target.value })
+                onChange: (f) => d(p, { label: f.target.value })
               }
             ),
-            /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-2", children: [
+            /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-2", children: [
               /* @__PURE__ */ c(
                 "input",
                 {
@@ -12012,7 +12034,7 @@ function Kc({ editor: r }) {
                   className: "input",
                   placeholder: "CTA label",
                   value: u.ctaLabel,
-                  onChange: (h) => d(p, { ctaLabel: h.target.value })
+                  onChange: (f) => d(p, { ctaLabel: f.target.value })
                 }
               ),
               /* @__PURE__ */ c(
@@ -12022,16 +12044,16 @@ function Kc({ editor: r }) {
                   className: "input",
                   placeholder: "CTA link",
                   value: u.ctaHref,
-                  onChange: (h) => d(p, { ctaHref: h.target.value })
+                  onChange: (f) => d(p, { ctaHref: f.target.value })
                 }
               )
             ] }),
-            /* @__PURE__ */ f(
+            /* @__PURE__ */ h(
               "select",
               {
                 className: "input",
                 value: u.size,
-                onChange: (h) => d(p, { size: h.target.value }),
+                onChange: (f) => d(p, { size: f.target.value }),
                 children: [
                   /* @__PURE__ */ c("option", { value: "large", children: "Large (8 cols)" }),
                   /* @__PURE__ */ c("option", { value: "small", children: "Small (4 cols)" })
@@ -12045,24 +12067,34 @@ function Kc({ editor: r }) {
     ] })
   ] });
 }
-const Gc = fe({
+const Xc = he({
   subId: yr,
   defaultAttrs: vr,
-  view: Wc
-}), Yc = {
+  view: Kc
+}), Zc = {
   id: `storefront/${yr}`,
-  nodeName: Ge,
+  nodeName: Ke,
   titleKey: "blocks.categoriesBento.title",
   namespace: "theme-storefront",
   icon: $n,
   category: "layout",
-  extensions: [Gc],
+  extensions: [Xc],
   insert: async (r) => {
-    r.focus().insertContent({ type: Ge, attrs: { attrs: vr } }).run();
+    r.focus().insertContent({ type: Ke, attrs: { attrs: vr } }).run();
   },
-  isActive: (r) => r.isActive(Ge),
-  inspector: (r) => /* @__PURE__ */ c(Kc, { editor: r.editor })
-}, wr = "journal-feature", Ye = he(wr), Lt = {
+  isActive: (r) => r.isActive(Ke),
+  attrsSchema: Wc,
+  inspector: (r) => /* @__PURE__ */ c(Yc, { editor: r.editor })
+}, Qc = {
+  imageUrl: { description: "Square image on the left of the 2-column section — a full image URL, e.g. a media variant URL from `media upload` (formats.<name>.url) or any external URL. Empty = no image.", format: "URL" },
+  imageAlt: { description: "Alt text of the image." },
+  eyebrow: { description: "Small uppercase label above the title (empty = hidden)." },
+  title: { description: "Serif headline (empty = hidden). The block is hidden when title, subtitle and imageUrl are all empty." },
+  titleItalicTail: { description: "Optional second headline line in italics, under title (only shown with a title)." },
+  subtitle: { description: "Paragraph under the headline (empty = hidden)." },
+  ctaLabel: { description: "Text of the round-arrow link under the subtitle. Shown only when ctaHref is also set." },
+  ctaHref: { description: 'Target of the link: a site path ("/shop.html") or a URL.', format: "site path or URL" }
+}, wr = "journal-feature", Ye = fe(wr), Rt = {
   imageUrl: "",
   imageAlt: "",
   eyebrow: "",
@@ -12072,16 +12104,16 @@ const Gc = fe({
   ctaLabel: "",
   ctaHref: ""
 };
-function Xc({ attrs: r, selected: e }) {
+function ed({ attrs: r, selected: e }) {
   const { t } = $("theme-storefront");
   return /* @__PURE__ */ c(
     pe,
     {
       contentEditable: !1,
       className: "my-4 rounded-lg border border-dashed border-surface-300 bg-surface-50 p-4 dark:border-surface-600 dark:bg-surface-900 " + (e ? "ring-2 ring-blue-500/60" : ""),
-      children: /* @__PURE__ */ f("div", { className: "flex items-start gap-3", children: [
+      children: /* @__PURE__ */ h("div", { className: "flex items-start gap-3", children: [
         /* @__PURE__ */ c(Bn, { className: "h-5 w-5 shrink-0 text-blue-500" }),
-        /* @__PURE__ */ f("div", { className: "min-w-0 flex-1", children: [
+        /* @__PURE__ */ h("div", { className: "min-w-0 flex-1", children: [
           /* @__PURE__ */ c("p", { className: "text-xs font-semibold uppercase tracking-wide text-surface-500 dark:text-surface-400", children: t("blocks.journalFeature.title") }),
           /* @__PURE__ */ c("p", { className: "text-sm text-surface-900 dark:text-surface-50 truncate", children: r.title || t("blocks.journalFeature.untitled") })
         ] })
@@ -12089,13 +12121,13 @@ function Xc({ attrs: r, selected: e }) {
     }
   );
 }
-function Zc({ editor: r }) {
-  const e = r.getAttributes(Ye), t = { ...Lt, ...e.attrs ?? {} };
+function td({ editor: r }) {
+  const e = r.getAttributes(Ye), t = { ...Rt, ...e.attrs ?? {} };
   function n(a) {
     r.chain().updateAttributes(Ye, { attrs: { ...t, ...a } }).run();
   }
-  return /* @__PURE__ */ f("div", { className: "space-y-3", children: [
-    /* @__PURE__ */ f("div", { children: [
+  return /* @__PURE__ */ h("div", { className: "space-y-3", children: [
+    /* @__PURE__ */ h("div", { children: [
       /* @__PURE__ */ c("label", { className: "label", children: "Image URL" }),
       /* @__PURE__ */ c(
         "input",
@@ -12107,7 +12139,7 @@ function Zc({ editor: r }) {
         }
       )
     ] }),
-    /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { children: [
       /* @__PURE__ */ c("label", { className: "label", children: "Image alt" }),
       /* @__PURE__ */ c(
         "input",
@@ -12119,7 +12151,7 @@ function Zc({ editor: r }) {
         }
       )
     ] }),
-    /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { children: [
       /* @__PURE__ */ c("label", { className: "label", children: "Eyebrow" }),
       /* @__PURE__ */ c(
         "input",
@@ -12131,8 +12163,8 @@ function Zc({ editor: r }) {
         }
       )
     ] }),
-    /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-3", children: [
-      /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-3", children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: "Title" }),
         /* @__PURE__ */ c(
           "input",
@@ -12144,7 +12176,7 @@ function Zc({ editor: r }) {
           }
         )
       ] }),
-      /* @__PURE__ */ f("div", { children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: "Italic tail" }),
         /* @__PURE__ */ c(
           "input",
@@ -12157,7 +12189,7 @@ function Zc({ editor: r }) {
         )
       ] })
     ] }),
-    /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { children: [
       /* @__PURE__ */ c("label", { className: "label", children: "Subtitle" }),
       /* @__PURE__ */ c(
         "textarea",
@@ -12169,8 +12201,8 @@ function Zc({ editor: r }) {
         }
       )
     ] }),
-    /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-3", children: [
-      /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-3", children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: "CTA label" }),
         /* @__PURE__ */ c(
           "input",
@@ -12182,7 +12214,7 @@ function Zc({ editor: r }) {
           }
         )
       ] }),
-      /* @__PURE__ */ f("div", { children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: "CTA link" }),
         /* @__PURE__ */ c(
           "input",
@@ -12197,30 +12229,53 @@ function Zc({ editor: r }) {
     ] })
   ] });
 }
-const Qc = fe({
+const rd = he({
   subId: wr,
-  defaultAttrs: Lt,
-  view: Xc
-}), ed = {
+  defaultAttrs: Rt,
+  view: ed
+}), nd = {
   id: `storefront/${wr}`,
   nodeName: Ye,
   titleKey: "blocks.journalFeature.title",
   namespace: "theme-storefront",
   icon: Bn,
   category: "layout",
-  extensions: [Qc],
+  extensions: [rd],
   insert: async (r, e) => {
     const t = e.pickMedia ? await e.pickMedia() : null;
     r.focus().insertContent({
       type: Ye,
       attrs: {
-        attrs: t ? { ...Lt, imageUrl: t.url, imageAlt: t.alt ?? "" } : Lt
+        attrs: t ? { ...Rt, imageUrl: t.url, imageAlt: t.alt ?? "" } : Rt
       }
     }).run();
   },
   isActive: (r) => r.isActive(Ye),
-  inspector: (r) => /* @__PURE__ */ c(Zc, { editor: r.editor })
-}, xr = "newsletter", Xe = he(xr), kr = {
+  attrsSchema: Qc,
+  inspector: (r) => /* @__PURE__ */ c(td, { editor: r.editor })
+}, ad = {
+  variant: {
+    description: '"card" = centered card on a light surface (default); "banner" = full-width primary-colored band, text left and form right.',
+    values: ["card", "banner"]
+  },
+  eyebrow: { description: "Small uppercase label above the title (empty = hidden)." },
+  title: { description: "Serif headline (empty = hidden)." },
+  subtitle: { description: "Paragraph under the title (empty = hidden)." },
+  placeholder: { description: 'Placeholder of the email field (empty = "Email address").' },
+  ctaLabel: { description: 'Submit button text (empty = "Subscribe").' },
+  mode: {
+    description: `How the form is sent by the theme's runtime: "endpoint" = POST urlencoded (email field) to endpoint (Formspree / Buttondown / Mailchimp-style); "mailto" = opens a mail to the mailto address.`,
+    values: ["endpoint", "mailto"]
+  },
+  endpoint: { description: 'Form POST URL used in "endpoint" mode.', format: "URL" },
+  mailto: { description: 'Recipient email address used in "mailto" mode.', format: "email" },
+  successMessage: {
+    description: `Text shown after a successful submit. Empty = "Thanks — you're on the list.".`
+  },
+  errorMessage: {
+    description: 'Text shown when the submit fails. Empty = "Something went wrong. Please try again.".'
+  }
+}, xr = "newsletter", Xe = fe(xr), kr = {
   variant: "card",
   eyebrow: "",
   title: "Stay in the loop",
@@ -12233,16 +12288,16 @@ const Qc = fe({
   successMessage: "",
   errorMessage: ""
 };
-function td({ attrs: r, selected: e }) {
+function od({ attrs: r, selected: e }) {
   const { t } = $("theme-storefront");
   return /* @__PURE__ */ c(
     pe,
     {
       contentEditable: !1,
       className: "my-4 rounded-lg border border-dashed border-surface-300 bg-surface-50 p-4 dark:border-surface-600 dark:bg-surface-900 " + (e ? "ring-2 ring-blue-500/60" : ""),
-      children: /* @__PURE__ */ f("div", { className: "flex items-start gap-3", children: [
-        /* @__PURE__ */ c(Hn, { className: "h-5 w-5 shrink-0 text-blue-500" }),
-        /* @__PURE__ */ f("div", { className: "min-w-0 flex-1", children: [
+      children: /* @__PURE__ */ h("div", { className: "flex items-start gap-3", children: [
+        /* @__PURE__ */ c(zn, { className: "h-5 w-5 shrink-0 text-blue-500" }),
+        /* @__PURE__ */ h("div", { className: "min-w-0 flex-1", children: [
           /* @__PURE__ */ c("p", { className: "text-xs font-semibold uppercase tracking-wide text-surface-500 dark:text-surface-400", children: t("blocks.newsletter.title") }),
           /* @__PURE__ */ c("p", { className: "text-sm text-surface-900 dark:text-surface-50 truncate", children: r.title || t("blocks.newsletter.untitled") })
         ] })
@@ -12250,15 +12305,15 @@ function td({ attrs: r, selected: e }) {
     }
   );
 }
-function rd({ editor: r }) {
+function id({ editor: r }) {
   const e = r.getAttributes(Xe), t = { ...kr, ...e.attrs ?? {} };
   function n(a) {
     r.chain().updateAttributes(Xe, { attrs: { ...t, ...a } }).run();
   }
-  return /* @__PURE__ */ f("div", { className: "space-y-3", children: [
-    /* @__PURE__ */ f("div", { children: [
+  return /* @__PURE__ */ h("div", { className: "space-y-3", children: [
+    /* @__PURE__ */ h("div", { children: [
       /* @__PURE__ */ c("label", { className: "label", children: "Variant" }),
-      /* @__PURE__ */ f(
+      /* @__PURE__ */ h(
         "select",
         {
           className: "input",
@@ -12271,7 +12326,7 @@ function rd({ editor: r }) {
         }
       )
     ] }),
-    /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { children: [
       /* @__PURE__ */ c("label", { className: "label", children: "Eyebrow" }),
       /* @__PURE__ */ c(
         "input",
@@ -12283,7 +12338,7 @@ function rd({ editor: r }) {
         }
       )
     ] }),
-    /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { children: [
       /* @__PURE__ */ c("label", { className: "label", children: "Title" }),
       /* @__PURE__ */ c(
         "input",
@@ -12295,7 +12350,7 @@ function rd({ editor: r }) {
         }
       )
     ] }),
-    /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { children: [
       /* @__PURE__ */ c("label", { className: "label", children: "Subtitle" }),
       /* @__PURE__ */ c(
         "textarea",
@@ -12307,8 +12362,8 @@ function rd({ editor: r }) {
         }
       )
     ] }),
-    /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-3", children: [
-      /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-3", children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: "Email placeholder" }),
         /* @__PURE__ */ c(
           "input",
@@ -12320,7 +12375,7 @@ function rd({ editor: r }) {
           }
         )
       ] }),
-      /* @__PURE__ */ f("div", { children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: "Submit label" }),
         /* @__PURE__ */ c(
           "input",
@@ -12333,9 +12388,9 @@ function rd({ editor: r }) {
         )
       ] })
     ] }),
-    /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { children: [
       /* @__PURE__ */ c("label", { className: "label", children: "Form mode" }),
-      /* @__PURE__ */ f(
+      /* @__PURE__ */ h(
         "select",
         {
           className: "input",
@@ -12348,7 +12403,7 @@ function rd({ editor: r }) {
         }
       )
     ] }),
-    /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { children: [
       /* @__PURE__ */ c("label", { className: "label", children: "Endpoint URL" }),
       /* @__PURE__ */ c(
         "input",
@@ -12361,7 +12416,7 @@ function rd({ editor: r }) {
         }
       )
     ] }),
-    /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { children: [
       /* @__PURE__ */ c("label", { className: "label", children: "Mailto address" }),
       /* @__PURE__ */ c(
         "input",
@@ -12376,25 +12431,59 @@ function rd({ editor: r }) {
     ] })
   ] });
 }
-const nd = fe({
+const sd = he({
   subId: xr,
   defaultAttrs: kr,
-  view: td
-}), ad = {
+  view: od
+}), ld = {
   id: `storefront/${xr}`,
   nodeName: Xe,
   titleKey: "blocks.newsletter.title",
   namespace: "theme-storefront",
-  icon: Hn,
+  icon: zn,
   category: "embed",
-  extensions: [nd],
+  extensions: [sd],
   insert: async (r) => {
     r.focus().insertContent({ type: Xe, attrs: { attrs: kr } }).run();
   },
   isActive: (r) => r.isActive(Xe),
-  inspector: (r) => /* @__PURE__ */ c(rd, { editor: r.editor })
-}, Sr = "product-info", Ze = he(Sr);
-function od({ attrs: r, selected: e }) {
+  attrsSchema: ad,
+  inspector: (r) => /* @__PURE__ */ c(id, { editor: r.editor })
+}, cd = {
+  priceTTC: {
+    description: "Price incl. tax, in currency units (e.g. 49.9). 0 = no price shown. Also feeds listing cards and data/products.json (catalog filters). Prices are hidden everywhere when the theme setting productDefaults.inquiryOnly is on.",
+    format: "number"
+  },
+  promoTTC: {
+    description: "Discounted price incl. tax. Shown (with priceTTC struck through, and on cards) only when > 0 and lower than priceTTC; 0 = no promotion.",
+    format: "number"
+  },
+  priceHT: { description: "Price excl. tax. Stored with the product but not displayed by the theme today.", format: "number" },
+  currency: {
+    description: 'ISO 4217 currency code of the prices ("EUR", "USD", "GBP"…). Empty = the theme setting productDefaults.currency, else EUR.',
+    format: "ISO 4217 code"
+  },
+  stockStatus: {
+    description: "Stock pill under the price (localised label), also a catalog filter facet. Empty = no pill.",
+    values: ["", "in-stock", "low-stock", "out-of-stock", "on-order"]
+  },
+  variants: {
+    description: 'Option selects in the product card (one <select> per item, 2 columns when several): [{ label, options }], label = field name ("Size"), options = array of option texts (add "+ 10 €" to a text to show an upcharge; informational only, there is no cart).',
+    format: "array of objects"
+  },
+  badges: {
+    description: 'Uppercase pills above the price (e.g. ["New", "Limited Edition"]); the first one is also shown on listing cards and used as a catalog facet.',
+    format: "array of strings"
+  },
+  ctaPrimaryLabel: { description: "Main button text (empty = the theme setting productDefaults.ctaLabel). Shown only when a label and a link resolve." },
+  ctaPrimaryHref: {
+    description: 'Main button target: a site path ("/shop.html") or a URL, "mailto:…" works too (empty = productDefaults.ctaHref).',
+    format: "site path or URL"
+  },
+  ctaSecondaryLabel: { description: "Outlined secondary button text. Shown only when ctaSecondaryHref is also set." },
+  ctaSecondaryHref: { description: 'Secondary button target: a site path ("/shop.html") or a URL.', format: "site path or URL" }
+}, Sr = "product-info", Ze = fe(Sr);
+function dd({ attrs: r, selected: e }) {
   const { t } = $("theme-storefront"), n = [
     r.priceTTC > 0 ? `${r.priceTTC} ${r.currency || "EUR"}` : "",
     r.stockStatus
@@ -12404,9 +12493,9 @@ function od({ attrs: r, selected: e }) {
     {
       contentEditable: !1,
       className: "my-4 rounded-lg border border-dashed border-amber-400 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-950/30 " + (e ? "ring-2 ring-amber-500/60" : ""),
-      children: /* @__PURE__ */ f("div", { className: "flex items-start gap-3", children: [
+      children: /* @__PURE__ */ h("div", { className: "flex items-start gap-3", children: [
         /* @__PURE__ */ c(_n, { className: "h-5 w-5 shrink-0 text-amber-600" }),
-        /* @__PURE__ */ f("div", { className: "min-w-0 flex-1", children: [
+        /* @__PURE__ */ h("div", { className: "min-w-0 flex-1", children: [
           /* @__PURE__ */ c("p", { className: "text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400", children: t("blocks.productInfo.title") }),
           /* @__PURE__ */ c("p", { className: "text-sm text-surface-900 dark:text-surface-50 truncate", children: n || t("blocks.productInfo.untitled") }),
           /* @__PURE__ */ c("p", { className: "text-[11px] text-amber-700/80 dark:text-amber-400/80 mt-1", children: t("blocks.productInfo.editorHint") })
@@ -12415,42 +12504,42 @@ function od({ attrs: r, selected: e }) {
     }
   );
 }
-function id({ editor: r }) {
+function ud({ editor: r }) {
   var p;
   const e = r.getAttributes(Ze), t = {
     ...ct,
     ...e.attrs ?? {}
   };
-  function n(h) {
-    r.chain().updateAttributes(Ze, { attrs: { ...t, ...h } }).run();
+  function n(f) {
+    r.chain().updateAttributes(Ze, { attrs: { ...t, ...f } }).run();
   }
-  function a(h) {
-    n({ variants: h });
+  function a(f) {
+    n({ variants: f });
   }
   function o() {
     a([...t.variants ?? [], { label: "", options: [""] }]);
   }
-  function i(h) {
-    a((t.variants ?? []).filter((m, v) => v !== h));
+  function i(f) {
+    a((t.variants ?? []).filter((m, v) => v !== f));
   }
-  function s(h, m) {
-    a((t.variants ?? []).map((v, g) => g === h ? { ...v, ...m } : v));
+  function s(f, m) {
+    a((t.variants ?? []).map((v, g) => g === f ? { ...v, ...m } : v));
   }
-  function l(h, m, v) {
-    const y = t.variants[h].options.slice();
-    y[m] = v, s(h, { options: y });
+  function l(f, m, v) {
+    const y = t.variants[f].options.slice();
+    y[m] = v, s(f, { options: y });
   }
-  function d(h) {
-    const m = t.variants[h];
-    s(h, { options: [...m.options, ""] });
+  function d(f) {
+    const m = t.variants[f];
+    s(f, { options: [...m.options, ""] });
   }
-  function u(h, m) {
-    const v = t.variants[h];
-    s(h, { options: v.options.filter((g, y) => y !== m) });
+  function u(f, m) {
+    const v = t.variants[f];
+    s(f, { options: v.options.filter((g, y) => y !== m) });
   }
-  return /* @__PURE__ */ f("div", { className: "space-y-3", children: [
-    /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-3", children: [
-      /* @__PURE__ */ f("div", { children: [
+  return /* @__PURE__ */ h("div", { className: "space-y-3", children: [
+    /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-3", children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: "Price excl. tax" }),
         /* @__PURE__ */ c(
           "input",
@@ -12459,11 +12548,11 @@ function id({ editor: r }) {
             step: "0.01",
             className: "input",
             value: t.priceHT,
-            onChange: (h) => n({ priceHT: parseFloat(h.target.value) || 0 })
+            onChange: (f) => n({ priceHT: parseFloat(f.target.value) || 0 })
           }
         )
       ] }),
-      /* @__PURE__ */ f("div", { children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: "Price incl. tax" }),
         /* @__PURE__ */ c(
           "input",
@@ -12472,11 +12561,11 @@ function id({ editor: r }) {
             step: "0.01",
             className: "input",
             value: t.priceTTC,
-            onChange: (h) => n({ priceTTC: parseFloat(h.target.value) || 0 })
+            onChange: (f) => n({ priceTTC: parseFloat(f.target.value) || 0 })
           }
         )
       ] }),
-      /* @__PURE__ */ f("div", { children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: "Promo (incl. tax)" }),
         /* @__PURE__ */ c(
           "input",
@@ -12485,11 +12574,11 @@ function id({ editor: r }) {
             step: "0.01",
             className: "input",
             value: t.promoTTC,
-            onChange: (h) => n({ promoTTC: parseFloat(h.target.value) || 0 })
+            onChange: (f) => n({ promoTTC: parseFloat(f.target.value) || 0 })
           }
         )
       ] }),
-      /* @__PURE__ */ f("div", { children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: "Currency (ISO 4217)" }),
         /* @__PURE__ */ c(
           "input",
@@ -12498,19 +12587,19 @@ function id({ editor: r }) {
             className: "input",
             placeholder: "EUR",
             value: t.currency,
-            onChange: (h) => n({ currency: h.target.value })
+            onChange: (f) => n({ currency: f.target.value })
           }
         )
       ] })
     ] }),
-    /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { children: [
       /* @__PURE__ */ c("label", { className: "label", children: "Stock status" }),
-      /* @__PURE__ */ f(
+      /* @__PURE__ */ h(
         "select",
         {
           className: "input",
           value: t.stockStatus || "",
-          onChange: (h) => n({ stockStatus: h.target.value }),
+          onChange: (f) => n({ stockStatus: f.target.value }),
           children: [
             /* @__PURE__ */ c("option", { value: "", children: "—" }),
             /* @__PURE__ */ c("option", { value: "in-stock", children: "In stock" }),
@@ -12521,7 +12610,7 @@ function id({ editor: r }) {
         }
       )
     ] }),
-    /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { children: [
       /* @__PURE__ */ c("label", { className: "label", children: "Badges (comma-separated)" }),
       /* @__PURE__ */ c(
         "input",
@@ -12530,14 +12619,14 @@ function id({ editor: r }) {
           className: "input",
           placeholder: "Limited Edition, New",
           value: (t.badges ?? []).join(", "),
-          onChange: (h) => n({
-            badges: h.target.value.split(",").map((m) => m.trim()).filter(Boolean)
+          onChange: (f) => n({
+            badges: f.target.value.split(",").map((m) => m.trim()).filter(Boolean)
           })
         }
       )
     ] }),
-    /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-3", children: [
-      /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-3", children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: "Primary CTA label" }),
         /* @__PURE__ */ c(
           "input",
@@ -12545,11 +12634,11 @@ function id({ editor: r }) {
             type: "text",
             className: "input",
             value: t.ctaPrimaryLabel,
-            onChange: (h) => n({ ctaPrimaryLabel: h.target.value })
+            onChange: (f) => n({ ctaPrimaryLabel: f.target.value })
           }
         )
       ] }),
-      /* @__PURE__ */ f("div", { children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: "Primary CTA link" }),
         /* @__PURE__ */ c(
           "input",
@@ -12557,11 +12646,11 @@ function id({ editor: r }) {
             type: "text",
             className: "input",
             value: t.ctaPrimaryHref,
-            onChange: (h) => n({ ctaPrimaryHref: h.target.value })
+            onChange: (f) => n({ ctaPrimaryHref: f.target.value })
           }
         )
       ] }),
-      /* @__PURE__ */ f("div", { children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: "Secondary CTA label" }),
         /* @__PURE__ */ c(
           "input",
@@ -12569,11 +12658,11 @@ function id({ editor: r }) {
             type: "text",
             className: "input",
             value: t.ctaSecondaryLabel,
-            onChange: (h) => n({ ctaSecondaryLabel: h.target.value })
+            onChange: (f) => n({ ctaSecondaryLabel: f.target.value })
           }
         )
       ] }),
-      /* @__PURE__ */ f("div", { children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: "Secondary CTA link" }),
         /* @__PURE__ */ c(
           "input",
@@ -12581,19 +12670,19 @@ function id({ editor: r }) {
             type: "text",
             className: "input",
             value: t.ctaSecondaryHref,
-            onChange: (h) => n({ ctaSecondaryHref: h.target.value })
+            onChange: (f) => n({ ctaSecondaryHref: f.target.value })
           }
         )
       ] })
     ] }),
-    /* @__PURE__ */ f("div", { className: "border-t border-surface-200 pt-3 mt-3 dark:border-surface-700", children: [
-      /* @__PURE__ */ f("div", { className: "flex items-center justify-between mb-2", children: [
-        /* @__PURE__ */ f("span", { className: "label !mb-0", children: [
+    /* @__PURE__ */ h("div", { className: "border-t border-surface-200 pt-3 mt-3 dark:border-surface-700", children: [
+      /* @__PURE__ */ h("div", { className: "flex items-center justify-between mb-2", children: [
+        /* @__PURE__ */ h("span", { className: "label !mb-0", children: [
           "Variants (",
           ((p = t.variants) == null ? void 0 : p.length) ?? 0,
           ")"
         ] }),
-        /* @__PURE__ */ f(
+        /* @__PURE__ */ h(
           "button",
           {
             type: "button",
@@ -12606,19 +12695,19 @@ function id({ editor: r }) {
           }
         )
       ] }),
-      /* @__PURE__ */ c("div", { className: "space-y-3", children: (t.variants ?? []).map((h, m) => /* @__PURE__ */ f(
+      /* @__PURE__ */ c("div", { className: "space-y-3", children: (t.variants ?? []).map((f, m) => /* @__PURE__ */ h(
         "div",
         {
           className: "rounded-md border border-surface-200 p-3 space-y-2 dark:border-surface-700",
           children: [
-            /* @__PURE__ */ f("div", { className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ h("div", { className: "flex items-center gap-2", children: [
               /* @__PURE__ */ c(
                 "input",
                 {
                   type: "text",
                   className: "input flex-1",
                   placeholder: "Label (e.g. Size)",
-                  value: h.label,
+                  value: f.label,
                   onChange: (v) => s(m, { label: v.target.value })
                 }
               ),
@@ -12633,8 +12722,8 @@ function id({ editor: r }) {
                 }
               )
             ] }),
-            /* @__PURE__ */ f("div", { className: "space-y-1", children: [
-              h.options.map((v, g) => /* @__PURE__ */ f("div", { className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ h("div", { className: "space-y-1", children: [
+              f.options.map((v, g) => /* @__PURE__ */ h("div", { className: "flex items-center gap-2", children: [
                 /* @__PURE__ */ c(
                   "input",
                   {
@@ -12656,7 +12745,7 @@ function id({ editor: r }) {
                   }
                 )
               ] }, g)),
-              /* @__PURE__ */ f(
+              /* @__PURE__ */ h(
                 "button",
                 {
                   type: "button",
@@ -12676,28 +12765,37 @@ function id({ editor: r }) {
     ] })
   ] });
 }
-const sd = fe({
+const pd = he({
   subId: Sr,
   defaultAttrs: ct,
-  view: od
-}), ld = {
+  view: dd
+}), hd = {
   id: `storefront/${Sr}`,
   nodeName: Ze,
   titleKey: "blocks.productInfo.title",
   namespace: "theme-storefront",
   icon: _n,
   category: "advanced",
-  extensions: [sd],
+  extensions: [pd],
   insert: async (r) => {
     r.focus().insertContent({ type: Ze, attrs: { attrs: ct } }).run();
   },
   isActive: (r) => r.isActive(Ze),
-  inspector: (r) => /* @__PURE__ */ c(id, { editor: r.editor })
-}, Cr = "product-gallery", Qe = he(Cr), Ot = {
+  attrsSchema: cd,
+  inspector: (r) => /* @__PURE__ */ c(ud, { editor: r.editor })
+}, fd = {
+  images: {
+    description: "Gallery images: [{ url, alt }], url = a full image URL, e.g. a media variant URL from `media upload` (formats.<name>.url) or any external URL. Items without url are skipped; no images = the block is hidden.",
+    format: "array of objects"
+  },
+  primaryFeatured: {
+    description: "true = the first image is shown large with the others as a 4-column thumbnail strip below (needs 2+ images); false = uniform 2/3-column grid."
+  }
+}, Cr = "product-gallery", Qe = fe(Cr), Mt = {
   images: [],
   primaryFeatured: !0
 };
-function cd({ attrs: r, selected: e }) {
+function md({ attrs: r, selected: e }) {
   var a;
   const { t } = $("theme-storefront"), n = ((a = r.images) == null ? void 0 : a.length) ?? 0;
   return /* @__PURE__ */ c(
@@ -12705,9 +12803,9 @@ function cd({ attrs: r, selected: e }) {
     {
       contentEditable: !1,
       className: "my-4 rounded-lg border border-dashed border-surface-300 bg-surface-50 p-4 dark:border-surface-600 dark:bg-surface-900 " + (e ? "ring-2 ring-blue-500/60" : ""),
-      children: /* @__PURE__ */ f("div", { className: "flex items-start gap-3", children: [
-        /* @__PURE__ */ c(zn, { className: "h-5 w-5 shrink-0 text-blue-500" }),
-        /* @__PURE__ */ f("div", { className: "min-w-0 flex-1", children: [
+      children: /* @__PURE__ */ h("div", { className: "flex items-start gap-3", children: [
+        /* @__PURE__ */ c(Hn, { className: "h-5 w-5 shrink-0 text-blue-500" }),
+        /* @__PURE__ */ h("div", { className: "min-w-0 flex-1", children: [
           /* @__PURE__ */ c("p", { className: "text-xs font-semibold uppercase tracking-wide text-surface-500 dark:text-surface-400", children: t("blocks.productGallery.title") }),
           /* @__PURE__ */ c("p", { className: "text-sm text-surface-900 dark:text-surface-50", children: t("blocks.productGallery.preview", { count: n }) })
         ] })
@@ -12715,8 +12813,8 @@ function cd({ attrs: r, selected: e }) {
     }
   );
 }
-function dd({ editor: r }) {
-  const e = r.getAttributes(Qe), t = { ...Ot, ...e.attrs ?? {} }, n = t.images ?? [];
+function gd({ editor: r }) {
+  const e = r.getAttributes(Qe), t = { ...Mt, ...e.attrs ?? {} }, n = t.images ?? [];
   function a(d) {
     r.chain().updateAttributes(Qe, { attrs: { ...t, ...d } }).run();
   }
@@ -12730,10 +12828,10 @@ function dd({ editor: r }) {
     o(n.filter((u, p) => p !== d));
   }
   function l(d, u) {
-    o(n.map((p, h) => h === d ? { ...p, ...u } : p));
+    o(n.map((p, f) => f === d ? { ...p, ...u } : p));
   }
-  return /* @__PURE__ */ f("div", { className: "space-y-3", children: [
-    /* @__PURE__ */ f("label", { className: "flex items-center gap-2 text-sm", children: [
+  return /* @__PURE__ */ h("div", { className: "space-y-3", children: [
+    /* @__PURE__ */ h("label", { className: "flex items-center gap-2 text-sm", children: [
       /* @__PURE__ */ c(
         "input",
         {
@@ -12744,14 +12842,14 @@ function dd({ editor: r }) {
       ),
       /* @__PURE__ */ c("span", { children: "First image as featured (hero), rest as thumbnails" })
     ] }),
-    /* @__PURE__ */ f("div", { className: "border-t border-surface-200 pt-3 dark:border-surface-700", children: [
-      /* @__PURE__ */ f("div", { className: "flex items-center justify-between mb-2", children: [
-        /* @__PURE__ */ f("span", { className: "label !mb-0", children: [
+    /* @__PURE__ */ h("div", { className: "border-t border-surface-200 pt-3 dark:border-surface-700", children: [
+      /* @__PURE__ */ h("div", { className: "flex items-center justify-between mb-2", children: [
+        /* @__PURE__ */ h("span", { className: "label !mb-0", children: [
           "Images (",
           n.length,
           ")"
         ] }),
-        /* @__PURE__ */ f(
+        /* @__PURE__ */ h(
           "button",
           {
             type: "button",
@@ -12764,13 +12862,13 @@ function dd({ editor: r }) {
           }
         )
       ] }),
-      /* @__PURE__ */ c("div", { className: "space-y-2", children: n.map((d, u) => /* @__PURE__ */ f(
+      /* @__PURE__ */ c("div", { className: "space-y-2", children: n.map((d, u) => /* @__PURE__ */ h(
         "div",
         {
           className: "rounded-md border border-surface-200 p-3 space-y-2 dark:border-surface-700",
           children: [
-            /* @__PURE__ */ f("div", { className: "flex items-center justify-between", children: [
-              /* @__PURE__ */ f("span", { className: "text-xs font-semibold text-surface-600 dark:text-surface-300", children: [
+            /* @__PURE__ */ h("div", { className: "flex items-center justify-between", children: [
+              /* @__PURE__ */ h("span", { className: "text-xs font-semibold text-surface-600 dark:text-surface-300", children: [
                 "Image ",
                 u + 1
               ] }),
@@ -12812,37 +12910,43 @@ function dd({ editor: r }) {
     ] })
   ] });
 }
-const ud = fe({
+const bd = he({
   subId: Cr,
-  defaultAttrs: Ot,
-  view: cd
-}), pd = {
+  defaultAttrs: Mt,
+  view: md
+}), yd = {
   id: `storefront/${Cr}`,
   nodeName: Qe,
   titleKey: "blocks.productGallery.title",
   namespace: "theme-storefront",
-  icon: zn,
+  icon: Hn,
   category: "media",
-  extensions: [ud],
+  extensions: [bd],
   insert: async (r, e) => {
     const t = e.pickMedia ? await e.pickMedia() : null;
     r.focus().insertContent({
       type: Qe,
       attrs: {
-        attrs: t ? { ...Ot, images: [{ url: t.url, alt: t.alt ?? "" }] } : Ot
+        attrs: t ? { ...Mt, images: [{ url: t.url, alt: t.alt ?? "" }] } : Mt
       }
     }).run();
   },
   isActive: (r) => r.isActive(Qe),
-  inspector: (r) => /* @__PURE__ */ c(dd, { editor: r.editor })
-}, Nr = "product-features", et = he(Nr), Ar = {
+  attrsSchema: fd,
+  inspector: (r) => /* @__PURE__ */ c(gd, { editor: r.editor })
+}, vd = {
+  features: {
+    description: 'Icon + label row under the product hero (1–3 columns; a 4th item wraps): [{ icon, label }]. icon = a Material Symbols Outlined glyph name (e.g. "local_shipping", "eco", "loyalty", "verified", "spa"); label = short uppercase caption. Items with both empty are skipped; no items = the block is hidden.',
+    format: "array of objects"
+  }
+}, Nr = "product-features", et = fe(Nr), Ar = {
   features: [
     { icon: "local_shipping", label: "Fast delivery" },
     { icon: "eco", label: "Sustainably sourced" },
     { icon: "loyalty", label: "Quality guarantee" }
   ]
 };
-function fd({ attrs: r, selected: e }) {
+function wd({ attrs: r, selected: e }) {
   var a;
   const { t } = $("theme-storefront"), n = ((a = r.features) == null ? void 0 : a.length) ?? 0;
   return /* @__PURE__ */ c(
@@ -12850,9 +12954,9 @@ function fd({ attrs: r, selected: e }) {
     {
       contentEditable: !1,
       className: "my-4 rounded-lg border border-dashed border-surface-300 bg-surface-50 p-4 dark:border-surface-600 dark:bg-surface-900 " + (e ? "ring-2 ring-blue-500/60" : ""),
-      children: /* @__PURE__ */ f("div", { className: "flex items-start gap-3", children: [
+      children: /* @__PURE__ */ h("div", { className: "flex items-start gap-3", children: [
         /* @__PURE__ */ c(Dn, { className: "h-5 w-5 shrink-0 text-blue-500" }),
-        /* @__PURE__ */ f("div", { className: "min-w-0 flex-1", children: [
+        /* @__PURE__ */ h("div", { className: "min-w-0 flex-1", children: [
           /* @__PURE__ */ c("p", { className: "text-xs font-semibold uppercase tracking-wide text-surface-500 dark:text-surface-400", children: t("blocks.productFeatures.title") }),
           /* @__PURE__ */ c("p", { className: "text-sm text-surface-900 dark:text-surface-50", children: t("blocks.productFeatures.preview", { count: n }) })
         ] })
@@ -12860,7 +12964,7 @@ function fd({ attrs: r, selected: e }) {
     }
   );
 }
-function hd({ editor: r }) {
+function xd({ editor: r }) {
   const e = r.getAttributes(et), t = { ...Ar, ...e.attrs ?? {} }, n = t.features ?? [];
   function a(d) {
     r.chain().updateAttributes(et, { attrs: { ...t, ...d } }).run();
@@ -12875,16 +12979,16 @@ function hd({ editor: r }) {
     o(n.filter((u, p) => p !== d));
   }
   function l(d, u) {
-    o(n.map((p, h) => h === d ? { ...p, ...u } : p));
+    o(n.map((p, f) => f === d ? { ...p, ...u } : p));
   }
-  return /* @__PURE__ */ f("div", { className: "space-y-3", children: [
-    /* @__PURE__ */ f("div", { className: "flex items-center justify-between", children: [
-      /* @__PURE__ */ f("span", { className: "label !mb-0", children: [
+  return /* @__PURE__ */ h("div", { className: "space-y-3", children: [
+    /* @__PURE__ */ h("div", { className: "flex items-center justify-between", children: [
+      /* @__PURE__ */ h("span", { className: "label !mb-0", children: [
         "Features (",
         n.length,
         ")"
       ] }),
-      /* @__PURE__ */ f(
+      /* @__PURE__ */ h(
         "button",
         {
           type: "button",
@@ -12897,13 +13001,13 @@ function hd({ editor: r }) {
         }
       )
     ] }),
-    /* @__PURE__ */ c("div", { className: "space-y-2", children: n.map((d, u) => /* @__PURE__ */ f(
+    /* @__PURE__ */ c("div", { className: "space-y-2", children: n.map((d, u) => /* @__PURE__ */ h(
       "div",
       {
         className: "rounded-md border border-surface-200 p-3 space-y-2 dark:border-surface-700",
         children: [
-          /* @__PURE__ */ f("div", { className: "flex items-center justify-between", children: [
-            /* @__PURE__ */ f("span", { className: "text-xs font-semibold text-surface-600 dark:text-surface-300", children: [
+          /* @__PURE__ */ h("div", { className: "flex items-center justify-between", children: [
+            /* @__PURE__ */ h("span", { className: "text-xs font-semibold text-surface-600 dark:text-surface-300", children: [
               "Feature ",
               u + 1
             ] }),
@@ -12945,24 +13049,34 @@ function hd({ editor: r }) {
     /* @__PURE__ */ c("p", { className: "text-xs text-surface-500", children: "Use any Material Symbols Outlined glyph name — e.g. local_shipping, eco, loyalty, verified, spa." })
   ] });
 }
-const md = fe({
+const kd = he({
   subId: Nr,
   defaultAttrs: Ar,
-  view: fd
-}), gd = {
+  view: wd
+}), Sd = {
   id: `storefront/${Nr}`,
   nodeName: et,
   titleKey: "blocks.productFeatures.title",
   namespace: "theme-storefront",
   icon: Dn,
   category: "layout",
-  extensions: [md],
+  extensions: [kd],
   insert: async (r) => {
     r.focus().insertContent({ type: et, attrs: { attrs: Ar } }).run();
   },
   isActive: (r) => r.isActive(et),
-  inspector: (r) => /* @__PURE__ */ c(hd, { editor: r.editor })
-}, Tr = "reviews-list", tt = he(Tr), bd = {
+  attrsSchema: vd,
+  inspector: (r) => /* @__PURE__ */ c(xd, { editor: r.editor })
+}, Cd = {
+  eyebrow: { description: "Small uppercase label above the section title (empty = hidden)." },
+  title: { description: 'Serif section title (sample "Client impressions"; empty = hidden).' },
+  writeReviewLabel: { description: 'Text of the "write a review" link in the header. Shown only when writeReviewHref is also set.' },
+  writeReviewHref: { description: 'Target of that link: a site path ("/shop.html") or a URL (or mailto:).', format: "site path or URL" },
+  reviews: {
+    description: 'Review cards (2 columns on desktop): [{ authorName, authorRole, authorInitials, authorAvatarUrl, rating, text, dateLabel }]. authorAvatarUrl = round avatar (a full image URL, e.g. a media variant URL from `media upload` (formats.<name>.url) or any external URL); empty = a circle with authorInitials (empty = first 2 letters of authorName). rating = stars from 0 to 5, halves allowed (4.5). text = quote; dateLabel = free text ("March 2025"). Reviews with neither text nor authorName are skipped; none = the block is hidden.',
+    format: "array of objects"
+  }
+}, Tr = "reviews-list", tt = fe(Tr), Nd = {
   authorName: "",
   authorRole: "Verified buyer",
   authorInitials: "",
@@ -12977,7 +13091,7 @@ const md = fe({
   writeReviewHref: "",
   reviews: []
 };
-function yd({ attrs: r, selected: e }) {
+function Ad({ attrs: r, selected: e }) {
   var a;
   const { t } = $("theme-storefront"), n = ((a = r.reviews) == null ? void 0 : a.length) ?? 0;
   return /* @__PURE__ */ c(
@@ -12985,9 +13099,9 @@ function yd({ attrs: r, selected: e }) {
     {
       contentEditable: !1,
       className: "my-4 rounded-lg border border-dashed border-surface-300 bg-surface-50 p-4 dark:border-surface-600 dark:bg-surface-900 " + (e ? "ring-2 ring-blue-500/60" : ""),
-      children: /* @__PURE__ */ f("div", { className: "flex items-start gap-3", children: [
+      children: /* @__PURE__ */ h("div", { className: "flex items-start gap-3", children: [
         /* @__PURE__ */ c(Un, { className: "h-5 w-5 shrink-0 text-blue-500" }),
-        /* @__PURE__ */ f("div", { className: "min-w-0 flex-1", children: [
+        /* @__PURE__ */ h("div", { className: "min-w-0 flex-1", children: [
           /* @__PURE__ */ c("p", { className: "text-xs font-semibold uppercase tracking-wide text-surface-500 dark:text-surface-400", children: t("blocks.reviewsList.title") }),
           /* @__PURE__ */ c("p", { className: "text-sm text-surface-900 dark:text-surface-50", children: t("blocks.reviewsList.preview", { count: n }) })
         ] })
@@ -12995,7 +13109,7 @@ function yd({ attrs: r, selected: e }) {
     }
   );
 }
-function vd({ editor: r }) {
+function Td({ editor: r }) {
   const e = r.getAttributes(tt), t = { ...Er, ...e.attrs ?? {} }, n = t.reviews ?? [];
   function a(d) {
     r.chain().updateAttributes(tt, { attrs: { ...t, ...d } }).run();
@@ -13004,16 +13118,16 @@ function vd({ editor: r }) {
     a({ reviews: d });
   }
   function i() {
-    o([...n, { ...bd }]);
+    o([...n, { ...Nd }]);
   }
   function s(d) {
     o(n.filter((u, p) => p !== d));
   }
   function l(d, u) {
-    o(n.map((p, h) => h === d ? { ...p, ...u } : p));
+    o(n.map((p, f) => f === d ? { ...p, ...u } : p));
   }
-  return /* @__PURE__ */ f("div", { className: "space-y-3", children: [
-    /* @__PURE__ */ f("div", { children: [
+  return /* @__PURE__ */ h("div", { className: "space-y-3", children: [
+    /* @__PURE__ */ h("div", { children: [
       /* @__PURE__ */ c("label", { className: "label", children: "Eyebrow" }),
       /* @__PURE__ */ c(
         "input",
@@ -13025,7 +13139,7 @@ function vd({ editor: r }) {
         }
       )
     ] }),
-    /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { children: [
       /* @__PURE__ */ c("label", { className: "label", children: "Title" }),
       /* @__PURE__ */ c(
         "input",
@@ -13037,8 +13151,8 @@ function vd({ editor: r }) {
         }
       )
     ] }),
-    /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-3", children: [
-      /* @__PURE__ */ f("div", { children: [
+    /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-3", children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: '"Write a review" label' }),
         /* @__PURE__ */ c(
           "input",
@@ -13050,7 +13164,7 @@ function vd({ editor: r }) {
           }
         )
       ] }),
-      /* @__PURE__ */ f("div", { children: [
+      /* @__PURE__ */ h("div", { children: [
         /* @__PURE__ */ c("label", { className: "label", children: '"Write a review" link' }),
         /* @__PURE__ */ c(
           "input",
@@ -13064,14 +13178,14 @@ function vd({ editor: r }) {
         )
       ] })
     ] }),
-    /* @__PURE__ */ f("div", { className: "border-t border-surface-200 pt-3 dark:border-surface-700", children: [
-      /* @__PURE__ */ f("div", { className: "flex items-center justify-between mb-2", children: [
-        /* @__PURE__ */ f("span", { className: "label !mb-0", children: [
+    /* @__PURE__ */ h("div", { className: "border-t border-surface-200 pt-3 dark:border-surface-700", children: [
+      /* @__PURE__ */ h("div", { className: "flex items-center justify-between mb-2", children: [
+        /* @__PURE__ */ h("span", { className: "label !mb-0", children: [
           "Reviews (",
           n.length,
           ")"
         ] }),
-        /* @__PURE__ */ f(
+        /* @__PURE__ */ h(
           "button",
           {
             type: "button",
@@ -13084,13 +13198,13 @@ function vd({ editor: r }) {
           }
         )
       ] }),
-      /* @__PURE__ */ c("div", { className: "space-y-3", children: n.map((d, u) => /* @__PURE__ */ f(
+      /* @__PURE__ */ c("div", { className: "space-y-3", children: n.map((d, u) => /* @__PURE__ */ h(
         "div",
         {
           className: "rounded-md border border-surface-200 p-3 space-y-2 dark:border-surface-700",
           children: [
-            /* @__PURE__ */ f("div", { className: "flex items-center justify-between", children: [
-              /* @__PURE__ */ f("span", { className: "text-xs font-semibold text-surface-600 dark:text-surface-300", children: [
+            /* @__PURE__ */ h("div", { className: "flex items-center justify-between", children: [
+              /* @__PURE__ */ h("span", { className: "text-xs font-semibold text-surface-600 dark:text-surface-300", children: [
                 "Review ",
                 u + 1
               ] }),
@@ -13105,7 +13219,7 @@ function vd({ editor: r }) {
                 }
               )
             ] }),
-            /* @__PURE__ */ f("div", { className: "grid grid-cols-2 gap-2", children: [
+            /* @__PURE__ */ h("div", { className: "grid grid-cols-2 gap-2", children: [
               /* @__PURE__ */ c(
                 "input",
                 {
@@ -13187,50 +13301,51 @@ function vd({ editor: r }) {
     ] })
   ] });
 }
-const wd = fe({
+const Ed = he({
   subId: Tr,
   defaultAttrs: Er,
-  view: yd
-}), xd = {
+  view: Ad
+}), Id = {
   id: `storefront/${Tr}`,
   nodeName: tt,
   titleKey: "blocks.reviewsList.title",
   namespace: "theme-storefront",
   icon: Un,
   category: "advanced",
-  extensions: [wd],
+  extensions: [Ed],
   insert: async (r) => {
     r.focus().insertContent({ type: tt, attrs: { attrs: Er } }).run();
   },
   isActive: (r) => r.isActive(tt),
-  inspector: (r) => /* @__PURE__ */ c(vd, { editor: r.editor })
-}, kd = `<div data-cms-block="storefront/product-info" data-attrs="${En(
+  attrsSchema: Cd,
+  inspector: (r) => /* @__PURE__ */ c(Td, { editor: r.editor })
+}, Ld = `<div data-cms-block="storefront/product-info" data-attrs="${En(
   ct
 )}"></div>
 
-`, Sd = {
+`, Rd = {
   id: "storefront",
   name: "Storefront",
-  version: "0.1.1",
+  version: "0.1.2",
   description: "Storefront theme for storefront / e-commerce sites — Tailwind-based, sage + terracotta Material 3 palette, Playfair Display + Inter typography. Built for product catalogs with optional client-side filtering.",
   scssEntry: "theme.css",
-  cssText: Hr,
+  cssText: zr,
   jsText: Do,
   jsTextPosts: Uo,
   jsTextCatalog: _o,
-  i18n: { en: di, fr: ui, de: pi, es: fi, nl: hi, pt: mi, ko: gi },
+  i18n: { en: di, fr: ui, de: pi, es: hi, nl: fi, pt: mi, ko: gi },
   defaultPostMarkdown: {
-    post: kd
+    post: Ld
   },
   settings: {
     navLabelKey: "title",
     defaultConfig: An,
-    component: Li,
+    component: Ri,
     schema: qi
   },
   // Bakes the user's Style overrides (palette + font pair) into the
   // CSS uploaded by `Sync theme assets`.
-  compileCss: (r) => xn(Hr, r.style),
+  compileCss: (r) => xn(zr, r.style),
   // Image catalog used by the upload pipeline. Mirrors corporate +
   // magazine so a site switching between themes doesn't have to
   // re-process its media library.
@@ -13249,8 +13364,8 @@ const wd = fe({
     base: Tn,
     home: Bo,
     single: $o,
-    category: zo,
-    author: Ho,
+    category: Ho,
+    author: zo,
     notFound: jo
   },
   // Editor blocks. Phase 2 wires the four user-insertable home
@@ -13258,14 +13373,14 @@ const wd = fe({
   // productFeatures, reviewsList. (productGrid is a render helper
   // called by HomeTemplate, not a user-insertable block.)
   blocks: [
-    qc,
-    Yc,
-    ed,
-    ad,
+    Jc,
+    Zc,
+    nd,
     ld,
-    pd,
-    gd,
-    xd
+    hd,
+    yd,
+    Sd,
+    Id
   ],
   register(r, e) {
     var a, o, i;
@@ -13275,7 +13390,7 @@ const wd = fe({
     );
     const t = (s, ...l) => {
       const d = l[0];
-      d && Kt(d);
+      d && Gt(d);
     };
     r.addAction("publish.complete", t), r.addAction("post.unpublished", t), r.addAction("post.deleted", t), ((a = e == null ? void 0 : e.settings.themeConfigs) != null && a.storefront ? ((i = (o = (e == null ? void 0 : e.settings.themeConfigs).storefront) == null ? void 0 : o.catalog) == null ? void 0 : i.enabled) === !0 : !1) && r.registerRegenerationTarget({
       id: "storefront/catalog",
@@ -13284,7 +13399,7 @@ const wd = fe({
       descriptionKey: "regenerationTarget.catalog.description",
       priority: 250,
       run: async (s, l) => {
-        l({ level: "info", message: "Regenerating catalog products.json + page…" }), await Kt(s), l({ level: "success", message: "Catalog regenerated." });
+        l({ level: "info", message: "Regenerating catalog products.json + page…" }), await Gt(s), l({ level: "success", message: "Catalog regenerated." });
       }
     }), r.addFilter("menu.json.resolved", (s, ...l) => {
       var y;
@@ -13292,18 +13407,18 @@ const wd = fe({
       if (!d || d.settings.activeThemeId !== "storefront") return s;
       const u = (y = d.settings.themeConfigs) == null ? void 0 : y.storefront, p = u == null ? void 0 : u.catalog;
       if (!(p != null && p.enabled) || !p.addToMenu) return s;
-      const h = p.menuLabel || "Catalog", m = `/${(p.slug || "catalog.html").replace(/^\/+/, "")}`, v = {
+      const f = p.menuLabel || "Catalog", m = `/${(p.slug || "catalog.html").replace(/^\/+/, "")}`, v = {
         id: `storefront-catalog-${m}`,
-        label: h,
+        label: f,
         href: m,
         children: []
       };
       return s.header.find(
-        (b) => b.href === m || b.label && b.label === h
+        (b) => b.href === m || b.label && b.label === f
       ) ? s : { ...s, header: [...s.header, v] };
     });
   }
 };
 export {
-  Sd as manifest
+  Rd as manifest
 };

@@ -6,7 +6,7 @@ import {
   type Term,
 } from "@agent-cms/runtime";
 import type { MultilangConfig } from "../types";
-import { getMultilangConfig, isPrimaryLanguage } from "../core/config";
+import { getMultilangConfig, isPrimaryLanguage, localizeSettings } from "../core/config";
 import {
   getPostTranslation,
   getTermTranslation,
@@ -20,8 +20,8 @@ import {
 // Same trick as renderHome's shadow ctx: pre-prefix term slugs with
 // `<lang>/` so the internal `buildPostUrl` produces correctly-prefixed
 // URLs in the JSON output.
-function buildLocalizedDataCtx(
-  ctx: PublishContext,
+export function buildLocalizedDataCtx(
+  ctx: Pick<PublishContext, "posts" | "pages" | "terms" | "settings">,
   language: string,
   config: MultilangConfig,
 ): { posts: Post[]; pages: Post[]; terms: Term[] } {
@@ -89,7 +89,7 @@ export async function publishLocalizedDataJson(ctx: PublishContext): Promise<voi
     // homePageId cleared: the core's own static-home mapping (→ the
     // primary `index.html`) must not apply to the localised view — the
     // locale home page already carries its `<lang>/index` slug above.
-    const localisedSettings = { ...ctx.settings, language, homePageId: undefined };
+    const localisedSettings = { ...localizeSettings(ctx.settings, language, config), homePageId: undefined };
     const postsPath = `${language}/data/posts.json`;
     const authorsPath = `${language}/data/authors.json`;
     try {

@@ -35,11 +35,23 @@ export function printResult(io: Io, data: unknown, human: () => string): void {
   else io.out(human());
 }
 
+// Known errors thrown by the admin's own code, translated into codes and
+// hints an agent can act on.
+function knownError(error: unknown): CliError | null {
+  if (error instanceof Error && error.name === "SqlitePassphraseError") {
+    const reason = (error as Error & { reason?: string }).reason;
+    return reason === "missing"
+      ? new CliError("passphrase-required", "This database is encrypted and the site has no passphrase credential.", "Store it (`! agentcms credentials set passphrase:<alias>`), then register the site with `--passphrase-credential passphrase:<alias>` (`site forget` + `site add`, or `site credentials`).")
+      : new CliError("passphrase-wrong", "Wrong passphrase: the database could not be decrypted.", "Store the right one: `! agentcms credentials set <the site's passphrase account>` (see `site show`).");
+  }
+  return null;
+}
+
 export function printError(io: Io, error: unknown): number {
   const e =
     error instanceof CliError
       ? error
-      : new CliError(
+      : knownError(error) ?? new CliError(
           "internal",
           error instanceof Error ? error.message : String(error),
           "Unexpected error. Retry once; if it persists, report it with the command and this output at https://github.com/fleox/agentcms/issues.",

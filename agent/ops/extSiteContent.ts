@@ -20,11 +20,22 @@ export async function snapshotSiteContent(alias: string) {
     media: copy("media"),
     settings: copy("settings").find((d) => d.id === "site"),
   };
+  // The site's active theme bundle (read from the hosting), so a plugin
+  // previews inside the theme the site really uses.
+  let themeBundle: string | null = null;
+  const active = (content.settings as { activeThemeId?: string } | undefined)?.activeThemeId;
+  if (active && active !== "default") {
+    const registry = store.get("config", "externalRegistry") as { themes?: Array<{ id: string; entryPath?: string }> } | undefined;
+    const entry = registry?.themes?.find((t) => t.id === active);
+    const { readAdminFile, siteHostingReader } = await import("./adminFiles");
+    const file = await readAdminFile(site, entry?.entryPath ?? `themes/${active}/bundle.js`, await siteHostingReader(site)).catch(() => null);
+    themeBundle = file?.text ?? null;
+  }
   // Back to an inert config: the preview runs on an in-memory store.
   const { resetRuntimeConfigCache } = await import("../../src/lib/runtimeConfig");
   const { resetDocStore } = await import("../../src/services/docstore");
   window.__AGENTCMS_CONFIG__ = { backend: "local" };
   resetRuntimeConfigCache();
   resetDocStore();
-  return { alias: site.alias, content };
+  return { alias: site.alias, content, themeBundle };
 }

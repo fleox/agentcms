@@ -16,6 +16,8 @@ export function getMultilangConfig(settings: SiteSettings): MultilangConfig {
     menuTranslations: raw?.menuTranslations ?? {},
     showHeaderSwitcher: raw?.showHeaderSwitcher ?? DEFAULT_MULTILANG_CONFIG.showHeaderSwitcher,
     showFooterSwitcher: raw?.showFooterSwitcher ?? DEFAULT_MULTILANG_CONFIG.showFooterSwitcher,
+    siteTexts: raw?.siteTexts ?? {},
+    ...(raw?.lastPublishedLanguages ? { lastPublishedLanguages: raw.lastPublishedLanguages } : {}),
   };
 }
 
@@ -36,4 +38,25 @@ export function allLanguages(config: MultilangConfig): string[] {
     out.push(lang);
   }
   return out;
+}
+
+// Site settings as seen by a page of `language`: `language` set to the
+// target locale (drives theme i18n, `<html lang>`, Intl formats) and,
+// for a secondary language, the translated site title / description
+// from `config.siteTexts[language]` when set. The primary language
+// keeps Settings → General untouched.
+export function localizeSettings(
+  settings: SiteSettings,
+  language: string,
+  config: MultilangConfig,
+): SiteSettings {
+  const texts = isPrimaryLanguage(config, language) ? undefined : config.siteTexts?.[language];
+  const title = texts?.title?.trim();
+  const description = texts?.description?.trim();
+  return {
+    ...settings,
+    language,
+    ...(title ? { title } : {}),
+    ...(description ? { description } : {}),
+  };
 }

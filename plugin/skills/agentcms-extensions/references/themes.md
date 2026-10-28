@@ -205,7 +205,7 @@ imageFormats: {
 
 - Every upload made while your theme is active gets these variants, plus `admin-thumb`, `admin-preview` and `admin-original` (2000 px). The `admin-*` names are reserved.
 - In templates use `pickFormat(media, "medium")`. It falls back to the media's default format, then the largest variant (often the 2000 px original), then `""`.
-- Media uploaded under another theme lacks your format names, so always tolerate the fallback.
+- Media uploaded under another theme lacks your format names, so always tolerate the fallback. After switching to your theme, `media regenerate --yes` re-crops existing media to your formats; it keeps format **names**, so image URLs written in post bodies (e.g. `…/large.webp`) only survive a theme switch when both themes declare that name. Keep a `large` format.
 - `og:image` defaults to the hero's `"large"` variant, so declare a `large` format. Any other names are yours to choose (`hero`, `square`, `thumb`…).
 - **Responsive images:** every variant in `MediaView.formats[name]` carries `{ url, width, height }`. Build `srcset` from variants that share the same crop: either all `cover` with the same ratio, or all `contain`. Mixing a 1:1 crop with a 3:2 original in one `srcset` makes the browser swap shapes.
 
@@ -218,9 +218,15 @@ const set = ["small", "medium", "large"].map((n) => hero?.formats[n]).filter(Boo
 
 ## Screenshots and hover
 
-The preview's screenshots have no hover: `(hover: hover)` is false, so hover-reveal designs show their touch/default state. Make sure that state looks right too. Lazy images are loaded before each capture, and the page is scrolled to the bottom and back so scroll-triggered reveals have run.
+Captures use `prefers-color-scheme: light` by default; add `--color-scheme dark` (`ext preview`, `site screenshot`, `content preview`) to check a dark palette. The preview's screenshots have no hover: `(hover: hover)` is false, so hover-reveal designs show their touch/default state. Make sure that state looks right too. Lazy images are loaded before each capture, and the page is scrolled to the bottom and back so scroll-triggered reveals have run.
 
 **Scroll animations.** Hide elements before their reveal only from JavaScript (add the hidden state in the loader, never in the static CSS), so pages stay readable without JS and in feed readers; honour `prefers-reduced-motion`. The theme's runtime script is `jsText` (published as `theme-assets/<id>-menu.js`).
+
+## Plugins the theme works with
+
+- **Search** (`agentcms-search`): the search opens from any element with `data-cms-search` in your header (a button); without one, visitors can't reach it. Render it when the plugin is on: `site.settings.enabledPlugins?.["agentcms-search"] !== false` (a missing flag means on).
+- **Archives**: `archivesLink` (home, category) is already translated and ends with " →": print it as is.
+- **Language switcher** (`agentcms-multilang`): add empty `[data-cms-langswitch="header"]` / `[data-cms-langswitch="footer"]` containers; the plugin fills them.
 
 ## Fonts chosen in the settings
 
@@ -229,7 +235,7 @@ The preview's screenshots have no hover: `(hover: hover)` is false, so hover-rev
 3. In `compileCss(config)`, swap that first `@import` for the chosen font's `googleHref`, and append a `:root{ --font: "<name>", <fallback> }` override:
 
 ```ts
-const FONTS: FontOption[] = [{ name: "Inter", fallback: "system-ui, sans-serif", googleHref: "https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" }, …];
+const FONTS: FontOption[] = [{ name: "Inter", fallback: "sans-serif", googleHref: "https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" }, …]; // fallback: "serif" | "sans-serif" | "monospace"
 compileCss: (config) => {
   const font = FONTS.find((f) => f.name === config.font) ?? FONTS[0];
   return cssText.replace(/@import\s*(url\()?["'][^"']+["']\)?;/, `@import url("${font.googleHref}");`) + `

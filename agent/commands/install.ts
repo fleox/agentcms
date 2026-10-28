@@ -18,6 +18,17 @@ const SECRET_FIELDS: Record<string, string> = {
   s3: "access key + secret key",
 };
 
+// Markdown content in the repository GitHub/GitLab Pages publishes: its
+// whole tree is served, drafts and users.json included.
+function publicContentWarning(plan: { backend: string; runtime: unknown; target: { connectorId: string; settings: Record<string, unknown> } }): string[] {
+  if (plan.backend !== "markdown-git" || plan.target.connectorId !== "git-pages") return [];
+  const git = (plan.runtime as { git?: { provider?: string; owner?: string; repo?: string; project?: string } }).git ?? {};
+  const t = plan.target.settings as { provider?: string; owner?: string; repo?: string; project?: string; dir?: string };
+  const same = git.provider === t.provider && (git.provider === "gitlab" ? git.project === t.project : git.owner === t.owner && git.repo === t.repo);
+  if (!same || (t.dir && t.dir !== "/" && t.dir !== "")) return [];
+  return ["the content is in the repository the site is published from: its whole tree is public — drafts, unpublished pages and users.json (editors' emails) included. Use a separate private content repository, or a `docs` publish folder."];
+}
+
 export const installCommand: Command = {
   name: "install",
   summary:
@@ -55,6 +66,7 @@ export const installCommand: Command = {
         adminUrlOf({ siteUrl: plan.siteUrl, adminFolder: plan.adminFolder }),
       credentials: plan.credentials,
       checks,
+      warnings: publicContentWarning(plan),
     };
     if (!checks.hosting.ok || !checks.data.ok) {
       throw new CliError(
@@ -123,6 +135,7 @@ export const installCommand: Command = {
           `New sites start as "My site", in English, with the default theme and every plugin on (including agentcms-multilang): set the title, description and language (\`agentcms settings set --site ${plan.alias} --title … --language …\`), pick a theme, disable agentcms-multilang for a one-language site, and give the author a public name (\`agentcms users update me --site ${plan.alias} --first-name … --last-name …\`).`,
         );
       }
+      for (const w of summary.warnings) nextSteps.push(`Warning: ${w}`);
       nextSteps.push(`Check everything with \`agentcms doctor --site ${plan.alias}\`.`);
 
       printResult(io, { ...summary, installed: true, files: outcome.files, adminVersion: outcome.adminVersion, notices: outcome.notices, nextSteps }, () =>

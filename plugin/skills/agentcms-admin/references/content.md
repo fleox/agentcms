@@ -66,7 +66,7 @@ It returns, for each block, the exact `markdown` to paste in a body and its defa
 npx -y @agent-cms/agentcms@0.3.1 content blocks <block id> --attrs '{"headline":"…","body":"…"}' --site <alias> --json
 ```
 
-This prints the marker with your attributes encoded (base64 JSON in `data-attrs`). Put each marker on its own lines, with a blank line before and after.
+This prints the marker with your attributes encoded (base64 JSON in `data-attrs`). Your attrs are merged over the block's sample values: **pass every field**, or the sample text stays. Put each marker on its own lines, with a blank line before and after. A block of an installed theme that isn't active yet works too (to prepare content before switching); it renders once that theme is active.
 
 Always available (must-use plugins):
 
@@ -84,7 +84,7 @@ Theme blocks (heroes, call-to-action banners…) exist only while their theme is
 
 After writing a body with blocks, run `content preview <ref> --screenshots` to check the result.
 
-Theme blocks have no attribute descriptions yet. Start from the defaults `content blocks` prints, change one thing at a time, and look at the preview. A block can duplicate what the theme already shows (e.g. portfolio's project sidebar shows the category and the year).
+`content blocks <id>` also prints `attrsSchema`: what each attribute does, the accepted values and formats, and the shape of list items (e.g. the `socials` of a contact block). A value outside a closed list is refused (`invalid-value`). Look at the preview after changing a block: a block can duplicate what the theme already shows (e.g. portfolio's project sidebar shows the category and the year).
 
 ## Media
 
@@ -114,6 +114,7 @@ When the multilang plugin is enabled and languages are configured (`plugins conf
 - `enabledLanguages` lists the **other** languages (don't repeat the primary one), each published under `/<lang>/`.
 - Set both together, e.g. `settings set --language en` and `plugins config agentcms-multilang --merge '{"primaryLanguage":"en","enabledLanguages":["fr"]}'`, then `regenerate everything`.
 - `homePages{lang: pageId}` (optional): the page shown as `/<lang>/`. Without it, a static home page (`settings set --home-mode static-page`) is used in every language, with its translation.
+- Sitemaps: one file per year listing every language, with `hreflang` alternates (no per-language sitemap files, except News sitemaps). Search uses a per-language index.
 - Published paths per language are in `localePaths` (`content get` / `content publish`). Before publishing, a translation's path is `<lang>/<translated category slug>/<translated slug>.html` (`<lang>/<slug>.html` for pages).
 
 - **Edit a translation:**
@@ -121,5 +122,8 @@ When the multilang plugin is enabled and languages are configured (`plugins conf
   content update <ref> --lang fr --title "…" --slug "…" --body @fr.md --excerpt "…" --seo-title "…"
   ```
   This edits the French version, published at `/fr/…`. An online entry is republished with all its languages.
+- A post's translation is published only when its **category is translated** in that language (`terms update <category> --lang fr --name … --slug …`); `content update --lang` warns otherwise. Pages have no category.
+- **Remove a translation:** `content update <ref> --lang fr --remove` (an online entry is republished, which deletes the translated page).
+- Unpublishing or deleting an entry also deletes its translated pages.
 - **Category names per language:** `terms update <ref> --lang fr --name "…" --slug "…"`.
 - **Menu labels per language:** `translations: { "fr": { "label": "…" } }` on menu items (`menus set`).

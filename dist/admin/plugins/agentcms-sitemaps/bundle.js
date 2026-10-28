@@ -1,6 +1,6 @@
-import { pickPublicLocale as de, deleteFile as U, uploadFile as T, pathToPublicUrl as A, applyFiltersSync as X, applyFilters as pe, basePathFromBaseUrl as ce, buildPostUrl as me, canonicalUrl as ue, useCmsData as ge, toast as S, fetchAllPosts as Y } from "@agent-cms/runtime";
+import { pickPublicLocale as pe, deleteFile as U, uploadFile as T, pathToPublicUrl as A, applyFiltersSync as X, applyFilters as ce, basePathFromBaseUrl as Z, buildPostUrl as me, canonicalUrl as ue, useCmsData as ge, toast as S, fetchAllPosts as Y } from "@agent-cms/runtime";
 import { jsxs as g, jsx as p } from "react/jsx-runtime";
-import { forwardRef as Z, createElement as G, useState as C, useEffect as he } from "react";
+import { forwardRef as Q, createElement as z, useState as C, useEffect as he } from "react";
 import { useTranslation as fe } from "react-i18next";
 const we = {
   title: "Sitemaps",
@@ -324,7 +324,7 @@ const we = {
   regenerateFailed: "사이트맵 재생성에 실패했습니다.",
   baseUrlMissing: "사이트맵을 재생성하기 전에 설정 → 일반에서 공개 사이트 URL을 설정하세요.",
   uploaded: "{{count}}개의 파일을 업로드했습니다."
-}, z = "sitemaps/sitemap.xsl", M = "sitemaps/sitemap-news.xsl", Q = {
+}, j = "sitemaps/sitemap.xsl", M = "sitemaps/sitemap-news.xsl", ee = {
   en: {
     pageTitle: "XML Sitemap",
     heading: "XML Sitemap",
@@ -452,10 +452,10 @@ const we = {
     columnPubdate: "게시일"
   }
 };
-function ee(t) {
-  return de(t);
+function te(t) {
+  return pe(t);
 }
-const te = `
+const se = `
 body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; color: #1f2937; margin: 0; padding: 32px 16px; background: #ffffff; }
 main { max-width: 1024px; margin: 0 auto; }
 h1 { font-size: 22px; margin: 0 0 8px; font-weight: 600; }
@@ -472,7 +472,7 @@ a:hover { text-decoration: underline; }
 .lastmod, .pubdate { white-space: nowrap; color: #4b5563; width: 220px; }
 `;
 function Te(t) {
-  const s = ee(t), e = Q[s];
+  const s = te(t), e = ee[s];
   return `<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -487,7 +487,7 @@ function Te(t) {
         <meta charset="utf-8"/>
         <meta name="robots" content="noindex,follow"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
-        <style type="text/css">${te}</style>
+        <style type="text/css">${se}</style>
       </head>
       <body>
         <main>
@@ -530,7 +530,7 @@ function Te(t) {
 </xsl:stylesheet>`;
 }
 function Ae(t) {
-  const s = ee(t), e = Q[s];
+  const s = te(t), e = ee[s];
   return `<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -546,7 +546,7 @@ function Ae(t) {
         <meta charset="utf-8"/>
         <meta name="robots" content="noindex,follow"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
-        <style type="text/css">${te}</style>
+        <style type="text/css">${se}</style>
       </head>
       <body>
         <main>
@@ -570,16 +570,16 @@ function Ae(t) {
   </xsl:template>
 </xsl:stylesheet>`;
 }
-const se = {
+const ae = {
   newsEnabled: !1,
   newsWindowDays: 2,
   contentTypes: "posts-pages",
   robotsTxt: ""
-}, O = "sitemaps", j = `${O}/sitemap-index.xml`, N = `${O}/sitemap-news.xml`, Ne = "robots.txt";
-function ae(t) {
+}, O = "sitemaps", H = `${O}/sitemap-index.xml`, N = `${O}/sitemap-news.xml`, Ne = "robots.txt";
+function ne(t) {
   return `${O}/sitemap-${t}.xml`;
 }
-const ne = [
+const ie = [
   "sitemap-index.xml",
   "sitemap-news.xml",
   "sitemap.xsl",
@@ -588,9 +588,9 @@ const ne = [
 function Re(t) {
   return `sitemap-${t}.xml`;
 }
-function H(t, s) {
-  const e = ["User-agent: *", "Allow: /", `Disallow: ${ce(t)}/admin/`, ""];
-  return t && (e.push(`Sitemap: ${A(t, j)}`), s && e.push(`Sitemap: ${A(t, N)}`)), e.join(`
+function k(t, s) {
+  const e = ["User-agent: *", "Allow: /", `Disallow: ${Z(t)}/admin/`, ""];
+  return t && (e.push(`Sitemap: ${A(t, H)}`), s && e.push(`Sitemap: ${A(t, N)}`)), e.join(`
 `) + `
 `;
 }
@@ -602,7 +602,7 @@ function F(t, s) {
   return ue(t, s);
 }
 function V(t, s, e) {
-  var i, l, o, d, c, m;
+  var i, r, o, d, c, m;
   let a;
   try {
     const w = t.primaryTermId ? s.find((y) => y.id === t.primaryTermId) : void 0;
@@ -610,35 +610,35 @@ function V(t, s, e) {
   } catch {
     return null;
   }
-  const r = ((l = (i = t.createdAt) == null ? void 0 : i.toMillis) == null ? void 0 : l.call(i)) ?? ((d = (o = t.publishedAt) == null ? void 0 : o.toMillis) == null ? void 0 : d.call(o)) ?? Date.now(), n = ((m = (c = t.updatedAt) == null ? void 0 : c.toMillis) == null ? void 0 : m.call(c)) ?? r;
+  const l = ((r = (i = t.createdAt) == null ? void 0 : i.toMillis) == null ? void 0 : r.call(i)) ?? ((d = (o = t.publishedAt) == null ? void 0 : o.toMillis) == null ? void 0 : d.call(o)) ?? Date.now(), n = ((m = (c = t.updatedAt) == null ? void 0 : c.toMillis) == null ? void 0 : m.call(c)) ?? l;
   return {
     path: a,
-    createdAtMs: r,
+    createdAtMs: l,
     updatedAtMs: n,
     title: t.title || t.slug,
     sourcePost: t
   };
 }
-function Ue(t, s, e, a, r) {
+function Ue(t, s, e, a, l) {
   const n = [];
   for (const i of t) {
     if (i.status !== "online") continue;
-    const l = V(i, e, a);
-    l && n.push(l);
+    const r = V(i, e, a);
+    r && n.push(r);
   }
-  if (r.contentTypes === "posts-pages")
+  if (l.contentTypes === "posts-pages")
     for (const i of s) {
       if (i.status !== "online") continue;
-      const l = V(i, e, a);
-      l && n.push(l);
+      const r = V(i, e, a);
+      r && n.push(r);
     }
   return n;
 }
 function De(t) {
   const s = /* @__PURE__ */ new Map();
   for (const e of t) {
-    const a = new Date(e.createdAtMs).getUTCFullYear(), r = s.get(a) ?? [];
-    r.push(e), s.set(a, r);
+    const a = new Date(e.createdAtMs).getUTCFullYear(), l = s.get(a) ?? [];
+    l.push(e), s.set(a, l);
   }
   return s;
 }
@@ -661,7 +661,7 @@ function x(t) {
 function Xe(t) {
   return new Date(t).toISOString();
 }
-function k(t) {
+function P(t) {
   return new Date(t).toISOString().slice(0, 10);
 }
 function q(t) {
@@ -671,14 +671,14 @@ function q(t) {
   ].join(`
 `);
 }
-function ke(t, s, e, a, r, n) {
+function ke(t, s, e, a, l, n) {
   const i = X(
     "sitemap.urlset.namespaces",
     {},
     { kind: "year", baseUrl: a }
-  ), l = Object.entries(i).map(([d, c]) => ` ${x(d)}="${x(c)}"`).join(""), o = [
-    q(r),
-    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"${l}>`
+  ), r = Object.entries(i).map(([d, c]) => ` ${x(d)}="${x(c)}"`).join(""), o = [
+    q(l),
+    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"${r}>`
   ];
   for (const d of t) {
     const c = X(
@@ -688,48 +688,48 @@ function ke(t, s, e, a, r, n) {
       // localised paths without relying on module-level snapshots.
       { entity: d.sourcePost, baseUrl: a, path: d.path, lastmodMs: d.updatedAtMs, terms: s, settings: e }
     );
-    o.push("  <url>"), o.push(`    <loc>${x(F(a, d.path))}</loc>`), o.push(`    <lastmod>${k(d.updatedAtMs)}</lastmod>`), c && o.push(c), o.push("  </url>");
+    o.push("  <url>"), o.push(`    <loc>${x(F(a, d.path))}</loc>`), o.push(`    <lastmod>${P(d.updatedAtMs)}</lastmod>`), c && o.push(c), o.push("  </url>");
   }
   for (const d of n) {
     const c = d.lastmodMs ?? Date.now();
-    o.push("  <url>"), o.push(`    <loc>${x(F(a, d.path))}</loc>`), o.push(`    <lastmod>${k(c)}</lastmod>`), d.extraInnerXml && o.push(d.extraInnerXml), o.push("  </url>");
+    o.push("  <url>"), o.push(`    <loc>${x(F(a, d.path))}</loc>`), o.push(`    <lastmod>${P(c)}</lastmod>`), d.extraInnerXml && o.push(d.extraInnerXml), o.push("  </url>");
   }
   return o.push("</urlset>"), o.join(`
 `);
 }
-function Pe(t, s, e, a, r, n) {
+function Pe(t, s, e, a, l, n) {
   const i = [
-    q(r),
+    q(l),
     '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-  ], l = k(a);
+  ], r = P(a);
   for (const o of [...t].sort((d, c) => d - c))
-    i.push("  <sitemap>"), i.push(`    <loc>${x(A(e, ae(o)))}</loc>`), i.push(`    <lastmod>${l}</lastmod>`), i.push("  </sitemap>");
-  s && (i.push("  <sitemap>"), i.push(`    <loc>${x(A(e, N))}</loc>`), i.push(`    <lastmod>${l}</lastmod>`), i.push("  </sitemap>"));
+    i.push("  <sitemap>"), i.push(`    <loc>${x(A(e, ne(o)))}</loc>`), i.push(`    <lastmod>${r}</lastmod>`), i.push("  </sitemap>");
+  s && (i.push("  <sitemap>"), i.push(`    <loc>${x(A(e, N))}</loc>`), i.push(`    <lastmod>${r}</lastmod>`), i.push("  </sitemap>"));
   for (const o of n) {
     const d = o.lastmodMs ?? a;
-    i.push("  <sitemap>"), i.push(`    <loc>${x(A(e, o.path))}</loc>`), i.push(`    <lastmod>${k(d)}</lastmod>`), i.push("  </sitemap>");
+    i.push("  <sitemap>"), i.push(`    <loc>${x(A(e, o.path))}</loc>`), i.push(`    <lastmod>${P(d)}</lastmod>`), i.push("  </sitemap>");
   }
   return i.push("</sitemapindex>"), i.join(`
 `);
 }
-function J(t, s, e, a, r, n) {
-  const i = Date.now() - r * 24 * 60 * 60 * 1e3, l = t.filter((m) => m.updatedAtMs >= i).sort((m, w) => w.updatedAtMs - m.updatedAtMs), o = [
+function J(t, s, e, a, l, n) {
+  const i = Date.now() - l * 24 * 60 * 60 * 1e3, r = t.filter((m) => m.updatedAtMs >= i).sort((m, w) => w.updatedAtMs - m.updatedAtMs), o = [
     q(n),
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"',
     '        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">'
   ], d = x(s || "Site"), c = x((e || "en").split("-")[0] || "en");
-  for (const m of l)
+  for (const m of r)
     o.push("  <url>"), o.push(`    <loc>${x(F(a, m.path))}</loc>`), o.push("    <news:news>"), o.push("      <news:publication>"), o.push(`        <news:name>${d}</news:name>`), o.push(`        <news:language>${c}</news:language>`), o.push("      </news:publication>"), o.push(`      <news:publication_date>${Xe(m.updatedAtMs)}</news:publication_date>`), o.push(`      <news:title>${x(m.title)}</news:title>`), o.push("    </news:news>"), o.push("  </url>");
   return o.push("</urlset>"), o.join(`
 `);
 }
 async function W(t) {
-  const { posts: s, pages: e, terms: a, settings: r, config: n, scope: i } = t, l = (r.baseUrl || "").replace(/\/+$/, "");
-  if (!l) throw new Error("baseUrl is empty — cannot build sitemap URLs.");
-  const o = Ue(s, e, a, r, n), d = De(o), c = [...d.keys()], m = (i == null ? void 0 : i.years) ?? c, w = [], y = [];
+  const { posts: s, pages: e, terms: a, settings: l, config: n, scope: i } = t, r = (l.baseUrl || "").replace(/\/+$/, "");
+  if (!r) throw new Error("baseUrl is empty — cannot build sitemap URLs.");
+  const o = Ue(s, e, a, l, n), d = De(o), c = [...d.keys()], m = (i == null ? void 0 : i.years) ?? c, w = [], y = [];
   if (!i) {
     const v = [
-      ...ne,
+      ...ie,
       ...c.map((h) => Re(h))
     ];
     for (const h of v)
@@ -738,13 +738,13 @@ async function W(t) {
       } catch {
       }
   }
-  const R = A(l, z), L = A(l, M);
+  const R = A(r, j), L = A(r, M);
   for (const v of m) {
     const h = d.get(v) ?? [], f = X(
       "sitemap.urls.extra",
       [],
-      { posts: s, pages: e, terms: a, settings: r, year: v, scope: "year" }
-    ), b = ae(v);
+      { posts: s, pages: e, terms: a, settings: l, year: v, scope: "year" }
+    ), b = ne(v);
     if (h.length === 0 && f.length === 0) {
       try {
         await U(b), y.push(b);
@@ -752,47 +752,47 @@ async function W(t) {
       }
       continue;
     }
-    const E = ke(h, a, r, l, R, f);
-    await T({ path: b, content: E }), w.push(b);
+    const $ = ke(h, a, l, r, R, f);
+    await T({ path: b, content: $ }), w.push(b);
   }
   if ((i == null ? void 0 : i.index) !== !1) {
     const v = [...d.entries()].filter(([, b]) => b.length > 0).map(([b]) => b), h = X(
       "sitemap.index.extra",
       [],
-      { settings: r }
+      { settings: l }
     ), f = Pe(
       v,
       n.newsEnabled,
-      l,
+      r,
       Date.now(),
       R,
       h
     );
-    await T({ path: j, content: f }), w.push(j);
+    await T({ path: H, content: f }), w.push(H);
   }
   if ((i == null ? void 0 : i.news) !== !1)
     if (n.newsEnabled) {
       const v = J(
         o,
-        r.title,
-        r.language,
-        l,
+        l.title,
+        l.language,
+        r,
         n.newsWindowDays,
         L
       );
       await T({ path: N, content: v }), w.push(N);
-      const h = await pe(
+      const h = await ce(
         "sitemap.news.locales",
         [],
-        { posts: s, pages: e, terms: a, settings: r, config: n }
+        { posts: s, pages: e, terms: a, settings: l, config: n }
       );
       for (const f of h) {
         if (!f.path || !f.language) continue;
         const b = J(
           f.entities,
-          r.title,
+          l.title,
           f.language,
-          l,
+          r,
           n.newsWindowDays,
           L
         );
@@ -810,19 +810,25 @@ async function B(t) {
   let e;
   t.discourageIndexing ? e = `User-agent: *
 Disallow: /
-` : t.config.robotsTxt && t.config.robotsTxt.trim().length > 0 ? e = t.config.robotsTxt : e = H(s, t.config.newsEnabled), await T({ path: Ne, content: e });
+` : t.config.robotsTxt && t.config.robotsTxt.trim().length > 0 && !Ee(t.config.robotsTxt, s, t.config.newsEnabled) ? e = t.config.robotsTxt : e = k(s, t.config.newsEnabled), await T({ path: Ne, content: e });
+}
+function Ee(t, s, e) {
+  const a = Z(s);
+  if (!a) return !1;
+  const n = k(s, e).replace(`Disallow: ${a}/admin/`, "Disallow: /admin/");
+  return t.trim() === n.trim();
 }
 async function _(t) {
   const s = [], e = [];
-  for (const a of ne)
+  for (const a of ie)
     try {
       await U(a), e.push(a);
     } catch {
     }
   if (await T({
-    path: z,
+    path: j,
     content: Te(t.settings.language)
-  }), s.push(z), t.config.newsEnabled)
+  }), s.push(j), t.config.newsEnabled)
     await T({
       path: M,
       content: Ae(t.settings.language)
@@ -834,9 +840,9 @@ async function _(t) {
     }
   return { uploaded: s, deleted: e };
 }
-async function Ee(t) {
-  var a, r, n, i, l, o;
-  const s = ((r = (a = t.post.createdAt) == null ? void 0 : a.toMillis) == null ? void 0 : r.call(a)) ?? ((i = (n = t.post.publishedAt) == null ? void 0 : n.toMillis) == null ? void 0 : i.call(n)) ?? ((o = (l = t.post.updatedAt) == null ? void 0 : l.toMillis) == null ? void 0 : o.call(l)) ?? Date.now(), e = new Date(s).getUTCFullYear();
+async function $e(t) {
+  var a, l, n, i, r, o;
+  const s = ((l = (a = t.post.createdAt) == null ? void 0 : a.toMillis) == null ? void 0 : l.call(a)) ?? ((i = (n = t.post.publishedAt) == null ? void 0 : n.toMillis) == null ? void 0 : i.call(n)) ?? ((o = (r = t.post.updatedAt) == null ? void 0 : r.toMillis) == null ? void 0 : o.call(r)) ?? Date.now(), e = new Date(s).getUTCFullYear();
   return W({
     posts: t.posts,
     pages: t.pages,
@@ -852,14 +858,14 @@ async function Ee(t) {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const $e = (t) => t.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), ie = (...t) => t.filter((s, e, a) => !!s && s.trim() !== "" && a.indexOf(s) === e).join(" ").trim();
+const Ie = (t) => t.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), oe = (...t) => t.filter((s, e, a) => !!s && s.trim() !== "" && a.indexOf(s) === e).join(" ").trim();
 /**
  * @license lucide-react v0.460.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-var Ie = {
+var Ge = {
   xmlns: "http://www.w3.org/2000/svg",
   width: 24,
   height: 24,
@@ -876,30 +882,30 @@ var Ie = {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Ge = Z(
+const ze = Q(
   ({
     color: t = "currentColor",
     size: s = 24,
     strokeWidth: e = 2,
     absoluteStrokeWidth: a,
-    className: r = "",
+    className: l = "",
     children: n,
     iconNode: i,
-    ...l
-  }, o) => G(
+    ...r
+  }, o) => z(
     "svg",
     {
       ref: o,
-      ...Ie,
+      ...Ge,
       width: s,
       height: s,
       stroke: t,
       strokeWidth: a ? Number(e) * 24 / Number(s) : e,
-      className: ie("lucide", r),
-      ...l
+      className: oe("lucide", l),
+      ...r
     },
     [
-      ...i.map(([d, c]) => G(d, c)),
+      ...i.map(([d, c]) => z(d, c)),
       ...Array.isArray(n) ? n : [n]
     ]
   )
@@ -910,13 +916,13 @@ const Ge = Z(
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const P = (t, s) => {
-  const e = Z(
-    ({ className: a, ...r }, n) => G(Ge, {
+const E = (t, s) => {
+  const e = Q(
+    ({ className: a, ...l }, n) => z(ze, {
       ref: n,
       iconNode: s,
-      className: ie(`lucide-${$e(t)}`, a),
-      ...r
+      className: oe(`lucide-${Ie(t)}`, a),
+      ...l
     })
   );
   return e.displayName = `${t}`, e;
@@ -927,7 +933,7 @@ const P = (t, s) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ze = P("FileCode2", [
+const je = E("FileCode2", [
   ["path", { d: "M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4", key: "1pf5j1" }],
   ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
   ["path", { d: "m5 12-3 3 3 3", key: "oke12k" }],
@@ -939,7 +945,7 @@ const ze = P("FileCode2", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const D = P("LoaderCircle", [
+const D = E("LoaderCircle", [
   ["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]
 ]);
 /**
@@ -948,7 +954,7 @@ const D = P("LoaderCircle", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const je = P("RefreshCw", [
+const He = E("RefreshCw", [
   ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
   ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
   ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
@@ -960,7 +966,7 @@ const je = P("RefreshCw", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const K = P("Save", [
+const K = E("Save", [
   [
     "path",
     {
@@ -971,12 +977,12 @@ const K = P("Save", [
   ["path", { d: "M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7", key: "1ydtos" }],
   ["path", { d: "M7 3v4a1 1 0 0 0 1 1h7", key: "t51u73" }]
 ]);
-function He({ config: t, save: s }) {
-  const { t: e } = fe("agentcms-sitemaps"), { settings: a, terms: r } = ge(), [n, i] = C(t);
+function Fe({ config: t, save: s }) {
+  const { t: e } = fe("agentcms-sitemaps"), { settings: a, terms: l } = ge(), [n, i] = C(t);
   he(() => i(t), [t]);
-  const [l, o] = C(!1), [d, c] = C(!1), [m, w] = C(!1), [y, R] = C(!1);
+  const [r, o] = C(!1), [d, c] = C(!1), [m, w] = C(!1), [y, R] = C(!1);
   function L(u) {
-    i(($) => ({ ...$, ...u }));
+    i((I) => ({ ...I, ...u }));
   }
   async function v() {
     o(!0);
@@ -1010,13 +1016,13 @@ function He({ config: t, save: s }) {
     w(!0);
     try {
       await s(n);
-      const u = await _({ settings: a, config: n }), [$, le] = await Promise.all([
+      const u = await _({ settings: a, config: n }), [I, re] = await Promise.all([
         Y({ type: "post" }),
         Y({ type: "page" })
-      ]), re = await W({
-        posts: $,
-        pages: le,
-        terms: r,
+      ]), de = await W({
+        posts: I,
+        pages: re,
+        terms: l,
         settings: a,
         config: n
       });
@@ -1025,7 +1031,7 @@ function He({ config: t, save: s }) {
         baseUrl: a.baseUrl,
         discourageIndexing: a.discourageIndexing === !0
       }), S.success(
-        e("uploaded", { count: u.uploaded.length + re.uploaded.length + 1 })
+        e("uploaded", { count: u.uploaded.length + de.uploaded.length + 1 })
       );
     } catch (u) {
       console.error("[agentcms-sitemaps] regeneration failed:", u), S.error(e("regenerateFailed"));
@@ -1049,8 +1055,8 @@ function He({ config: t, save: s }) {
       R(!1);
     }
   }
-  function E() {
-    L({ robotsTxt: H(a.baseUrl, n.newsEnabled) });
+  function $() {
+    L({ robotsTxt: k(a.baseUrl, n.newsEnabled) });
   }
   return /* @__PURE__ */ g("div", { className: "space-y-6", children: [
     /* @__PURE__ */ p("p", { className: "text-sm text-surface-600 dark:text-surface-300", children: e("description") }),
@@ -1108,11 +1114,11 @@ function He({ config: t, save: s }) {
           type: "button",
           className: "btn-primary",
           onClick: v,
-          disabled: l,
+          disabled: r,
           children: [
-            /* @__PURE__ */ p(D, { className: l ? "h-4 w-4 animate-spin" : "hidden" }),
-            /* @__PURE__ */ p(K, { className: l ? "hidden" : "h-4 w-4" }),
-            /* @__PURE__ */ p("span", { children: e(l ? "robots.saving" : "saveSettings") })
+            /* @__PURE__ */ p(D, { className: r ? "h-4 w-4 animate-spin" : "hidden" }),
+            /* @__PURE__ */ p(K, { className: r ? "hidden" : "h-4 w-4" }),
+            /* @__PURE__ */ p("span", { children: e(r ? "robots.saving" : "saveSettings") })
           ]
         }
       )
@@ -1120,7 +1126,7 @@ function He({ config: t, save: s }) {
     /* @__PURE__ */ g("section", { className: "card p-4 space-y-3", children: [
       /* @__PURE__ */ g("div", { className: "flex items-center justify-between gap-3", children: [
         /* @__PURE__ */ p("h2", { className: "font-semibold", children: e("sections.robots") }),
-        /* @__PURE__ */ p("button", { type: "button", className: "btn-ghost", onClick: E, children: e("robots.resetDefault") })
+        /* @__PURE__ */ p("button", { type: "button", className: "btn-ghost", onClick: $, children: e("robots.resetDefault") })
       ] }),
       /* @__PURE__ */ p("p", { className: "text-xs text-surface-500 dark:text-surface-400", children: e("robots.help") }),
       /* @__PURE__ */ p(
@@ -1129,7 +1135,7 @@ function He({ config: t, save: s }) {
           className: "input font-mono text-xs min-h-[180px]",
           value: n.robotsTxt,
           onChange: (u) => L({ robotsTxt: u.target.value }),
-          placeholder: H(a.baseUrl, n.newsEnabled)
+          placeholder: k(a.baseUrl, n.newsEnabled)
         }
       ),
       /* @__PURE__ */ g(
@@ -1160,7 +1166,7 @@ function He({ config: t, save: s }) {
             disabled: y,
             children: /* @__PURE__ */ g("span", { className: "inline-flex items-center justify-center gap-1.5", children: [
               /* @__PURE__ */ p(D, { className: "h-4 w-4 animate-spin " + (y ? "" : "hidden") }),
-              /* @__PURE__ */ p(ze, { className: "h-4 w-4 " + (y ? "hidden" : "") }),
+              /* @__PURE__ */ p(je, { className: "h-4 w-4 " + (y ? "hidden" : "") }),
               /* @__PURE__ */ p("span", { children: e(y ? "xsl.uploading" : "xsl.upload") })
             ] })
           }
@@ -1174,7 +1180,7 @@ function He({ config: t, save: s }) {
             disabled: m,
             children: /* @__PURE__ */ g("span", { className: "inline-flex items-center justify-center gap-1.5", children: [
               /* @__PURE__ */ p(D, { className: "h-4 w-4 animate-spin " + (m ? "" : "hidden") }),
-              /* @__PURE__ */ p(je, { className: "h-4 w-4 " + (m ? "hidden" : "") }),
+              /* @__PURE__ */ p(He, { className: "h-4 w-4 " + (m ? "hidden" : "") }),
               /* @__PURE__ */ p("span", { children: e(m ? "forceRegenerating" : "forceRegenerate") })
             ] })
           }
@@ -1183,7 +1189,7 @@ function He({ config: t, save: s }) {
     ] })
   ] });
 }
-const Fe = {
+const Be = {
   contentTypes: {
     description: "What the yearly sitemaps (/sitemaps/sitemap-<year>.xml) list: online posts only, or posts and pages.",
     values: ["posts", "posts-pages"]
@@ -1200,7 +1206,7 @@ const Fe = {
     description: "Full text of /robots.txt. Empty = a generated default pointing at /sitemaps/sitemap-index.xml (and the News sitemap when enabled). Ignored while settings.discourageIndexing is on (robots.txt then disallows everything). Upload it with `plugins action agentcms-sitemaps robots`.",
     format: "robots.txt text"
   }
-}, Be = `# Sitemaps
+}, _e = `# Sitemaps
 
 Generates and maintains XML sitemaps for search engine discovery. Also produces a customizable \`robots.txt\` so crawlers know what they can index.
 
@@ -1238,50 +1244,50 @@ The plugin needs \`Settings → Site → Public site URL\` to be set — sitemap
 
 Disable if you maintain sitemaps externally (e.g. a separate static-site generator running alongside the CMS) or if your site is private and you don't want it indexed. Disabling stops new generation but does **not** delete already-uploaded sitemap files — clean those up by hand on your hosting if needed.
 `;
-function oe(t) {
+function le(t) {
   var e;
   const s = (e = t.settings.pluginConfigs) == null ? void 0 : e["agentcms-sitemaps"];
-  return { ...se, ...s ?? {} };
+  return { ...ae, ...s ?? {} };
 }
-async function I(t, s) {
+async function G(t, s) {
   if (!s.settings.baseUrl) {
     console.warn("[agentcms-sitemaps] skipping regeneration — baseUrl not configured");
     return;
   }
   try {
-    await Ee({
+    await $e({
       post: t,
       posts: s.posts,
       pages: s.pages,
       terms: s.terms,
       settings: s.settings,
-      config: oe(s)
+      config: le(s)
     });
   } catch (e) {
     console.error("[agentcms-sitemaps] regeneration failed:", e);
   }
 }
-const Ye = {
+const Ve = {
   id: "agentcms-sitemaps",
   name: "Sitemaps",
-  version: "1.0.2",
+  version: "1.0.3",
   author: "AgentCMS",
   description: "Generates sitemap-index.xml, per-year sitemaps, an optional Google News sitemap, and a robots.txt that points to them.",
-  readme: Be,
+  readme: _e,
   i18n: { en: we, fr: be, de: xe, es: ye, nl: ve, pt: Se, ko: Le },
   settings: {
     navLabelKey: "title",
-    defaultConfig: se,
-    component: He,
-    schema: Fe
+    defaultConfig: ae,
+    component: Fe,
+    schema: Be
   },
   register(t) {
     t.addAction("publish.complete", async (s, e) => {
-      await I(s, e);
+      await G(s, e);
     }), t.addAction("post.unpublished", async (s, e) => {
-      await I(s, e);
+      await G(s, e);
     }), t.addAction("post.deleted", async (s, e) => {
-      await I(s, e);
+      await G(s, e);
     }), t.registerRegenerationTarget({
       id: "agentcms-sitemaps",
       labelKey: "regenerationTarget.label",
@@ -1292,9 +1298,9 @@ const Ye = {
           e({ level: "warn", message: "[agentcms-sitemaps] skipped — site URL not set." });
           return;
         }
-        const a = oe(s);
+        const a = le(s);
         e({ level: "info", message: "Regenerating sitemap stylesheets…" });
-        const r = await _({ settings: s.settings, config: a });
+        const l = await _({ settings: s.settings, config: a });
         e({ level: "info", message: "Regenerating sitemaps…" });
         const n = await W({
           posts: s.posts,
@@ -1309,12 +1315,12 @@ const Ye = {
           discourageIndexing: s.settings.discourageIndexing === !0
         }), e({
           level: "success",
-          message: `Sitemaps: ${r.uploaded.length + n.uploaded.length + 1} file(s) uploaded.`
+          message: `Sitemaps: ${l.uploaded.length + n.uploaded.length + 1} file(s) uploaded.`
         });
       }
     });
   }
 };
 export {
-  Ye as manifest
+  Ve as manifest
 };

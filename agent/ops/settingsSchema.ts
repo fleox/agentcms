@@ -73,6 +73,17 @@ export function schemaErrors(schema: Record<string, SchemaDoc> | undefined, conf
     if (d.values && !d.values.includes(v as string | number | boolean)) {
       out.push(`"${path}" is ${JSON.stringify(v)}; accepted: ${d.values.map((x) => JSON.stringify(x)).join(", ")}.`);
     }
+    // Colors: themes write them into CSS (some as RGB triplets), so a
+    // named color or a typo silently breaks the published CSS.
+    if (d.format && /hex colou?r/i.test(d.format)) {
+      const HEX = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+      if (typeof v === "string" && v !== "" && !HEX.test(v)) out.push(`"${path}" is ${JSON.stringify(v)}; expected a hex color like "#1a2b3c".`);
+      if (isPlainObject(v)) {
+        for (const [k, c] of Object.entries(v)) {
+          if (typeof c === "string" && c !== "" && /color|colour/i.test(k) && !HEX.test(c)) out.push(`"${path}.${k}" is ${JSON.stringify(c)}; expected a hex color like "#1a2b3c".`);
+        }
+      }
+    }
     if (typeof v === "number" && ((d.min !== undefined && v < d.min) || (d.max !== undefined && v > d.max))) {
       out.push(`"${path}" is ${v}; accepted: ${d.min ?? "…"} to ${d.max ?? "…"}.`);
     }

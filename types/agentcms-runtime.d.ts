@@ -1,8 +1,8 @@
 /**
  * @agent-cms/runtime — public API contract for AgentCMS external plugins and themes.
  *
- * Describes CMS runtime API **1.5.0** (`CMS_API_VERSION`; bundles declaring an
- * `apiVersion` between `CMS_API_MIN_VERSION` = 1.0.0 and 1.5.0 are loaded).
+ * Describes CMS runtime API **1.6.0** (`CMS_API_VERSION`; bundles declaring an
+ * `apiVersion` between `CMS_API_MIN_VERSION` = 1.0.0 and 1.6.0 are loaded).
  *
  * What this file is
  * -----------------
@@ -661,6 +661,7 @@ export type ActionFn = (...args: unknown[]) => void | Promise<void>;
  * - `sitemap.urlset.namespaces` sync, `sitemap.url.entry` sync, `sitemap.urls.extra` sync,
  *   `sitemap.index.extra` sync, `sitemap.news.locales` async — sitemap plugin.
  * - `rss.site.locales` async — RSS plugin.
+ * - `search.index.locales` async `(SearchLocaleEntry[], { posts, pages, terms, settings, config })` — search plugin: extra per-language search indexes.
  */
 export type KnownFilterHook =
   | "post.markdown.before"
@@ -676,7 +677,8 @@ export type KnownFilterHook =
   | "sitemap.urls.extra"
   | "sitemap.index.extra"
   | "sitemap.news.locales"
-  | "rss.site.locales";
+  | "rss.site.locales"
+  | "search.index.locales";
 
 /**
  * Action hooks fired by the core (documentation only).
@@ -744,6 +746,12 @@ export interface BlockManifest<TAttrs = Record<string, unknown>> {
   extensions?: TiptapExtensions;
   isActive?: (editor: TiptapEditor) => boolean;
   inspector?: ComponentType<BlockInspectorProps<TAttrs>>;
+  /**
+   * Optional (API ≥ 1.6): what each attribute of the marker does and accepts,
+   * keyed by attr path ("items" for an array — describe the item shape). Shown
+   * by `agentcms content blocks <id>`; closed lists / ranges are checked on `--attrs`.
+   */
+  attrsSchema?: SettingsSchema;
 }
 
 /** Self-contained dashboard card (no props: fetch your own data). */
@@ -1044,6 +1052,22 @@ export interface RssLocaleEntry {
   channelDescription: string;
   channelLink: string;
   items: RssItem[];
+}
+
+/**
+ * Item of the async `search.index.locales` filter: one extra search index
+ * per language, written at `path` (e.g. `fr/search-index.json`). `posts` /
+ * `pages` / `terms` are the language's translated corpus, with slugs that
+ * make `buildPostUrl` produce the localised URLs; `settings` replaces the
+ * site settings for that index (default: the site settings with `language`).
+ */
+export interface SearchLocaleEntry {
+  language: string;
+  path: string;
+  posts: Post[];
+  pages: Post[];
+  terms: Term[];
+  settings?: SiteSettings;
 }
 
 /** One product row of `/data/products.json` (storefront themes). */

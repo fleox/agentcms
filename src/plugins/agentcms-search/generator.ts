@@ -10,12 +10,23 @@
 //                         Called on first publish + Force regenerate.
 //   - regenerateAll     — both, used by the SettingsPage Force button.
 //
+// Per-language indexes: both index passes fire the async
+// `search.index.locales` filter (implemented by agentcms-multilang) and
+// write one `<lang>/search-index.json` per returned entry, with the
+// entry's translated posts / pages / terms and the runtime strings of
+// that language. The written paths are tracked in `lastLocalePaths`;
+// a path no longer returned (language removed, multilang disabled) is
+// deleted on the next pass. The primary /search-index.json is never
+// deleted.
+//
 // All helpers take the live config and return the next config so the
 // caller can persist `lastIndexHash`, `lastRuntimeHash` and
 // `lastIndexedAt` to Firestore. The manifest does that on every
 // successful regeneration.
 
 import {
+  applyFilters,
+  deleteFile,
   i18n,
   pickPublicLocale,
   buildPostUrl,
@@ -70,6 +81,22 @@ export interface SearchIndexFile {
   items: IndexItem[];
 }
 
+// Payload of the async `search.index.locales` filter — one extra search
+// index per language. `posts` / `pages` / `terms` are the language's
+// "shadow" corpus: translated titles / excerpts / names, and slugs that
+// make `buildPostUrl` produce the localised URL (e.g. category slug
+// `fr/actualites`). `settings` (optional) replaces the site settings
+// for that index — defaults to the site settings with `language` set.
+// Filter args: `(SearchLocaleEntry[], { posts, pages, terms, settings, config })`.
+export interface SearchLocaleEntry {
+  language: string;
+  path: string;
+  posts: Post[];
+  pages: Post[];
+  terms: Term[];
+  settings?: SiteSettings;
+}
+
 interface BuildIndexEnv {
   posts: Post[];
   pages: Post[];
@@ -117,7 +144,11 @@ function itemUrl(p: Post, primary: Term | undefined, settings: SiteSettings): st
   ) {
     return canonicalPath("index.html");
   }
-  return buildPostUrl({ post: p, primaryTerm: primary?.type === "category" ? primary : undefined });
+  // canonicalPath: a localised static home is published at
+  // `<lang>/index.html` → linked as `<lang>/`.
+  return canonicalPath(
+    buildPostUrl({ post: p, primaryTerm: primary?.type === "category" ? primary : undefined }),
+  );
 }
 
 // Builds the in-memory index from the corpus. Pure — no IO, easy to
@@ -221,28 +252,103 @@ export interface RegenerateIndexInput {
   config: SearchConfig;
 }
 
-export async function regenerateIndex(input: RegenerateIndexInput): Promise<RegenerateResult> {
-  const file = buildIndex({
+interface IndexFileToWrite {
+  path: string;
+  file: SearchIndexFile;
+}
+
+// Builds the primary index plus one per entry of the
+// `search.index.locales` filter. Entries without a path, on the primary
+// path, or repeating a path are ignored.
+export async function buildAllIndexes(input: RegenerateIndexInput): Promise<IndexFileToWrite[]> {
+  const out: IndexFileToWrite[] = [
+    {
+      path: SEARCH_INDEX_PATH,
+      file: buildIndex({
+        posts: input.posts,
+        pages: input.pages,
+        terms: input.terms,
+        settings: input.settings,
+        config: input.config,
+      }),
+    },
+  ];
+  const entries = await applyFilters<SearchLocaleEntry[]>("search.index.locales", [], {
     posts: input.posts,
     pages: input.pages,
     terms: input.terms,
     settings: input.settings,
     config: input.config,
   });
-  const nextHash = await hashIndex(file);
+  for (const entry of entries ?? []) {
+    const path = (entry?.path ?? "").replace(/^\/+/, "");
+    if (!path || out.some((f) => f.path === path)) continue;
+    out.push({
+      path,
+      file: buildIndex({
+        posts: entry.posts ?? [],
+        pages: entry.pages ?? [],
+        terms: entry.terms ?? [],
+        settings: entry.settings ?? { ...input.settings, language: entry.language },
+        config: input.config,
+      }),
+    });
+  }
+  return out;
+}
+
+// One hash over every index file (path + stable content), so adding,
+// removing or changing any language's index triggers a write pass.
+async function hashAll(files: IndexFileToWrite[]): Promise<string> {
+  if (files.length === 1) return hashIndex(files[0].file);
+  const parts: string[] = [];
+  for (const f of files) parts.push(`${f.path}:${await hashIndex(f.file)}`);
+  return sha256Hex(parts.join("\n"));
+}
+
+// Uploads every index file, then deletes the locale indexes written
+// last time that this pass no longer produces. Returns the locale
+// paths to record in `lastLocalePaths`.
+async function writeIndexes(files: IndexFileToWrite[], config: SearchConfig): Promise<string[]> {
+  for (const f of files) {
+    await uploadFile({ path: f.path, content: JSON.stringify(f.file), encoding: "utf-8" });
+  }
+  const localePaths = files.map((f) => f.path).filter((p) => p !== SEARCH_INDEX_PATH);
+  for (const stale of config.lastLocalePaths ?? []) {
+    if (!stale || stale === SEARCH_INDEX_PATH || localePaths.includes(stale)) continue;
+    try {
+      await deleteFile(stale);
+    } catch {
+      // best-effort — 404 is already silent; retried on the next pass
+      // only if still listed, so a hard failure leaves the file.
+    }
+  }
+  return localePaths;
+}
+
+function samePaths(a: string[] | undefined, b: string[]): boolean {
+  const left = a ?? [];
+  return left.length === b.length && left.every((x, i) => x === b[i]);
+}
+
+export async function regenerateIndex(input: RegenerateIndexInput): Promise<RegenerateResult> {
+  const files = await buildAllIndexes(input);
+  const nextHash = await hashAll(files);
   const merged = { ...DEFAULT_SEARCH_CONFIG, ...input.config };
-  if (merged.lastIndexHash === nextHash) {
+  const localePaths = files.map((f) => f.path).filter((p) => p !== SEARCH_INDEX_PATH);
+  if (merged.lastIndexHash === nextHash && samePaths(merged.lastLocalePaths, localePaths)) {
     // Skip the upload — keep the previous timestamp untouched so
     // "last indexed" reflects the actual last write, not a no-op.
     return { nextConfig: merged, uploaded: false };
   }
-  await uploadFile({
-    path: SEARCH_INDEX_PATH,
-    content: JSON.stringify(file),
-    encoding: "utf-8",
-  });
+  const written = await writeIndexes(files, merged);
   return {
-    nextConfig: { ...merged, lastIndexHash: nextHash, lastIndexedAt: Date.now() },
+    nextConfig: {
+      ...merged,
+      lastIndexHash: nextHash,
+      lastLocalePaths: written,
+      lastIndexedAt: Date.now(),
+    },
     uploaded: true,
   };
 }
@@ -264,25 +370,16 @@ export async function ensureRuntime(config: SearchConfig): Promise<RegenerateRes
   return { nextConfig: { ...merged, lastRuntimeHash: nextHash }, uploaded: true };
 }
 
-// Force pass used by the Force regenerate button: always uploads both
-// files. Useful when the admin wants to push fresh runtime strings
-// (e.g. after switching `settings.language`) or when the user has
-// reason to suspect the public site is out of sync.
+// Force pass used by the Force regenerate button: always uploads every
+// index + the runtime. Useful when the admin wants to push fresh
+// runtime strings (e.g. after switching `settings.language`) or when
+// the user has reason to suspect the public site is out of sync.
 export async function regenerateAll(input: RegenerateIndexInput): Promise<RegenerateResult> {
-  const file = buildIndex({
-    posts: input.posts,
-    pages: input.pages,
-    terms: input.terms,
-    settings: input.settings,
-    config: input.config,
-  });
-  const nextIndexHash = await hashIndex(file);
+  const merged = { ...DEFAULT_SEARCH_CONFIG, ...input.config };
+  const files = await buildAllIndexes(input);
+  const nextIndexHash = await hashAll(files);
   const nextRuntimeHash = await sha256Hex(searchRuntimeJs);
-  await uploadFile({
-    path: SEARCH_INDEX_PATH,
-    content: JSON.stringify(file),
-    encoding: "utf-8",
-  });
+  const written = await writeIndexes(files, merged);
   await uploadFile({
     path: SEARCH_RUNTIME_PATH,
     content: searchRuntimeJs,
@@ -290,10 +387,10 @@ export async function regenerateAll(input: RegenerateIndexInput): Promise<Regene
   });
   return {
     nextConfig: {
-      ...DEFAULT_SEARCH_CONFIG,
-      ...input.config,
+      ...merged,
       lastIndexHash: nextIndexHash,
       lastRuntimeHash: nextRuntimeHash,
+      lastLocalePaths: written,
       lastIndexedAt: Date.now(),
     },
     uploaded: true,

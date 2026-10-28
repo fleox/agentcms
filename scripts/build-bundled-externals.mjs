@@ -37,7 +37,7 @@ const distAdmin = resolve(root, "dist/admin");
 // stamps this on every produced manifest.json + external.json entry
 // so the admin's external loader can reject stale bundles built
 // against an older API.
-const CMS_API_VERSION = "1.5.0";
+const CMS_API_VERSION = "1.6.0";
 
 // Externalised at build time; resolved via the import-map at runtime.
 // Keep in sync with the import-map in index.html.
@@ -61,10 +61,10 @@ const EXTERNAL_DEPS = [
 //      the install-side artefacts (manifest.json + external.json).
 const PLUGINS = [
   { id: "core-seo", name: "Core SEO", version: "1.0.0" },
-  { id: "agentcms-sitemaps", name: "Sitemaps", version: "1.0.2" },
+  { id: "agentcms-sitemaps", name: "Sitemaps", version: "1.0.3" },
   { id: "agentcms-rss", name: "RSS", version: "1.1.1" },
-  { id: "agentcms-archives", name: "Archives", version: "1.0.2" },
-  { id: "agentcms-search", name: "Search", version: "1.0.2" },
+  { id: "agentcms-archives", name: "Archives", version: "1.0.3" },
+  { id: "agentcms-search", name: "Search", version: "1.0.3" },
   // External-source plugins that we still bundle into the admin
   // distribution so a fresh install ships with them pre-installed.
   // `srcDir` is resolved relative to repo root; absent → falls back
@@ -72,16 +72,16 @@ const PLUGINS = [
   {
     id: "agentcms-multilang",
     name: "Multi-language",
-    version: "1.6.5",
+    version: "1.6.6",
     srcDir: "external/plugins/agentcms-multilang/src",
   },
 ];
 
 const THEMES = [
-  { id: "magazine", name: "Magazine", version: "1.1.1" },
-  { id: "corporate", name: "Corporate", version: "1.0.1" },
-  { id: "storefront", name: "Storefront", version: "0.1.1" },
-  { id: "portfolio", name: "Portfolio", version: "0.2.0" },
+  { id: "magazine", name: "Magazine", version: "1.1.2" },
+  { id: "corporate", name: "Corporate", version: "1.0.2" },
+  { id: "storefront", name: "Storefront", version: "0.1.2" },
+  { id: "portfolio", name: "Portfolio", version: "0.2.1" },
   // External-source theme — bundled into the admin distribution so a
   // fresh install ships with it pre-installed. Same convention as
   // `agentcms-multilang` above: `srcDir` is resolved relative to the
@@ -89,7 +89,7 @@ const THEMES = [
   {
     id: "marketplace-core",
     name: "Marketplace Core",
-    version: "1.7.2",
+    version: "1.7.3",
     srcDir: "external/themes/marketplace-core/src",
   },
 ];

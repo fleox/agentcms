@@ -7,6 +7,13 @@
  * fields the indexer chose to include (title always, optionally
  * excerpt / category / tags). Title hits are weighted higher.
  *
+ * Multilingual sites: pages of a secondary language load that
+ * language's `/<lang>/search-index.json` (translated entries + UI
+ * strings). The language comes from the script tag's
+ * `data-cms-search-index` attribute (written by the plugin at publish
+ * time), else from the first path segment when it matches
+ * `<html lang>`. A missing localised index falls back to the root one.
+ *
  * Runtime UI strings (placeholder, "no results", aria labels) and
  * thresholds (minQueryLength, maxResults) live in the index file's
  * `meta` block — the indexer bakes them in at build time so the
@@ -24,6 +31,9 @@
   // click handlers — each would open its own modal on top of the other.
   if (window.__agentcmsSearchRuntime) return;
   window.__agentcmsSearchRuntime = true;
+  // Captured now: document.currentScript is only set while this script
+  // runs (deferred scripts included).
+  var SCRIPT = document.currentScript;
 
   // ─── Base path ────────────────────────────────────────────────────
   // Sites served from a sub-folder (e.g. GitHub Pages project sites)
@@ -48,6 +58,28 @@
   }
 
   var INDEX_URL = withBase("/search-index.json");
+
+  // Site path of the page without the base folder, no leading slash.
+  function sitePath() {
+    var p = window.location.pathname || "/";
+    if (BASE !== "/" && p.indexOf(BASE) === 0) p = p.slice(BASE.length);
+    return p.replace(/^\/+/, "");
+  }
+
+  // Index of the page's language, "" when the page is in the primary
+  // language (root index). Explicit attribute first, then a first path
+  // segment equal to <html lang> (or its base code: "en" for "en-US").
+  function localeIndexUrl() {
+    var attr = SCRIPT && SCRIPT.getAttribute && SCRIPT.getAttribute("data-cms-search-index");
+    if (attr) return withBase("/" + attr.replace(/^\/+/, ""));
+    var lang = (document.documentElement.getAttribute("lang") || "").toLowerCase();
+    if (!lang) return "";
+    var seg = sitePath().split("/")[0].toLowerCase();
+    if (!seg || seg.indexOf(".") !== -1) return "";
+    if (seg === lang || seg === lang.split("-")[0]) return withBase("/" + seg + "/search-index.json");
+    return "";
+  }
+  var LOCALE_INDEX_URL = localeIndexUrl();
   var STYLES = [
     ".cms-search-modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding:8vh 16px 16px;opacity:0;transition:opacity .15s ease}",
     ".cms-search-modal.open{opacity:1}",
@@ -110,13 +142,25 @@
   // failed (network / parse error); we render an empty modal in that
   // case rather than hammering the server on every reopen.
   var indexCache = null;
+  async function fetchIndex(url) {
+    var res = await fetch(url, { credentials: "same-origin" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    var data = await res.json();
+    if (!data || !Array.isArray(data.items)) throw new Error("invalid index");
+    return data;
+  }
   async function loadIndex() {
     if (indexCache) return indexCache;
+    if (LOCALE_INDEX_URL && LOCALE_INDEX_URL !== INDEX_URL) {
+      try {
+        indexCache = await fetchIndex(LOCALE_INDEX_URL);
+        return indexCache;
+      } catch (e) {
+        // Not generated (yet) for this language — use the root index.
+      }
+    }
     try {
-      var res = await fetch(INDEX_URL, { credentials: "same-origin" });
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      var data = await res.json();
-      indexCache = data && Array.isArray(data.items) ? data : { meta: {}, items: [] };
+      indexCache = await fetchIndex(INDEX_URL);
     } catch (e) {
       console.warn("[agentcms-search] failed to load index:", e);
       indexCache = { meta: {}, items: [] };
