@@ -3,7 +3,7 @@ name: agentcms-install
 description: Install a new AgentCMS site (static CMS) for the user - ask where content is stored (SQLite file, Markdown in GitHub/GitLab, Firebase, this browser), then where the site is hosted (GitHub/GitLab/Cloudflare Pages or an S3 / OVH bucket), help create or import the needed tokens and keys, and install everything with the agentcms CLI. Use when the user wants to create, set up or install an AgentCMS / AgentCMS site.
 license: PolyForm-Noncommercial-1.0.0
 metadata:
-  version: "0.3.1"
+  version: "0.3.2"
   repository: "https://github.com/fleox/agentcms"
 ---
 
@@ -13,12 +13,12 @@ AgentCMS is a static CMS: an admin web app (runs in the browser) keeps content i
 
 **Language:** talk to the user in their language. Keep commands, file contents and these instructions in English.
 
-Every command below is `npx -y @agent-cms/agentcms@0.3.1 <command> --json` (Node.js 20+). Output is one JSON object: `{"ok":true,"data":...}` or `{"ok":false,"error":{"code","message","hint"}}` - when `ok` is false, read `hint` and act on it. If npx can't fetch the package (404 / offline), clone `https://github.com/fleox/agentcms` and use `node agentcms/dist/agent/agentcms.mjs` the same way.
+Every command below is `npx -y @agent-cms/agentcms@0.3.2 <command> --json` (Node.js 20+). Output is one JSON object: `{"ok":true,"data":...}` or `{"ok":false,"error":{"code","message","hint"}}` - when `ok` is false, read `hint` and act on it. If npx can't fetch the package (404 / offline), clone `https://github.com/fleox/agentcms` and use `node agentcms/dist/agent/agentcms.mjs` the same way.
 
 ## Step 0 - Versions and existing sites
 
 ```bash
-npx -y @agent-cms/agentcms@0.3.1 status --json
+npx -y @agent-cms/agentcms@0.3.2 status --json
 ```
 
 - `data.tool.updateAvailable: true` -> a newer AgentCMS exists. Offer to update these skills first (Claude Code: `/plugin marketplace update agentcms`, then `/reload-plugins`), then continue.
@@ -26,7 +26,7 @@ npx -y @agent-cms/agentcms@0.3.1 status --json
 
 ## Step 1 - Ask where the content is stored
 
-Ask this first; hosting comes after. Run `npx -y @agent-cms/agentcms@0.3.1 options --json` and present `data.dataBackends` in one sentence each:
+Ask this first; hosting comes after. Run `npx -y @agent-cms/agentcms@0.3.2 options --json` and present `data.dataBackends` in one sentence each:
 
 - **SQLite file** - one owner, simplest, no other account. Encrypted with a passphrase by default (a static host serves the file like any page); can also live in a separate private bucket / repo. No login screen: anyone with the admin URL, the keys and the passphrase can edit.
 - **Markdown in a Git repo** (GitHub / GitLab) - several editors or computers, full history; each editor uses their own token.
@@ -47,15 +47,15 @@ Markdown content on GitHub/GitLab also needs the content repository: [references
 
 ## Step 3 - Credentials (never through the chat)
 
-Secrets are stored per **account** (`github:<login>`, `gitlab:<name>`, `s3:<name>`, `firebase:<name>` (email + password of the admin), `passphrase:<alias>`), not per site - check `npx -y @agent-cms/agentcms@0.3.1 credentials list --json` first and reuse an account that is already there.
+Secrets are stored per **account** (`github:<login>`, `gitlab:<name>`, `s3:<name>`, `firebase:<name>` (email + password of the admin), `passphrase:<alias>`), not per site - check `npx -y @agent-cms/agentcms@0.3.2 credentials list --json` first and reuse an account that is already there.
 
 To add one, use the first option that applies:
 
-1. Import from a tool the user is signed in to: `npx -y @agent-cms/agentcms@0.3.1 credentials set github:<login> --from-gh --json`, `npx -y @agent-cms/agentcms@0.3.1 credentials set s3:<name> --from-aws-profile <profile> --json`.
-2. Otherwise ask the user to run it **themselves** - in Claude Code they type `! npx -y @agent-cms/agentcms@0.3.1 credentials set <account>` - and type the secret at the hidden prompt.
+1. Import from a tool the user is signed in to: `npx -y @agent-cms/agentcms@0.3.2 credentials set github:<login> --from-gh --json`, `npx -y @agent-cms/agentcms@0.3.2 credentials set s3:<name> --from-aws-profile <profile> --json`.
+2. Otherwise ask the user to run it **themselves** - in Claude Code they type `! npx -y @agent-cms/agentcms@0.3.2 credentials set <account>` - and type the secret at the hidden prompt.
 3. Or an environment variable the user set: `--from-env VAR` (`--from-env KEY_ID,SECRET` for S3).
 
-SQLite passphrase: nothing to do before installing - `install` generates a strong one and stores it as `passphrase:<alias>`. To reuse an existing database, store its passphrase first (`! npx -y @agent-cms/agentcms@0.3.1 credentials set passphrase:<alias>`).
+SQLite passphrase: nothing to do before installing - `install` generates a strong one and stores it as `passphrase:<alias>`. To reuse an existing database, store its passphrase first (`! npx -y @agent-cms/agentcms@0.3.2 credentials set passphrase:<alias>`).
 
 Rules: never ask for a token, password or secret key in the chat; never print one; never put one in a plan file, `config.js`, a repo or a commit. When you create a key with a CLI, send it straight into `credentials set` (environment variable or pipe), or copy it to the clipboard (`pbcopy` / `xclip` / `clip`) - never display it.
 
@@ -81,7 +81,7 @@ Write `agentcms-plan.json` (no secrets - only account ids), following `data.plan
 Then:
 
 ```bash
-npx -y @agent-cms/agentcms@0.3.1 install --plan agentcms-plan.json --dry-run --json
+npx -y @agent-cms/agentcms@0.3.2 install --plan agentcms-plan.json --dry-run --json
 ```
 
 Fix whatever `error.hint` says (token permissions, repo or bucket names, URL). Error `content-exists` means the content repo already publishes somewhere else: ask the user whether to keep that site (register it with `agentcms-manage`) or publish elsewhere (`--overwrite-target`).
@@ -91,8 +91,8 @@ Fix whatever `error.hint` says (token permissions, repo or bucket names, URL). E
 Show the user a one-line summary (data -> hosting -> site URL) and ask for a go. Then:
 
 ```bash
-npx -y @agent-cms/agentcms@0.3.1 install --plan agentcms-plan.json --json
-npx -y @agent-cms/agentcms@0.3.1 doctor --site <alias> --json
+npx -y @agent-cms/agentcms@0.3.2 install --plan agentcms-plan.json --json
+npx -y @agent-cms/agentcms@0.3.2 doctor --site <alias> --json
 ```
 
 - Relay `data.notices` (for example "GitHub Pages enabled" or how to enable it; none when Pages was already on) and `data.nextSteps`.
@@ -100,13 +100,13 @@ npx -y @agent-cms/agentcms@0.3.1 doctor --site <alias> --json
 - A new site starts as "My site", in English, with the default theme and every plugin on: follow the first-steps item of `nextSteps` (title, language, theme, multilang off for one language, author name).
 - Once installed, content and settings are managed with the `agentcms-admin` skill (posts, media, menus, themes, plugins, regeneration).
 - Give the user the site URL and the admin URL, and remind them each new browser asks once for its access token or hosting keys (they are stored per browser, never online).
-- **Encrypted SQLite**: the passphrase is the only key to the content. Before finishing, run `npx -y @agent-cms/agentcms@0.3.1 credentials copy passphrase:<alias> --json` (it goes to the clipboard, never to the chat) and ask the user to save it in their password manager now; the admin asks for it once per browser.
+- **Encrypted SQLite**: the passphrase is the only key to the content. Before finishing, run `npx -y @agent-cms/agentcms@0.3.2 credentials copy passphrase:<alias> --json` (it goes to the clipboard, never to the chat) and ask the user to save it in their password manager now; the admin asks for it once per browser.
 - The plan file holds no secrets; offer to delete it or keep it for reference.
 
 ## Wizard fallback (this browser, local folder, ZIP)
 
 ```bash
-npx -y @agent-cms/agentcms@0.3.1 serve --json
+npx -y @agent-cms/agentcms@0.3.2 serve --json
 ```
 
-Run it in the background; it prints `data.url` (http://localhost:4173/). The user opens it and follows the setup wizard with the choices from steps 1 and 2 - keep "Host the admin on this site" checked. Help them find each value; secrets go into the wizard, not the chat. Stop the process when the wizard shows its done card, then register the site: `npx -y @agent-cms/agentcms@0.3.1 site add <alias> --admin-url <admin URL> --json` (see `agentcms-manage`).
+Run it in the background; it prints `data.url` (http://localhost:4173/). The user opens it and follows the setup wizard with the choices from steps 1 and 2 - keep "Host the admin on this site" checked. Help them find each value; secrets go into the wizard, not the chat. Stop the process when the wizard shows its done card, then register the site: `npx -y @agent-cms/agentcms@0.3.2 site add <alias> --admin-url <admin URL> --json` (see `agentcms-manage`).

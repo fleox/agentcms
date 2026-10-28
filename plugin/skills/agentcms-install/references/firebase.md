@@ -12,7 +12,7 @@ Guide them step by step; none of it can be scripted without the `firebase` CLI.
 4. **Build → Firestore Database → Create database**: production mode, a region near the visitors.
 5. **Firestore → Rules**: paste the AgentCMS rules with the admin email pinned, then **Publish**. Print them with:
    ```bash
-   npx -y @agent-cms/agentcms@0.3.1 options --firebase-rules <admin email> --json
+   npx -y @agent-cms/agentcms@0.3.2 options --firebase-rules <admin email> --json
    ```
    Paste `data.rules`. If the `firebase` CLI is installed and signed in, `firebase deploy --only firestore:rules` with the rules saved as `firestore.rules` works too.
 6. **Project settings (gear) → General → Your apps → Web app (</>)**: register an app with no hosting, then copy the `firebaseConfig` values. They are public (they end up in the site's config.js), so they can go in the plan.
@@ -22,7 +22,7 @@ Guide them step by step; none of it can be scripted without the `firebase` CLI.
 The admin login is a secret: the user stores it themselves.
 
 ```bash
-! npx -y @agent-cms/agentcms@0.3.1 credentials set firebase:<name>
+! npx -y @agent-cms/agentcms@0.3.2 credentials set firebase:<name>
 ```
 
 It prompts for email and password (hidden).
