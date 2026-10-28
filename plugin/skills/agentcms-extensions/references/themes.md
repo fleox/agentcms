@@ -176,11 +176,12 @@ Runtime scripts are classic scripts (wrap them in an IIFE), loaded with `defer`,
 ## Settings page and `compileCss`
 
 ```ts
-settings: { navLabelKey: "settings.navLabel", defaultConfig: DEFAULT_CONFIG, component: SettingsPage },
+settings: { navLabelKey: "settings.navLabel", defaultConfig: DEFAULT_CONFIG, component: SettingsPage, schema: SETTINGS_SCHEMA },
 compileCss: (config) => baseCss + `\n:root{--acme-accent:${safeColor(config.colors.accent)}}\n`,
 ```
 
 - The page is rendered at `#/theme-settings` while the theme is active. It receives `{ config, save }`: `config` is `defaultConfig` shallow-merged with the stored value, and `save(next)` stores the **whole** object.
+- `schema` (API ≥ 1.5, optional) documents each setting by dot path: `{ "home.variant": { description: "…", values: ["grid", "list"] }, "colors.accent": { description: "…", format: "hex color" } }` (`SettingsSchema` from `@agent-cms/runtime`). Agents read it with `agentcms themes config <id> --schema`; values outside `values` / `min`–`max` are refused, so list every accepted value.
 - `compileCss(config)` runs on every theme-asset sync **and when the settings page saves**, which re-uploads `theme-assets/<id>.css`. Return `baseCss` unchanged for the default config, and sanitise user values before writing them into CSS.
 - At publish time the same config is available as `site.themeConfig`, so templates can switch layouts with it. Changes that affect markup need Regenerate → All HTML.
 - Merge nested defaults yourself (`{ ...DEFAULT.colors, ...config.colors }`): config saved by an older version lacks the keys you add later.

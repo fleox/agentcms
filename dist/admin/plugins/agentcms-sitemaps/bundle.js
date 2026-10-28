@@ -575,7 +575,7 @@ const se = {
   newsWindowDays: 2,
   contentTypes: "posts-pages",
   robotsTxt: ""
-}, O = "sitemaps", j = `${O}/sitemap-index.xml`, R = `${O}/sitemap-news.xml`, Re = "robots.txt";
+}, O = "sitemaps", j = `${O}/sitemap-index.xml`, N = `${O}/sitemap-news.xml`, Ne = "robots.txt";
 function ae(t) {
   return `${O}/sitemap-${t}.xml`;
 }
@@ -585,12 +585,12 @@ const ne = [
   "sitemap.xsl",
   "sitemap-news.xsl"
 ];
-function Ne(t) {
+function Re(t) {
   return `sitemap-${t}.xml`;
 }
 function H(t, s) {
   const e = ["User-agent: *", "Allow: /", `Disallow: ${ce(t)}/admin/`, ""];
-  return t && (e.push(`Sitemap: ${A(t, j)}`), s && e.push(`Sitemap: ${A(t, R)}`)), e.join(`
+  return t && (e.push(`Sitemap: ${A(t, j)}`), s && e.push(`Sitemap: ${A(t, N)}`)), e.join(`
 `) + `
 `;
 }
@@ -704,7 +704,7 @@ function Pe(t, s, e, a, r, n) {
   ], l = k(a);
   for (const o of [...t].sort((d, c) => d - c))
     i.push("  <sitemap>"), i.push(`    <loc>${x(A(e, ae(o)))}</loc>`), i.push(`    <lastmod>${l}</lastmod>`), i.push("  </sitemap>");
-  s && (i.push("  <sitemap>"), i.push(`    <loc>${x(A(e, R))}</loc>`), i.push(`    <lastmod>${l}</lastmod>`), i.push("  </sitemap>"));
+  s && (i.push("  <sitemap>"), i.push(`    <loc>${x(A(e, N))}</loc>`), i.push(`    <lastmod>${l}</lastmod>`), i.push("  </sitemap>"));
   for (const o of n) {
     const d = o.lastmodMs ?? a;
     i.push("  <sitemap>"), i.push(`    <loc>${x(A(e, o.path))}</loc>`), i.push(`    <lastmod>${k(d)}</lastmod>`), i.push("  </sitemap>");
@@ -730,7 +730,7 @@ async function W(t) {
   if (!i) {
     const v = [
       ...ne,
-      ...c.map((h) => Ne(h))
+      ...c.map((h) => Re(h))
     ];
     for (const h of v)
       try {
@@ -738,7 +738,7 @@ async function W(t) {
       } catch {
       }
   }
-  const N = A(l, z), L = A(l, M);
+  const R = A(l, z), L = A(l, M);
   for (const v of m) {
     const h = d.get(v) ?? [], f = X(
       "sitemap.urls.extra",
@@ -752,8 +752,8 @@ async function W(t) {
       }
       continue;
     }
-    const $ = ke(h, a, r, l, N, f);
-    await T({ path: b, content: $ }), w.push(b);
+    const E = ke(h, a, r, l, R, f);
+    await T({ path: b, content: E }), w.push(b);
   }
   if ((i == null ? void 0 : i.index) !== !1) {
     const v = [...d.entries()].filter(([, b]) => b.length > 0).map(([b]) => b), h = X(
@@ -765,7 +765,7 @@ async function W(t) {
       n.newsEnabled,
       l,
       Date.now(),
-      N,
+      R,
       h
     );
     await T({ path: j, content: f }), w.push(j);
@@ -780,7 +780,7 @@ async function W(t) {
         n.newsWindowDays,
         L
       );
-      await T({ path: R, content: v }), w.push(R);
+      await T({ path: N, content: v }), w.push(N);
       const h = await pe(
         "sitemap.news.locales",
         [],
@@ -800,7 +800,7 @@ async function W(t) {
       }
     } else
       try {
-        await U(R), y.push(R);
+        await U(N), y.push(N);
       } catch {
       }
   return { uploaded: w, deleted: y };
@@ -810,7 +810,7 @@ async function B(t) {
   let e;
   t.discourageIndexing ? e = `User-agent: *
 Disallow: /
-` : t.config.robotsTxt && t.config.robotsTxt.trim().length > 0 ? e = t.config.robotsTxt : e = H(s, t.config.newsEnabled), await T({ path: Re, content: e });
+` : t.config.robotsTxt && t.config.robotsTxt.trim().length > 0 ? e = t.config.robotsTxt : e = H(s, t.config.newsEnabled), await T({ path: Ne, content: e });
 }
 async function _(t) {
   const s = [], e = [];
@@ -834,7 +834,7 @@ async function _(t) {
     }
   return { uploaded: s, deleted: e };
 }
-async function $e(t) {
+async function Ee(t) {
   var a, r, n, i, l, o;
   const s = ((r = (a = t.post.createdAt) == null ? void 0 : a.toMillis) == null ? void 0 : r.call(a)) ?? ((i = (n = t.post.publishedAt) == null ? void 0 : n.toMillis) == null ? void 0 : i.call(n)) ?? ((o = (l = t.post.updatedAt) == null ? void 0 : l.toMillis) == null ? void 0 : o.call(l)) ?? Date.now(), e = new Date(s).getUTCFullYear();
   return W({
@@ -852,7 +852,7 @@ async function $e(t) {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Ee = (t) => t.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), ie = (...t) => t.filter((s, e, a) => !!s && s.trim() !== "" && a.indexOf(s) === e).join(" ").trim();
+const $e = (t) => t.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), ie = (...t) => t.filter((s, e, a) => !!s && s.trim() !== "" && a.indexOf(s) === e).join(" ").trim();
 /**
  * @license lucide-react v0.460.0 - ISC
  *
@@ -915,7 +915,7 @@ const P = (t, s) => {
     ({ className: a, ...r }, n) => G(Ge, {
       ref: n,
       iconNode: s,
-      className: ie(`lucide-${Ee(t)}`, a),
+      className: ie(`lucide-${$e(t)}`, a),
       ...r
     })
   );
@@ -974,9 +974,9 @@ const K = P("Save", [
 function He({ config: t, save: s }) {
   const { t: e } = fe("agentcms-sitemaps"), { settings: a, terms: r } = ge(), [n, i] = C(t);
   he(() => i(t), [t]);
-  const [l, o] = C(!1), [d, c] = C(!1), [m, w] = C(!1), [y, N] = C(!1);
+  const [l, o] = C(!1), [d, c] = C(!1), [m, w] = C(!1), [y, R] = C(!1);
   function L(u) {
-    i((E) => ({ ...E, ...u }));
+    i(($) => ({ ...$, ...u }));
   }
   async function v() {
     o(!0);
@@ -1010,11 +1010,11 @@ function He({ config: t, save: s }) {
     w(!0);
     try {
       await s(n);
-      const u = await _({ settings: a, config: n }), [E, le] = await Promise.all([
+      const u = await _({ settings: a, config: n }), [$, le] = await Promise.all([
         Y({ type: "post" }),
         Y({ type: "page" })
       ]), re = await W({
-        posts: E,
+        posts: $,
         pages: le,
         terms: r,
         settings: a,
@@ -1038,7 +1038,7 @@ function He({ config: t, save: s }) {
       S.error(e("baseUrlMissing"));
       return;
     }
-    N(!0);
+    R(!0);
     try {
       await s(n);
       const u = await _({ settings: a, config: n });
@@ -1046,10 +1046,10 @@ function He({ config: t, save: s }) {
     } catch (u) {
       console.error("[agentcms-sitemaps] xsl upload failed:", u), S.error(e("xsl.failed"));
     } finally {
-      N(!1);
+      R(!1);
     }
   }
-  function $() {
+  function E() {
     L({ robotsTxt: H(a.baseUrl, n.newsEnabled) });
   }
   return /* @__PURE__ */ g("div", { className: "space-y-6", children: [
@@ -1120,7 +1120,7 @@ function He({ config: t, save: s }) {
     /* @__PURE__ */ g("section", { className: "card p-4 space-y-3", children: [
       /* @__PURE__ */ g("div", { className: "flex items-center justify-between gap-3", children: [
         /* @__PURE__ */ p("h2", { className: "font-semibold", children: e("sections.robots") }),
-        /* @__PURE__ */ p("button", { type: "button", className: "btn-ghost", onClick: $, children: e("robots.resetDefault") })
+        /* @__PURE__ */ p("button", { type: "button", className: "btn-ghost", onClick: E, children: e("robots.resetDefault") })
       ] }),
       /* @__PURE__ */ p("p", { className: "text-xs text-surface-500 dark:text-surface-400", children: e("robots.help") }),
       /* @__PURE__ */ p(
@@ -1183,7 +1183,24 @@ function He({ config: t, save: s }) {
     ] })
   ] });
 }
-const Fe = `# Sitemaps
+const Fe = {
+  contentTypes: {
+    description: "What the yearly sitemaps (/sitemaps/sitemap-<year>.xml) list: online posts only, or posts and pages.",
+    values: ["posts", "posts-pages"]
+  },
+  newsEnabled: {
+    description: "Also publish a Google News sitemap (/sitemaps/sitemap-news.xml, posts only) referenced from the index. The default robots.txt then lists it too; re-run the robots and stylesheets actions after toggling."
+  },
+  newsWindowDays: {
+    description: "News sitemap window: posts modified within this many days are listed. Google recommends 2.",
+    min: 1,
+    max: 30
+  },
+  robotsTxt: {
+    description: "Full text of /robots.txt. Empty = a generated default pointing at /sitemaps/sitemap-index.xml (and the News sitemap when enabled). Ignored while settings.discourageIndexing is on (robots.txt then disallows everything). Upload it with `plugins action agentcms-sitemaps robots`.",
+    format: "robots.txt text"
+  }
+}, Be = `# Sitemaps
 
 Generates and maintains XML sitemaps for search engine discovery. Also produces a customizable \`robots.txt\` so crawlers know what they can index.
 
@@ -1232,7 +1249,7 @@ async function I(t, s) {
     return;
   }
   try {
-    await $e({
+    await Ee({
       post: t,
       posts: s.posts,
       pages: s.pages,
@@ -1244,18 +1261,19 @@ async function I(t, s) {
     console.error("[agentcms-sitemaps] regeneration failed:", e);
   }
 }
-const We = {
+const Ye = {
   id: "agentcms-sitemaps",
   name: "Sitemaps",
-  version: "1.0.1",
+  version: "1.0.2",
   author: "AgentCMS",
   description: "Generates sitemap-index.xml, per-year sitemaps, an optional Google News sitemap, and a robots.txt that points to them.",
-  readme: Fe,
+  readme: Be,
   i18n: { en: we, fr: be, de: xe, es: ye, nl: ve, pt: Se, ko: Le },
   settings: {
     navLabelKey: "title",
     defaultConfig: se,
-    component: He
+    component: He,
+    schema: Fe
   },
   register(t) {
     t.addAction("publish.complete", async (s, e) => {
@@ -1298,5 +1316,5 @@ const We = {
   }
 };
 export {
-  We as manifest
+  Ye as manifest
 };

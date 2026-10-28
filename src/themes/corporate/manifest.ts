@@ -24,6 +24,7 @@ import type { CorporateThemeConfig } from "./config";
 import { DEFAULT_CORPORATE_CONFIG } from "./config";
 import { buildCustomCss } from "./style";
 import { CorporateSettingsPage } from "./SettingsPage";
+import { SETTINGS_SCHEMA } from "./settingsSchema";
 import { heroOverlayBlock } from "./blocks/heroOverlay/manifest";
 import { heroSplitBlock } from "./blocks/heroSplit/manifest";
 import { servicesGridBlock } from "./blocks/servicesGrid/manifest";
@@ -39,7 +40,7 @@ import { transformBodyHtml } from "./blocks/transforms";
 export const manifest: ThemeManifest<CorporateThemeConfig> = {
   id: "corporate",
   name: "Corporate",
-  version: "1.0.0",
+  version: "1.0.1",
   description:
     "Modern corporate / SaaS showcase theme — Tailwind-based, navy + indigo Material 3 palette, Inter typography. Built for vitrine sites, lead-gen, and content marketing.",
   // Convention name used by build-themes.mjs only as a fallback when
@@ -55,6 +56,7 @@ export const manifest: ThemeManifest<CorporateThemeConfig> = {
     navLabelKey: "title",
     defaultConfig: DEFAULT_CORPORATE_CONFIG,
     component: CorporateSettingsPage,
+    schema: SETTINGS_SCHEMA,
   },
   // Bakes the user's Style overrides (color palette, font) into the
   // CSS uploaded by `Sync theme assets`. Without this hook, syncing

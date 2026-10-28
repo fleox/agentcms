@@ -518,17 +518,26 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
         const { manifest, mu } = await findPlugin(s, id);
         if (!manifest.settings) throw new CliError("no-settings", `${manifest.id} has no settings.`, undefined, 2);
         const defaults = manifest.settings.defaultConfig as Record<string, unknown>;
-        if (req.mode === "schema") return { id: manifest.id, defaultConfig: defaults, actions: ACTIONS[manifest.id] ?? [] };
+        if (req.mode === "schema") {
+          const { describeSettings } = await import("../ops/configEdit");
+          return { id: manifest.id, documented: !!manifest.settings.schema, settings: describeSettings(defaults, manifest.settings.schema), defaultConfig: defaults, actions: ACTIONS[manifest.id] ?? [] };
+        }
         const prev = pluginConfigOf(s, manifest);
         if (req.mode === "get") return { id: manifest.id, config: prev, stored: s.settings().pluginConfigs?.[manifest.id] ?? null };
-        const { deepMerge, shapeWarnings, changedKeys } = await import("../ops/configEdit");
+        const { deepMerge, shapeWarnings, changedKeys, schemaErrors } = await import("../ops/configEdit");
         const next = req.mode === "set" ? req.value : deepMerge(prev, req.value);
+        const invalid = schemaErrors(manifest.settings.schema, next, prev);
+        if (invalid.length) throw new CliError("invalid-value", `${manifest.id}: ${invalid.join(" ")}`, `See \`agentcms plugins config ${manifest.id} --schema\`.`, 2);
         const warnings = shapeWarnings(defaults, req.value, manifest.id);
         if (!mu && s.settings().enabledPlugins?.[manifest.id] === false) warnings.push(`${manifest.id} is disabled: the settings are saved but have no effect until \`agentcms plugins enable ${manifest.id}\`.`);
         const { saved, effects } = await applyConfig(s, manifest, prev, next);
         return { id: manifest.id, config: saved, changed: changedKeys(prev, saved), effects, warnings, next: nextSteps(manifest.id, s.site.alias) };
       }, (r) => {
-        if ("defaultConfig" in r) return JSON.stringify(r.defaultConfig, null, 2);
+        if ("settings" in r && Array.isArray(r.settings)) {
+          return r.settings
+            .map((f) => `${f.path} (${f.type}, default ${JSON.stringify(f.default)})${f.values ? ` — one of ${f.values.map((v) => JSON.stringify(v)).join(" | ")}` : ""}${f.format ? ` — ${f.format}` : ""}${f.description ? `\n    ${f.description}` : ""}`)
+            .join("\n");
+        }
         if (!("changed" in r) || !r.changed) return JSON.stringify(r.config, null, 2);
         return [`Saved ${r.id} (${r.changed.length ? r.changed.join(", ") : "no change"}).`, ...r.effects.map((e) => `  ${e}`), ...r.warnings.map((w) => `  warning: ${w}`), ...(r.next.length ? [`Then: ${r.next.join(" ; ")}`] : [])].join("\n");
       });

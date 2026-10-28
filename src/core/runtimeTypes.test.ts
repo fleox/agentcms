@@ -251,6 +251,8 @@ export type _MutualChecks = [
   Expect<Mutual<Real.PluginSettingsPageProps, Curated.PluginSettingsPageProps>>,
   Expect<Mutual<Real.ThemeManifest, Curated.ThemeManifest>>,
   Expect<Mutual<Real.ThemeSettingsPageDef, Curated.ThemeSettingsPageDef>>,
+  Expect<Mutual<Real.SettingDoc, Curated.SettingDoc>>,
+  Expect<Mutual<Real.SettingsSchema, Curated.SettingsSchema>>,
   Expect<Mutual<Real.ThemeSettingsPageProps, Curated.ThemeSettingsPageProps>>,
   Expect<Mutual<RealStorageConnector, Curated.StorageConnector>>,
   Expect<Mutual<RealSitemaps.SitemapsConfig, Curated.SitemapsConfig>>,

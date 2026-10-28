@@ -6,6 +6,7 @@
       "date": "2026-10-28",
       "breaking": false,
       "changes": [
+        "Settings documentation (extension API 1.5): `plugins config <id> --schema` and `themes config <id> --schema` now list every setting with what it does, its accepted values (closed lists, min / max) and format, for every bundled plugin and theme; `--set` / `--merge` refuse values outside them (`invalid-value`). Extensions document theirs with the new optional `settings.schema` (scaffolded by `ext new`, checked by `ext check`).",
         "The CLI reads plugin and theme bundles straight from the hosting (repo head / bucket) instead of the served admin: right after an install or upgrade, while a Pages host or CDN still serves the old version, pages are rendered with the new bundle. A bundle whose version differs from the site's registry is reported.",
         "Fix: on a new site whose hosting doesn't serve the admin yet (Cloudflare / GitHub Pages project not connected or still building), commands loaded no plugin at all — pages were published without sitemaps, RSS or SEO and `plugins disable` said the plugin didn't exist. `ext install` could also record a registry without the bundled plugins.",
         "Fix: commands for two different sites run in one process (ext install followed by its regeneration, tests) could write to the first site's hosting.",
@@ -16,7 +17,8 @@
         "Screenshots (`site screenshot`, `ext preview --screenshots`, `content preview --screenshots`) scroll through each page first, so scroll-triggered reveal animations show; `ext preview --max-height`.",
         "`ext preview` runs the bundled plugins (SEO, sitemaps, RSS, archives, search…), so `--site` previews render like the live site (translated archive link, search).",
         "Portfolio theme 0.2.0: the related-projects section under each project is styled, translated and filtered by category; the black-and-white hero photo can be turned off (Theme settings → Single).",
-        "`ext new` scaffolds only the translation keys of the features you pick; docs: Cloudflare Pages setup (connect after install, turn off preview branches), tags are names, scroll animations in themes."
+        "`ext new` scaffolds only the translation keys of the features you pick; docs: Cloudflare Pages setup (connect after install, turn off preview branches), tags are names, scroll animations in themes.",
+        "Bundled versions: agentcms-sitemaps 1.0.2, agentcms-rss 1.1.1, agentcms-archives 1.0.2, agentcms-search 1.0.2, agentcms-multilang 1.6.5, themes magazine 1.1.1, corporate 1.0.1, storefront 0.1.1, portfolio 0.2.0, marketplace-core 1.7.2 (settings documentation)."
       ],
       "actions": [
         "deploy-admin",

@@ -1,6 +1,6 @@
-import { pickPublicLocale as ge, uploadFile as N, pathToPublicUrl as y, deleteFile as R, buildRssFeedXml as H, applyFilters as pe, buildTermUrl as q, buildPostUrl as he, markdownToPlainText as fe, useCmsData as me, EntityCombobox as be, fetchAllPosts as U, publishMenuJson as z, toast as x, updatePluginConfig as V, i18n as G } from "@agent-cms/runtime";
+import { pickPublicLocale as ge, uploadFile as N, pathToPublicUrl as y, deleteFile as R, buildRssFeedXml as H, applyFilters as pe, buildTermUrl as _, buildPostUrl as he, markdownToPlainText as fe, useCmsData as me, EntityCombobox as be, fetchAllPosts as U, publishMenuJson as E, toast as x, updatePluginConfig as q, i18n as G } from "@agent-cms/runtime";
 import { jsxs as g, jsx as l, Fragment as ye } from "react/jsx-runtime";
-import { forwardRef as _, createElement as E, useState as T, useEffect as Se, useMemo as xe } from "react";
+import { forwardRef as V, createElement as z, useState as T, useEffect as Se, useMemo as xe } from "react";
 import { useTranslation as Fe } from "react-i18next";
 const J = {
   title: "RSS feeds",
@@ -501,50 +501,50 @@ function Ae(e, a) {
   const t = a.get(e.heroMediaId);
   if (!t) return null;
   if (t.formats && Object.keys(t.formats).length > 0) {
-    const n = t.formats.large ?? (t.defaultFormat ? t.formats[t.defaultFormat] : void 0) ?? Object.values(t.formats)[0];
-    if (n != null && n.url)
+    const s = t.formats.large ?? (t.defaultFormat ? t.formats[t.defaultFormat] : void 0) ?? Object.values(t.formats)[0];
+    if (s != null && s.url)
       return {
-        url: n.url,
-        length: n.bytes ?? 0,
-        type: t.contentType || W(n.url)
+        url: s.url,
+        length: s.bytes ?? 0,
+        type: t.contentType || O(s.url)
       };
   }
   return t.url ? {
     url: t.url,
     length: t.size ?? 0,
-    type: t.contentType || W(t.url)
+    type: t.contentType || O(t.url)
   } : null;
 }
-function W(e) {
+function O(e) {
   const a = e.toLowerCase();
   return a.endsWith(".webp") ? "image/webp" : a.endsWith(".png") ? "image/png" : a.endsWith(".gif") ? "image/gif" : a.endsWith(".avif") ? "image/avif" : (a.endsWith(".jpg") || a.endsWith(".jpeg"), "image/jpeg");
 }
-function Z(e, a, t, n) {
+function Z(e, a, t, s) {
   var c, f, m, C, S, k;
-  const s = e.primaryTermId ? a.find((P) => P.id === e.primaryTermId && P.type === "category") : void 0;
+  const n = e.primaryTermId ? a.find((P) => P.id === e.primaryTermId && P.type === "category") : void 0;
   let r;
   try {
-    r = he({ post: e, primaryTerm: s });
+    r = he({ post: e, primaryTerm: n });
   } catch {
     return null;
   }
-  const d = y(n, r), i = (e.excerpt && e.excerpt.trim().length > 0 ? e.excerpt : fe(e.contentMarkdown, 300)).trim(), p = ((f = (c = e.publishedAt) == null ? void 0 : c.toMillis) == null ? void 0 : f.call(c)) ?? ((C = (m = e.updatedAt) == null ? void 0 : m.toMillis) == null ? void 0 : C.call(m)) ?? ((k = (S = e.createdAt) == null ? void 0 : S.toMillis) == null ? void 0 : k.call(S)) ?? Date.now();
+  const d = y(s, r), i = (e.excerpt && e.excerpt.trim().length > 0 ? e.excerpt : fe(e.contentMarkdown, 300)).trim(), p = ((f = (c = e.publishedAt) == null ? void 0 : c.toMillis) == null ? void 0 : f.call(c)) ?? ((C = (m = e.updatedAt) == null ? void 0 : m.toMillis) == null ? void 0 : C.call(m)) ?? ((k = (S = e.createdAt) == null ? void 0 : S.toMillis) == null ? void 0 : k.call(S)) ?? Date.now();
   return {
     title: e.title || e.slug,
     link: d,
     guid: d,
     description: i,
     pubDateMs: p,
-    category: s == null ? void 0 : s.name,
+    category: n == null ? void 0 : n.name,
     enclosure: Ae(e, t) ?? void 0
   };
 }
-function Me(e, a, t, n, s) {
-  const r = new Set(n.site.excludedTermIds);
-  return e.filter((d) => d.status === "online").filter((d) => !d.primaryTermId || !r.has(d.primaryTermId)).map((d) => Z(d, a, t, s)).filter((d) => d !== null).sort((d, i) => i.pubDateMs - d.pubDateMs).slice(0, Math.max(1, Math.min(100, n.site.itemCount)));
+function Me(e, a, t, s, n) {
+  const r = new Set(s.site.excludedTermIds);
+  return e.filter((d) => d.status === "online").filter((d) => !d.primaryTermId || !r.has(d.primaryTermId)).map((d) => Z(d, a, t, n)).filter((d) => d !== null).sort((d, i) => i.pubDateMs - d.pubDateMs).slice(0, Math.max(1, Math.min(100, s.site.itemCount)));
 }
-function Ie(e, a, t, n, s) {
-  return e.filter((r) => r.status === "online" && r.primaryTermId === n.termId).map((r) => Z(r, a, t, s)).filter((r) => r !== null).sort((r, d) => d.pubDateMs - r.pubDateMs).slice(0, Math.max(1, Math.min(100, n.itemCount)));
+function Ie(e, a, t, s, n) {
+  return e.filter((r) => r.status === "online" && r.primaryTermId === s.termId).map((r) => Z(r, a, t, n)).filter((r) => r !== null).sort((r, d) => d.pubDateMs - r.pubDateMs).slice(0, Math.max(1, Math.min(100, s.itemCount)));
 }
 function He(e) {
   return e instanceof Map ? e : new Map(e.map((a) => [a.id, a]));
@@ -562,31 +562,31 @@ function Y(e) {
   };
 }
 async function ee(e, a) {
-  const t = [], n = [];
+  const t = [], s = [];
   if (!a.site.enabled) {
     if (a.site.lastPublishedPath)
       try {
-        await R(a.site.lastPublishedPath), n.push(a.site.lastPublishedPath);
+        await R(a.site.lastPublishedPath), s.push(a.site.lastPublishedPath);
       } catch {
       }
     for (const c of a.site.lastLocalePaths ?? [])
       try {
-        await R(c), n.push(c);
+        await R(c), s.push(c);
       } catch {
       }
     return {
       uploaded: t,
-      deleted: n,
+      deleted: s,
       nextSite: { ...a.site, lastPublishedPath: void 0, lastLocalePaths: [] }
     };
   }
-  const s = Me(e.posts, e.terms, e.mediaMap, a, e.baseUrl), r = H({
+  const n = Me(e.posts, e.terms, e.mediaMap, a, e.baseUrl), r = H({
     title: e.settings.title || "Site",
     link: y(e.baseUrl, ""),
     description: e.settings.description || e.settings.title || "",
     feedUrl: y(e.baseUrl, F),
     language: e.settings.language || "en",
-    items: s,
+    items: n,
     xslHref: e.xslHref
   });
   await N({ path: F, content: r }), t.push(F);
@@ -620,12 +620,12 @@ async function ee(e, a) {
   for (const c of a.site.lastLocalePaths ?? [])
     if (!p.has(c))
       try {
-        await R(c), n.push(c);
+        await R(c), s.push(c);
       } catch {
       }
   return {
     uploaded: t,
-    deleted: n,
+    deleted: s,
     nextSite: {
       ...a.site,
       lastPublishedPath: F,
@@ -634,25 +634,25 @@ async function ee(e, a) {
   };
 }
 async function te(e, a) {
-  const t = [], n = [], s = e.terms.find((f) => f.id === a.termId && f.type === "category");
-  if (!s) {
+  const t = [], s = [], n = e.terms.find((f) => f.id === a.termId && f.type === "category");
+  if (!n) {
     if (a.lastPublishedPath)
       try {
-        await R(a.lastPublishedPath), n.push(a.lastPublishedPath);
+        await R(a.lastPublishedPath), s.push(a.lastPublishedPath);
       } catch {
       }
-    return { uploaded: t, deleted: n, nextFeed: null };
+    return { uploaded: t, deleted: s, nextFeed: null };
   }
-  const r = A(s.slug);
+  const r = A(n.slug);
   if (a.lastPublishedPath && a.lastPublishedPath !== r)
     try {
-      await R(a.lastPublishedPath), n.push(a.lastPublishedPath);
+      await R(a.lastPublishedPath), s.push(a.lastPublishedPath);
     } catch {
     }
-  const d = Ie(e.posts, e.terms, e.mediaMap, a, e.baseUrl), i = y(e.baseUrl, q(s)), p = `${e.settings.title || "Site"} — ${s.name}`, c = H({
+  const d = Ie(e.posts, e.terms, e.mediaMap, a, e.baseUrl), i = y(e.baseUrl, _(n)), p = `${e.settings.title || "Site"} — ${n.name}`, c = H({
     title: p,
     link: i,
-    description: s.description || s.name,
+    description: n.description || n.name,
     feedUrl: y(e.baseUrl, r),
     language: e.settings.language || "en",
     items: d,
@@ -660,44 +660,44 @@ async function te(e, a) {
   });
   return await N({ path: r, content: c }), t.push(r), {
     uploaded: t,
-    deleted: n,
+    deleted: s,
     nextFeed: { ...a, lastPublishedPath: r }
   };
 }
 async function ae(e) {
-  const a = Y(e), t = [], n = [], s = await ee(a, e.config);
-  t.push(...s.uploaded), n.push(...s.deleted);
+  const a = Y(e), t = [], s = [], n = await ee(a, e.config);
+  t.push(...n.uploaded), s.push(...n.deleted);
   const r = [];
   for (const d of e.config.categoryFeeds) {
     const i = await te(a, d);
-    t.push(...i.uploaded), n.push(...i.deleted), i.nextFeed && r.push(i.nextFeed);
+    t.push(...i.uploaded), s.push(...i.deleted), i.nextFeed && r.push(i.nextFeed);
   }
   return {
-    result: { uploaded: t, deleted: n },
-    nextConfig: { site: s.nextSite, categoryFeeds: r }
+    result: { uploaded: t, deleted: s },
+    nextConfig: { site: n.nextSite, categoryFeeds: r }
   };
 }
-async function ze(e) {
-  const a = Y(e), t = [], n = [];
-  let s = e.config.site;
+async function Ee(e) {
+  const a = Y(e), t = [], s = [];
+  let n = e.config.site;
   const r = [...e.config.categoryFeeds];
   if (e.config.site.enabled) {
     const d = new Set(e.config.site.excludedTermIds);
     if (!e.post.primaryTermId || !d.has(e.post.primaryTermId)) {
       const i = await ee(a, e.config);
-      t.push(...i.uploaded), n.push(...i.deleted), s = i.nextSite;
+      t.push(...i.uploaded), s.push(...i.deleted), n = i.nextSite;
     }
   }
   if (e.post.primaryTermId) {
     const d = r.findIndex((i) => i.termId === e.post.primaryTermId);
     if (d >= 0) {
       const i = await te(a, r[d]);
-      t.push(...i.uploaded), n.push(...i.deleted), i.nextFeed ? r[d] = i.nextFeed : r.splice(d, 1);
+      t.push(...i.uploaded), s.push(...i.deleted), i.nextFeed ? r[d] = i.nextFeed : r.splice(d, 1);
     }
   }
   return {
-    result: { uploaded: t, deleted: n },
-    nextConfig: { site: s, categoryFeeds: r }
+    result: { uploaded: t, deleted: s },
+    nextConfig: { site: n, categoryFeeds: r }
   };
 }
 async function D(e) {
@@ -706,22 +706,22 @@ async function D(e) {
     content: Ne(e.settings.language)
   });
 }
-async function O(e) {
+async function W(e) {
   const a = [];
   let t = e.nextConfig.site;
   if (!e.nextConfig.site.enabled) {
-    const s = e.prevConfig.site.lastPublishedPath ?? F;
+    const n = e.prevConfig.site.lastPublishedPath ?? F;
     try {
-      await R(s), a.push(s);
+      await R(n), a.push(n);
     } catch {
     }
     t = { ...t, lastPublishedPath: void 0 };
   }
-  const n = new Set(e.nextConfig.categoryFeeds.map((s) => s.termId));
-  for (const s of e.prevConfig.categoryFeeds)
-    if (!n.has(s.termId) && s.lastPublishedPath)
+  const s = new Set(e.nextConfig.categoryFeeds.map((n) => n.termId));
+  for (const n of e.prevConfig.categoryFeeds)
+    if (!s.has(n.termId) && n.lastPublishedPath)
       try {
-        await R(s.lastPublishedPath), a.push(s.lastPublishedPath);
+        await R(n.lastPublishedPath), a.push(n.lastPublishedPath);
       } catch {
       }
   return {
@@ -729,7 +729,7 @@ async function O(e) {
     nextConfig: { site: t, categoryFeeds: e.nextConfig.categoryFeeds }
   };
 }
-const Ee = "agentcms-rss";
+const ze = "agentcms-rss";
 function B(e) {
   return e.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
@@ -740,12 +740,12 @@ function De(e) {
   var p;
   const a = e.site.settings, t = (a.baseUrl || "").replace(/\/+$/, "");
   if (!t) return "";
-  const n = (a.pluginConfigs ?? {})[Ee], s = { ...j, ...n ?? {} }, r = a.title || "Site", d = [];
-  (p = s.site) != null && p.enabled && d.push(K(r, y(t, F)));
+  const s = (a.pluginConfigs ?? {})[ze], n = { ...j, ...s ?? {} }, r = a.title || "Site", d = [];
+  (p = n.site) != null && p.enabled && d.push(K(r, y(t, F)));
   const i = /^([a-z0-9-]+)\/index\.html$/.exec(e.currentPath || "");
   if (i) {
     const c = A(i[1]);
-    if ((s.categoryFeeds ?? []).some((m) => m.lastPublishedPath === c)) {
+    if ((n.categoryFeeds ?? []).some((m) => m.lastPublishedPath === c)) {
       const m = e.pageTitle || i[1];
       d.push(K(`${r} — ${m}`, y(t, c)));
     }
@@ -759,7 +759,7 @@ function De(e) {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const je = (e) => e.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), ne = (...e) => e.filter((a, t, n) => !!a && a.trim() !== "" && n.indexOf(a) === t).join(" ").trim();
+const je = (e) => e.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), se = (...e) => e.filter((a, t, s) => !!a && a.trim() !== "" && s.indexOf(a) === t).join(" ").trim();
 /**
  * @license lucide-react v0.460.0 - ISC
  *
@@ -783,17 +783,17 @@ var $e = {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Xe = _(
+const Xe = V(
   ({
     color: e = "currentColor",
     size: a = 24,
     strokeWidth: t = 2,
-    absoluteStrokeWidth: n,
-    className: s = "",
+    absoluteStrokeWidth: s,
+    className: n = "",
     children: r,
     iconNode: d,
     ...i
-  }, p) => E(
+  }, p) => z(
     "svg",
     {
       ref: p,
@@ -801,12 +801,12 @@ const Xe = _(
       width: a,
       height: a,
       stroke: e,
-      strokeWidth: n ? Number(t) * 24 / Number(a) : t,
-      className: ne("lucide", s),
+      strokeWidth: s ? Number(t) * 24 / Number(a) : t,
+      className: se("lucide", n),
       ...i
     },
     [
-      ...d.map(([c, f]) => E(c, f)),
+      ...d.map(([c, f]) => z(c, f)),
       ...Array.isArray(r) ? r : [r]
     ]
   )
@@ -818,12 +818,12 @@ const Xe = _(
  * See the LICENSE file in the root directory of this source tree.
  */
 const w = (e, a) => {
-  const t = _(
-    ({ className: n, ...s }, r) => E(Xe, {
+  const t = V(
+    ({ className: s, ...n }, r) => z(Xe, {
       ref: r,
       iconNode: a,
-      className: ne(`lucide-${je(e)}`, n),
-      ...s
+      className: se(`lucide-${je(e)}`, s),
+      ...n
     })
   );
   return t.displayName = `${e}`, t;
@@ -855,7 +855,7 @@ const M = w("LoaderCircle", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const We = w("Plus", [
+const Oe = w("Plus", [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "M12 5v14", key: "s699le" }]
 ]);
@@ -865,7 +865,7 @@ const We = w("Plus", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Oe = w("RefreshCw", [
+const We = w("RefreshCw", [
   ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
   ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
   ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
@@ -901,8 +901,8 @@ const Ke = w("Trash2", [
   ["line", { x1: "10", x2: "10", y1: "11", y2: "17", key: "1uufr5" }],
   ["line", { x1: "14", x2: "14", y1: "11", y2: "17", key: "xtxkd" }]
 ]);
-function qe({ config: e, save: a }) {
-  const { t } = Fe("agentcms-rss"), { settings: n, terms: s, categories: r, media: d } = me(), [i, p] = T(e);
+function _e({ config: e, save: a }) {
+  const { t } = Fe("agentcms-rss"), { settings: s, terms: n, categories: r, media: d } = me(), [i, p] = T(e);
   Se(() => p(e), [e]);
   const [c, f] = T(!1), [m, C] = T(!1), [S, k] = T(!1), P = xe(() => {
     const o = new Set(i.categoryFeeds.map((u) => u.termId));
@@ -917,7 +917,7 @@ function qe({ config: e, save: a }) {
       categoryFeeds: b.categoryFeeds.map((h) => h.termId === o ? { ...h, ...u } : h)
     }));
   }
-  function se(o) {
+  function ne(o) {
     p((u) => ({
       ...u,
       categoryFeeds: u.categoryFeeds.filter((b) => b.termId !== o)
@@ -936,18 +936,18 @@ function qe({ config: e, save: a }) {
   async function oe() {
     f(!0);
     try {
-      const o = await O({ prevConfig: e, nextConfig: i });
+      const o = await W({ prevConfig: e, nextConfig: i });
       await a(o.nextConfig);
       const u = {
-        ...n,
-        pluginConfigs: { ...n.pluginConfigs, "agentcms-rss": o.nextConfig }
+        ...s,
+        pluginConfigs: { ...s.pluginConfigs, "agentcms-rss": o.nextConfig }
       };
       try {
         const [b, h] = await Promise.all([
           U({ type: "post" }),
           U({ type: "page" })
         ]);
-        await z(u, b, h, s);
+        await E(u, b, h, n);
       } catch (b) {
         console.error("[agentcms-rss] menu.json republish failed:", b);
       }
@@ -957,13 +957,13 @@ function qe({ config: e, save: a }) {
     }
   }
   async function le() {
-    if (!n.baseUrl) {
+    if (!s.baseUrl) {
       x.error(t("baseUrlMissing"));
       return;
     }
     C(!0);
     try {
-      await D({ settings: n }), x.success(t("actions.xslUploaded"));
+      await D({ settings: s }), x.success(t("actions.xslUploaded"));
     } catch (o) {
       console.error("[agentcms-rss] xsl upload failed:", o), x.error(t("actions.xslFailed"));
     } finally {
@@ -971,31 +971,31 @@ function qe({ config: e, save: a }) {
     }
   }
   async function de() {
-    if (!n.baseUrl) {
+    if (!s.baseUrl) {
       x.error(t("baseUrlMissing"));
       return;
     }
     k(!0);
     try {
-      const o = await O({ prevConfig: e, nextConfig: i });
-      await a(o.nextConfig), await D({ settings: n });
+      const o = await W({ prevConfig: e, nextConfig: i });
+      await a(o.nextConfig), await D({ settings: s });
       const [u, b] = await Promise.all([
         U({ type: "post" }),
         U({ type: "page" })
       ]), h = await ae({
         posts: u,
-        terms: s,
+        terms: n,
         media: d,
-        settings: n,
+        settings: s,
         config: o.nextConfig
       });
       await a(h.nextConfig);
       const ce = {
-        ...n,
-        pluginConfigs: { ...n.pluginConfigs, "agentcms-rss": h.nextConfig }
+        ...s,
+        pluginConfigs: { ...s.pluginConfigs, "agentcms-rss": h.nextConfig }
       };
       try {
-        await z(ce, u, b, s);
+        await E(ce, u, b, n);
       } catch (ue) {
         console.error("[agentcms-rss] menu.json republish failed:", ue);
       }
@@ -1093,7 +1093,7 @@ function qe({ config: e, save: a }) {
                   {
                     type: "button",
                     className: "btn-ghost",
-                    onClick: () => se(o.termId),
+                    onClick: () => ne(o.termId),
                     children: [
                       /* @__PURE__ */ l(Ke, { className: "h-4 w-4" }),
                       t("category.remove")
@@ -1141,7 +1141,7 @@ function qe({ config: e, save: a }) {
       /* @__PURE__ */ g("div", { className: "pt-2 border-t border-surface-200 dark:border-surface-700", children: [
         /* @__PURE__ */ l("p", { className: "label", children: t("category.addLabel") }),
         /* @__PURE__ */ l(
-          Ve,
+          qe,
           {
             options: P,
             placeholder: t("category.placeholder"),
@@ -1182,7 +1182,7 @@ function qe({ config: e, save: a }) {
             disabled: S,
             children: /* @__PURE__ */ g("span", { className: "inline-flex items-center justify-center gap-1.5", children: [
               /* @__PURE__ */ l(M, { className: "h-4 w-4 animate-spin " + (S ? "" : "hidden") }),
-              /* @__PURE__ */ l(Oe, { className: "h-4 w-4 " + (S ? "hidden" : "") }),
+              /* @__PURE__ */ l(We, { className: "h-4 w-4 " + (S ? "hidden" : "") }),
               /* @__PURE__ */ l("span", { children: t(S ? "actions.forceRegenerating" : "actions.forceRegenerate") })
             ] })
           }
@@ -1191,20 +1191,20 @@ function qe({ config: e, save: a }) {
     ] })
   ] });
 }
-function Ve({
+function qe({
   options: e,
   placeholder: a,
   addLabel: t,
-  onAdd: n
+  onAdd: s
 }) {
-  const [s, r] = T(null);
+  const [n, r] = T(null);
   return /* @__PURE__ */ g("div", { className: "flex flex-wrap items-start gap-2", children: [
     /* @__PURE__ */ l(
       be,
       {
         className: "flex-1 min-w-[260px]",
         options: e,
-        value: s,
+        value: n,
         onSelect: r,
         placeholder: a
       }
@@ -1214,19 +1214,45 @@ function Ve({
       {
         type: "button",
         className: "btn-secondary",
-        disabled: !s,
+        disabled: !n,
         onClick: () => {
-          s && (n(s), r(null));
+          n && (s(n), r(null));
         },
         children: [
-          /* @__PURE__ */ l(We, { className: "h-4 w-4" }),
+          /* @__PURE__ */ l(Oe, { className: "h-4 w-4" }),
           t
         ]
       }
     )
   ] });
 }
-const _e = `# RSS
+const Ve = {
+  "site.enabled": {
+    description: "Publish the site-wide RSS 2.0 feed at /rss.xml (latest online posts). Turning it off deletes /rss.xml (and the per-language feeds) on save. Needs settings.baseUrl."
+  },
+  "site.itemCount": {
+    description: "Number of most recent online posts in /rss.xml.",
+    min: 1,
+    max: 100
+  },
+  "site.excludedTermIds": {
+    description: "Categories whose posts are left out of /rss.xml: an array of category term ids (the CLI also accepts category slugs or names and stores the ids). Empty = every post.",
+    format: "array of category ids"
+  },
+  "site.addToFooter": {
+    description: 'Add an "RSS" link to /rss.xml at the end of the footer menu (data/menu.json, republished on save).'
+  },
+  "site.lastPublishedPath": {
+    description: "Managed by the plugin — don't set. Path of the last uploaded site feed, used to delete it when the feed is turned off."
+  },
+  "site.lastLocalePaths": {
+    description: "Managed by the plugin — don't set. Per-language feed files (e.g. /<lang>/rss.xml from multilang) to clean up later."
+  },
+  categoryFeeds: {
+    description: `One feed per category, published at /<category-slug>/<category-slug>.xml: an array of { termId, itemCount (1-100, default 20), addToFooter (adds "RSS — <category>" to the footer) }. termId is a category id (the CLI also accepts a slug or name). Each item's lastPublishedPath is managed by the plugin — don't set it. Feeds removed from the array get their file deleted on save.`,
+    format: "array of { termId, itemCount, addToFooter }"
+  }
+}, Je = `# RSS
 
 Publishes RSS 2.0 feeds so readers can follow your site in any feed reader (Feedly, NetNewsWire, Inoreader, …).
 
@@ -1277,7 +1303,7 @@ async function I(e, a) {
   const t = $(a.settings);
   if (!(!t.site.enabled && t.categoryFeeds.length === 0))
     try {
-      const n = await ze({
+      const s = await Ee({
         post: e,
         posts: a.posts,
         terms: a.terms,
@@ -1285,26 +1311,26 @@ async function I(e, a) {
         settings: a.settings,
         config: t
       });
-      JSON.stringify(n.nextConfig) !== JSON.stringify(t) && await V(v, n.nextConfig);
-    } catch (n) {
-      console.error("[agentcms-rss] regeneration failed:", n);
+      JSON.stringify(s.nextConfig) !== JSON.stringify(t) && await q(v, s.nextConfig);
+    } catch (s) {
+      console.error("[agentcms-rss] regeneration failed:", s);
     }
 }
-function Je(e, a) {
-  const t = $(a.settings), n = (a.settings.baseUrl || "").replace(/\/+$/, "");
-  if (!n) return e;
-  const s = [], r = G.getResource(G.language, v, "footerLabels") ?? J.footerLabels;
-  t.site.enabled && t.site.addToFooter && s.push({
+function Qe(e, a) {
+  const t = $(a.settings), s = (a.settings.baseUrl || "").replace(/\/+$/, "");
+  if (!s) return e;
+  const n = [], r = G.getResource(G.language, v, "footerLabels") ?? J.footerLabels;
+  t.site.enabled && t.site.addToFooter && n.push({
     id: "rss-site",
     label: r.site,
-    href: y(n, F)
+    href: y(s, F)
   });
   for (const d of t.categoryFeeds) {
     if (!d.addToFooter) continue;
     const i = a.terms.find((c) => c.id === d.termId && c.type === "category");
     if (!i) continue;
-    const p = y(n, A(i.slug));
-    q(i), s.push({
+    const p = y(s, A(i.slug));
+    _(i), n.push({
       id: `rss-cat-${i.id}`,
       // i18next interpolation is only available through t(), and at this
       // point we don't hold a t() instance — so a tiny manual replace
@@ -1313,20 +1339,21 @@ function Je(e, a) {
       href: p
     });
   }
-  return s.length === 0 ? e : { ...e, footer: [...e.footer, ...s] };
+  return n.length === 0 ? e : { ...e, footer: [...e.footer, ...n] };
 }
-const tt = {
+const at = {
   id: v,
   name: "RSS",
-  version: "1.1.0",
+  version: "1.1.1",
   author: "AgentCMS",
   description: "Generates an RSS 2.0 feed at /rss.xml plus optional per-category feeds, and can list them in the site footer.",
-  readme: _e,
+  readme: Je,
   i18n: { en: J, fr: ve, de: Re, es: we, nl: Ce, pt: ke, ko: Te },
   settings: {
     navLabelKey: "title",
     defaultConfig: j,
-    component: qe
+    component: _e,
+    schema: Ve
   },
   register(e) {
     e.addAction("publish.complete", async (a, t) => {
@@ -1336,14 +1363,14 @@ const tt = {
     }), e.addAction("post.deleted", async (a, t) => {
       await I(a, t);
     }), e.addFilter("menu.json.resolved", (a, ...t) => {
-      const n = t[0];
-      return n ? Je(a, n) : a;
+      const s = t[0];
+      return s ? Qe(a, s) : a;
     }), e.addFilter("page.head.extra", (a, ...t) => {
-      const n = t[0];
-      if (!(n != null && n.site)) return a;
-      const s = De(n);
-      return s ? a ? `${a}
-${s}` : s : a;
+      const s = t[0];
+      if (!(s != null && s.site)) return a;
+      const n = De(s);
+      return n ? a ? `${a}
+${n}` : n : a;
     }), e.registerRegenerationTarget({
       id: v,
       labelKey: "regenerationTarget.label",
@@ -1354,26 +1381,26 @@ ${s}` : s : a;
           t({ level: "warn", message: "[agentcms-rss] skipped — site URL not set." });
           return;
         }
-        const n = $(a.settings);
+        const s = $(a.settings);
         t({ level: "info", message: "Regenerating RSS stylesheet…" }), await D({ settings: a.settings }), t({ level: "info", message: "Regenerating RSS feeds…" });
-        const s = await ae({
+        const n = await ae({
           posts: a.posts,
           terms: a.terms,
           media: a.media,
           settings: a.settings,
-          config: n
+          config: s
         });
-        JSON.stringify(s.nextConfig) !== JSON.stringify(n) && await V(v, s.nextConfig);
+        JSON.stringify(n.nextConfig) !== JSON.stringify(s) && await q(v, n.nextConfig);
         try {
           const i = {
             ...a.settings,
-            pluginConfigs: { ...a.settings.pluginConfigs, [v]: s.nextConfig }
+            pluginConfigs: { ...a.settings.pluginConfigs, [v]: n.nextConfig }
           };
-          await z(i, a.posts, a.pages, a.terms);
+          await E(i, a.posts, a.pages, a.terms);
         } catch (i) {
           t({ level: "warn", message: `menu.json republish failed: ${i.message}` });
         }
-        const r = s.result.uploaded.length, d = s.result.deleted.length;
+        const r = n.result.uploaded.length, d = n.result.deleted.length;
         t({
           level: "success",
           message: (r ? `RSS: stylesheet + ${r} feed(s) uploaded` : "RSS: stylesheet uploaded; no feed is enabled") + (d ? `, ${d} disabled feed(s) removed.` : ".")
@@ -1383,5 +1410,5 @@ ${s}` : s : a;
   }
 };
 export {
-  tt as manifest
+  at as manifest
 };

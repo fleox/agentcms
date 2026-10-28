@@ -20,6 +20,7 @@
 //   - settings/SettingsPage.tsx      — /settings/plugin/agentcms-multilang
 
 import { fetchAllPosts, type PluginManifest, type PublishContext, type Post } from "@agent-cms/runtime";
+import { SETTINGS_SCHEMA } from "./settingsSchema";
 import readme from "../README.md?raw";
 import en from "./i18n/en.json";
 import fr from "./i18n/fr.json";
@@ -112,7 +113,7 @@ async function warmRegistry(): Promise<void> {
 const manifest: PluginManifest<MultilangConfig> = {
   id: "agentcms-multilang",
   name: "Multi-language",
-  version: "1.6.4",
+  version: "1.6.5",
   description:
     "Multi-language site support — translated posts/pages/terms, hreflang SEO, per-language sitemap entries, per-language RSS feeds.",
   author: "AgentCMS",
@@ -122,6 +123,7 @@ const manifest: PluginManifest<MultilangConfig> = {
     navLabelKey: "settings.title",
     defaultConfig: DEFAULT_MULTILANG_CONFIG,
     component: SettingsPage,
+    schema: SETTINGS_SCHEMA,
   },
   register(api) {
     // ── Publisher hooks ──────────────────────────────────────────

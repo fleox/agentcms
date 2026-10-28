@@ -88,6 +88,11 @@ describe("plugins", () => {
   it("reads, replaces and merges a config with the settings page's side effects (rss)", async () => {
     const schema = await run(["plugins", "config", "agentcms-rss", "--schema"]);
     expect(schema.body.data.result.defaultConfig).toHaveProperty("categoryFeeds");
+    // Documented settings: description + accepted range, enforced.
+    expect(schema.body.data.result.documented).toBe(true);
+    expect(schema.body.data.result.settings).toContainEqual(expect.objectContaining({ path: "site.itemCount", description: expect.any(String), min: 1, max: 100 }));
+    const refused = await run(["plugins", "config", "agentcms-rss", "--merge", '{"site":{"itemCount":500}}']);
+    expect(refused.body.error?.code).toBe("invalid-value");
     const merged = await run(["plugins", "config", "agentcms-rss", "--merge", '{"site":{"enabled":true},"categoryFeeds":[{"termId":"news","addToFooter":true}],"bogus":1}']);
     expect(merged.body.ok).toBe(true);
     expect(merged.body.data.result.effects).toContain("published data/menu.json");
@@ -206,6 +211,10 @@ describe("themes", () => {
     expect(schema.defaultConfig).toHaveProperty("style");
     // (CSS imports are empty under vitest: the parser is unit-tested.)
     expect(schema).toHaveProperty("cssVariables");
+    expect(schema.settings).toContainEqual(expect.objectContaining({ path: "home.heroVariant", values: expect.arrayContaining(["minimal"]) }));
+    const refused = await run(["themes", "config", "default", "--merge", '{"home":{"heroVariant":"giant"}}']);
+    expect(refused.body.error).toMatchObject({ code: "invalid-value" });
+    expect(refused.body.error?.message).toContain('"home.heroVariant" is "giant"');
     const saved = await run(["themes", "config", "default", "--merge", '{"style":{"vars":{"--color-bg":"#123456"}}}']);
     expect(saved.body.data.result.effects).toContain("uploaded theme-assets/default.css");
     // Style only: the CSS is live, nothing to regenerate.

@@ -1,5 +1,5 @@
-import { buildPostUrl as he, deleteFolder as ge, uploadFile as T, deleteFile as pe, buildSiteContext as me, i18n as Y, pickPublicLocale as J, getActiveTheme as fe, renderPageToHtml as ye, useCmsData as ve, toast as P, fetchAllPosts as O } from "@agent-cms/runtime";
-import { jsxs as h, jsx as o } from "react/jsx-runtime";
+import { buildPostUrl as ue, deleteFolder as ge, uploadFile as T, deleteFile as pe, buildSiteContext as me, i18n as Y, pickPublicLocale as J, getActiveTheme as fe, renderPageToHtml as ye, useCmsData as ve, toast as P, fetchAllPosts as O } from "@agent-cms/runtime";
+import { jsxs as u, jsx as o } from "react/jsx-runtime";
 import { forwardRef as E, createElement as M, useState as C, useEffect as be } from "react";
 import { useTranslation as ke } from "react-i18next";
 const we = {
@@ -528,7 +528,7 @@ function W(e) {
 }
 function Ce(e, t) {
   const n = e.primaryTermId ? t.find((a) => a.id === e.primaryTermId) : void 0;
-  return `/${he({
+  return `/${ue({
     post: e,
     primaryTerm: n ? { ...n, type: "category" } : void 0
   })}`;
@@ -539,7 +539,7 @@ function j({ post: e, language: t, terms: n }) {
     month: "long",
     day: "numeric"
   }).format(a) : "";
-  return /* @__PURE__ */ h("li", { className: "archives__item", children: [
+  return /* @__PURE__ */ u("li", { className: "archives__item", children: [
     /* @__PURE__ */ o("a", { className: "archives__item-link", href: Ce(e, n), children: e.title }),
     r && /* @__PURE__ */ o("time", { className: "archives__item-date", dateTime: a == null ? void 0 : a.toISOString(), children: r })
   ] });
@@ -557,8 +557,8 @@ function He({
   const i = [...F(e, t, "year").values()].sort(
     (c, s) => _(c.period, s.period)
   ), l = e.length;
-  return /* @__PURE__ */ h("main", { className: "archives archives--index", children: [
-    /* @__PURE__ */ h("header", { className: "archives__header", children: [
+  return /* @__PURE__ */ u("main", { className: "archives archives--index", children: [
+    /* @__PURE__ */ u("header", { className: "archives__header", children: [
       /* @__PURE__ */ o("h1", { className: "archives__title", children: a("page.indexTitle") }),
       l > 0 && /* @__PURE__ */ o("p", { className: "archives__subtitle", children: a("page.indexSubtitle", { count: l }) })
     ] }),
@@ -567,16 +567,16 @@ function He({
       const d = c, g = t === "none" ? null : [
         ...F(s, t, "drill").values()
       ].sort((p, m) => _(p.period, m.period));
-      return /* @__PURE__ */ h("li", { className: "archives__year", children: [
-        /* @__PURE__ */ h("h2", { className: "archives__year-heading", children: [
+      return /* @__PURE__ */ u("li", { className: "archives__year", children: [
+        /* @__PURE__ */ u("h2", { className: "archives__year-heading", children: [
           /* @__PURE__ */ o("a", { className: "archives__year-link", href: D(d, r), children: d.year }),
-          n && /* @__PURE__ */ h("span", { className: "archives__count", children: [
+          n && /* @__PURE__ */ u("span", { className: "archives__count", children: [
             "(",
             s.length,
             ")"
           ] })
         ] }),
-        g && g.length > 0 && /* @__PURE__ */ o("ul", { className: "archives__drilldown", children: g.map(({ period: p, posts: m }) => /* @__PURE__ */ h(
+        g && g.length > 0 && /* @__PURE__ */ o("ul", { className: "archives__drilldown", children: g.map(({ period: p, posts: m }) => /* @__PURE__ */ u(
           "li",
           {
             className: "archives__drilldown-item",
@@ -589,7 +589,7 @@ function He({
                   children: X(p, a)
                 }
               ),
-              n && /* @__PURE__ */ h("span", { className: "archives__count", children: [
+              n && /* @__PURE__ */ u("span", { className: "archives__count", children: [
                 "(",
                 m.length,
                 ")"
@@ -632,10 +632,10 @@ function Ie({
     });
   const m = e.kind === "year" && n !== "none", b = m ? [...F(d, n, "drill").values()].sort(
     (f, k) => _(f.period, k.period)
-  ) : null, u = e.kind === "year" ? s ?? Pe : D({ kind: "year", year: e.year }, c), v = e.kind === "year" ? i("page.backToIndex") : i("page.backToYear", { year: e.year });
-  return /* @__PURE__ */ h("main", { className: "archives archives--period", children: [
-    /* @__PURE__ */ h("header", { className: "archives__header", children: [
-      /* @__PURE__ */ o("p", { className: "archives__back", children: /* @__PURE__ */ o("a", { href: u, children: v }) }),
+  ) : null, h = e.kind === "year" ? s ?? Pe : D({ kind: "year", year: e.year }, c), v = e.kind === "year" ? i("page.backToIndex") : i("page.backToYear", { year: e.year });
+  return /* @__PURE__ */ u("main", { className: "archives archives--period", children: [
+    /* @__PURE__ */ u("header", { className: "archives__header", children: [
+      /* @__PURE__ */ o("p", { className: "archives__back", children: /* @__PURE__ */ o("a", { href: h, children: v }) }),
       /* @__PURE__ */ o("h1", { className: "archives__title", children: g }),
       t.length > 0 && /* @__PURE__ */ o("p", { className: "archives__subtitle", children: p })
     ] }),
@@ -649,8 +649,8 @@ function Ie({
       },
       f.id
     )) }),
-    m && b && /* @__PURE__ */ o("div", { className: "archives__groups", children: b.map(({ period: f, posts: k }) => /* @__PURE__ */ h("section", { className: "archives__group", children: [
-      /* @__PURE__ */ h("h2", { className: "archives__group-heading", children: [
+    m && b && /* @__PURE__ */ o("div", { className: "archives__groups", children: b.map(({ period: f, posts: k }) => /* @__PURE__ */ u("section", { className: "archives__group", children: [
+      /* @__PURE__ */ u("h2", { className: "archives__group-heading", children: [
         /* @__PURE__ */ o(
           "a",
           {
@@ -659,7 +659,7 @@ function Ie({
             children: X(f, i)
           }
         ),
-        a && /* @__PURE__ */ h("span", { className: "archives__count", children: [
+        a && /* @__PURE__ */ u("span", { className: "archives__count", children: [
           "(",
           k.length,
           ")"
@@ -846,14 +846,14 @@ async function oe(e) {
 }
 async function We(e) {
   const { data: t, config: n, root: a, indexPath: r, indexHref: i, currentLocale: l } = e, c = { uploaded: [], deleted: [] }, s = ne(t, n), d = te(t), g = se(d, l), p = ze(s, n.drillDown), m = [];
-  for (const u of p.years) m.push(u);
-  for (const u of p.drills) m.push(u);
-  for (const u of m) {
-    const v = R(u, a), f = ce({
+  for (const h of p.years) m.push(h);
+  for (const h of p.drills) m.push(h);
+  for (const h of m) {
+    const v = R(h, a), f = ce({
       data: t,
       config: n,
       site: g,
-      period: u,
+      period: h,
       entities: s,
       root: a,
       indexHref: i,
@@ -972,7 +972,7 @@ async function Ye(e) {
     });
     await T({ path: k, content: A }), s.uploaded.push(k);
   }
-  const u = de({
+  const h = de({
     data: t,
     config: n,
     site: p,
@@ -981,7 +981,7 @@ async function Ye(e) {
     indexPath: l,
     currentLocale: r
   });
-  return await T({ path: l, content: u }), s.uploaded.push(l), s;
+  return await T({ path: l, content: h }), s.uploaded.push(l), s;
 }
 function Je(e) {
   const t = e.wipedFolders ?? [], n = t.length ? ` (rebuilt ${t.join(", ")})` : "", a = e.deleted.length ? `, ${e.deleted.length} removed` : "";
@@ -993,7 +993,7 @@ function Je(e) {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Ee = (e) => e.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), ue = (...e) => e.filter((t, n, a) => !!t && t.trim() !== "" && a.indexOf(t) === n).join(" ").trim();
+const Ee = (e) => e.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), he = (...e) => e.filter((t, n, a) => !!t && t.trim() !== "" && a.indexOf(t) === n).join(" ").trim();
 /**
  * @license lucide-react v0.460.0 - ISC
  *
@@ -1036,7 +1036,7 @@ const Ue = E(
       height: t,
       stroke: e,
       strokeWidth: a ? Number(n) * 24 / Number(t) : n,
-      className: ue("lucide", r),
+      className: he("lucide", r),
       ...c
     },
     [
@@ -1056,7 +1056,7 @@ const $ = (e, t) => {
     ({ className: a, ...r }, i) => M(Ue, {
       ref: i,
       iconNode: t,
-      className: ue(`lucide-${Ee(e)}`, a),
+      className: he(`lucide-${Ee(e)}`, a),
       ...r
     })
   );
@@ -1107,8 +1107,8 @@ function Be({
   const { t: n } = ke("agentcms-archives"), { terms: a, settings: r } = ve(), [i, l] = C(e);
   be(() => l(e), [e]);
   const [c, s] = C(!1), [d, g] = C(!1);
-  function p(u) {
-    l((v) => ({ ...v, ...u }));
+  function p(h) {
+    l((v) => ({ ...v, ...h }));
   }
   async function m() {
     s(!0);
@@ -1122,85 +1122,85 @@ function Be({
     g(!0);
     try {
       await t(i);
-      const [u, v] = await Promise.all([
+      const [h, v] = await Promise.all([
         O({ type: "post" }),
         O({ type: "page" })
-      ]), f = await oe({ posts: u, pages: v, terms: a, settings: r });
+      ]), f = await oe({ posts: h, pages: v, terms: a, settings: r });
       P.success(n("settings.regenerated", { count: f.uploaded.length }));
-    } catch (u) {
-      console.error("[agentcms-archives] regeneration failed:", u), P.error(n("settings.regenerateFailed"));
+    } catch (h) {
+      console.error("[agentcms-archives] regeneration failed:", h), P.error(n("settings.regenerateFailed"));
     } finally {
       g(!1);
     }
   }
-  return /* @__PURE__ */ h("div", { className: "space-y-4", children: [
-    /* @__PURE__ */ h("section", { className: "card p-4 space-y-4", children: [
-      /* @__PURE__ */ h("header", { className: "space-y-1", children: [
+  return /* @__PURE__ */ u("div", { className: "space-y-4", children: [
+    /* @__PURE__ */ u("section", { className: "card p-4 space-y-4", children: [
+      /* @__PURE__ */ u("header", { className: "space-y-1", children: [
         /* @__PURE__ */ o("h2", { className: "font-semibold", children: n("title") }),
         /* @__PURE__ */ o("p", { className: "text-sm text-surface-600 dark:text-surface-300", children: n("description") })
       ] }),
-      /* @__PURE__ */ h("div", { className: "space-y-2", children: [
+      /* @__PURE__ */ u("div", { className: "space-y-2", children: [
         /* @__PURE__ */ o("label", { className: "label", children: n("settings.drillDown") }),
-        /* @__PURE__ */ o("div", { className: "flex flex-col gap-1", children: ["none", "month", "week"].map((u) => /* @__PURE__ */ h("label", { className: "inline-flex items-center gap-2 text-sm", children: [
+        /* @__PURE__ */ o("div", { className: "flex flex-col gap-1", children: ["none", "month", "week"].map((h) => /* @__PURE__ */ u("label", { className: "inline-flex items-center gap-2 text-sm", children: [
           /* @__PURE__ */ o(
             "input",
             {
               type: "radio",
               name: "drillDown",
-              value: u,
-              checked: i.drillDown === u,
-              onChange: () => p({ drillDown: u })
+              value: h,
+              checked: i.drillDown === h,
+              onChange: () => p({ drillDown: h })
             }
           ),
           /* @__PURE__ */ o("span", { children: n(
-            u === "none" ? "settings.drillDownNone" : u === "month" ? "settings.drillDownMonth" : "settings.drillDownWeek"
+            h === "none" ? "settings.drillDownNone" : h === "month" ? "settings.drillDownMonth" : "settings.drillDownWeek"
           ) })
-        ] }, u)) }),
+        ] }, h)) }),
         /* @__PURE__ */ o("p", { className: "text-xs text-surface-500 dark:text-surface-400", children: n("settings.drillDownHelp") })
       ] }),
-      /* @__PURE__ */ h("div", { children: [
-        /* @__PURE__ */ h("label", { className: "inline-flex items-center gap-2 text-sm", children: [
+      /* @__PURE__ */ u("div", { children: [
+        /* @__PURE__ */ u("label", { className: "inline-flex items-center gap-2 text-sm", children: [
           /* @__PURE__ */ o(
             "input",
             {
               type: "checkbox",
               checked: i.includePages,
-              onChange: (u) => p({ includePages: u.target.checked })
+              onChange: (h) => p({ includePages: h.target.checked })
             }
           ),
           /* @__PURE__ */ o("span", { children: n("settings.includePages") })
         ] }),
         /* @__PURE__ */ o("p", { className: "text-xs text-surface-500 mt-1 dark:text-surface-400", children: n("settings.includePagesHelp") })
       ] }),
-      /* @__PURE__ */ o("div", { children: /* @__PURE__ */ h("label", { className: "inline-flex items-center gap-2 text-sm", children: [
+      /* @__PURE__ */ o("div", { children: /* @__PURE__ */ u("label", { className: "inline-flex items-center gap-2 text-sm", children: [
         /* @__PURE__ */ o(
           "input",
           {
             type: "checkbox",
             checked: i.showCounts,
-            onChange: (u) => p({ showCounts: u.target.checked })
+            onChange: (h) => p({ showCounts: h.target.checked })
           }
         ),
         /* @__PURE__ */ o("span", { children: n("settings.showCounts") })
       ] }) }),
-      /* @__PURE__ */ o("div", { children: /* @__PURE__ */ h("label", { className: "inline-flex items-center gap-2 text-sm", children: [
+      /* @__PURE__ */ o("div", { children: /* @__PURE__ */ u("label", { className: "inline-flex items-center gap-2 text-sm", children: [
         /* @__PURE__ */ o(
           "input",
           {
             type: "checkbox",
             checked: i.addArchivesLinkToHome,
-            onChange: (u) => p({ addArchivesLinkToHome: u.target.checked })
+            onChange: (h) => p({ addArchivesLinkToHome: h.target.checked })
           }
         ),
         /* @__PURE__ */ o("span", { children: n("settings.addArchivesLinkToHome") })
       ] }) }),
-      /* @__PURE__ */ o("div", { children: /* @__PURE__ */ h("label", { className: "inline-flex items-center gap-2 text-sm", children: [
+      /* @__PURE__ */ o("div", { children: /* @__PURE__ */ u("label", { className: "inline-flex items-center gap-2 text-sm", children: [
         /* @__PURE__ */ o(
           "input",
           {
             type: "checkbox",
             checked: i.addArchivesLinkToCategory,
-            onChange: (u) => p({ addArchivesLinkToCategory: u.target.checked })
+            onChange: (h) => p({ addArchivesLinkToCategory: h.target.checked })
           }
         ),
         /* @__PURE__ */ o("span", { children: n("settings.addArchivesLinkToCategory") })
@@ -1212,7 +1212,7 @@ function Be({
           className: "btn-primary",
           onClick: m,
           disabled: c,
-          children: /* @__PURE__ */ h("span", { className: "inline-flex items-center justify-center gap-1.5", children: [
+          children: /* @__PURE__ */ u("span", { className: "inline-flex items-center justify-center gap-1.5", children: [
             /* @__PURE__ */ o(z, { className: "h-4 w-4 animate-spin " + (c ? "" : "hidden") }),
             /* @__PURE__ */ o(Ge, { className: "h-4 w-4 " + (c ? "hidden" : "") }),
             /* @__PURE__ */ o("span", { children: n(c ? "settings.saving" : "settings.save") })
@@ -1220,8 +1220,8 @@ function Be({
         }
       ) })
     ] }),
-    /* @__PURE__ */ h("section", { className: "card p-4 space-y-3", children: [
-      /* @__PURE__ */ h("header", { children: [
+    /* @__PURE__ */ u("section", { className: "card p-4 space-y-3", children: [
+      /* @__PURE__ */ u("header", { children: [
         /* @__PURE__ */ o("h2", { className: "font-semibold", children: n("settings.forceRegenerate") }),
         /* @__PURE__ */ o("p", { className: "text-sm text-surface-600 dark:text-surface-300 mt-1", children: n("settings.forceRegenerateHelp") })
       ] }),
@@ -1232,7 +1232,7 @@ function Be({
           className: "btn-secondary",
           onClick: b,
           disabled: d,
-          children: /* @__PURE__ */ h("span", { className: "inline-flex items-center justify-center gap-1.5", children: [
+          children: /* @__PURE__ */ u("span", { className: "inline-flex items-center justify-center gap-1.5", children: [
             /* @__PURE__ */ o(z, { className: "h-4 w-4 animate-spin " + (d ? "" : "hidden") }),
             /* @__PURE__ */ o(qe, { className: "h-4 w-4 " + (d ? "hidden" : "") }),
             /* @__PURE__ */ o("span", { children: n(d ? "settings.forceRegenerating" : "settings.forceRegenerate") })
@@ -1242,7 +1242,24 @@ function Be({
     ] })
   ] });
 }
-const Ke = `# Archives
+const Ke = {
+  drillDown: {
+    description: "Sub-pages under each year archive: none (year pages only), month (/archives/<year>/<mm>/) or ISO week (/archives/<year>/W<ww>/). Changing it needs a full archives regeneration, which rebuilds /archives/ from scratch.",
+    values: ["none", "month", "week"]
+  },
+  includePages: {
+    description: "List static pages in the archives too (by publication date), not only posts."
+  },
+  showCounts: {
+    description: 'Show the number of entries next to each period, e.g. "2025 (12)".'
+  },
+  addArchivesLinkToHome: {
+    description: `Add a "See full archives" link below the home page's post list. Shows after the home is regenerated.`
+  },
+  addArchivesLinkToCategory: {
+    description: `Add a "See full archives" link below every category archive's post list. Shows after the category pages are regenerated.`
+  }
+}, Xe = `# Archives
 
 Static archive pages — a search-engine-friendly, static-hosting-friendly alternative to pagination.
 
@@ -1372,18 +1389,19 @@ async function I(e, t) {
     console.error("[agentcms-archives] regeneration failed:", n);
   }
 }
-const tt = {
+const nt = {
   id: S,
   name: "Archives",
-  version: "1.0.1",
+  version: "1.0.2",
   author: "AgentCMS",
   description: "Generates static archive pages grouped by year (and optionally month or ISO week) and adds a 'See full archives' link to home / category listings — a static-friendly alternative to pagination.",
-  readme: Ke,
+  readme: Xe,
   i18n: { en: we, fr: _e, de: Se, es: Ae, nl: Te, pt: xe, ko: De },
   settings: {
     navLabelKey: "title",
     defaultConfig: Q,
-    component: Be
+    component: Be,
+    schema: Ke
   },
   register(e) {
     e.addAction("publish.complete", async (t, n) => {
@@ -1411,5 +1429,5 @@ const tt = {
   }
 };
 export {
-  tt as manifest
+  nt as manifest
 };

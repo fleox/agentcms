@@ -10,6 +10,7 @@ import { compareVersions as compareSemver } from "../semver";
 import { bootExtensionHost, IMPORT_MAP_SPECIFIERS, importExtensionBundle } from "./extHost";
 import { bundleSource, type ExtensionPackage } from "./extPackage";
 import { listFiles, renderPreview, type LoadedExtension, type PreviewResult } from "./extPreview";
+import { schemaErrors } from "./settingsSchema";
 
 // `agentcms ext check`: everything the admin would do with the package
 // (install-time validation, boot-time import + registration, publish-
@@ -201,6 +202,22 @@ function checkI18nAndSettings(m: PluginManifest | ThemeManifest, issues: CheckIs
   if (s.defaultConfig === undefined) issues.push({ level: "warn", code: "settings-default", message: "settings.defaultConfig is undefined — the page gets no config on a fresh site." });
   if (typeof s.navLabelKey === "string" && i18n?.en && getPath(i18n.en, s.navLabelKey) === undefined) {
     issues.push({ level: "warn", code: "settings-label-missing", message: `settings.navLabelKey "${s.navLabelKey}" is not in i18n.en — the menu shows the raw key.`, hint: `Namespace: "${namespace}".` });
+  }
+  // settings.schema (API 1.5): shown by `config --schema`, enforced on
+  // --set / --merge — the defaults themselves must pass it.
+  if (s.schema !== undefined) {
+    const schema = s.schema as Record<string, { description?: unknown; values?: unknown }>;
+    if (typeof schema !== "object" || schema === null || Array.isArray(schema)) {
+      issues.push({ level: "error", code: "settings-schema", message: "settings.schema must be an object keyed by setting path." });
+    } else {
+      for (const [path, d] of Object.entries(schema)) {
+        if (!d || typeof d.description !== "string" || !d.description.trim()) issues.push({ level: "warn", code: "settings-schema-description", message: `settings.schema["${path}"] has no description.` });
+        if (d?.values !== undefined && !Array.isArray(d.values)) issues.push({ level: "error", code: "settings-schema", message: `settings.schema["${path}"].values must be an array.` });
+      }
+      for (const e of schemaErrors(schema as never, s.defaultConfig)) {
+        issues.push({ level: "error", code: "settings-schema-default", message: `defaultConfig fails its own schema: ${e}`, hint: "Add the default to `values` (or widen min / max)." });
+      }
+    }
   }
 }
 

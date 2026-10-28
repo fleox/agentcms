@@ -11,7 +11,7 @@ import { a as splitSecrets } from "./gitStore-ueM10Bby.mjs";
 import { f as firebaseStore } from "./externalRegistryStore-D_PPqoiO.mjs";
 import { d as docstoreStore } from "./externalRegistryStore-CRmJUVV8.mjs";
 import { EMPTY_EXTERNAL_MANIFEST } from "./externalRegistry-DuO0IV8e.mjs";
-import { c as listAllMedia } from "./media-x49mFUWY.mjs";
+import { c as listAllMedia } from "./media-DXyPyMZf.mjs";
 import { invalidateAllPostsCache, fetchAllPosts } from "./posts-BwMIoSkg.mjs";
 import { getSettings } from "./settings-DZuDcOE5.mjs";
 import { fetchAllTerms } from "./taxonomies-CjlJL2MS.mjs";

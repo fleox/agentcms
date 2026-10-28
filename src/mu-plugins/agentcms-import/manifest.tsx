@@ -5,6 +5,7 @@ import {
   ImportSettingsPage,
   type ImportConfig,
 } from "./SettingsPage";
+import { SETTINGS_SCHEMA } from "./settingsSchema";
 import readme from "./README.md?raw";
 
 export const manifest: PluginManifest<ImportConfig> = {
@@ -20,6 +21,7 @@ export const manifest: PluginManifest<ImportConfig> = {
     navLabelKey: "title",
     defaultConfig: DEFAULT_IMPORT_CONFIG,
     component: ImportSettingsPage,
+    schema: SETTINGS_SCHEMA,
   },
   // No lifecycle hooks — the plugin is purely on-demand. The user
   // clicks Confirm import in the settings page and that's the

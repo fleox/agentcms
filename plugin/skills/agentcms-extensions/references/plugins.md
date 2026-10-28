@@ -19,7 +19,7 @@ const manifest: PluginManifest<MyConfig> = {
   description: "One sentence.",
   author: "Acme",
   readme,                       // Markdown shown by "Learn more"
-  settings: { navLabelKey: "settings.navLabel", defaultConfig: DEFAULT_CONFIG, component: SettingsPage },
+  settings: { navLabelKey: "settings.navLabel", defaultConfig: DEFAULT_CONFIG, component: SettingsPage, schema: SETTINGS_SCHEMA },
   i18n: { en: {…}, fr: {…} },  // optional; locales en fr de es nl pt ko
   register(api) {
     api.addFilter<string>("page.head.extra", (head) => head + '<meta name="x" content="y" />');
@@ -82,6 +82,7 @@ export function SettingsPage({ config, save }: PluginSettingsPageProps<MyConfig>
 - **Props.**
   - `config` is `defaultConfig` **shallow**-merged with the stored value. Merge nested objects yourself.
   - `save(next)` stores the **whole** object under `settings.pluginConfigs[<id>]`. Always pass the full config. To clear a value, set it to `null` or `""`; don't delete the key (on Firebase sites, missing keys are not removed).
+- **Document the settings** (API ≥ 1.5): `schema` maps each setting's dot path to `{ description, values?, min?, max?, format? }` (`SettingsSchema` from `@agent-cms/runtime`). `agentcms plugins config <id> --schema` shows it to agents, and the CLI refuses values outside `values` / `min`–`max`, so list **every** accepted value. Mark bookkeeping fields "Managed by the plugin — don't set." Older admins ignore it.
 - **Reading config at publish time.** In filters and actions use `baseProps.site.settings.pluginConfigs?.["<id>"]` (head/body filters) or `ctx.settings.pluginConfigs?.["<id>"]` (actions, `publish.additional`, regeneration targets). It is the raw stored value: merge it with your defaults.
 - **Applying a change to the site.** Saving changes nothing on already-published pages.
   - Files you generate: call your own generator from the settings page after `save`.

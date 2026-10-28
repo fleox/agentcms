@@ -1,8 +1,8 @@
 /**
  * @agent-cms/runtime — public API contract for AgentCMS external plugins and themes.
  *
- * Describes CMS runtime API **1.4.0** (`CMS_API_VERSION`; bundles declaring an
- * `apiVersion` between `CMS_API_MIN_VERSION` = 1.0.0 and 1.4.0 are loaded).
+ * Describes CMS runtime API **1.5.0** (`CMS_API_VERSION`; bundles declaring an
+ * `apiVersion` between `CMS_API_MIN_VERSION` = 1.0.0 and 1.5.0 are loaded).
  *
  * What this file is
  * -----------------
@@ -513,12 +513,32 @@ export interface NotFoundTemplateProps {
 }
 
 /** Theme settings page declaration (route /theme-settings). Stored in `settings.themeConfigs[<id>]`. */
+/**
+ * Documentation of a plugin's or theme's settings (API ≥ 1.5), read by agents
+ * through `agentcms plugins|themes config <id> --schema`: one entry per
+ * setting, keyed by its dot path in the config ("home.variant"). An entry on
+ * an object path ("style.vars") documents the whole map.
+ */
+export interface SettingDoc {
+  description: string;
+  /** Closed list of accepted values (the CLI refuses any other). */
+  values?: ReadonlyArray<string | number | boolean>;
+  min?: number;
+  max?: number;
+  /** Expected format of a free value: "hex color", "CSS length", "page id", "URL"… */
+  format?: string;
+}
+export type SettingsSchema = Record<string, SettingDoc>;
+
 export interface ThemeSettingsPageDef<TConfig = unknown> {
   /** i18n key, resolved in the `theme-<id>` namespace. */
   navLabelKey: string;
   /** Merged with the stored value before rendering. */
   defaultConfig: TConfig;
   component: ComponentType<ThemeSettingsPageProps<TConfig>>;
+  // Optional (API ≥ 1.5): what each setting does and accepts — shown by
+  // `agentcms themes config <id> --schema` and checked on --set / --merge.
+  schema?: SettingsSchema;
 }
 
 export interface ThemeSettingsPageProps<TConfig = unknown> {
@@ -582,6 +602,9 @@ export interface PluginSettingsPageDef<TConfig = unknown> {
   navLabelKey: string;
   defaultConfig: TConfig;
   component: ComponentType<PluginSettingsPageProps<TConfig>>;
+  // Optional (API ≥ 1.5): what each setting does and accepts — shown by
+  // `agentcms plugins config <id> --schema` and checked on --set / --merge.
+  schema?: SettingsSchema;
 }
 
 export interface PluginSettingsPageProps<TConfig = unknown> {

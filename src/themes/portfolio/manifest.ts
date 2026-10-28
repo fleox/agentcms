@@ -20,6 +20,7 @@ import type { PortfolioThemeConfig } from "./config";
 import { DEFAULT_PORTFOLIO_CONFIG } from "./config";
 import { buildCustomCss } from "./style";
 import { PortfolioSettingsPage } from "./SettingsPage";
+import { SETTINGS_SCHEMA } from "./settingsSchema";
 import { transformBodyHtml } from "./blocks/transforms";
 import { projectMetaBlock } from "./blocks/projectMeta/manifest";
 import { storytellingBlock } from "./blocks/storytelling/manifest";
@@ -50,6 +51,7 @@ export const manifest: ManifestWithFilters = {
     navLabelKey: "title",
     defaultConfig: DEFAULT_PORTFOLIO_CONFIG,
     component: PortfolioSettingsPage,
+    schema: SETTINGS_SCHEMA,
   },
   compileCss: (config) => buildCustomCss(cssText, config.style),
   // Image catalog tuned for photography/portfolio work — higher

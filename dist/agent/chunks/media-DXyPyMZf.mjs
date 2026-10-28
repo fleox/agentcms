@@ -3031,7 +3031,7 @@ const FONT_WEIGHT_STEPS = [
   { value: "800", name: "Extra Bold" },
   { value: "900", name: "Black" }
 ];
-const THEME_VAR_SPECS = [
+const THEME_VAR_SPECS$2 = [
   // Surfaces
   { name: "--color-bg", type: "color", group: "surfaces", labelKey: "vars.bg", defaultValue: "#fbf9f9" },
   { name: "--color-surface", type: "color", group: "surfaces", labelKey: "vars.surface", defaultValue: "#ffffff" },
@@ -3082,7 +3082,7 @@ const THEME_VAR_GROUPS = [
   "radius",
   "weights"
 ];
-const FONT_PRESETS = {
+const FONT_PRESETS$2 = {
   serif: {
     Newsreader: "Newsreader:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,700",
     Lora: "Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700",
@@ -3251,7 +3251,7 @@ const STYLE_PRESETS = [
 function resolveVar(style, name) {
   const v = style.vars?.[name];
   if (v && v.trim()) return v.trim();
-  const spec = THEME_VAR_SPECS.find((s2) => s2.name === name);
+  const spec = THEME_VAR_SPECS$2.find((s2) => s2.name === name);
   return spec ? spec.defaultValue : "";
 }
 function detectActivePreset(style) {
@@ -3259,7 +3259,7 @@ function detectActivePreset(style) {
     if (preset.fontSerif !== style.fontSerif) continue;
     if (preset.fontSans !== style.fontSans) continue;
     let allMatch = true;
-    for (const spec of THEME_VAR_SPECS) {
+    for (const spec of THEME_VAR_SPECS$2) {
       const presetEffective = preset.vars[spec.name]?.trim() || spec.defaultValue;
       const styleEffective = resolveVar(style, spec.name);
       if (presetEffective !== styleEffective) {
@@ -3273,8 +3273,8 @@ function detectActivePreset(style) {
 }
 function fontSpec(name, fallback) {
   const all = {
-    ...FONT_PRESETS.serif,
-    ...FONT_PRESETS.sans
+    ...FONT_PRESETS$2.serif,
+    ...FONT_PRESETS$2.sans
   };
   return all[name] ?? all[fallback];
 }
@@ -3288,8 +3288,8 @@ function buildGoogleFontsUrl(serif, sans) {
 }
 function buildAllFontsPreviewUrl() {
   const families = [
-    ...Object.keys(FONT_PRESETS.serif),
-    ...Object.keys(FONT_PRESETS.sans)
+    ...Object.keys(FONT_PRESETS$2.serif),
+    ...Object.keys(FONT_PRESETS$2.sans)
   ];
   const segments = families.map((name) => `family=${name.replace(/ /g, "+")}`);
   return `https://fonts.googleapis.com/css2?${segments.join("&")}&display=swap`;
@@ -3298,7 +3298,7 @@ function quoteFontName(name) {
   return `"${name.replace(/"/g, '\\"')}"`;
 }
 function fontFallbackChain(name) {
-  const isSerif = FONT_PRESETS.serif[name] !== void 0;
+  const isSerif = FONT_PRESETS$2.serif[name] !== void 0;
   return isSerif ? `Georgia, "Times New Roman", serif` : `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`;
 }
 function buildCustomCss(baseCssText, style) {
@@ -15809,7 +15809,7 @@ function MediaPicker({ onPick, onClose }) {
     }) }) })
   ] }) });
 }
-const CMS_API_VERSION = "1.4.0";
+const CMS_API_VERSION = "1.5.0";
 const CMS_API_MIN_VERSION = "1.0.0";
 const runtime = {
   apiVersion: CMS_API_VERSION,
@@ -16725,6 +16725,38 @@ const SettingsPage = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.define
   DEFAULT_FAVICON_CONFIG,
   FaviconSettingsPage
 }, Symbol.toStringTag, { value: "Module" }));
+const MANAGED = "Managed by the plugin — don't set: use `plugins action agentcms-favicon set <image>` (or `remove`).";
+const SETTINGS_SCHEMA$3 = {
+  enabled: {
+    description: `${MANAGED} True once favicons are generated; the <link> tags are then added to every page (after a regeneration).`
+  },
+  uploadedAt: { description: `${MANAGED} Cache-busting ?v= value of the favicon URLs.` },
+  hasIco: { description: `${MANAGED} /favicon/favicon.ico exists.` },
+  hasSvg: { description: `${MANAGED} /favicon/favicon.svg exists (SVG source only).` },
+  hasPng96: { description: `${MANAGED} /favicon/favicon-96x96.png exists.` },
+  hasAppleTouch: { description: `${MANAGED} /favicon/apple-touch-icon.png exists.` },
+  hasManifest192: { description: `${MANAGED} /favicon/web-app-manifest-192x192.png exists.` },
+  hasManifest512: { description: `${MANAGED} /favicon/web-app-manifest-512x512.png exists.` },
+  hasManifest: { description: `${MANAGED} /favicon/site.webmanifest exists.` },
+  pwaName: {
+    description: "App name in the PWA manifest (/favicon/site.webmanifest). Empty = the site title. Saving re-uploads the manifest when favicons exist."
+  },
+  pwaShortName: {
+    description: "Short app name (home-screen label) in the PWA manifest. Empty = the first 12 characters of the site title."
+  },
+  pwaThemeColor: {
+    description: 'PWA theme color: theme_color of the manifest and the <meta name="theme-color"> of every page.',
+    format: "hex color"
+  },
+  pwaBackgroundColor: {
+    description: "Splash-screen background color (background_color) of the PWA manifest.",
+    format: "hex color"
+  },
+  pwaDisplay: {
+    description: "How the site opens once installed as an app (display of the PWA manifest).",
+    values: ["standalone", "browser", "fullscreen", "minimal-ui"]
+  }
+};
 const readme$5 = "# Favicon\n\nGenerates every favicon variant a modern browser, mobile OS or PWA installer might ask for — from a single source image.\n\n## What it does\n\nYou upload one square image (PNG, JPG, WebP or SVG) once. The plugin processes it in the browser and uploads the following files to `/favicon/` on your site:\n\n- **`favicon-96x96.png`** — modern browsers' tab icon at high DPI.\n- **`favicon.ico`** — classic 16/32/48 multi-size icon for legacy browsers.\n- **`favicon.svg`** — only when the source is itself an SVG (the plugin can't vectorize a raster).\n- **`apple-touch-icon.png`** — 180×180 home-screen icon for iOS Safari, with a white background to match Apple's masking expectations.\n- **`web-app-manifest-192x192.png` and `web-app-manifest-512x512.png`** — PWA install icons referenced by the manifest.\n- **`site.webmanifest`** — Progressive Web App manifest declaring the icons, name, theme color and display mode.\n\nThe plugin then injects the matching `<link>` tags into every published page's `<head>` so browsers pick everything up automatically. URLs carry a cache-busting `?v=<timestamp>` query string — replacing the source image immediately invalidates the old icons.\n\n## Settings\n\nReachable via **Plugins → Configure**.\n\n### Source image\n\n- **Upload** — picks the image and triggers regeneration of every variant in one pass.\n- **Remove** — wipes every favicon file from your site.\n\nThe settings page shows a status grid of which variants exist on the public site so you can see at a glance whether the upload completed cleanly.\n\n### PWA\n\nInputs that go straight into `site.webmanifest`:\n\n- **Name** / **Short name** — labels shown by Android/Chrome's \"Add to home screen\" prompt.\n- **Theme color** — color of the browser/OS chrome around your installed PWA.\n- **Background color** — splash screen color shown while the app boots.\n- **Display mode** — `standalone` (default, recommended), `minimal-ui`, `fullscreen`, or `browser`.\n\nChanging PWA fields re-uploads only `site.webmanifest` — the icons don't get re-generated. Fast iteration on copy without touching the source image.\n\n## Best practices\n\n- **Source image**: use a square master at 1024×1024 minimum. Larger is fine, the plugin downsizes; smaller works but the larger PWA icon variant will lose sharpness.\n- **SVG**: prefer SVG when possible — gets passed through as-is for the `favicon.svg` browsers, no quality loss at any zoom.\n- **Background**: the source image should NOT have a transparent background if you want a clean Apple touch icon — Safari historically replaced transparent areas with black on home screens. The plugin compensates by adding a white background to the apple-touch variant only; PWA variants stay transparent.\n\n## When to disable it\n\nDisable if you maintain favicons by hand (e.g. you have a legacy `/favicon.ico` and prefer not to overwrite it). Disabling stops the head injection but does **not** delete already-uploaded files.\n";
 const PLUGIN_ID$5 = "agentcms-favicon";
 const FOLDER = "favicon";
@@ -16776,7 +16808,8 @@ const manifest$6 = {
   settings: {
     navLabelKey: "title",
     defaultConfig: DEFAULT_FAVICON_CONFIG,
-    component: FaviconSettingsPage
+    component: FaviconSettingsPage,
+    schema: SETTINGS_SCHEMA$3
   },
   register(api) {
     api.addFilter("page.head.extra", (current2, ...rest) => {
@@ -18275,7 +18308,7 @@ function HtmlBlockView({ node: node2, selected }) {
   );
 }
 const CodeEditor$1 = reactExports.lazy(
-  () => import("./CodeEditor-M-QShSsz.mjs").then((m) => ({ default: m.CodeEditor }))
+  () => import("./CodeEditor-DQOJ8QSj.mjs").then((m) => ({ default: m.CodeEditor }))
 );
 function HtmlInspector({ editor }) {
   const { t: t2 } = useTranslation("agentcms-blocks");
@@ -18654,7 +18687,7 @@ const DEFAULT_CUSTOM_CODE_CONFIG = {
   bodyEnd: ""
 };
 const CodeEditor = reactExports.lazy(
-  () => import("./CodeEditor-M-QShSsz.mjs").then((m) => ({ default: m.CodeEditor }))
+  () => import("./CodeEditor-DQOJ8QSj.mjs").then((m) => ({ default: m.CodeEditor }))
 );
 function CustomCodeSettingsPage({
   config,
@@ -18849,6 +18882,16 @@ function FullscreenZoneEditor({
     document.body
   );
 }
+const SETTINGS_SCHEMA$2 = {
+  head: {
+    description: "Raw HTML appended at the end of every published page's <head> (analytics, fonts, <style> overrides). Injected as-is, not sanitised; other code here (from the user or other tools) must be kept when adding to it. Shows after `regenerate all`.",
+    format: "HTML"
+  },
+  bodyEnd: {
+    description: "Raw HTML inserted just before </body> of every published page (chat widgets, deferred scripts, e.g. a [data-cms-search] button). Injected as-is; keep what is already there when adding to it. Shows after `regenerate all`.",
+    format: "HTML"
+  }
+};
 const readme$3 = "# Custom Code\n\nInject site-wide HTML / CSS / JS into the `<head>` or just before `</body>` of every published page. Useful for analytics tags, fonts, third-party widgets and inline overrides without having to rebuild the theme.\n\n## What it does\n\nThe plugin adds a **Custom code** tab to admin Settings with two free-form code editors:\n\n- **Head** — appended at the bottom of every page's `<head>`. Drop tracking pixels, Google Tag Manager, OpenGraph overrides, custom `<style>` blocks here.\n- **Body end** — appended just before `</body>`. Best place for deferred scripts that need the DOM to be parsed (chat widgets, late-loaded analytics, custom JS handlers).\n\nEach zone runs through a CodeMirror editor with HTML/CSS/JS syntax highlighting, line numbers, bracket matching and an Expand button for full-screen editing.\n\n## How it integrates\n\nCode is injected on **every published page** via the publisher's `page.head.extra` and `page.body.end` hooks. No transformation, no sanitisation — what you save is what visitors get.\n\nEmpty zones produce zero output (no extra whitespace, no empty `<style>` tags, no comments). Only zones with content actually emit anything on the published page.\n\n## Common use cases\n\n- **Google Analytics 4** — paste the GA snippet in **Head**.\n- **Plausible / Fathom / Umami** — single `<script>` in **Head**.\n- **Custom font from your own CDN** — `<link rel=\"stylesheet\">` + a `<style>` overriding `font-family` in **Head**.\n- **Cookie banner** — `<script>` in **Body end** (so the DOM is ready before it tries to inject UI).\n- **Live chat widget** — Crisp / Intercom / Tidio script in **Body end**.\n- **A/B testing tool** — bootstrap script in **Head** (most A/B vendors require this).\n\n## Security note\n\nAnything you paste here runs as-is on every visitor's browser. **There is no sanitisation**. Don't paste code from untrusted sources, and review carefully before saving — a malformed `<script>` can break every page on the site at once.\n\nThe plugin doesn't have rollback or version history. If you want a safety net, copy the previous content elsewhere before saving a big change.\n\n## When to disable it\n\nDisable if your site ships everything through theme assets and you want a tighter Settings tab list. Disabling stops the head / body-end injection on the next publish. Already-published pages keep whatever code they were built with until they're republished.\n";
 const PLUGIN_ID$2 = "agentcms-custom-code";
 function readConfig(props) {
@@ -18866,7 +18909,8 @@ const manifest$4 = {
   settings: {
     navLabelKey: "title",
     defaultConfig: DEFAULT_CUSTOM_CODE_CONFIG,
-    component: CustomCodeSettingsPage
+    component: CustomCodeSettingsPage,
+    schema: SETTINGS_SCHEMA$2
   },
   register(api) {
     api.addFilter("page.head.extra", (current2, ...rest) => {
@@ -22825,6 +22869,24 @@ function SummaryDetailsList({ summary }) {
     )) })
   ] });
 }
+const SETTINGS_SCHEMA$1 = {
+  "options.statusMode": {
+    description: "Status of imported entries: draft (always, safest), online (publish every entry — runs the publish pipeline per item) or from-source (Markdown `status:` front matter / WordPress publish → online, anything else → draft). `--status` overrides it per run.",
+    values: ["draft", "online", "from-source"]
+  },
+  "options.defaultCategory": {
+    description: "Category NAME given to entries that don't specify one (created if it doesn't exist). Empty = such entries stay without category. `--category` overrides it per run.",
+    format: "category name"
+  },
+  "options.moveProcessedFiles": {
+    description: "When importing from the hosting's _cms-import/ folder (--from-hosting), move the imported files to a processed-<timestamp>/ subfolder so they aren't imported twice. `--keep-files` overrides it per run."
+  },
+  "options.imageFetchConcurrency": {
+    description: "Maximum parallel image downloads from the source WordPress site; lower it if the source is slow or rate-limited.",
+    min: 1,
+    max: 16
+  }
+};
 const readme = '# Import\n\nBulk-imports posts and pages into AgentCMS from two source formats:\n\n- **Markdown** files with YAML frontmatter (Hugo, Eleventy, Astro, Jekyll, custom scripts)\n- **WordPress** XML exports (Tools → Export → All content)\n\nIt auto-creates missing categories and tags (with hierarchy preserved), uploads referenced images through the standard media pipeline (multi-variant WebP), rewrites image URLs in the markdown body, and resolves authors against existing CMS users when emails match.\n\n## Two ways to feed files in\n\n### Folder on the site (`_cms-import/`)\n\n1. Click **Initialize import folder** in the plugin settings — creates `_cms-import/` on your publish target with a small README.\n2. Upload your files there with your hosting\'s own tools (git push, bucket upload, file manager…):\n   - `_cms-import/post-1.md`\n   - `_cms-import/wp-export.xml`\n   - `_cms-import/images/cover.jpg`\n   - `_cms-import/images/photo.png`\n3. Back in the plugin settings, click **Refresh listing** then **Scan**.\n\nAfter a successful import, processed files are archived to `_cms-import/processed-<timestamp>/` (toggleable). Re-running the import won\'t re-process the same files unless you move them back.\n\n### Drag-and-drop in the admin\n\nSwitch the **Source** radio to **Drag and drop**. Files dropped into the zone (or picked via the file dialog) live in browser memory only — nothing is uploaded to the site until you click **Confirm import**. Folders are walked recursively where the browser supports the File System Access API (Chrome / Edge / Firefox / Safari ≥ 18).\n\nThis mode skips the `processed-<timestamp>/` archive step (the source files are already on your disk).\n\n## Markdown frontmatter spec\n\n```markdown\n---\ntitle: My first article            # required\nslug: my-first-article             # optional — derived from title via slugify if absent\ntype: post                          # post (default) | page\nstatus: draft                       # draft (default) | online — honored only when status mode = "from source"\npublishedAt: 2026-01-15             # ISO date or datetime; current time if absent\nexcerpt: One-line summary\ncategory: News                      # category name (created if missing)\nparentCategory: World               # optional — creates "World > News" hierarchy\ntags: [breaking, headline]          # auto-created if missing\nauthor: jane@example.com            # matches by email or display name; falls back to importer\nheroImage: cover.jpg                # filename in the images bundle\nseoTitle: Custom SEO title          # optional\nseoDescription: Custom description  # optional\n---\n\n# Body markdown\n\nParagraphs work normally. **Bold**, *italic*, [links](https://example.com).\n\nInline images: ![Alt text](photo.jpg)\nFilenames matching files in the images bundle get rewritten to the new\nmedia URLs. External `https://` URLs stay as-is.\n```\n\n### Frontmatter rules\n\n- Strings can be unquoted, single-quoted or double-quoted.\n- Booleans: `true` / `false`.\n- Arrays: inline `[a, b, c]` or YAML block form on subsequent lines:\n  ```yaml\n  tags:\n    - first\n    - second\n  ```\n- Comments (`#`) outside quoted strings are stripped.\n- No support for nested objects, anchors, aliases. The format covers exactly what blog exports use; pulling in a full YAML library (~200 KB gzipped) would dwarf the plugin.\n\n## WordPress import behaviour\n\nThe plugin parses the export\'s XML directly via the browser\'s native `DOMParser` — no upload of the file to a server.\n\n### What\'s imported\n\n- **Posts and pages** with their HTML bodies (converted to Markdown via [turndown](https://github.com/mixmark-io/turndown))\n- **Categories and tags** with their hierarchy (`<wp:category_parent>` → `Term.parentId`)\n- **Attachments** referenced by `_thumbnail_id` (hero images) or inline `<img>` tags\n- **Authors** (`<dc:creator>`) — matched against existing CMS users by email or display name\n- **Publication dates** (`<wp:post_date_gmt>` preferred, fallback `<wp:post_date>`)\n- **Original URL** (`<link>`) stored on `Post.legacyUrl` for future redirect generators\n\n### Mapping rules\n\n| WordPress | AgentCMS | Notes |\n|---|---|---|\n| `<wp:post_type>post</wp:post_type>` | `Post.type = "post"` | |\n| `<wp:post_type>page</wp:post_type>` | `Post.type = "page"` | |\n| `<wp:post_type>attachment</wp:post_type>` | `Media` doc | URL fetched + processed through media pipeline |\n| `<wp:status>publish</wp:status>` | `status: "online"` | Subject to import status mode |\n| `<wp:status>draft\\|pending\\|private\\|trash</wp:status>` | `status: "draft"` | With warning |\n| First `<category domain="category">` | `Post.primaryTermId` | |\n| Additional `<category domain="category">` | `Post.termIds` (as tags) | With warning — the CMS model is 1 primary + N tags |\n| `<category domain="post_tag">` | `Post.termIds` | |\n| `<wp:postmeta>` `_thumbnail_id` | `Post.heroMediaId` | Resolved against attachment list |\n| `<dc:creator>` | `Post.authorId` | Match by email / display name; fallback to importer |\n| `<link>` | `Post.legacyUrl` | Preserved as opaque metadata |\n| `<wp:post_date_gmt>` | `Post.publishedAt` | UTC; falls back to `<wp:post_date>` |\n\n### What\'s lossy\n\n- **Gutenberg blocks**: complex blocks (group, columns, navigation, query loops, …) become HTML in the markdown body. They render correctly when published — DOMPurify keeps the HTML intact at publish time — but the editor sees them as opaque blocks.\n- **Shortcodes**: `[caption]`, `[gallery]`, `[embed]`, custom plugin shortcodes are preserved verbatim. They render as plain text on the public site unless you handle them post-import.\n- **Comments**: ignored — AgentCMS has no comments.\n- **Custom post types** (`wp_block`, `wp_template`, `nav_menu_item`, `oembed_cache`): ignored.\n- **Custom fields** (postmeta beyond `_thumbnail_id`): ignored.\n\n### Source site must stay online\n\nWordPress XML exports include image URLs but not the image bytes themselves. The importer fetches each `<wp:attachment_url>` over HTTP to ingest it. **Keep the source WordPress site online during the import.** Failed fetches are listed as warnings — the post is created without the affected images, and you can manually attach them later through the media library.\n\n## Status modes\n\n| Mode | What it does |\n|---|---|\n| **Always import as draft** (default) | Every imported entry is created as `draft`, regardless of source status. Safer for review-before-publish workflows. |\n| **Honor source status** | Markdown\'s `status:` and WordPress\'s `<wp:status>publish</wp:status>` mark the entry online; everything else is draft. Online entries go through the full publish pipeline (renders HTML, uploads to the publish target, regenerates listings). |\n| **Always publish** | Forces every imported entry to be published immediately. Heaviest mode — runs the full publish pipeline per entry. Use for migrations where the goal is "old site goes dark, new site goes live in one step". |\n\n## Slug collisions\n\nA slug already taken (by an existing post / page or by an earlier entry in the same batch) gets suffixed: `foo` → `foo-2` → `foo-3`. The dry-run summary lists the rewrites so the user knows what URLs to expect. If you want to keep the exact original slugs, deal with collisions upstream before importing.\n\n## Image deduplication\n\nBefore uploading, each image is matched against existing `media/` docs by **filename + size** (within 1 KB). A match means the importer reuses the existing media doc — no double upload. This makes re-imports of the same set of files quick and cheap.\n\n## Hierarchy\n\nCategories support `Term.parentId` natively. The dry-run shows the new hierarchy that will be created (e.g. "5 categories with parents"). Cycles in the source data — rare but possible if you\'ve hand-edited a WP export — are detected and the offending category is flattened to top level with a warning.\n\nURLs are NOT hierarchical: a post in `Sports` (whose parent is `News`) lives at `/sports/post-slug.html`, not `/news/sports/post-slug.html`. Switching to hierarchical URLs is a separate decision (touches `core/slug.ts`) — not done here to keep imported URLs predictable.\n\n## Defaults\n\nThe settings page persists these for next time:\n\n- **Status mode** (default: `Always import as draft`)\n- **Default category** — used when an entry has no category. Empty (default) means the entry is created without a category.\n- **Move processed files** (default: on, folder mode only)\n- **Image fetch concurrency** (default: 4) — caps the parallel fetches against a remote WordPress site to avoid rate-limiting\n\n## Edge cases\n\n- **Empty markdown body**: imported as a post with no content. Title-only posts work, just look weird.\n- **Frontmatter without title**: blocked at scan time (error, not warning).\n- **Multiple categories on a WP post**: first one becomes the primary, the rest are demoted to tags. Documented in the warning list.\n- **Attachment URL on a private host**: the importer\'s `fetch` will fail with a CORS or auth error. Whitelist your origin or pre-mirror the images publicly before importing.\n- **`<wp:status>auto-draft</wp:status>` and `inherit`**: ignored as drafts (these are revisions and unpublished placeholders).\n- **Filename clash inside `images/`**: the bundle uses the filename as the lookup key, so two files with the same name shadow each other. Rename upstream.\n\n## Activation\n\nThe plugin is **disabled by default**. Enable it in **Plugins** when you\'re about to migrate a site, then disable again afterward — the lifecycle is one-shot, not ongoing.\n\nWhen disabled, the settings page is unreachable but `_cms-import/` and any imported posts stay where they are.\n\n## Limitations & out of scope (phase 1)\n\n- **No backup / round-trip**: this is import-only. Exporting CMS content back to markdown is a separate plugin.\n- **No `_redirects` generation** from `legacyUrl`: the data is stored, but turning it into host redirects is phase 2.\n- **No streaming XML parser**: very large WordPress exports (>100 MB) tie up browser memory. If your export is that big, split it via the WP "Export Media Library" plugin or by date ranges.\n- **No drag-drop progress**: large drops (hundreds of files) take a moment to enumerate. Browser may appear frozen — wait it out.\n- **No multi-language content**: each entry is one language. Multi-locale content remains the next-major-version conversation.\n- **WordPress.com sites**: exports work, but media URLs may need OAuth depending on the privacy setting. Make the source site public before importing.\n';
 const manifest$1 = {
   id: "agentcms-import",
@@ -22837,7 +22899,8 @@ const manifest$1 = {
   settings: {
     navLabelKey: "title",
     defaultConfig: DEFAULT_IMPORT_CONFIG,
-    component: ImportSettingsPage
+    component: ImportSettingsPage,
+    schema: SETTINGS_SCHEMA$1
   },
   // No lifecycle hooks — the plugin is purely on-demand. The user
   // clicks Confirm import in the settings page and that's the
@@ -23321,7 +23384,7 @@ function VarGroup({
   clearVar
 }) {
   const { t: t2 } = useTranslation("theme-default");
-  const specs = THEME_VAR_SPECS.filter((s2) => s2.group === group);
+  const specs = THEME_VAR_SPECS$2.filter((s2) => s2.group === group);
   if (specs.length === 0) return null;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "card p-4 space-y-3", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "font-semibold flex items-center gap-2", children: [
@@ -23411,10 +23474,10 @@ function VarField({
   ] });
 }
 const ALL_FONT_OPTIONS = [
-  ...Object.keys(FONT_PRESETS.serif).map(
+  ...Object.keys(FONT_PRESETS$2.serif).map(
     (name) => ({ name, fallback: "serif" })
   ),
-  ...Object.keys(FONT_PRESETS.sans).map(
+  ...Object.keys(FONT_PRESETS$2.sans).map(
     (name) => ({ name, fallback: "sans-serif" })
   )
 ];
@@ -23515,6 +23578,43 @@ function PresetPicker({
     }) })
   ] });
 }
+const FONT_NAMES = [...Object.keys(FONT_PRESETS$2.serif), ...Object.keys(FONT_PRESETS$2.sans)];
+const SETTINGS_SCHEMA = {
+  logoEnabled: {
+    description: "Managed by the theme — don't set: use `themes logo default <image>` (or --remove). True once a logo is uploaded to theme-assets/default-logo.webp; the header then shows it instead of the text wordmark."
+  },
+  logoUpdatedAt: {
+    description: "Managed by the theme — don't set. Cache-busting ?v= value of the logo URL in data/menu.json."
+  },
+  cssUpdatedAt: {
+    description: "Managed by the theme — don't set. Cache-busting ?v= value of the theme CSS link; existing pages keep the old one until they are regenerated."
+  },
+  "style.vars": {
+    description: `Overrides of the theme's CSS variables, baked into theme-assets/default.css, e.g. {"--color-primary":"#1a1a1a","--radius":"0.5rem"}; keys and defaults are listed in cssVariables of --schema. --color-* take a color, --weight-* a font weight (100-900 by steps of 100), --container-max / --gutter / --section-gap / --radius* a CSS length. An empty value reverts to the default.`,
+    format: "map of CSS variable → value (hex color, font weight or CSS length)"
+  },
+  "style.fontSerif": {
+    description: "Google Font of the --font-serif slot (headings and reading text). Any curated font is accepted in either slot.",
+    values: FONT_NAMES
+  },
+  "style.fontSans": {
+    description: "Google Font of the --font-sans slot (navigation, metadata, labels). Any curated font is accepted in either slot.",
+    values: FONT_NAMES
+  },
+  "home.heroVariant": {
+    description: "Layout of the featured (latest) post at the top of the home page, same variants as the Hero block. Ignored when Settings → Home mode is a static page.",
+    values: ["image-overlay", "split-left", "split-right", "minimal"]
+  },
+  "home.listVariant": {
+    description: "Layout of the latest-posts list below the hero on the home page (postsPerPage − 1 posts), same variants as the Posts list block. Ignored when the home is a static page.",
+    values: ["cards", "list", "compact", "numbered", "slider"]
+  },
+  "home.listColumns": {
+    description: 'Number of columns of the home posts list; only used by the "cards" variant.',
+    min: 1,
+    max: 4
+  }
+};
 function createBlockNode$4({
   subId,
   defaultAttrs,
@@ -24519,7 +24619,8 @@ const manifest = {
   settings: {
     navLabelKey: "title",
     defaultConfig: DEFAULT_THEME_CONFIG,
-    component: DefaultThemeSettingsPage
+    component: DefaultThemeSettingsPage,
+    schema: SETTINGS_SCHEMA
   },
   // Bakes the user's Style overrides (color palette, fonts, spacing,
   // radius) into the CSS uploaded by `Sync theme assets`. Without
@@ -25176,6 +25277,66 @@ createBlockNode$2({
   defaultAttrs: DEFAULT_ATTRS$7,
   view: NodeView$c
 });
+const THEME_VAR_SPECS$1 = [
+  // Surfaces
+  { name: "--color-background", type: "color", group: "surfaces", labelKey: "vars.background", defaultValue: "#fcf9f8" },
+  { name: "--color-surface", type: "color", group: "surfaces", labelKey: "vars.surface", defaultValue: "#fcf9f8" },
+  { name: "--color-surface-container-lowest", type: "color", group: "surfaces", labelKey: "vars.surfaceLowest", defaultValue: "#ffffff" },
+  { name: "--color-surface-container-low", type: "color", group: "surfaces", labelKey: "vars.surfaceLow", defaultValue: "#f6f3f2" },
+  { name: "--color-surface-container", type: "color", group: "surfaces", labelKey: "vars.surfaceMid", defaultValue: "#f0eded" },
+  { name: "--color-surface-container-high", type: "color", group: "surfaces", labelKey: "vars.surfaceHigh", defaultValue: "#eae7e7" },
+  // Foreground
+  { name: "--color-on-surface", type: "color", group: "foreground", labelKey: "vars.onSurface", defaultValue: "#1b1c1c" },
+  { name: "--color-on-surface-variant", type: "color", group: "foreground", labelKey: "vars.onSurfaceVariant", defaultValue: "#444840" },
+  // Outlines
+  { name: "--color-outline", type: "color", group: "outlines", labelKey: "vars.outline", defaultValue: "#75786f" },
+  { name: "--color-outline-variant", type: "color", group: "outlines", labelKey: "vars.outlineVariant", defaultValue: "#c5c8bd" },
+  // Accent — sage primary + terracotta secondary. Defaults match the
+  // catalog DESIGN.md exactly.
+  { name: "--color-primary", type: "color", group: "accent", labelKey: "vars.primary", defaultValue: "#47573b" },
+  { name: "--color-on-primary", type: "color", group: "accent", labelKey: "vars.onPrimary", defaultValue: "#ffffff" },
+  { name: "--color-primary-container", type: "color", group: "accent", labelKey: "vars.primaryContainer", defaultValue: "#5f6f52" },
+  { name: "--color-on-primary-container", type: "color", group: "accent", labelKey: "vars.onPrimaryContainer", defaultValue: "#dff1cd" },
+  { name: "--color-secondary", type: "color", group: "accent", labelKey: "vars.secondary", defaultValue: "#914a36" },
+  { name: "--color-on-secondary", type: "color", group: "accent", labelKey: "vars.onSecondary", defaultValue: "#ffffff" },
+  { name: "--color-secondary-container", type: "color", group: "accent", labelKey: "vars.secondaryContainer", defaultValue: "#fda288" },
+  { name: "--color-on-secondary-container", type: "color", group: "accent", labelKey: "vars.onSecondaryContainer", defaultValue: "#773623" }
+];
+const FONT_PRESETS$1 = {
+  serif: {
+    Newsreader: "Newsreader:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,700",
+    Lora: "Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700",
+    "Playfair Display": "Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700",
+    "EB Garamond": "EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700",
+    "Source Serif 4": "Source+Serif+4:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700",
+    "Cormorant Garamond": "Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700",
+    "Crimson Pro": "Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700",
+    Spectral: "Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700",
+    "DM Serif Display": "DM+Serif+Display:ital,wght@0,400;1,400"
+  },
+  sans: {
+    // Humanist / neutral
+    Inter: "Inter:wght@400;500;600;700",
+    "Plus Jakarta Sans": "Plus+Jakarta+Sans:wght@400;500;600;700",
+    Manrope: "Manrope:wght@400;500;600;700",
+    "Work Sans": "Work+Sans:wght@400;500;600;700",
+    "DM Sans": "DM+Sans:wght@400;500;600;700",
+    // Geometric / modern grotesque
+    Outfit: "Outfit:wght@400;500;600;700",
+    "Space Grotesk": "Space+Grotesk:wght@400;500;600;700",
+    "Bricolage Grotesque": "Bricolage+Grotesque:wght@400;500;600;700",
+    // Condensed / narrow
+    Oswald: "Oswald:wght@400;500;600;700",
+    "Barlow Condensed": "Barlow+Condensed:wght@400;500;600;700",
+    "Big Shoulders Display": "Big+Shoulders+Display:wght@400;500;600;700",
+    // Heavy display (single weight on Google Fonts — already maximally heavy)
+    Anton: "Anton",
+    "Archivo Black": "Archivo+Black",
+    "Bowlby One": "Bowlby+One",
+    // Expressive / sci-fi geometric
+    Unbounded: "Unbounded:wght@400;500;600;700"
+  }
+};
 const THEME_BLOCK_NAMESPACE$1 = "storefront";
 function encodeAttrs$1(value) {
   if (value === void 0 || value === null) return "";
@@ -25219,6 +25380,12 @@ const DEFAULT_PRODUCT_INFO_ATTRS = {
   ctaSecondaryHref: "",
   badges: []
 };
+[...Object.keys(FONT_PRESETS$1.serif), ...Object.keys(FONT_PRESETS$1.sans)];
+({
+  "style.vars": {
+    description: `CSS variable overrides for the palette, keyed by variable name: ${THEME_VAR_SPECS$1.map((s2) => s2.name).join(", ")}. Values are hex colors (#rrggbb or #rgb, converted to RGB triplets in the CSS); empty or missing = theme default. Live once theme-assets/storefront.css is re-uploaded.`
+  }
+});
 function createBlockNode$1({
   subId,
   defaultAttrs,
@@ -25533,6 +25700,54 @@ createBlockNode$1({
 )}"></div>
 
 `;
+const THEME_VAR_SPECS = [
+  // Surfaces
+  { name: "--color-background", type: "color", group: "surfaces", labelKey: "vars.background", defaultValue: "#fdf8f8" },
+  { name: "--color-surface", type: "color", group: "surfaces", labelKey: "vars.surface", defaultValue: "#fdf8f8" },
+  { name: "--color-surface-container-lowest", type: "color", group: "surfaces", labelKey: "vars.surfaceLowest", defaultValue: "#ffffff" },
+  { name: "--color-surface-container-low", type: "color", group: "surfaces", labelKey: "vars.surfaceLow", defaultValue: "#f7f3f2" },
+  { name: "--color-surface-container", type: "color", group: "surfaces", labelKey: "vars.surfaceMid", defaultValue: "#f1edec" },
+  // Foreground
+  { name: "--color-on-surface", type: "color", group: "foreground", labelKey: "vars.onSurface", defaultValue: "#1c1b1b" },
+  { name: "--color-on-surface-variant", type: "color", group: "foreground", labelKey: "vars.onSurfaceVariant", defaultValue: "#444748" },
+  // Outlines
+  { name: "--color-outline", type: "color", group: "outlines", labelKey: "vars.outline", defaultValue: "#747878" },
+  { name: "--color-outline-variant", type: "color", group: "outlines", labelKey: "vars.outlineVariant", defaultValue: "#c4c7c7" },
+  // Accent
+  { name: "--color-primary", type: "color", group: "accent", labelKey: "vars.primary", defaultValue: "#000000" },
+  { name: "--color-on-primary", type: "color", group: "accent", labelKey: "vars.onPrimary", defaultValue: "#ffffff" },
+  { name: "--color-secondary", type: "color", group: "accent", labelKey: "vars.secondary", defaultValue: "#5d5f5f" },
+  { name: "--color-error", type: "color", group: "accent", labelKey: "vars.accent", defaultValue: "#e11d48" }
+];
+const FONT_PRESETS = {
+  serif: {
+    "Playfair Display": "Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700",
+    Newsreader: "Newsreader:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,700",
+    Lora: "Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700",
+    "EB Garamond": "EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700",
+    "Source Serif 4": "Source+Serif+4:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700",
+    "Cormorant Garamond": "Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700",
+    "Crimson Pro": "Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700",
+    Spectral: "Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700",
+    "DM Serif Display": "DM+Serif+Display:ital,wght@0,400;1,400"
+  },
+  sans: {
+    Inter: "Inter:wght@400;500;600;700",
+    "Plus Jakarta Sans": "Plus+Jakarta+Sans:wght@400;500;600;700",
+    Manrope: "Manrope:wght@400;500;600;700",
+    "Work Sans": "Work+Sans:wght@400;500;600;700",
+    "DM Sans": "DM+Sans:wght@400;500;600;700",
+    Outfit: "Outfit:wght@400;500;600;700",
+    "Space Grotesk": "Space+Grotesk:wght@400;500;600;700",
+    "Bricolage Grotesque": "Bricolage+Grotesque:wght@400;500;600;700"
+  }
+};
+[...Object.keys(FONT_PRESETS.serif), ...Object.keys(FONT_PRESETS.sans)];
+({
+  "style.vars": {
+    description: `CSS variable overrides for the palette, keyed by variable name: ${THEME_VAR_SPECS.map((s2) => s2.name).join(", ")}. Values are hex colors (#rrggbb or #rgb, converted to RGB triplets in the CSS); empty or missing = theme default. Live once theme-assets/portfolio.css is re-uploaded.`
+  }
+});
 const THEME_BLOCK_NAMESPACE = "portfolio";
 function encodeAttrs(value) {
   if (value === void 0 || value === null) return "";

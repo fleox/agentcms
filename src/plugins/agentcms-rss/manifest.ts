@@ -24,6 +24,7 @@ import {
 } from "./generator";
 import { buildFeedDiscoveryLinks } from "./head";
 import { RssSettingsPage } from "./SettingsPage";
+import { SETTINGS_SCHEMA } from "./settingsSchema";
 import readme from "./README.md?raw";
 
 const PLUGIN_ID = "agentcms-rss";
@@ -119,7 +120,7 @@ function appendFeedFooterItems(menu: MenuJson, ctx: MenuFilterContext): MenuJson
 export const manifest: PluginManifest<RssConfig> = {
   id: PLUGIN_ID,
   name: "RSS",
-  version: "1.1.0",
+  version: "1.1.1",
   author: "AgentCMS",
   description:
     "Generates an RSS 2.0 feed at /rss.xml plus optional per-category feeds, and can list them in the site footer.",
@@ -129,6 +130,7 @@ export const manifest: PluginManifest<RssConfig> = {
     navLabelKey: "title",
     defaultConfig: DEFAULT_RSS_CONFIG,
     component: RssSettingsPage,
+    schema: SETTINGS_SCHEMA,
   },
   register(api) {
     // Lifecycle: regenerate the impacted feeds whenever the corpus

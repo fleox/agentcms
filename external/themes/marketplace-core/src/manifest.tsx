@@ -19,6 +19,7 @@ import type { MarketplaceThemeConfig } from "./config";
 import { DEFAULT_MARKETPLACE_CONFIG } from "./config";
 import { buildCustomCss } from "./style";
 import { MarketplaceSettingsPage } from "./SettingsPage";
+import { SETTINGS_SCHEMA } from "./settingsSchema";
 import { headerButtonsBlock } from "./blocks/headerButtons/manifest";
 import { DEFAULT_HEADER_BUTTONS } from "./blocks/headerButtons/render";
 import { galleryBlock } from "./blocks/gallery/manifest";
@@ -60,7 +61,7 @@ type ManifestWithSeed = ThemeManifest<MarketplaceThemeConfig> & {
 const manifest: ManifestWithSeed = {
   id: "marketplace-core",
   name: "Marketplace Core",
-  version: "1.7.1",
+  version: "1.7.2",
   description:
     "App-store style theme for listing themes / plugins. Modern Corporate aesthetic with ambient shadows and rounded XL corners.",
   scssEntry: "theme.css",
@@ -71,6 +72,7 @@ const manifest: ManifestWithSeed = {
     navLabelKey: "title",
     defaultConfig: DEFAULT_MARKETPLACE_CONFIG,
     component: MarketplaceSettingsPage,
+    schema: SETTINGS_SCHEMA,
   },
   compileCss: (config) => buildCustomCss(cssText, config.style),
   imageFormats: {

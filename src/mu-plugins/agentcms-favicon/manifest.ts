@@ -3,6 +3,7 @@ import type { BaseLayoutProps } from "../../themes/types";
 import { en, fr, de, es, nl, pt, ko } from "./i18n";
 import { DEFAULT_FAVICON_CONFIG, FaviconSettingsPage, type FaviconConfig } from "./SettingsPage";
 import { regenerateManifest } from "./generator";
+import { SETTINGS_SCHEMA } from "./settingsSchema";
 import readme from "./README.md?raw";
 
 const PLUGIN_ID = "agentcms-favicon";
@@ -77,6 +78,7 @@ export const manifest: PluginManifest<FaviconConfig> = {
     navLabelKey: "title",
     defaultConfig: DEFAULT_FAVICON_CONFIG,
     component: FaviconSettingsPage,
+    schema: SETTINGS_SCHEMA,
   },
   register(api) {
     // Synchronous filter — runs inside the publisher's static render

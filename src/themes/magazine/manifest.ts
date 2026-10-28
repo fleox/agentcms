@@ -24,6 +24,7 @@ import type { MagazineThemeConfig } from "./config";
 import { DEFAULT_MAGAZINE_CONFIG } from "./config";
 import { buildCustomCss } from "./style";
 import { MagazineSettingsPage } from "./SettingsPage";
+import { SETTINGS_SCHEMA } from "./settingsSchema";
 import { magazineHeroBlock } from "./blocks/magazineHero/manifest";
 import { mostReadBlock } from "./blocks/mostRead/manifest";
 import { promoCardBlock } from "./blocks/promoCard/manifest";
@@ -32,7 +33,7 @@ import { transformBodyHtml } from "./blocks/transforms";
 export const manifest: ThemeManifest<MagazineThemeConfig> = {
   id: "magazine",
   name: "Magazine",
-  version: "1.1.0",
+  version: "1.1.1",
   description:
     "Editorial magazine theme inspired by long-form journalism — Tailwind-based, with an editable Material 3 palette.",
   // Convention name used by build-themes.mjs only as a fallback when
@@ -48,6 +49,7 @@ export const manifest: ThemeManifest<MagazineThemeConfig> = {
     navLabelKey: "title",
     defaultConfig: DEFAULT_MAGAZINE_CONFIG,
     component: MagazineSettingsPage,
+    schema: SETTINGS_SCHEMA,
   },
   // Bakes the user's Style overrides (color palette, fonts) into the
   // CSS uploaded by `Sync theme assets`. Without this hook, syncing

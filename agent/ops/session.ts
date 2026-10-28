@@ -180,14 +180,23 @@ async function loadExtensions(site: SiteRecord, host: HostModules, out: SiteSess
   }
 }
 
-// Same pre-0.2.0 id migration as the admin's boot (registry + settings).
-async function migrateLegacy(host: HostModules): Promise<void> {
-  const { readFileSync, existsSync } = await import("node:fs");
-  const { join } = await import("node:path");
-  const { distRoot } = await import("../paths");
-  const file = join(distRoot(), "admin", "external.default.json");
-  if (!existsSync(file)) return;
-  const defaults = JSON.parse(readFileSync(file, "utf8")) as ExternalManifest;
+// Same pre-0.2.0 id migration as the admin's boot (registry + settings),
+// against the defaults of the admin the site actually hosts (read from the
+// hosting): aligning bundled entries on this CLI's newer build would record
+// versions the hosting doesn't have.
+async function migrateLegacy(site: SiteRecord, host: HostModules): Promise<void> {
+  const { readAdminFile, siteHostingReader } = await import("./adminFiles");
+  const file = await readAdminFile(site, "external.default.json", await siteHostingReader(site), {
+    accept: (t) => {
+      try {
+        return Array.isArray((JSON.parse(t) as ExternalManifest).plugins);
+      } catch {
+        return false;
+      }
+    },
+  });
+  if (!file) return;
+  const defaults = JSON.parse(file.text) as ExternalManifest;
   const { migrateLegacyIds } = await import("../../src/services/legacyIds");
   const { readBackendRegistryForCli, writeBackendRegistryForCli } = await import("./sessionRegistry");
   const { getSettings, updateSettings } = await import("../../src/services/settings");
@@ -216,7 +225,7 @@ export async function openSession(alias: string | undefined, opts: OpenOptions =
   const unlock = opts.lock ? lockSite(site.alias) : null;
   try {
     await signInBackend(site, host);
-    if (opts.write || opts.extensions) await migrateLegacy(host);
+    if (opts.write || opts.extensions) await migrateLegacy(site, host);
     if (opts.hosting) await wireHosting(site, host);
     const loaded: SiteSession["loadedExtensions"] = { plugins: [], themes: [], failed: [] };
     if (opts.extensions) {

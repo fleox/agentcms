@@ -90,6 +90,11 @@ describe("ext check on a broken plugin", { timeout: 90_000 }, () => {
     expect(codes).toEqual(["id-mismatch"]);
   });
 
+  it.concurrent("defaults outside the settings schema → settings-schema-default", async () => {
+    const { codes } = await mutated((p) => edit(p, "src/config.ts", '  message: { description: "Content of the meta tag." },', '  message: { description: "Content of the meta tag.", values: ["hi", "bye"] },'));
+    expect(codes).toEqual(["settings-schema-default"]);
+  });
+
   it.concurrent("apiVersion newer than the admin's → api-too-new", async () => {
     const { codes } = await mutated((p) => edit(p, "manifest.json", /"apiVersion": "[^"]+"/, '"apiVersion": "9.0.0"'), { rebuild: false });
     expect(codes).toEqual(["api-too-new"]);

@@ -5,7 +5,7 @@ const require2 = __acmsRequire(import.meta.url);
 const __filename = __acmsPath(import.meta.url);
 const __dirname = __acmsDirname(__filename);
 import { r as resolveSite, b as readVersionInfo, d as adminUrlOf, f as fetchHostedAdmin, c as compareVersions, C as CliError, l as lockSite, h as requireCredential } from "../agentcms.mjs";
-import { bootExtensionHost, importExtensionBundle } from "./extHost-Dwc-imen.mjs";
+import { bootExtensionHost, importExtensionBundle } from "./extHost-CLSmPEu2.mjs";
 import "node:util";
 import "node:fs";
 import "node:path";
@@ -91,11 +91,11 @@ async function readRegistryFor(site, reader) {
   const { readBackendRegistryForCli } = await import("./sessionRegistry-DvJjkPlB.mjs");
   const stored = await readBackendRegistryForCli();
   if (stored) return stored;
-  const { fallbackRegistry } = await import("./adminFiles-DpUDTP4Y.mjs");
+  const { fallbackRegistry } = await import("./adminFiles-BAtwIzfG.mjs");
   return fallbackRegistry(site, reader);
 }
 async function loadExtensions(site, host, out, warnings) {
-  const { readAdminFile, siteHostingReader } = await import("./adminFiles-DpUDTP4Y.mjs");
+  const { readAdminFile, siteHostingReader } = await import("./adminFiles-BAtwIzfG.mjs");
   const reader = await siteHostingReader(site);
   const registry = await readRegistryFor(site, reader);
   host.registry.clearExternalPlugins();
@@ -129,13 +129,19 @@ async function loadExtensions(site, host, out, warnings) {
     }
   }
 }
-async function migrateLegacy(host) {
-  const { readFileSync, existsSync } = await import("node:fs");
-  const { join } = await import("node:path");
-  const { distRoot } = await import("../agentcms.mjs").then((n) => n.x);
-  const file = join(distRoot(), "admin", "external.default.json");
-  if (!existsSync(file)) return;
-  const defaults = JSON.parse(readFileSync(file, "utf8"));
+async function migrateLegacy(site, host) {
+  const { readAdminFile, siteHostingReader } = await import("./adminFiles-BAtwIzfG.mjs");
+  const file = await readAdminFile(site, "external.default.json", await siteHostingReader(site), {
+    accept: (t) => {
+      try {
+        return Array.isArray(JSON.parse(t).plugins);
+      } catch {
+        return false;
+      }
+    }
+  });
+  if (!file) return;
+  const defaults = JSON.parse(file.text);
   const { migrateLegacyIds } = await import("./legacyIds-BjAqh705.mjs");
   const { readBackendRegistryForCli, writeBackendRegistryForCli } = await import("./sessionRegistry-DvJjkPlB.mjs");
   const { getSettings, updateSettings } = await import("./settings-DZuDcOE5.mjs");
@@ -160,7 +166,7 @@ async function openSession(alias, opts = {}) {
   const unlock = opts.lock ? lockSite(site.alias) : null;
   try {
     await signInBackend(site, host);
-    if (opts.write || opts.extensions) await migrateLegacy(host);
+    if (opts.write || opts.extensions) await migrateLegacy(site, host);
     if (opts.hosting) await wireHosting(site, host);
     const loaded = { plugins: [], themes: [], failed: [] };
     if (opts.extensions) {
@@ -198,7 +204,7 @@ async function openSession(alias, opts = {}) {
         return firstValue((cb, onErr) => subscribeToUsers(cb, onErr));
       },
       async media() {
-        return (await import("./media-x49mFUWY.mjs").then((n) => n.n)).listAllMedia();
+        return (await import("./media-DXyPyMZf.mjs").then((n) => n.n)).listAllMedia();
       },
       async context(o) {
         const [terms, users, media] = await Promise.all([session.terms(), session.users(), session.media()]);

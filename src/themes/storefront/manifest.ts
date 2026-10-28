@@ -22,6 +22,7 @@ import type { StorefrontThemeConfig } from "./config";
 import { DEFAULT_STOREFRONT_CONFIG } from "./config";
 import { buildCustomCss } from "./style";
 import { StorefrontSettingsPage } from "./SettingsPage";
+import { SETTINGS_SCHEMA } from "./settingsSchema";
 import { transformBodyHtml } from "./blocks/transforms";
 import { encodeAttrs } from "./blocks/util";
 import { DEFAULT_PRODUCT_INFO_ATTRS } from "./blocks/productInfo/render";
@@ -76,7 +77,7 @@ const DEFAULT_PRODUCT_INFO_MARKER = `<div data-cms-block="storefront/product-inf
 export const manifest: ManifestWithCatalogJs = {
   id: "storefront",
   name: "Storefront",
-  version: "0.1.0",
+  version: "0.1.1",
   description:
     "Storefront theme for storefront / e-commerce sites — Tailwind-based, sage + terracotta Material 3 palette, Playfair Display + Inter typography. Built for product catalogs with optional client-side filtering.",
   scssEntry: "theme.css",
@@ -92,6 +93,7 @@ export const manifest: ManifestWithCatalogJs = {
     navLabelKey: "title",
     defaultConfig: DEFAULT_STOREFRONT_CONFIG,
     component: StorefrontSettingsPage,
+    schema: SETTINGS_SCHEMA,
   },
   // Bakes the user's Style overrides (palette + font pair) into the
   // CSS uploaded by `Sync theme assets`.

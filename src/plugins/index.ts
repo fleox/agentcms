@@ -15,7 +15,7 @@ import { manifest as rssManifest } from "./agentcms-rss/manifest";
 import { manifest as archivesManifest } from "./agentcms-archives/manifest";
 import { manifest as searchManifest } from "./agentcms-search/manifest";
 import i18n from "../i18n";
-import type { AdminLocale } from "../core/types";
+import type { AdminLocale, SettingsSchema } from "../core/types";
 import { pluginApi, resetRegistry } from "../core/pluginRegistry";
 import { resetBlocks } from "../core/blockRegistry";
 import { resetDashboardCards } from "../core/dashboardCardRegistry";
@@ -40,6 +40,9 @@ export interface PluginSettingsPageDef<TConfig = unknown> {
   // receives the resolved config and a `save` helper from the wrapping
   // route component (PluginSettingsRoute).
   component: ComponentType<PluginSettingsPageProps<TConfig>>;
+  // Optional (API ≥ 1.5): what each setting does and accepts — shown by
+  // `agentcms plugins config <id> --schema` and checked on --set / --merge.
+  schema?: SettingsSchema;
 }
 
 export interface PluginSettingsPageProps<TConfig = unknown> {

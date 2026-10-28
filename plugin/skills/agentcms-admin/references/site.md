@@ -82,7 +82,7 @@ Links typed into theme or plugin settings (promo links, call-to-action URLs…) 
 - `plugins enable <id>` / `plugins disable <id>`, then `regenerate everything`.
 - Some plugins need the theme's help. The search only opens from a `[data-cms-search]` button of the theme: `plugins enable agentcms-search` warns when the theme has none and gives a custom-code snippet to add one.
 - **Configuration:**
-  - `plugins config <id> --schema` prints every key with its default.
+  - `plugins config <id> --schema` lists every setting (`settings[]`: `path`, `type`, `default`, and when the plugin documents it `description`, accepted `values`, `min` / `max`, `format`). Read it before changing a setting you don't know. A value outside `values` / `min`–`max` is refused (`invalid-value`, nothing saved).
   - `--get` (the default) prints the current config.
   - `--merge '{…}'` changes some keys; `--set '{…}'` replaces the whole config.
   - Each runs the settings page's side effects.
@@ -109,7 +109,7 @@ Links typed into theme or plugin settings (promo links, call-to-action URLs…) 
 - Each theme has its own image formats. Media uploaded under another theme lack them, and pages fall back to another size (wrong crop, empty bands). After a switch, run `media regenerate` (plan), then `media regenerate --yes` and `regenerate all`.
 - **Configuration:** `themes config <id> --schema`, `--get`, `--merge '{…}'` or `--set`. Typical keys:
   - `style{vars{…},fontSerif,fontSans}`: colors and fonts. The CSS is recompiled and uploaded at once, and `next` stays empty.
-    - `--schema` lists `cssVariables`, the theme's custom properties with their current default values.
+    - `--schema` lists every setting (`settings[]` with `description`, accepted `values`, `format` when the theme documents them; a value outside `values` is refused with `invalid-value`) and `cssVariables`, the theme's custom properties with their current default values.
     - Give colors in hex: `{"style":{"vars":{"--color-secondary":"#b00020"}}}`.
     - On magazine the accent color (links, labels) is `--color-secondary`. Other themes name it differently: check `--schema`.
   - `home{…}`, `single{…}`, `header{…}`, `footer{…}`: layout. Run `regenerate all`.

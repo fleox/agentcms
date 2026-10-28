@@ -55,7 +55,7 @@ export default manifest;
 | `templates` | All six: `base`, `home`, `single`, `category`, `author`, `notFound`. |
 | `imageFormats` | Image variants generated at upload: `{ inputFormats: [".jpg", ".jpeg", ".png", ".webp"], outputFormat: "webp", quality: 80, formats: { card: { width: 800, height: 500, fit: "cover" }, … }, defaultFormat: "card" }`. `inputFormats` are file extensions. Names starting with `admin-` are reserved. |
 | `defaultPostMarkdown` | `{ post?, page? }` — seed Markdown for new posts / pages (e.g. block markers). |
-| `settings` | Theme settings page (`navLabelKey`, `defaultConfig`, `component`) at `#/theme-settings`, shown while the theme is active. |
+| `settings` | Theme settings page (`navLabelKey`, `defaultConfig`, `component`, optional `schema` — API ≥ 1.5, documents each setting for `agentcms themes config <id> --schema`) at `#/theme-settings`, shown while the theme is active. |
 | `compileCss` | `(config) => css` — bakes the user's settings into the published stylesheet. Called only when `settings` is declared too. |
 | `i18n` | Translations, namespace `theme-<id>`. |
 | `blocks` | Editor blocks registered while the theme is active. |

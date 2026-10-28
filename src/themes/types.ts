@@ -5,6 +5,7 @@ import type {
   Media,
   MenuItem,
   Post,
+  SettingsSchema,
   SiteSettings,
   SocialNetwork,
   Term,
@@ -199,6 +200,9 @@ export interface ThemeSettingsPageDef<TConfig = unknown> {
   // The page is rendered inside the standard admin layout. The admin
   // hands it `{ config, save, theme }` — same shape as PluginSettingsPage.
   component: ComponentType<ThemeSettingsPageProps<TConfig>>;
+  // Optional (API ≥ 1.5): what each setting does and accepts — shown by
+  // `agentcms themes config <id> --schema` and checked on --set / --merge.
+  schema?: SettingsSchema;
 }
 
 export interface ThemeSettingsPageProps<TConfig = unknown> {
@@ -303,4 +307,4 @@ export interface ThemeManifest<TConfig = unknown> {
 }
 
 // Re-exported so theme code only needs one import statement.
-export type { Media, Post, Term, MenuItem, SiteSettings };
+export type { Media, Post, Term, MenuItem, SiteSettings, SettingsSchema };

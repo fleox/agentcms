@@ -1,36 +1,58 @@
-import { canonicalUrl as z, getActiveTheme as J, renderMarkdown as ke, applyFilters as Ce, markdownToPlainText as re, renderPageToHtml as ie, renderHome as Me, updatePost as oe, pathToPublicUrl as G, deleteFile as Q, publishPostsJson as $e, publishAuthorsJson as Ie, useCmsData as le, toast as B, isValidSlug as ce, fetchAllPosts as Y } from "@agent-cms/runtime";
+import { canonicalUrl as O, getActiveTheme as G, renderMarkdown as ke, applyFilters as Me, markdownToPlainText as re, renderPageToHtml as ie, renderHome as Ce, updatePost as oe, pathToPublicUrl as J, deleteFile as Q, publishPostsJson as $e, publishAuthorsJson as Ie, useCmsData as le, toast as B, isValidSlug as ce, fetchAllPosts as Y } from "@agent-cms/runtime";
 import { jsxs as L, jsx as m } from "react/jsx-runtime";
 import { useState as Z } from "react";
 import { useTranslation as ue } from "react-i18next";
-const Ne = '# agentcms-multilang\n\nMulti-language support for AgentCMS — translated posts, pages, categories and tags, hreflang SEO, per-language sitemaps and RSS feeds, and a public language switcher.\n\n## What it does\n\n- **Language tabs in the editor**: an editor *variant provider* adds a tab strip above the post / page editor, one tab per language (★ = primary). Switching tab swaps the whole editor — title, slug, content (blocks included), excerpt and SEO — so every language gets the same authoring experience. Translation tabs appear once the post has been saved once.\n- **Term translations**: a collapsible section in each row of **Categories / Tags** holds the per-language `name`, `slug`, description and SEO.\n- **URL strategy**: the primary language lives at the site root (`site.com/news/hello.html`); every other enabled language lives under its own prefix (`site.com/fr/actualites/bonjour.html`), with its own home (`/fr/index.html`, optionally a static page per language) and category archives. The page that drives a language\'s home (its per-language home page, else the site\'s static home page) is published only at that home — never also as `/fr/<slug>.html` — and sitemaps / hreflang list it as `/fr/`, like the core does for the primary static home.\n- **SEO**: `<link rel="alternate" hreflang="…">` for every language plus `x-default`, `og:locale` and `og:locale:alternate` on every published page, and `<html lang>` per page (`BaseLayoutProps.currentLocale`). The canonical link stays the theme\'s job: the publisher hands the theme the localized `currentPath`, so a theme that emits `canonicalUrl(baseUrl, currentPath)` gets the right per-language canonical.\n- **Sitemaps** (with `agentcms-sitemaps` enabled): `<xhtml:link rel="alternate">` entries inside each `<url>`, the translated URLs in the yearly sitemaps, and — when News is enabled — one `sitemaps/sitemap-news-<lang>.xml` per secondary language, referenced from the index.\n- **RSS** (with `agentcms-rss` enabled and its site feed on): one `/<lang>/rss.xml` per secondary language, through the RSS plugin\'s `rss.site.locales` filter. Legacy `/<lang>/feed.xml` and per-category `/<lang>/<slug>/<slug>.xml` files from versions ≤ 1.6.1 are deleted on the next publish.\n- **Language switcher**: a small script injected through `page.body.end` fills `[data-cms-langswitch="header"]` and `[data-cms-langswitch="footer"]` containers with links to the current page\'s alternates (toggles in the plugin settings). The in-tree themes (default, magazine, corporate, storefront, portfolio) ship these containers; other themes just add an empty `<div data-cms-langswitch="header"></div>`.\n\n## Requirements\n\n- AgentCMS admin with runtime API **1.4.0** or newer (the plugin uses `registerEditorVariantProvider`, `publish.before(post, ctx)`, `regenerate.listings.before` and `sitemap.news.locales`).\n- The plugin ships pre-installed with AgentCMS (bundled default); this folder is its source.\n\n## Build and install (from source)\n\n1. `npm install --legacy-peer-deps`\n2. `npm run build` — type-checks, produces `dist/bundle.js` + `agentcms-multilang.zip`\n3. In the admin, **Plugins** → **Install plugin** → drop the ZIP (same id = in-place upgrade).\n4. Open **Settings → Multi-language** and pick the primary language + additional languages.\n\n## Workflow\n\n1. Write the post in the primary language with the standard editor and save it.\n2. Click a language tab above the editor and fill the title, slug, content, excerpt and SEO for that language. Save.\n3. Publish. The publisher renders the primary version and every translation in one pass (`publish.additional`), each at its own path; removed translations are deleted from the site.\n\n## Storage\n\n- Per-post translations live on `Post.translations[<lang>]` (`{ slug, title, contentMarkdown, excerpt, seo }`).\n- Per-term translations live on `Term.translations[<lang>]` (`{ slug, name, description, seo }`).\n- Published translation paths are tracked in `Post.lastPublishedPathsByLocale` (orphan cleanup).\n- Plugin config (languages, primary, per-language home page, menu label overrides, switcher toggles) lives in `settings.pluginConfigs["agentcms-multilang"]`.\n\nAll storage flows through the standard backend dispatcher — it works the same on every data backend (Firebase, SQLite file, Markdown in git, this browser).\n\n## Theme compatibility\n\nTranslated pages render through the **active theme exactly as the primary publisher does** — same templates, BaseLayout and CSS. Themes should:\n\n- use `currentLocale` for `<html lang>` and `site.homePath ?? "/index.html"` for home links;\n- render translated menu labels from `item.labels[<lang>]` in their menu loader (the bundled loaders do);\n- add `[data-cms-langswitch]` containers where the switcher should appear.\n\nBlock markers in translated content go through the same `post.html.body` filters as the primary render. Those filters receive a per-language publish context as an extra third argument (`ctx.settings.language` = the target language), because `getCurrentPublishContext()` is only set during the core\'s own renders.\n\n## Known limitations\n\n- Theme-specific rich homes (e.g. magazine\'s hero / sidebar widgets) are not replicated in secondary languages. Pick a **static page** as the home of each language for full control.\n- `post.markdown.before` and `post.template.props` filters don\'t run for translated renders.\n- Concurrent edits to one post\'s translations are last-write-wins (one document / row per post).\n', Ae = { title: "Multi-language", intro: "Configure additional languages. Each enabled language gets its own URL prefix and per-post translations.", save: "Save settings", saving: "Saving…", saved: "Saved.", primaryLanguage: { title: "Primary language", help: "Pages in this language live at the root URL (no language prefix). All other languages render under /<lang>/.", siteHint: 'Site language is currently "{{lang}}".' }, enabledLanguages: { title: "Additional languages", help: "Click a language to toggle it. Enabled languages appear in the editor's Translations tab + on the public site under /<lang>/." }, homePages: { title: "Home page per language", help: "Optional: pick a static page (in the corresponding language) to render at /<lang>/. Leave empty for a basic latest-posts list.", none: "— Latest posts —" }, switcher: { title: "Language switcher", help: "Show a language switcher on the public site. Themes must include a [data-cms-langswitch] container in their Header / Footer for the switcher to appear (built-in themes already do).", header: "Show switcher in the site header", footer: "Show switcher in the site footer" } }, Ee = { label: "Translations", noLanguages: "No additional languages are configured for this site.", configureLanguages: "Configure languages", editPrimaryInMain: "Edit the primary language in the main editor (title, slug, content above).", save: "Save translations", saving: "Saving…", saved: "Translations saved.", duplicate: "Duplicate from primary", invalidSlug: "Invalid slug for {{lang}}.", fields: { title: "Title", slug: "Slug", slugHelp: "Lower-case ASCII + dashes only.", excerpt: "Excerpt", content: "Content (Markdown)", contentHelp: "Plain Markdown. Theme blocks (Hero, embeds, etc.) embedded in the primary language do NOT replicate automatically — paste your translated body here.", seo: "SEO", seoTitle: "SEO title", seoDescription: "Meta description" } }, Ue = { title: "Translations", name: "Name", slug: "Slug", invalidSlug: "Invalid slug", seoTitle: "SEO meta title", seoDescription: "SEO meta description", noLanguages: "Enable secondary languages in the Multi-language plugin settings to translate this term." }, De = {
-  settings: Ae,
-  tab: Ee,
-  termSection: Ue
-}, He = { title: "Multilingue", intro: "Configurez les langues supplémentaires. Chaque langue activée obtient son préfixe d'URL et des traductions par contenu.", save: "Sauvegarder", saving: "Sauvegarde…", saved: "Sauvegardé.", primaryLanguage: { title: "Langue principale", help: "Les pages dans cette langue se trouvent à la racine du site (sans préfixe). Les autres langues sont sous /<lang>/.", siteHint: "La langue du site est actuellement « {{lang}} »." }, enabledLanguages: { title: "Langues supplémentaires", help: "Cliquez une langue pour l'activer. Les langues activées apparaissent dans l'onglet Traductions de l'éditeur et sur le site public sous /<lang>/." }, homePages: { title: "Page d'accueil par langue", help: "Optionnel : choisissez une page statique (dans la langue correspondante) pour servir d'accueil à /<lang>/. Sinon, une liste des derniers articles est rendue.", none: "— Derniers articles —" }, switcher: { title: "Sélecteur de langue", help: "Affiche un sélecteur de langue sur le site public. Les thèmes doivent intégrer un conteneur [data-cms-langswitch] dans leur Header / Footer pour que le sélecteur apparaisse (les thèmes intégrés le font déjà).", header: "Afficher le sélecteur dans l'en-tête du site", footer: "Afficher le sélecteur dans le pied de page du site" } }, Fe = { label: "Traductions", noLanguages: "Aucune langue supplémentaire n'est configurée.", configureLanguages: "Configurer les langues", editPrimaryInMain: "Modifiez la langue principale dans l'éditeur (titre, slug, contenu ci-dessus).", save: "Sauvegarder les traductions", saving: "Sauvegarde…", saved: "Traductions sauvegardées.", duplicate: "Dupliquer depuis la langue principale", invalidSlug: "Slug invalide pour {{lang}}.", fields: { title: "Titre", slug: "Slug", slugHelp: "Caractères ASCII minuscules + tirets uniquement.", excerpt: "Extrait", content: "Contenu (Markdown)", contentHelp: "Markdown simple. Les blocs de thème (Hero, embeds, etc.) intégrés dans la langue principale ne sont PAS répliqués automatiquement — collez votre contenu traduit ici.", seo: "SEO", seoTitle: "Titre SEO", seoDescription: "Méta description" } }, _e = { title: "Traductions", name: "Nom", slug: "Slug", invalidSlug: "Slug invalide", seoTitle: "Titre meta SEO", seoDescription: "Description meta SEO", noLanguages: "Activez des langues secondaires dans les réglages du plugin Multilingue pour traduire ce terme." }, ze = {
-  settings: He,
-  tab: Fe,
-  termSection: _e
-}, H = {
+const Ne = {
+  primaryLanguage: {
+    description: 'Language of the main content, published at the root (no prefix). Must equal the site language (`settings get site` → language; its base code, e.g. "en" for "en-US"): set both together, then `regenerate everything`.',
+    format: "language code (en, fr, es-MX…)"
+  },
+  enabledLanguages: {
+    description: "The OTHER languages the site publishes, each under /<lang>/ with per-entry translations — don't repeat primaryLanguage. Array of language codes in display order (the admin offers en, fr, de, es, nl, pt, ko; any BCP-47 code works). Changing it needs `regenerate everything`.",
+    format: "array of language codes"
+  },
+  homePages: {
+    description: `Optional home page per secondary language: { "<lang>": "<page id>" } renders that online page (with its translation) at /<lang>/. A missing or empty entry uses the site's own home (the static home page's translation, or the latest posts).`,
+    format: "map of language code → page id"
+  },
+  menuTranslations: {
+    description: 'Legacy, not read by the plugin — don\'t set. Menu labels per language go on the menu items (`translations: { "fr": { "label": "…" } }` with `menus set`).'
+  },
+  showHeaderSwitcher: {
+    description: "Show the language switcher in the site header (themes provide a [data-cms-langswitch] container; built-in themes do). Only shown when enabledLanguages is not empty."
+  },
+  showFooterSwitcher: {
+    description: "Show the language switcher in the site footer too. Only shown when enabledLanguages is not empty."
+  }
+}, Ae = '# agentcms-multilang\n\nMulti-language support for AgentCMS — translated posts, pages, categories and tags, hreflang SEO, per-language sitemaps and RSS feeds, and a public language switcher.\n\n## What it does\n\n- **Language tabs in the editor**: an editor *variant provider* adds a tab strip above the post / page editor, one tab per language (★ = primary). Switching tab swaps the whole editor — title, slug, content (blocks included), excerpt and SEO — so every language gets the same authoring experience. Translation tabs appear once the post has been saved once.\n- **Term translations**: a collapsible section in each row of **Categories / Tags** holds the per-language `name`, `slug`, description and SEO.\n- **URL strategy**: the primary language lives at the site root (`site.com/news/hello.html`); every other enabled language lives under its own prefix (`site.com/fr/actualites/bonjour.html`), with its own home (`/fr/index.html`, optionally a static page per language) and category archives. The page that drives a language\'s home (its per-language home page, else the site\'s static home page) is published only at that home — never also as `/fr/<slug>.html` — and sitemaps / hreflang list it as `/fr/`, like the core does for the primary static home.\n- **SEO**: `<link rel="alternate" hreflang="…">` for every language plus `x-default`, `og:locale` and `og:locale:alternate` on every published page, and `<html lang>` per page (`BaseLayoutProps.currentLocale`). The canonical link stays the theme\'s job: the publisher hands the theme the localized `currentPath`, so a theme that emits `canonicalUrl(baseUrl, currentPath)` gets the right per-language canonical.\n- **Sitemaps** (with `agentcms-sitemaps` enabled): `<xhtml:link rel="alternate">` entries inside each `<url>`, the translated URLs in the yearly sitemaps, and — when News is enabled — one `sitemaps/sitemap-news-<lang>.xml` per secondary language, referenced from the index.\n- **RSS** (with `agentcms-rss` enabled and its site feed on): one `/<lang>/rss.xml` per secondary language, through the RSS plugin\'s `rss.site.locales` filter. Legacy `/<lang>/feed.xml` and per-category `/<lang>/<slug>/<slug>.xml` files from versions ≤ 1.6.1 are deleted on the next publish.\n- **Language switcher**: a small script injected through `page.body.end` fills `[data-cms-langswitch="header"]` and `[data-cms-langswitch="footer"]` containers with links to the current page\'s alternates (toggles in the plugin settings). The in-tree themes (default, magazine, corporate, storefront, portfolio) ship these containers; other themes just add an empty `<div data-cms-langswitch="header"></div>`.\n\n## Requirements\n\n- AgentCMS admin with runtime API **1.4.0** or newer (the plugin uses `registerEditorVariantProvider`, `publish.before(post, ctx)`, `regenerate.listings.before` and `sitemap.news.locales`).\n- The plugin ships pre-installed with AgentCMS (bundled default); this folder is its source.\n\n## Build and install (from source)\n\n1. `npm install --legacy-peer-deps`\n2. `npm run build` — type-checks, produces `dist/bundle.js` + `agentcms-multilang.zip`\n3. In the admin, **Plugins** → **Install plugin** → drop the ZIP (same id = in-place upgrade).\n4. Open **Settings → Multi-language** and pick the primary language + additional languages.\n\n## Workflow\n\n1. Write the post in the primary language with the standard editor and save it.\n2. Click a language tab above the editor and fill the title, slug, content, excerpt and SEO for that language. Save.\n3. Publish. The publisher renders the primary version and every translation in one pass (`publish.additional`), each at its own path; removed translations are deleted from the site.\n\n## Storage\n\n- Per-post translations live on `Post.translations[<lang>]` (`{ slug, title, contentMarkdown, excerpt, seo }`).\n- Per-term translations live on `Term.translations[<lang>]` (`{ slug, name, description, seo }`).\n- Published translation paths are tracked in `Post.lastPublishedPathsByLocale` (orphan cleanup).\n- Plugin config (languages, primary, per-language home page, menu label overrides, switcher toggles) lives in `settings.pluginConfigs["agentcms-multilang"]`.\n\nAll storage flows through the standard backend dispatcher — it works the same on every data backend (Firebase, SQLite file, Markdown in git, this browser).\n\n## Theme compatibility\n\nTranslated pages render through the **active theme exactly as the primary publisher does** — same templates, BaseLayout and CSS. Themes should:\n\n- use `currentLocale` for `<html lang>` and `site.homePath ?? "/index.html"` for home links;\n- render translated menu labels from `item.labels[<lang>]` in their menu loader (the bundled loaders do);\n- add `[data-cms-langswitch]` containers where the switcher should appear.\n\nBlock markers in translated content go through the same `post.html.body` filters as the primary render. Those filters receive a per-language publish context as an extra third argument (`ctx.settings.language` = the target language), because `getCurrentPublishContext()` is only set during the core\'s own renders.\n\n## Known limitations\n\n- Theme-specific rich homes (e.g. magazine\'s hero / sidebar widgets) are not replicated in secondary languages. Pick a **static page** as the home of each language for full control.\n- `post.markdown.before` and `post.template.props` filters don\'t run for translated renders.\n- Concurrent edits to one post\'s translations are last-write-wins (one document / row per post).\n', Ee = { title: "Multi-language", intro: "Configure additional languages. Each enabled language gets its own URL prefix and per-post translations.", save: "Save settings", saving: "Saving…", saved: "Saved.", primaryLanguage: { title: "Primary language", help: "Pages in this language live at the root URL (no language prefix). All other languages render under /<lang>/.", siteHint: 'Site language is currently "{{lang}}".' }, enabledLanguages: { title: "Additional languages", help: "Click a language to toggle it. Enabled languages appear in the editor's Translations tab + on the public site under /<lang>/." }, homePages: { title: "Home page per language", help: "Optional: pick a static page (in the corresponding language) to render at /<lang>/. Leave empty for a basic latest-posts list.", none: "— Latest posts —" }, switcher: { title: "Language switcher", help: "Show a language switcher on the public site. Themes must include a [data-cms-langswitch] container in their Header / Footer for the switcher to appear (built-in themes already do).", header: "Show switcher in the site header", footer: "Show switcher in the site footer" } }, Ue = { label: "Translations", noLanguages: "No additional languages are configured for this site.", configureLanguages: "Configure languages", editPrimaryInMain: "Edit the primary language in the main editor (title, slug, content above).", save: "Save translations", saving: "Saving…", saved: "Translations saved.", duplicate: "Duplicate from primary", invalidSlug: "Invalid slug for {{lang}}.", fields: { title: "Title", slug: "Slug", slugHelp: "Lower-case ASCII + dashes only.", excerpt: "Excerpt", content: "Content (Markdown)", contentHelp: "Plain Markdown. Theme blocks (Hero, embeds, etc.) embedded in the primary language do NOT replicate automatically — paste your translated body here.", seo: "SEO", seoTitle: "SEO title", seoDescription: "Meta description" } }, He = { title: "Translations", name: "Name", slug: "Slug", invalidSlug: "Invalid slug", seoTitle: "SEO meta title", seoDescription: "SEO meta description", noLanguages: "Enable secondary languages in the Multi-language plugin settings to translate this term." }, De = {
+  settings: Ee,
+  tab: Ue,
+  termSection: He
+}, Fe = { title: "Multilingue", intro: "Configurez les langues supplémentaires. Chaque langue activée obtient son préfixe d'URL et des traductions par contenu.", save: "Sauvegarder", saving: "Sauvegarde…", saved: "Sauvegardé.", primaryLanguage: { title: "Langue principale", help: "Les pages dans cette langue se trouvent à la racine du site (sans préfixe). Les autres langues sont sous /<lang>/.", siteHint: "La langue du site est actuellement « {{lang}} »." }, enabledLanguages: { title: "Langues supplémentaires", help: "Cliquez une langue pour l'activer. Les langues activées apparaissent dans l'onglet Traductions de l'éditeur et sur le site public sous /<lang>/." }, homePages: { title: "Page d'accueil par langue", help: "Optionnel : choisissez une page statique (dans la langue correspondante) pour servir d'accueil à /<lang>/. Sinon, une liste des derniers articles est rendue.", none: "— Derniers articles —" }, switcher: { title: "Sélecteur de langue", help: "Affiche un sélecteur de langue sur le site public. Les thèmes doivent intégrer un conteneur [data-cms-langswitch] dans leur Header / Footer pour que le sélecteur apparaisse (les thèmes intégrés le font déjà).", header: "Afficher le sélecteur dans l'en-tête du site", footer: "Afficher le sélecteur dans le pied de page du site" } }, _e = { label: "Traductions", noLanguages: "Aucune langue supplémentaire n'est configurée.", configureLanguages: "Configurer les langues", editPrimaryInMain: "Modifiez la langue principale dans l'éditeur (titre, slug, contenu ci-dessus).", save: "Sauvegarder les traductions", saving: "Sauvegarde…", saved: "Traductions sauvegardées.", duplicate: "Dupliquer depuis la langue principale", invalidSlug: "Slug invalide pour {{lang}}.", fields: { title: "Titre", slug: "Slug", slugHelp: "Caractères ASCII minuscules + tirets uniquement.", excerpt: "Extrait", content: "Contenu (Markdown)", contentHelp: "Markdown simple. Les blocs de thème (Hero, embeds, etc.) intégrés dans la langue principale ne sont PAS répliqués automatiquement — collez votre contenu traduit ici.", seo: "SEO", seoTitle: "Titre SEO", seoDescription: "Méta description" } }, Oe = { title: "Traductions", name: "Nom", slug: "Slug", invalidSlug: "Slug invalide", seoTitle: "Titre meta SEO", seoDescription: "Description meta SEO", noLanguages: "Activez des langues secondaires dans les réglages du plugin Multilingue pour traduire ce terme." }, ze = {
+  settings: Fe,
+  tab: _e,
+  termSection: Oe
+}, D = {
   primaryLanguage: "en",
   enabledLanguages: [],
   homePages: {},
   menuTranslations: {},
   showHeaderSwitcher: !0,
   showFooterSwitcher: !1
-}, Oe = "agentcms-multilang";
+}, Re = "agentcms-multilang";
 function b(n) {
   var t;
-  const e = (t = n.pluginConfigs) == null ? void 0 : t[Oe];
+  const e = (t = n.pluginConfigs) == null ? void 0 : t[Re];
   return {
-    ...H,
+    ...D,
     // Default the primary language to the site's BCP-47 language tag
     // so a fresh install picks the right value without manual setup.
     primaryLanguage: (e == null ? void 0 : e.primaryLanguage) || (n.language || "en").split("-")[0],
     enabledLanguages: (e == null ? void 0 : e.enabledLanguages) ?? [],
     homePages: (e == null ? void 0 : e.homePages) ?? {},
     menuTranslations: (e == null ? void 0 : e.menuTranslations) ?? {},
-    showHeaderSwitcher: (e == null ? void 0 : e.showHeaderSwitcher) ?? H.showHeaderSwitcher,
-    showFooterSwitcher: (e == null ? void 0 : e.showFooterSwitcher) ?? H.showFooterSwitcher
+    showHeaderSwitcher: (e == null ? void 0 : e.showHeaderSwitcher) ?? D.showHeaderSwitcher,
+    showFooterSwitcher: (e == null ? void 0 : e.showFooterSwitcher) ?? D.showFooterSwitcher
   };
 }
 function y(n, e) {
@@ -51,7 +73,7 @@ function V(n, e, t, a) {
 function _(n, e) {
   return y(e, n) ? "index.html" : `${n}/index.html`;
 }
-function Re(n, e, t) {
+function je(n, e, t) {
   var a;
   if (!y(e, t)) {
     const s = (a = e.homePages) == null ? void 0 : a[t];
@@ -61,7 +83,7 @@ function Re(n, e, t) {
 }
 function W(n, e, t, a) {
   if (!e || n.type !== "page") return !1;
-  const s = Re(e, t, a);
+  const s = je(e, t, a);
   return !!s && s === n.id;
 }
 function ge(n) {
@@ -75,7 +97,7 @@ function k(n, e) {
   const t = n.translations, a = t == null ? void 0 : t[e];
   return !a || !a.slug || !a.name ? null : a;
 }
-function O(n) {
+function z(n) {
   return {
     slug: n.slug,
     title: n.title,
@@ -106,7 +128,7 @@ function ee(n) {
     ja: "ja_JP"
   }[e] ?? `${e}_${e.toUpperCase()}`;
 }
-function M(n) {
+function C(n) {
   return n.replace(/[&<>"']/g, (e) => {
     switch (e) {
       case "&":
@@ -127,22 +149,22 @@ function q(n, e, t) {
   if (!a) return "";
   const s = [];
   for (const o of n.alternates) {
-    const i = z(a, o.path);
+    const i = O(a, o.path);
     s.push(
-      `<link rel="alternate" hreflang="${M(o.language)}" href="${M(i)}" />`
+      `<link rel="alternate" hreflang="${C(o.language)}" href="${C(i)}" />`
     );
   }
   const r = n.alternates.find((o) => o.language === t.primaryLanguage);
   if (r) {
-    const o = z(a, r.path);
-    s.push(`<link rel="alternate" hreflang="x-default" href="${M(o)}" />`);
+    const o = O(a, r.path);
+    s.push(`<link rel="alternate" hreflang="x-default" href="${C(o)}" />`);
   }
   s.push(
-    `<meta property="og:locale" content="${M(ee(n.current.language))}" />`
+    `<meta property="og:locale" content="${C(ee(n.current.language))}" />`
   );
   for (const o of n.alternates)
     o.language !== n.current.language && s.push(
-      `<meta property="og:locale:alternate" content="${M(ee(o.language))}" />`
+      `<meta property="og:locale:alternate" content="${C(ee(o.language))}" />`
     );
   return s.join(`
 `);
@@ -152,16 +174,16 @@ function de(n, e, t) {
   if (!a || n.alternates.length === 0) return "";
   const s = [];
   for (const o of n.alternates) {
-    const i = z(a, o.path);
+    const i = O(a, o.path);
     s.push(
-      `    <xhtml:link rel="alternate" hreflang="${M(o.language)}" href="${M(i)}"/>`
+      `    <xhtml:link rel="alternate" hreflang="${C(o.language)}" href="${C(i)}"/>`
     );
   }
   const r = n.alternates.find((o) => o.language === t.primaryLanguage);
   if (r) {
-    const o = z(a, r.path);
+    const o = O(a, r.path);
     s.push(
-      `    <xhtml:link rel="alternate" hreflang="x-default" href="${M(o)}"/>`
+      `    <xhtml:link rel="alternate" hreflang="x-default" href="${C(o)}"/>`
     );
   }
   return s.join(`
@@ -171,7 +193,7 @@ function j(n, e, t, a) {
   const s = [];
   for (const r of [t.primaryLanguage, ...t.enabledLanguages]) {
     if (s.some((c) => c.language === r)) continue;
-    const o = r === t.primaryLanguage ? O(n) : $(n, r);
+    const o = r === t.primaryLanguage ? z(n) : $(n, r);
     if (!o) continue;
     const i = n.primaryTermId ? e.find((c) => c.id === n.primaryTermId) : void 0, l = i ? r === t.primaryLanguage ? R(i) : k(i, r) ?? void 0 : void 0;
     if (i && !l && !y(t, r)) continue;
@@ -247,38 +269,38 @@ function N(n, e, t, a, s) {
     U.set(i.path, l);
   }
 }
-function je(n) {
+function qe(n) {
   const e = n.replace(/^\/+/, "");
   return U.get(e) ?? U.get(`/${e}`) ?? "";
 }
-const D = /* @__PURE__ */ new Map();
+const H = /* @__PURE__ */ new Map();
 function A(n, e, t, a, s) {
-  D.clear();
+  H.clear();
   for (const o of [...n, ...e]) {
     if (o.status !== "online") continue;
     const i = j(o, t, a, s);
     if (i.length !== 0)
       for (const l of i)
-        D.set(l.path, { language: l.language, alternates: i });
+        H.set(l.path, { language: l.language, alternates: i });
   }
   for (const o of t) {
     if (o.type !== "category") continue;
     const i = pe(o, a);
     if (i.length !== 0)
       for (const l of i)
-        D.set(l.path, { language: l.language, alternates: i });
+        H.set(l.path, { language: l.language, alternates: i });
   }
   const r = he(a);
   for (const o of r)
-    D.set(o.path, { language: o.language, alternates: r });
+    H.set(o.path, { language: o.language, alternates: r });
 }
-function qe(n) {
+function Be(n) {
   const e = n.replace(/^\/+/, "");
-  return D.get(e) ?? D.get(`/${e}`) ?? null;
+  return H.get(e) ?? H.get(`/${e}`) ?? null;
 }
 function me(n) {
   var a;
-  const e = J(n.settings.activeThemeId);
+  const e = G(n.settings.activeThemeId);
   if (!e.settings) return;
   const t = (a = n.settings.themeConfigs) == null ? void 0 : a[e.id];
   return {
@@ -286,7 +308,7 @@ function me(n) {
     ...t ?? {}
   };
 }
-function Be(n, e, t) {
+function Ge(n, e, t) {
   const a = y(t, e), s = a ? "" : `${e}/`, r = { ...n.settings, language: e }, o = n.terms.map((c) => {
     if (c.type !== "category") return c;
     const d = a ? R(c) : k(c, e);
@@ -300,7 +322,7 @@ function Be(n, e, t) {
       description: d.description
     } : c;
   }), i = (c) => {
-    const d = a ? O(c) : $(c, e);
+    const d = a ? z(c) : $(c, e);
     if (!d) return null;
     const p = c.type !== "post" || !c.primaryTermId;
     return {
@@ -322,15 +344,15 @@ function Be(n, e, t) {
 }
 async function Je(n) {
   var i;
-  const { language: e, ctx: t, config: a } = n, s = (i = a.homePages) == null ? void 0 : i[e], r = s ? { ...t.settings, homeMode: "static-page", homePageId: s } : t.settings, o = Be({ ...t, settings: r }, e, a);
-  return Me(o, {
+  const { language: e, ctx: t, config: a } = n, s = (i = a.homePages) == null ? void 0 : i[e], r = s ? { ...t.settings, homeMode: "static-page", homePageId: s } : t.settings, o = Ge({ ...t, settings: r }, e, a);
+  return Ce(o, {
     homePath: _(e, a),
     currentLocale: e
   });
 }
-async function Ge(n) {
-  var P, T, I, C, X;
-  const { post: e, trans: t, termTrans: a, language: s, ctx: r, config: o } = n, i = J(r.settings.activeThemeId), l = {
+async function Ve(n) {
+  var P, T, I, M, X;
+  const { post: e, trans: t, termTrans: a, language: s, ctx: r, config: o } = n, i = G(r.settings.activeThemeId), l = {
     settings: { ...r.settings, language: s },
     resolvedMenus: { header: [], footer: [] },
     themeCssPath: `theme-assets/${r.settings.activeThemeId}.css`,
@@ -338,7 +360,7 @@ async function Ge(n) {
     homePath: y(o, s) ? "/index.html" : `/${s}/index.html`
   }, u = { ...r, settings: { ...r.settings, language: s } };
   let c = ke(t.contentMarkdown);
-  c = await Ce("post.html.body", c, e, u);
+  c = await Me("post.html.body", c, e, u);
   const d = r.terms.filter((E) => e.termIds.includes(E.id) && E.type === "tag"), p = e.primaryTermId ? r.terms.find((E) => E.id === e.primaryTermId && E.type === "category") : void 0, g = r.authorLookup(e.authorId), h = e.heroMediaId ? r.media.get(e.heroMediaId) : void 0, f = ((P = t.seo) == null ? void 0 : P.description) ?? re(t.contentMarkdown, 160);
   let S = p;
   if (p && a) {
@@ -379,7 +401,7 @@ async function Ge(n) {
     tags: d
   }, x = {
     site: l,
-    pageTitle: ((C = t.seo) == null ? void 0 : C.title) ?? t.title,
+    pageTitle: ((M = t.seo) == null ? void 0 : M.title) ?? t.title,
     pageDescription: f || void 0,
     ogImage: (X = t.seo) == null ? void 0 : X.ogImage,
     currentPath: v,
@@ -392,9 +414,9 @@ async function Ge(n) {
     templateProps: w
   });
 }
-function Ve(n) {
+function We(n) {
   var f, S, v;
-  const { term: e, termTrans: t, language: a, ctx: s, config: r } = n, o = J(s.settings.activeThemeId), i = {
+  const { term: e, termTrans: t, language: a, ctx: s, config: r } = n, o = G(s.settings.activeThemeId), i = {
     settings: { ...s.settings, language: a },
     resolvedMenus: { header: [], footer: [] },
     themeCssPath: `theme-assets/${s.settings.activeThemeId}.css`,
@@ -406,8 +428,8 @@ function Ve(n) {
     slug: t.slug,
     description: t.description
   }, u = y(r, a), c = u ? "" : `${a}/`, d = s.posts.filter((w) => w.status === "online" && w.primaryTermId === e.id).filter((w) => u ? !0 : $(w, a) !== null).map((w) => {
-    var I, C;
-    const x = u ? O(w) : $(w, a), P = F({
+    var I, M;
+    const x = u ? z(w) : $(w, a), P = F({
       post: w,
       trans: x,
       primaryTermTrans: t,
@@ -424,7 +446,7 @@ function Ve(n) {
       hero: T ? {
         alt: T.alt,
         caption: T.caption,
-        default: ((C = (I = T.formats) == null ? void 0 : I[T.defaultFormat ?? ""]) == null ? void 0 : C.url) ?? T.url ?? "",
+        default: ((M = (I = T.formats) == null ? void 0 : I[T.defaultFormat ?? ""]) == null ? void 0 : M.url) ?? T.url ?? "",
         formats: T.formats ?? {}
       } : void 0,
       category: {
@@ -455,7 +477,7 @@ function Ve(n) {
     templateProps: p
   });
 }
-async function We(n, e, t) {
+async function Ke(n, e, t) {
   const a = b(t.settings);
   if (a.enabledLanguages.length === 0) return n;
   N(t.posts, t.pages, t.terms, t.settings, a), A(t.posts, t.pages, t.terms, a, t.settings);
@@ -473,7 +495,7 @@ async function We(n, e, t) {
       primaryTermSlug: o == null ? void 0 : o.slug,
       language: i,
       config: a
-    }), d = await Ge({
+    }), d = await Ve({
       post: e,
       trans: l,
       termTrans: u ?? void 0,
@@ -489,7 +511,7 @@ async function We(n, e, t) {
   }
   return s;
 }
-async function Ke(n, e) {
+async function Xe(n, e) {
   const t = b(e.settings);
   if (t.enabledLanguages.length === 0) return n;
   N(e.posts, e.pages, e.terms, e.settings, t), A(e.posts, e.pages, e.terms, t, e.settings);
@@ -502,18 +524,18 @@ async function Ke(n, e) {
       if (i.type !== "category") continue;
       const l = k(i, s);
       if (!l) continue;
-      const u = V(i, l, s, t), c = Ve({ term: i, termTrans: l, language: s, ctx: e, config: t });
+      const u = V(i, l, s, t), c = We({ term: i, termTrans: l, language: s, ctx: e, config: t });
       a.push({ path: u, html: c });
     }
   }
   return a;
 }
-function Xe(n) {
+function Qe(n) {
   return { ...n, "xmlns:xhtml": "http://www.w3.org/1999/xhtml" };
 }
-function Qe(n, e) {
+function Ye(n, e) {
   if (!e.entity) return n;
-  const t = e.settings ? b(e.settings) : tt(), a = e.terms ?? nt();
+  const t = e.settings ? b(e.settings) : nt(), a = e.terms ?? at();
   if (!t || !a || t.enabledLanguages.length === 0) return n;
   const s = j(e.entity, a, t, e.settings ?? be);
   if (s.length === 0) return n;
@@ -525,7 +547,7 @@ function Qe(n, e) {
   ) + `
 `;
 }
-function Ye(n, e) {
+function Ze(n, e) {
   var r, o, i, l, u, c;
   const t = b(e.settings);
   if (t.enabledLanguages.length === 0) return n;
@@ -551,7 +573,7 @@ function Ye(n, e) {
   }
   return s;
 }
-function Ze(n, e) {
+function et(n, e) {
   var r;
   const t = (r = e.settings.pluginConfigs) == null ? void 0 : r["agentcms-sitemaps"];
   if (!(t != null && t.newsEnabled)) return n;
@@ -562,7 +584,7 @@ function Ze(n, e) {
     y(a, o) || s.push({ path: `sitemaps/sitemap-news-${o}.xml` });
   return s;
 }
-function et(n, e) {
+function tt(n, e) {
   var i, l, u, c, d, p, g, h;
   const t = b(e.settings);
   if (t.enabledLanguages.length === 0 || !K(e.settings)) return n;
@@ -576,7 +598,7 @@ function et(n, e) {
       if (w < r) continue;
       const x = $(v, f);
       if (!x) continue;
-      const P = v.primaryTermId ? e.terms.find((C) => C.id === v.primaryTermId && C.type === "category") : void 0, T = P ? k(P, f) ?? void 0 : void 0, I = ge({
+      const P = v.primaryTermId ? e.terms.find((M) => M.id === v.primaryTermId && M.type === "category") : void 0, T = P ? k(P, f) ?? void 0 : void 0, I = ge({
         post: v,
         trans: x,
         primaryTermTrans: T,
@@ -610,34 +632,34 @@ function ve(n) {
 function Le(n) {
   be = n;
 }
-function tt() {
+function nt() {
   return fe;
 }
-function nt() {
+function at() {
   return ye;
 }
-const at = 20;
-function st(n) {
+const st = 20;
+function rt(n) {
   return `${n}/rss.xml`;
 }
-function rt(n) {
+function it(n) {
   return `${n}/feed.xml`;
 }
-function it(n, e) {
+function ot(n, e) {
   return `${n}/${e}/${e}.xml`;
 }
-function ot(n) {
+function lt(n) {
   const e = b(n.settings);
   if (e.enabledLanguages.length === 0) return [];
   const t = [];
   for (const a of e.enabledLanguages) {
     if (y(e, a)) continue;
-    const s = lt(n.posts, n.terms, a, e, n.baseUrl);
+    const s = ct(n.posts, n.terms, a, e, n.baseUrl);
     t.push({
       language: a,
-      path: st(a),
+      path: rt(a),
       channelTitle: `${n.settings.title || "Site"} — ${a.toUpperCase()}`,
-      channelLink: G(n.baseUrl, _(a, e)),
+      channelLink: J(n.baseUrl, _(a, e)),
       channelDescription: n.settings.description || n.settings.title || "",
       items: s
     });
@@ -649,7 +671,7 @@ async function Se(n) {
   for (const t of e.enabledLanguages)
     if (!y(e, t)) {
       try {
-        await Q(rt(t));
+        await Q(it(t));
       } catch {
       }
       for (const a of n.terms) {
@@ -657,16 +679,16 @@ async function Se(n) {
         const s = k(a, t);
         if (s)
           try {
-            await Q(it(t, s.slug));
+            await Q(ot(t, s.slug));
           } catch {
           }
       }
     }
 }
-function lt(n, e, t, a, s) {
-  return n.filter((r) => r.status === "online").map((r) => ct(r, e, t, a, s)).filter((r) => r !== null).sort((r, o) => o.pubDateMs - r.pubDateMs).slice(0, at);
-}
 function ct(n, e, t, a, s) {
+  return n.filter((r) => r.status === "online").map((r) => ut(r, e, t, a, s)).filter((r) => r !== null).sort((r, o) => o.pubDateMs - r.pubDateMs).slice(0, st);
+}
+function ut(n, e, t, a, s) {
   var p, g, h, f, S, v;
   const r = $(n, t);
   if (!r) return null;
@@ -679,7 +701,7 @@ function ct(n, e, t, a, s) {
     primaryTermSlug: o == null ? void 0 : o.slug,
     language: t,
     config: a
-  }), u = G(s, l), c = (r.excerpt && r.excerpt.trim().length > 0 ? r.excerpt : re(r.contentMarkdown, 300)).trim(), d = ((g = (p = n.publishedAt) == null ? void 0 : p.toMillis) == null ? void 0 : g.call(p)) ?? ((f = (h = n.updatedAt) == null ? void 0 : h.toMillis) == null ? void 0 : f.call(h)) ?? ((v = (S = n.createdAt) == null ? void 0 : S.toMillis) == null ? void 0 : v.call(S)) ?? Date.now();
+  }), u = J(s, l), c = (r.excerpt && r.excerpt.trim().length > 0 ? r.excerpt : re(r.contentMarkdown, 300)).trim(), d = ((g = (p = n.publishedAt) == null ? void 0 : p.toMillis) == null ? void 0 : g.call(p)) ?? ((f = (h = n.updatedAt) == null ? void 0 : h.toMillis) == null ? void 0 : f.call(h)) ?? ((v = (S = n.createdAt) == null ? void 0 : S.toMillis) == null ? void 0 : v.call(S)) ?? Date.now();
   return {
     title: r.title,
     link: u,
@@ -689,7 +711,7 @@ function ct(n, e, t, a, s) {
     category: i == null ? void 0 : i.name
   };
 }
-function ut(n, e, t) {
+function gt(n, e, t) {
   const a = y(t, e), s = a ? "" : `${e}/`, r = n.terms.map((i) => {
     if (i.type !== "category") return i;
     const l = a ? R(i) : k(i, e);
@@ -700,7 +722,7 @@ function ut(n, e, t) {
       description: l.description
     } : i;
   }), o = (i) => {
-    const l = a ? O(i) : $(i, e);
+    const l = a ? z(i) : $(i, e);
     if (!l) return null;
     const u = i.type !== "post" || !i.primaryTermId, c = W(i, n.settings, t, e) ? `${s}index` : u ? `${s}${l.slug}` : l.slug;
     return {
@@ -723,7 +745,7 @@ async function Te(n) {
   if (e.enabledLanguages.length !== 0)
     for (const t of e.enabledLanguages) {
       if (y(e, t)) continue;
-      const a = ut(n, t, e), s = { ...n.settings, language: t, homePageId: void 0 }, r = `${t}/data/posts.json`, o = `${t}/data/authors.json`;
+      const a = gt(n, t, e), s = { ...n.settings, language: t, homePageId: void 0 }, r = `${t}/data/posts.json`, o = `${t}/data/authors.json`;
       try {
         await $e(
           s,
@@ -748,9 +770,9 @@ async function Te(n) {
     }
 }
 const te = ["en", "fr", "de", "es", "nl", "pt", "ko"];
-function gt({ config: n, save: e }) {
+function dt({ config: n, save: e }) {
   const { t } = ue("agentcms-multilang"), { settings: a, pages: s } = le(), [r, o] = Z({
-    ...H,
+    ...D,
     ...n
   }), [i, l] = Z(!1);
   async function u() {
@@ -874,7 +896,7 @@ function gt({ config: n, save: e }) {
     ) })
   ] });
 }
-function dt({ term: n, updateTerm: e }) {
+function pt({ term: n, updateTerm: e }) {
   const { t } = ue("agentcms-multilang"), { settings: a } = le(), s = b(a);
   if (s.enabledLanguages.length === 0)
     return /* @__PURE__ */ m("p", { className: "text-xs text-surface-500 dark:text-surface-400", children: t("termSection.noLanguages") });
@@ -971,7 +993,7 @@ function ae(n, e, t) {
   const a = xe(n, e, !1);
   return a && a.slug && a.title ? "" : "○";
 }
-const pt = {
+const ht = {
   id: "agentcms-multilang/languages",
   priority: 50,
   listVariants(n, e) {
@@ -1030,7 +1052,7 @@ const pt = {
     const i = o.translations, u = !y(s, e) && ((c = i == null ? void 0 : i[e]) == null ? void 0 : c.slug) || o.slug;
     return `${r}${u}/`;
   }
-}, ht = `
+}, mt = `
 .cms-langswitch{display:inline-flex;align-items:center;gap:6px;font-size:12px;line-height:1;letter-spacing:0.05em;}
 .cms-langswitch a,.cms-langswitch span{padding:4px 8px;border-radius:4px;text-decoration:none;color:inherit;text-transform:uppercase;font-weight:600;}
 .cms-langswitch a{opacity:0.55;}
@@ -1038,18 +1060,18 @@ const pt = {
 .cms-langswitch__current{background:currentColor;color:transparent;position:relative;}
 .cms-langswitch__current::after{content:attr(data-label);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--cms-langswitch-on,white);mix-blend-mode:difference;}
 `.replace(/\s+/g, " ").trim();
-function mt(n) {
+function ft(n) {
   return n.replace(/[<>&\u2028\u2029]/g, (e) => e === "<" ? "\\u003c" : e === ">" ? "\\u003e" : e === "&" ? "\\u0026" : e === "\u2028" ? "\\u2028" : "\\u2029");
 }
-function ft(n) {
+function yt(n) {
   const { config: e, settings: t, currentPath: a } = n;
   if (e.enabledLanguages.length === 0 || !e.showHeaderSwitcher && !e.showFooterSwitcher) return "";
-  const s = qe(a);
+  const s = Be(a);
   if (!s || s.alternates.length < 2) return "";
   const r = (t.baseUrl || "").replace(/\/+$/, ""), o = s.alternates.map((p) => ({
     lang: p.language,
     label: p.language.toUpperCase(),
-    href: r ? G(r, p.path) : `/${p.path.replace(/^\/+/, "")}`
+    href: r ? J(r, p.path) : `/${p.path.replace(/^\/+/, "")}`
   })), i = s.language, l = e.primaryLanguage, u = {
     current: i,
     primary: l,
@@ -1060,7 +1082,7 @@ function ft(n) {
   return `<script>${`
 (function(){
   try {
-    var D = ${mt(JSON.stringify(u))};
+    var D = ${ft(JSON.stringify(u))};
     function render(host) {
       var html = '<div class="cms-langswitch" role="navigation" aria-label="Language">';
       for (var i = 0; i < D.items.length; i++) {
@@ -1086,7 +1108,7 @@ function ft(n) {
       }
       var s = document.createElement('style');
       s.setAttribute('data-cms-langswitch-css', '');
-      s.textContent = ${JSON.stringify(ht)};
+      s.textContent = ${JSON.stringify(mt)};
       document.head.appendChild(s);
     }
     if (document.readyState !== 'loading') paint();
@@ -1094,7 +1116,7 @@ function ft(n) {
   } catch (e) {}
 })();`}<\/script>`;
 }
-async function yt(n, e) {
+async function bt(n, e) {
   const t = b(e.settings);
   we(t), ve(e.terms), Le(e.settings), N(e.posts, e.pages, e.terms, e.settings, t), A(e.posts, e.pages, e.terms, t, e.settings), await Se(e), await Te(e);
 }
@@ -1102,7 +1124,7 @@ async function se(n, e) {
   const t = b(e.settings);
   we(t), ve(e.terms), Le(e.settings), N(e.posts, e.pages, e.terms, e.settings, t), A(e.posts, e.pages, e.terms, t, e.settings), await Se(e), await Te(e);
 }
-async function bt() {
+async function wt() {
   try {
     const n = window, e = n == null ? void 0 : n.__AGENTCMS_LIVE_SETTINGS__;
     if (!e) return;
@@ -1116,25 +1138,26 @@ async function bt() {
   } catch {
   }
 }
-const Tt = {
+const xt = {
   id: "agentcms-multilang",
   name: "Multi-language",
-  version: "1.6.4",
+  version: "1.6.5",
   description: "Multi-language site support — translated posts/pages/terms, hreflang SEO, per-language sitemap entries, per-language RSS feeds.",
   author: "AgentCMS",
-  readme: Ne,
+  readme: Ae,
   i18n: { en: De, fr: ze },
   settings: {
     navLabelKey: "settings.title",
-    defaultConfig: H,
-    component: gt
+    defaultConfig: D,
+    component: dt,
+    schema: Ne
   },
   register(n) {
-    n.addFilter("publish.additional", async (e, t, a) => We(
+    n.addFilter("publish.additional", async (e, t, a) => Ke(
       e,
       t,
       a
-    )), n.addFilter("publish.extraListings", async (e, t) => Ke(
+    )), n.addFilter("publish.extraListings", async (e, t) => Xe(
       e,
       t
     )), n.addAction("publish.before", async (e, t) => {
@@ -1144,7 +1167,7 @@ const Tt = {
       const t = e, a = b(t.settings);
       N(t.posts, t.pages, t.terms, t.settings, a), A(t.posts, t.pages, t.terms, a, t.settings);
     }), n.addAction("publish.complete", async (e, t) => {
-      await yt(e, t);
+      await bt(e, t);
     }), n.addAction("post.unpublished", async (e, t) => {
       await se(e, t);
     }), n.addAction("post.deleted", async (e, t) => {
@@ -1152,14 +1175,14 @@ const Tt = {
     }), n.addFilter("page.head.extra", (e, ...t) => {
       const a = t[0];
       if (!(a != null && a.currentPath)) return e;
-      const s = je(a.currentPath);
+      const s = qe(a.currentPath);
       return s ? e + (e ? `
 ` : "") + s : e;
     }), n.addFilter("page.body.end", (e, ...t) => {
       var o;
       const a = t[0];
       if (!(a != null && a.currentPath) || !((o = a == null ? void 0 : a.site) != null && o.settings)) return e;
-      const s = b(a.site.settings), r = ft({
+      const s = b(a.site.settings), r = yt({
         config: s,
         settings: a.site.settings,
         currentPath: a.currentPath
@@ -1168,25 +1191,25 @@ const Tt = {
 ` : "") + r : e;
     }), n.addFilter(
       "sitemap.urlset.namespaces",
-      (e) => Xe(e)
+      (e) => Qe(e)
     ), n.addFilter("sitemap.url.entry", (e, ...t) => {
       const a = t[0];
-      return Qe(e, a);
+      return Ye(e, a);
     }), n.addFilter("sitemap.urls.extra", (e, ...t) => {
-      const a = t[0];
-      return Ye(
-        e,
-        a
-      );
-    }), n.addFilter("sitemap.index.extra", (e, ...t) => {
       const a = t[0];
       return Ze(
         e,
         a
       );
-    }), n.addFilter("sitemap.news.locales", (e, ...t) => {
+    }), n.addFilter("sitemap.index.extra", (e, ...t) => {
       const a = t[0];
       return et(
+        e,
+        a
+      );
+    }), n.addFilter("sitemap.news.locales", (e, ...t) => {
+      const a = t[0];
+      return tt(
         e,
         a
       );
@@ -1194,16 +1217,16 @@ const Tt = {
       const a = t[0];
       return a ? [
         ...e,
-        ...ot(a)
+        ...lt(a)
       ] : e;
-    }), n.registerEditorVariantProvider(pt), n.registerTermEditorSection({
+    }), n.registerEditorVariantProvider(ht), n.registerTermEditorSection({
       id: "agentcms-multilang/term-translations",
       termType: "all",
       priority: 50,
-      component: dt
-    }), bt();
+      component: pt
+    }), wt();
   }
 };
 export {
-  Tt as default
+  xt as default
 };

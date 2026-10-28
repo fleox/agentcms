@@ -211,11 +211,16 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
         const theme = findTheme(s, id);
         if (!theme.settings) throw new CliError("no-settings", `Theme ${theme.id} has no settings.`, undefined, 2);
         const defaults = theme.settings.defaultConfig as Record<string, unknown>;
-        if (req.mode === "schema") return { id: theme.id, defaultConfig: defaults, cssVariables: cssVariablesOf(theme.cssText) };
+        if (req.mode === "schema") {
+          const { describeSettings } = await import("../ops/configEdit");
+          return { id: theme.id, documented: !!theme.settings.schema, settings: describeSettings(defaults, theme.settings.schema), defaultConfig: defaults, cssVariables: cssVariablesOf(theme.cssText) };
+        }
         const prev = themeConfigOf(s, theme);
         if (req.mode === "get") return { id: theme.id, config: prev, stored: (s.settings().themeConfigs as Record<string, unknown> | undefined)?.[theme.id] ?? null };
-        const { deepMerge, shapeWarnings, changedKeys } = await import("../ops/configEdit");
+        const { deepMerge, shapeWarnings, changedKeys, schemaErrors } = await import("../ops/configEdit");
         let next = req.mode === "set" ? { ...req.value } : deepMerge(prev, req.value);
+        const invalid = schemaErrors(theme.settings.schema, next, prev);
+        if (invalid.length) throw new CliError("invalid-value", `${theme.id}: ${invalid.join(" ")}`, `See \`agentcms themes config ${theme.id} --schema\`.`, 2);
         const warnings = shapeWarnings(defaults, req.value, theme.id);
         const active = theme.id === s.settings().activeThemeId;
         if (!active) warnings.push(`${theme.id} is not the active theme (${s.settings().activeThemeId}): saved for when it is.`);
@@ -253,7 +258,11 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
         if (theme.id === "storefront" && next.catalog && changed.includes("catalog")) nextSteps.push(`agentcms regenerate storefront/catalog --site ${s.site.alias}`);
         return { id: theme.id, config: next, changed: changedKeys(prev, next), effects, warnings, next: active ? nextSteps : [] };
       }, (r) => {
-        if ("defaultConfig" in r) return JSON.stringify(r.defaultConfig, null, 2);
+        if ("settings" in r && Array.isArray(r.settings)) {
+          return r.settings
+            .map((f) => `${f.path} (${f.type}, default ${JSON.stringify(f.default)})${f.values ? ` — one of ${f.values.map((v) => JSON.stringify(v)).join(" | ")}` : ""}${f.format ? ` — ${f.format}` : ""}${f.description ? `\n    ${f.description}` : ""}`)
+            .join("\n");
+        }
         if (!("changed" in r) || !r.changed) return JSON.stringify(r.config, null, 2);
         return [`Saved ${r.id} (${r.changed.length ? r.changed.join(", ") : "no change"}).`, ...r.effects.map((e) => `  ${e}`), ...r.warnings.map((w) => `  warning: ${w}`), ...(r.next.length ? [`Pages pick up layout changes on the next regeneration: ${r.next.join(" ; ")}`] : [])].join("\n");
       });

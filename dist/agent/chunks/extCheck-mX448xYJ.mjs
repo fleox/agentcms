@@ -10,10 +10,11 @@ import { join } from "node:path";
 import { Script } from "node:vm";
 import { tryBlocks, blockTestMarkdown, blockOutput } from "./extBlocks-BM6tQ2F9.mjs";
 import { c as compareVersions } from "../agentcms.mjs";
-import { bootExtensionHost, importExtensionBundle, IMPORT_MAP_SPECIFIERS } from "./extHost-Dwc-imen.mjs";
+import { bootExtensionHost, importExtensionBundle, IMPORT_MAP_SPECIFIERS } from "./extHost-CLSmPEu2.mjs";
 import { bundleSource } from "./extPackage-4FSerswt.mjs";
-import { renderPreview } from "./extPreview-C05icqXI.mjs";
-import { listFiles } from "./extPreview-C05icqXI.mjs";
+import { renderPreview } from "./extPreview-BxukXkRS.mjs";
+import { listFiles } from "./extPreview-BxukXkRS.mjs";
+import { s as schemaErrors } from "./settingsSchema-CtnnDU72.mjs";
 import "node:util";
 import "node:url";
 import "node:child_process";
@@ -149,6 +150,20 @@ function checkI18nAndSettings(m, issues, namespace) {
   if (s.defaultConfig === void 0) issues.push({ level: "warn", code: "settings-default", message: "settings.defaultConfig is undefined — the page gets no config on a fresh site." });
   if (typeof s.navLabelKey === "string" && i18n?.en && getPath(i18n.en, s.navLabelKey) === void 0) {
     issues.push({ level: "warn", code: "settings-label-missing", message: `settings.navLabelKey "${s.navLabelKey}" is not in i18n.en — the menu shows the raw key.`, hint: `Namespace: "${namespace}".` });
+  }
+  if (s.schema !== void 0) {
+    const schema = s.schema;
+    if (typeof schema !== "object" || schema === null || Array.isArray(schema)) {
+      issues.push({ level: "error", code: "settings-schema", message: "settings.schema must be an object keyed by setting path." });
+    } else {
+      for (const [path, d] of Object.entries(schema)) {
+        if (!d || typeof d.description !== "string" || !d.description.trim()) issues.push({ level: "warn", code: "settings-schema-description", message: `settings.schema["${path}"] has no description.` });
+        if (d?.values !== void 0 && !Array.isArray(d.values)) issues.push({ level: "error", code: "settings-schema", message: `settings.schema["${path}"].values must be an array.` });
+      }
+      for (const e of schemaErrors(schema, s.defaultConfig)) {
+        issues.push({ level: "error", code: "settings-schema-default", message: `defaultConfig fails its own schema: ${e}`, hint: "Add the default to `values` (or widen min / max)." });
+      }
+    }
   }
 }
 function bundleImports(code) {

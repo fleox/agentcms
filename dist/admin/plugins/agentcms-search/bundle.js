@@ -1,8 +1,8 @@
-import { sha256Hex as j, uploadFile as N, markdownToPlainText as W, canonicalPath as Z, buildPostUrl as $, pickPublicLocale as V, i18n as C, useCmsData as X, formatDateTime as Y, toast as S, fetchAllPosts as z, updatePluginConfig as U } from "@agent-cms/runtime";
+import { sha256Hex as j, uploadFile as H, markdownToPlainText as W, canonicalPath as Z, buildPostUrl as $, pickPublicLocale as V, i18n as C, useCmsData as X, formatDateTime as Y, toast as T, fetchAllPosts as z, updatePluginConfig as U } from "@agent-cms/runtime";
 import { jsxs as l, jsx as s } from "react/jsx-runtime";
-import { forwardRef as O, createElement as E, useState as A, useEffect as ee } from "react";
+import { forwardRef as Q, createElement as E, useState as I, useEffect as ee } from "react";
 import { useTranslation as ne } from "react-i18next";
-const Q = {
+const O = {
   title: "Search",
   description: "Builds a public search-index.json over your posts (and optionally pages) and ships a runtime that opens a search modal anywhere a [data-cms-search] trigger appears in your theme.",
   regenerationTarget: {
@@ -361,7 +361,7 @@ const Q = {
     noResults: "결과 없음",
     dialogLabel: "검색"
   }
-}, T = {
+}, S = {
   indexExcerpt: !0,
   indexCategory: !0,
   indexTags: !1,
@@ -369,7 +369,7 @@ const Q = {
   excludedTermIds: [],
   minQueryLength: 2,
   maxResults: 20
-}, R = "agentcms-search", _ = "search-index.json", q = "search.js", H = `/*
+}, R = "agentcms-search", _ = "search-index.json", M = "search.js", N = `/*
  * agentcms-search runtime — public-site code.
  *
  * Auto-attaches to every \`[data-cms-search]\` element at DOMContentLoaded.
@@ -688,7 +688,7 @@ const Q = {
 })();
 `;
 function ce(t) {
-  const n = V(t), e = R, r = Q.runtime;
+  const n = V(t), e = R, r = O.runtime;
   return {
     placeholder: C.getResource(n, e, "runtime.placeholder") ?? r.placeholder,
     close: C.getResource(n, e, "runtime.close") ?? r.close,
@@ -756,8 +756,8 @@ async function de(t) {
     terms: t.terms,
     settings: t.settings,
     config: t.config
-  }), e = await D(n), r = { ...T, ...t.config };
-  return r.lastIndexHash === e ? { nextConfig: r, uploaded: !1 } : (await N({
+  }), e = await D(n), r = { ...S, ...t.config };
+  return r.lastIndexHash === e ? { nextConfig: r, uploaded: !1 } : (await H({
     path: _,
     content: JSON.stringify(n),
     encoding: "utf-8"
@@ -767,10 +767,10 @@ async function de(t) {
   });
 }
 async function ue(t) {
-  const n = await j(H), e = { ...T, ...t };
-  return e.lastRuntimeHash === n ? { nextConfig: e, uploaded: !1 } : (await N({
-    path: q,
-    content: H,
+  const n = await j(N), e = { ...S, ...t };
+  return e.lastRuntimeHash === n ? { nextConfig: e, uploaded: !1 } : (await H({
+    path: M,
+    content: N,
     encoding: "utf-8"
   }), { nextConfig: { ...e, lastRuntimeHash: n }, uploaded: !0 });
 }
@@ -781,18 +781,18 @@ async function F(t) {
     terms: t.terms,
     settings: t.settings,
     config: t.config
-  }), e = await D(n), r = await j(H);
-  return await N({
+  }), e = await D(n), r = await j(N);
+  return await H({
     path: _,
     content: JSON.stringify(n),
     encoding: "utf-8"
-  }), await N({
-    path: q,
-    content: H,
+  }), await H({
+    path: M,
+    content: N,
     encoding: "utf-8"
   }), {
     nextConfig: {
-      ...T,
+      ...S,
       ...t.config,
       lastIndexHash: e,
       lastRuntimeHash: r,
@@ -831,7 +831,7 @@ var me = {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ge = O(
+const ge = Q(
   ({
     color: t = "currentColor",
     size: n = 24,
@@ -865,8 +865,8 @@ const ge = O(
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const M = (t, n) => {
-  const e = O(
+const q = (t, n) => {
+  const e = Q(
     ({ className: r, ...d }, u) => E(ge, {
       ref: u,
       iconNode: n,
@@ -882,7 +882,7 @@ const M = (t, n) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const B = M("LoaderCircle", [
+const B = q("LoaderCircle", [
   ["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]
 ]);
 /**
@@ -891,7 +891,7 @@ const B = M("LoaderCircle", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const pe = M("RefreshCw", [
+const pe = q("RefreshCw", [
   ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
   ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
   ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
@@ -903,7 +903,7 @@ const pe = M("RefreshCw", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const xe = M("Save", [
+const xe = q("Save", [
   [
     "path",
     {
@@ -918,9 +918,9 @@ function fe({
   config: t,
   save: n
 }) {
-  const { t: e, i18n: r } = ne("agentcms-search"), { settings: d, terms: u, categories: k } = X(), b = r.resolvedLanguage ?? r.language, [c, v] = A(t);
+  const { t: e, i18n: r } = ne("agentcms-search"), { settings: d, terms: u, categories: k } = X(), b = r.resolvedLanguage ?? r.language, [c, v] = I(t);
   ee(() => v(t), [t]);
-  const [y, i] = A(!1), [h, f] = A(!1);
+  const [y, i] = I(!1), [h, f] = I(!1);
   function m(a) {
     v((o) => ({ ...o, ...a }));
   }
@@ -931,16 +931,16 @@ function fe({
   async function w() {
     i(!0);
     try {
-      await n(c), S.success(e("actions.saved"));
+      await n(c), T.success(e("actions.saved"));
     } catch (a) {
-      console.error("[agentcms-search] save failed:", a), S.error(e("actions.failed"));
+      console.error("[agentcms-search] save failed:", a), T.error(e("actions.failed"));
     } finally {
       i(!1);
     }
   }
   async function p() {
     if (!d.baseUrl) {
-      S.error(e("baseUrlMissing"));
+      T.error(e("baseUrlMissing"));
       return;
     }
     f(!0);
@@ -955,9 +955,9 @@ function fe({
         settings: d,
         config: c
       });
-      await n(x.nextConfig), v(x.nextConfig), S.success(e("actions.regenerated"));
+      await n(x.nextConfig), v(x.nextConfig), T.success(e("actions.regenerated"));
     } catch (a) {
-      console.error("[agentcms-search] regeneration failed:", a), S.error(e("actions.failed"));
+      console.error("[agentcms-search] regeneration failed:", a), T.error(e("actions.failed"));
     } finally {
       f(!1);
     }
@@ -1110,7 +1110,31 @@ function fe({
     ] })
   ] });
 }
-const be = `# Search
+const be = {
+  indexExcerpt: {
+    description: "Index each entry's excerpt (or the first 200 characters of its body when it has none) in /search-index.json, besides the title (always indexed)."
+  },
+  indexCategory: { description: "Index each post's category name, so searching a category finds its posts." },
+  indexTags: { description: "Index each post's tag names." },
+  includePages: { description: "Index online static pages too, not only posts." },
+  excludedTermIds: {
+    description: "Posts whose primary category is in this list are left out of the index: an array of category term ids (see `agentcms terms list --type category`). Empty = no exclusion.",
+    format: "array of category ids"
+  },
+  minQueryLength: {
+    description: "Characters a visitor must type before the search modal shows results.",
+    min: 1,
+    max: 10
+  },
+  maxResults: {
+    description: "Maximum number of results the search modal shows at once.",
+    min: 1,
+    max: 100
+  },
+  lastIndexHash: { description: "Managed by the plugin — don't set. Hash of the last uploaded search-index.json." },
+  lastRuntimeHash: { description: "Managed by the plugin — don't set. Hash of the last uploaded /search.js." },
+  lastIndexedAt: { description: "Managed by the plugin — don't set. Time (epoch ms) of the last index upload." }
+}, ye = `# Search
 
 A theme-agnostic search plugin for AgentCMS. Builds a static
 \`/search-index.json\` over your published content and ships a tiny
@@ -1222,9 +1246,9 @@ themselves.
 `;
 function J(t) {
   const n = (t.pluginConfigs ?? {})[R];
-  return { ...T, ...n ?? {} };
+  return { ...S, ...n ?? {} };
 }
-async function I(t, n) {
+async function A(t, n) {
   if (!n.settings.baseUrl) {
     console.warn("[agentcms-search] skipping regeneration — baseUrl not configured");
     return;
@@ -1245,29 +1269,30 @@ async function I(t, n) {
     console.error("[agentcms-search] regeneration failed:", r);
   }
 }
-const Re = {
+const Le = {
   id: R,
   name: "Search",
-  version: "1.0.1",
+  version: "1.0.2",
   author: "AgentCMS",
   description: "Generates /search-index.json + a search runtime that opens a modal anywhere a [data-cms-search] trigger is present in your theme.",
-  readme: be,
-  i18n: { en: Q, fr: te, de: ae, es: se, nl: re, pt: ie, ko: oe },
+  readme: ye,
+  i18n: { en: O, fr: te, de: ae, es: se, nl: re, pt: ie, ko: oe },
   settings: {
     navLabelKey: "title",
-    defaultConfig: T,
-    component: fe
+    defaultConfig: S,
+    component: fe,
+    schema: be
   },
   register(t) {
     t.addAction("publish.complete", async (n, e) => {
-      await I(n, e);
+      await A(n, e);
     }), t.addAction("post.unpublished", async (n, e) => {
-      await I(n, e);
+      await A(n, e);
     }), t.addAction("post.deleted", async (n, e) => {
-      await I(n, e);
+      await A(n, e);
     }), t.addFilter("page.body.end", (n, ...e) => {
       e[0];
-      const r = `<script src="/${q}" defer><\/script>`;
+      const r = `<script src="/${M}" defer><\/script>`;
       return [n, r].filter(Boolean).join("");
     }), t.registerRegenerationTarget({
       id: R,
@@ -1294,5 +1319,5 @@ const Re = {
   }
 };
 export {
-  Re as manifest
+  Le as manifest
 };

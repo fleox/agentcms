@@ -5,7 +5,8 @@ const require2 = __acmsRequire(import.meta.url);
 const __filename = __acmsPath(import.meta.url);
 const __dirname = __acmsDirname(__filename);
 import { C as CliError } from "../agentcms.mjs";
-import { readJsonOption } from "./adminCommon-CGdeqgJv.mjs";
+import { readJsonOption } from "./adminCommon-BosiodJN.mjs";
+import { d as describeSettings, s as schemaErrors } from "./settingsSchema-CtnnDU72.mjs";
 import "node:util";
 import "node:fs";
 import "node:path";
@@ -13,8 +14,8 @@ import "node:url";
 import "node:os";
 import "node:child_process";
 import "node:http";
-import "./session-CLpEyAwA.mjs";
-import "./extHost-Dwc-imen.mjs";
+import "./session-C5Os0asS.mjs";
+import "./extHost-CLSmPEu2.mjs";
 import "node:module";
 function isPlainObject(v) {
   return typeof v === "object" && v !== null && !Array.isArray(v);
@@ -64,6 +65,8 @@ function changedKeys(before, after) {
 export {
   changedKeys,
   deepMerge,
+  describeSettings,
   readConfigRequest,
+  schemaErrors,
   shapeWarnings
 };

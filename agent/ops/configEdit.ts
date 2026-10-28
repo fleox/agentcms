@@ -65,3 +65,7 @@ export function changedKeys(before: unknown, after: unknown): string[] {
   const b = isPlainObject(after) ? after : {};
   return [...new Set([...Object.keys(a), ...Object.keys(b)])].filter((k) => JSON.stringify(a[k]) !== JSON.stringify(b[k]));
 }
+
+// --schema rows and value checks live in settingsSchema.ts (also used by
+// ext check, without this module's CLI dependencies).
+export { describeSettings, schemaErrors, type SettingField } from "./settingsSchema";

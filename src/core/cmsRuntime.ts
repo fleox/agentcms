@@ -39,6 +39,8 @@ export type {
   Post,
   PostStatus,
   PostType,
+  SettingDoc,
+  SettingsSchema,
   SiteSettings,
   SocialNetwork,
   Term,
@@ -294,7 +296,11 @@ declare global {
 // Also covers the publish.before(post, ctx) / regenerate.listings.before
 // / sitemap.news.locales hooks shipped during 1.3.x. Backwards
 // compatible — every 1.3.x bundle still loads.
-export const CMS_API_VERSION = "1.4.0";
+// 1.5.0 — settings documentation: optional `settings.schema`
+// (SettingsSchema) on plugin and theme manifests, read by
+// `agentcms plugins|themes config <id> --schema`. Backwards
+// compatible — every 1.4.x bundle still loads.
+export const CMS_API_VERSION = "1.5.0";
 export const CMS_API_MIN_VERSION = "1.0.0";
 
 // Snapshot of the public runtime API. Each named property is

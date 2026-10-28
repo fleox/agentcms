@@ -13,6 +13,7 @@ import {
   regenerateForPost,
 } from "./generator";
 import { ArchivesSettingsPage } from "./SettingsPage";
+import { SETTINGS_SCHEMA } from "./settingsSchema";
 import readme from "./README.md?raw";
 
 // Lifecycle hook handler. Called from publish.complete /
@@ -42,7 +43,7 @@ async function regenerate(post: Post, ctx: PublishContext): Promise<void> {
 export const manifest: PluginManifest<ArchivesConfig> = {
   id: PLUGIN_ID,
   name: "Archives",
-  version: "1.0.1",
+  version: "1.0.2",
   author: "AgentCMS",
   description:
     "Generates static archive pages grouped by year (and optionally month or ISO week) and adds a 'See full archives' link to home / category listings — a static-friendly alternative to pagination.",
@@ -52,6 +53,7 @@ export const manifest: PluginManifest<ArchivesConfig> = {
     navLabelKey: "title",
     defaultConfig: DEFAULT_ARCHIVES_CONFIG,
     component: ArchivesSettingsPage,
+    schema: SETTINGS_SCHEMA,
   },
   register(api) {
     api.addAction("publish.complete", async (postRaw, ctxRaw) => {

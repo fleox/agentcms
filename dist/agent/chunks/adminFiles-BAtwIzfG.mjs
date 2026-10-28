@@ -69,7 +69,7 @@ async function loadBundledPluginManifests(skip = /* @__PURE__ */ new Set()) {
   const { existsSync, readFileSync } = await import("node:fs");
   const { join } = await import("node:path");
   const { distRoot } = await import("../agentcms.mjs").then((n) => n.x);
-  const { importExtensionBundle } = await import("./extHost-Dwc-imen.mjs");
+  const { importExtensionBundle } = await import("./extHost-CLSmPEu2.mjs");
   const root = join(distRoot(), "admin");
   const file = join(root, "external.default.json");
   if (!existsSync(file)) return [];

@@ -329,3 +329,18 @@ export interface EditorStyle {
 }
 
 export type AdminTheme = "dark" | "light";
+
+// Documentation of a plugin's or theme's settings (API ≥ 1.5), read by
+// agents through `agentcms plugins|themes config <id> --schema`: one entry
+// per setting, keyed by its dot path in the config ("home.variant"). An
+// entry on an object path ("style.vars") documents the whole map.
+export interface SettingDoc {
+  description: string;
+  // Closed list of accepted values (the CLI refuses any other).
+  values?: ReadonlyArray<string | number | boolean>;
+  min?: number;
+  max?: number;
+  // Expected format of a free value: "hex color", "CSS length", "page id", "URL"…
+  format?: string;
+}
+export type SettingsSchema = Record<string, SettingDoc>;

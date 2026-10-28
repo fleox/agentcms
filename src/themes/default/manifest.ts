@@ -19,6 +19,7 @@ import jsTextPosts from "./posts-loader.js?raw";
 import { en, fr, de, es, nl, pt, ko } from "./i18n";
 import { DEFAULT_THEME_CONFIG, type DefaultThemeConfig } from "./config";
 import { DefaultThemeSettingsPage } from "./SettingsPage";
+import { SETTINGS_SCHEMA } from "./settingsSchema";
 import { buildCustomCss } from "./style";
 import { heroBlock } from "./blocks/hero/manifest";
 import { postsListBlock } from "./blocks/postsList/manifest";
@@ -42,6 +43,7 @@ export const manifest: ThemeManifest<DefaultThemeConfig> = {
     navLabelKey: "title",
     defaultConfig: DEFAULT_THEME_CONFIG,
     component: DefaultThemeSettingsPage,
+    schema: SETTINGS_SCHEMA,
   },
   // Bakes the user's Style overrides (color palette, fonts, spacing,
   // radius) into the CSS uploaded by `Sync theme assets`. Without

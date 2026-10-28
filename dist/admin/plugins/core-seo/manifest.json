@@ -2,6 +2,6 @@
   "id": "core-seo",
   "name": "Core SEO",
   "version": "1.0.0",
-  "apiVersion": "1.4.0",
+  "apiVersion": "1.5.0",
   "entry": "bundle.js"
 }

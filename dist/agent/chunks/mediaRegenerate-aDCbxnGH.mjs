@@ -8,7 +8,7 @@ import { ADMIN_FORMATS } from "./imageFormats-C1E7toWk.mjs";
 import { e as extensionForMime, p as processImage, b as blobToBase64, m as mergeFormats } from "./themeLogo-DZLpUhvn.mjs";
 import { u as uploadFile, p as publicUrlFor } from "./siteFiles-D207OaeL.mjs";
 import { c as getActiveStorageConnector } from "./registry-B41SEnnT.mjs";
-import { s as setMediaFormats, g as getActiveTheme } from "./media-x49mFUWY.mjs";
+import { s as setMediaFormats, g as getActiveTheme } from "./media-DXyPyMZf.mjs";
 import "./index-BA9sR5p-.mjs";
 import "./index-DCzLoAau.mjs";
 import "./toast-CYyyaSAW.mjs";

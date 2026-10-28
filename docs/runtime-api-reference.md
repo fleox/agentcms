@@ -28,7 +28,7 @@ Everything else (`@tiptap/*`, `lucide-react`, `react-dom/server`, `react/jsx-dev
 
 ## Versions
 
-`manifest.json`'s `apiVersion` must be within `[CMS_API_MIN_VERSION, CMS_API_VERSION]` (exported constants) — currently `[1.0.0, 1.4.0]` — or the admin refuses the install and skips the bundle at boot. Declare the **lowest** version that has everything you use:
+`manifest.json`'s `apiVersion` must be within `[CMS_API_MIN_VERSION, CMS_API_VERSION]` (exported constants) — currently `[1.0.0, 1.5.0]` — or the admin refuses the install and skips the bundle at boot. Declare the **lowest** version that has everything you use:
 
 | API | Adds |
 |---|---|
@@ -37,6 +37,7 @@ Everything else (`@tiptap/*`, `lucide-react`, `react-dom/server`, `react/jsx-dev
 | 1.2.0 | `applyFilters` / `applyFiltersSync` / `doAction` exports, `updateTerm` / `deleteTerm`, inspector tabs, term editor sections, `translations` fields, `publish.additional` / `publish.extraListings`, sitemap filters, `currentLocale`, `buildRssFeedXml` |
 | 1.3.0 | `registerEditorVariantProvider` |
 | 1.4.0 | publish connectors (site files routed to the active target, `getStorageCapabilities`, `withStorageBatch`, `StorageError`, `registerStorageConnector`), `basePathFromBaseUrl` / `withBasePath`, `publish.before(post, ctx)`, `regenerate.listings.before`, `sitemap.news.locales` |
+| 1.5.0 | `settings.schema` (`SettingsSchema` / `SettingDoc`) on plugin and theme manifests: documents each setting for `agentcms … config <id> --schema` |
 
 The loader does not gate features by `apiVersion`; an older admin simply lacks the function (`api.registerEditorVariantProvider` is `undefined` before 1.3).
 
@@ -106,7 +107,7 @@ One line per group — signatures in the type file.
 - **Site files** (the active publish target): `uploadFile({ path, content, encoding? })`, `deleteFile`, `deleteFolder`, `renameFile`, `renameFolder`, `createFolder`, `getFile` (text, throws a 404 `StorageError`), `listFiles`, `publicUrlFor` (async), `fileToBase64`, `getStorageCapabilities` (async: `list`, `rename`, `folders`, `deletePrefix`, `connectorId`, `model`), `withStorageBatch` (one commit; scopes nest; commits even if `fn` throws), `StorageError` (`status`, `501` = unsupported). Paths have no leading slash.
 - **Data** (the active backend): `fetchAllPosts({ type })`, `createPost`, `updatePost` (can't change status / publish bookkeeping), `uploadMedia(file, userId, settings)` (pass `settings` so the active theme's formats are used), `createTerm`, `updateTerm`, `deleteTerm`, `buildAuthorLookup`.
 - **Publisher**: `publishPost`, `buildPublishContext`, `buildSiteContext`, `renderHome`, `publishMenuJson` (always `data/menu.json`), `publishPostsJson` / `publishAuthorsJson` (optional path override), `publishProductsJson`, `deleteProductsJson`. Unpublish / delete / regenerate-all are not exported.
-- **Settings**: `updatePluginConfig(id, config)`, `updateThemeConfig(id, config)` — always the full config.
+- **Settings**: `updatePluginConfig(id, config)`, `updateThemeConfig(id, config)` — always the full config. Types `SettingsSchema` / `SettingDoc` (API 1.5) for `settings.schema`: `{ "<dot path>": { description, values?, min?, max?, format? } }`, shown by `agentcms plugins|themes config <id> --schema`; the CLI refuses values outside `values` / `min`–`max`.
 - **Admin UI**: `useCmsData`, `useAuth`, `useAllPosts`, `toast`, `MediaPicker`, `EntityCombobox`, `FontSelect`, `cn`, `formatDateTime`, `sha256Hex`, `i18n` (`getFixedT`, `getResource`, …), `pickPublicLocale`, `setActiveLocale` (admin language — not for publish code).
 - **Themes**: `getActiveTheme`, `getCurrentPublishContext` (non-null only during `post.markdown.before` / `post.html.body`), `logoPath`, `uploadThemeLogo`, `removeThemeLogo`.
 

@@ -194,6 +194,7 @@ const manifest: PluginManifest<Config> = {
 export default manifest;
 ```
 
+- Optional `settings.schema` (API ≥ 1.5): `{ "<dot path>": { description, values?, min?, max?, format? } }` documents each setting for AI agents (`agentcms plugins config <id> --schema`); the CLI refuses values outside `values` / `min`–`max`.
 - The page lives at `#/settings/plugin/<id>` (a tab of Settings). `config` = `{ ...defaultConfig, ...stored }` — a **shallow** merge: deep-merge nested defaults yourself when you add nested keys in a new version.
 - `save(next)` stores `settings.pluginConfigs[<id>]`. Always pass the **whole** config: the document-store backends replace the entry (a partial object wipes other keys), Firebase deep-merges (a removed key stays — clear values with `""` / `null`).
 - Save on an explicit action, not on every keystroke: on a git-backed site every save is a commit, and every save re-runs every plugin's `register`.

@@ -13,6 +13,7 @@ import {
   type SitemapsConfig,
 } from "./generator";
 import { SitemapsSettingsPage } from "./SettingsPage";
+import { SETTINGS_SCHEMA } from "./settingsSchema";
 import readme from "./README.md?raw";
 
 // Reads the plugin's effective config out of the publish context's settings.
@@ -53,7 +54,7 @@ async function regenerate(post: Post, ctx: PublishContext): Promise<void> {
 export const manifest: PluginManifest<SitemapsConfig> = {
   id: "agentcms-sitemaps",
   name: "Sitemaps",
-  version: "1.0.1",
+  version: "1.0.2",
   author: "AgentCMS",
   description:
     "Generates sitemap-index.xml, per-year sitemaps, an optional Google News sitemap, and a robots.txt that points to them.",
@@ -63,6 +64,7 @@ export const manifest: PluginManifest<SitemapsConfig> = {
     navLabelKey: "title",
     defaultConfig: DEFAULT_SITEMAPS_CONFIG,
     component: SitemapsSettingsPage,
+    schema: SETTINGS_SCHEMA,
   },
   register(api) {
     // All three lifecycle events drive the same regeneration. The publisher

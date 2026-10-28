@@ -7,7 +7,7 @@ const __dirname = __acmsDirname(__filename);
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { C as CliError, b as readVersionInfo } from "../agentcms.mjs";
-import { ID_PATTERN } from "./extCheck-DebcAHs3.mjs";
+import { ID_PATTERN } from "./extCheck-mX448xYJ.mjs";
 import "node:util";
 import "node:url";
 import "node:os";
@@ -15,7 +15,7 @@ import "node:child_process";
 import "node:http";
 import "node:vm";
 import "./extBlocks-BM6tQ2F9.mjs";
-import "./extHost-Dwc-imen.mjs";
+import "./extHost-CLSmPEu2.mjs";
 import "node:module";
 import "./extPackage-4FSerswt.mjs";
 import "./index-K8rfbNOg.mjs";
@@ -24,8 +24,9 @@ import "stream";
 import "events";
 import "buffer";
 import "util";
-import "./extPreview-C05icqXI.mjs";
+import "./extPreview-BxukXkRS.mjs";
 import "node:crypto";
+import "./settingsSchema-CtnnDU72.mjs";
 const PLUGIN_FEATURES = ["settings", "block", "i18n", "dashboard-card"];
 const THEME_FEATURES = ["settings", "block"];
 const DEV_DEPS = {
@@ -222,11 +223,12 @@ function pluginFiles(c) {
   const register = [];
   const configType = `${camel(c.id).charAt(0).toUpperCase() + camel(c.id).slice(1)}Config`;
   if (c.has("settings")) {
-    imports.push(`import { SettingsPage } from "./SettingsPage";`, `import { DEFAULT_CONFIG, type ${configType} } from "./config";`);
+    imports.push(`import { SettingsPage } from "./SettingsPage";`, `import { DEFAULT_CONFIG, SETTINGS_SCHEMA, type ${configType} } from "./config";`);
     fields.push(`  settings: {
     navLabelKey: "settings.navLabel",
     defaultConfig: DEFAULT_CONFIG,
     component: SettingsPage,
+    schema: SETTINGS_SCHEMA,
   },`);
   }
   if (c.has("i18n") || c.has("settings") || c.has("block") || c.has("dashboard-card")) {
@@ -294,6 +296,8 @@ export default manifest;
 `;
   if (c.has("settings")) {
     files["src/config.ts"] = `// Stored by the admin under settings.pluginConfigs["${c.id}"].
+import type { SettingsSchema } from "@agent-cms/runtime";
+
 export interface ${configType} {
   enabled: boolean;
   message: string;
@@ -302,6 +306,13 @@ export interface ${configType} {
 export const DEFAULT_CONFIG: ${configType} = {
   enabled: true,
   message: "Hello from ${c.name}",
+};
+
+// What each setting does, for agents: \`agentcms plugins config ${c.id} --schema\`
+// (closed lists in \`values\` are enforced on --set / --merge).
+export const SETTINGS_SCHEMA: SettingsSchema = {
+  enabled: { description: 'Adds the <meta name="${c.id}"> tag to every published page.' },
+  message: { description: "Content of the meta tag." },
 };
 `;
     files["src/SettingsPage.tsx"] = settingsPage(c, configType, "plugin");
@@ -634,7 +645,7 @@ import { CategoryTemplate } from "./templates/CategoryTemplate";
 import { AuthorTemplate } from "./templates/AuthorTemplate";
 import { NotFoundTemplate } from "./templates/NotFoundTemplate";
 ${settings ? `import { SettingsPage } from "./SettingsPage";
-import { DEFAULT_CONFIG, compileCss, type ThemeConfig } from "./config";
+import { DEFAULT_CONFIG, SETTINGS_SCHEMA, compileCss, type ThemeConfig } from "./config";
 ` : ""}import { i18n } from "./i18n";
 ${block ? `import { calloutBlock, renderCallouts } from "./callout";
 ` : ""}
@@ -674,7 +685,7 @@ const manifest: ThemeManifest${settings ? "<ThemeConfig>" : ""} & { readme?: str
     notFound: NotFoundTemplate,
   },
 ${settings ? `  // /theme-settings page; the saved config is baked into the uploaded CSS.
-  settings: { navLabelKey: "settings.navLabel", defaultConfig: DEFAULT_CONFIG, component: SettingsPage },
+  settings: { navLabelKey: "settings.navLabel", defaultConfig: DEFAULT_CONFIG, component: SettingsPage, schema: SETTINGS_SCHEMA },
   compileCss: (config) => compileCss(cssText, config),
 ` : ""}  // Translations, namespace "theme-${c.id}" (admin UI + public labels).
   i18n,
@@ -1052,12 +1063,22 @@ export function NotFoundTemplate({ site, message }: NotFoundTemplateProps & { si
   files["src/theme.css"] = themeCss(p);
   if (settings) {
     files["src/config.ts"] = `// Stored by the admin under settings.themeConfigs["${c.id}"].
+import type { SettingsSchema } from "@agent-cms/runtime";
+
 export interface ThemeConfig {
   colors: { accent: string; background: string; text: string };
 }
 
 export const DEFAULT_CONFIG: ThemeConfig = {
   colors: { accent: "#2563eb", background: "#ffffff", text: "#111827" },
+};
+
+// What each setting does, for agents: \`agentcms themes config ${c.id} --schema\`
+// (closed lists in \`values\` are enforced on --set / --merge).
+export const SETTINGS_SCHEMA: SettingsSchema = {
+  "colors.accent": { description: "Links, buttons and highlights.", format: "hex color" },
+  "colors.background": { description: "Page background.", format: "hex color" },
+  "colors.text": { description: "Body text.", format: "hex color" },
 };
 
 // Called every time theme-assets/${c.id}.css is uploaded (Sync theme

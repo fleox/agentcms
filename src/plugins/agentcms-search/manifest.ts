@@ -14,6 +14,7 @@ import {
 } from "./config";
 import { ensureRuntime, regenerateAll, regenerateIndex } from "./generator";
 import { SearchSettingsPage } from "./SettingsPage";
+import { SETTINGS_SCHEMA } from "./settingsSchema";
 import readme from "./README.md?raw";
 
 // Resolves the live config from a publish-time context. Falls back to
@@ -59,7 +60,7 @@ async function regenerate(_post: Post, ctx: PublishContext): Promise<void> {
 export const manifest: PluginManifest<SearchConfig> = {
   id: PLUGIN_ID,
   name: "Search",
-  version: "1.0.1",
+  version: "1.0.2",
   author: "AgentCMS",
   description:
     "Generates /search-index.json + a search runtime that opens a modal anywhere a [data-cms-search] trigger is present in your theme.",
@@ -69,6 +70,7 @@ export const manifest: PluginManifest<SearchConfig> = {
     navLabelKey: "title",
     defaultConfig: DEFAULT_SEARCH_CONFIG,
     component: SearchSettingsPage,
+    schema: SETTINGS_SCHEMA,
   },
   register(api) {
     // Lifecycle: keep search-index.json in sync with every corpus

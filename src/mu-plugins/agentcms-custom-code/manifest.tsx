@@ -6,6 +6,7 @@ import {
   DEFAULT_CUSTOM_CODE_CONFIG,
   type CustomCodeConfig,
 } from "./SettingsPage";
+import { SETTINGS_SCHEMA } from "./settingsSchema";
 import readme from "./README.md?raw";
 
 const PLUGIN_ID = "agentcms-custom-code";
@@ -33,6 +34,7 @@ export const manifest: PluginManifest<CustomCodeConfig> = {
     navLabelKey: "title",
     defaultConfig: DEFAULT_CUSTOM_CODE_CONFIG,
     component: CustomCodeSettingsPage,
+    schema: SETTINGS_SCHEMA,
   },
   register(api) {
     // page.head.extra runs synchronously inside renderPageToHtml,
