@@ -57,13 +57,13 @@ There is no gallery block: put several images one after the other, or in a `colu
 Blocks are stored in the Markdown as HTML markers: empty `<div>`s turned into real HTML when the page is published. The available blocks depend on the site's plugins and active theme:
 
 ```bash
-npx -y @agent-cms/agentcms@0.3.0 content blocks --site <alias> --json
+npx -y @agent-cms/agentcms@0.3.1 content blocks --site <alias> --json
 ```
 
 It returns, for each block, the exact `markdown` to paste in a body and its default `attrs` (decoded). To fill a block with your own values:
 
 ```bash
-npx -y @agent-cms/agentcms@0.3.0 content blocks <block id> --attrs '{"headline":"…","body":"…"}' --site <alias> --json
+npx -y @agent-cms/agentcms@0.3.1 content blocks <block id> --attrs '{"headline":"…","body":"…"}' --site <alias> --json
 ```
 
 This prints the marker with your attributes encoded (base64 JSON in `data-attrs`). Put each marker on its own lines, with a blank line before and after.
