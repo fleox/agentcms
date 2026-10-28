@@ -1,7 +1,7 @@
 ---
 name: agentcms-manage
 description: "Check, repair and update existing AgentCMS sites - list the sites this computer manages, register one installed elsewhere, check their health (admin, theme assets, config.js, GitHub Pages, credentials), detect when a newer AgentCMS release or newer skills exist, and offer to update hosted admins. Use when the user asks about one of their AgentCMS / AgentCMS sites, says something is broken, or wants to update."
-version: 0.3.2
+version: 0.3.3
 author: AgentCMS
 license: PolyForm-Noncommercial-1.0.0
 platforms: [macos, linux, windows]
