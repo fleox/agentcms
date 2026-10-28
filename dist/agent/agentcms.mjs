@@ -32,6 +32,9 @@ function printResult(io, data, human) {
   else io.out(human());
 }
 function knownError(error) {
+  if (error instanceof Error && error.name === "DocConflictError") {
+    return new CliError("conflict", `The content changed elsewhere while this command ran (${error.collection ?? "?"}/${error.id ?? "?"}); nothing of this write was saved.`, "Run the same command again (it reloads the latest content). Happens when another editor, agent or a deploy commit to the same repository wrote at the same time.");
+  }
   if (error instanceof Error && error.name === "SqlitePassphraseError") {
     const reason = error.reason;
     return reason === "missing" ? new CliError("passphrase-required", "This database is encrypted and the site has no passphrase credential.", "Store it (`! agentcms credentials set passphrase:<alias>`), then register the site with `--passphrase-credential passphrase:<alias>` (`site forget` + `site add`, or `site credentials`).") : new CliError("passphrase-wrong", "Wrong passphrase: the database could not be decrypted.", "Store the right one: `! agentcms credentials set <the site's passphrase account>` (see `site show`).");
@@ -2394,8 +2397,8 @@ async function run$a({ io, options, positionals }) {
         for (const r of republished) r.path = after.find((x) => x.id === r.id)?.lastPublishedPath ?? null;
         const next = [];
         const rootBound = p.moveTo ? [] : p.changes.filter((c) => c.post.status === "online" && c.primary);
-        if (rootBound.length) next.push(`Run \`agentcms regenerate repair\` — ${rootBound.length} online post(s) lost their category, so their URL changes.`);
-        if (!p.moveTo || !online.length) next.push(`Run \`agentcms regenerate everything\` so the archives, listings and plugin files (sitemaps, RSS feeds, search index) stop listing the deleted ${p.term.type}.`);
+        if (rootBound.length) next.push(`Run \`agentcms regenerate repair --site ${s.site.alias}\` — ${rootBound.length} online post(s) lost their category, so their URL changes.`);
+        if (!p.moveTo || !online.length) next.push(`Run \`agentcms regenerate everything --site ${s.site.alias}\` so the archives, listings and plugin files (sitemaps, RSS feeds, search index) stop listing the deleted ${p.term.type}.`);
         next.push(...menuHints(s.site.alias, p, menuItems));
         if (p.archivePath && !archiveRemoved) next.push(`${p.archivePath} is still published (re-run with --remove-archive, or delete it by hand).`);
         const moves = p.moveTo ? pathMoves(before, after) : rootBound.filter((c) => c.to && c.to !== c.post.lastPublishedPath).map((c) => ({ from: c.post.lastPublishedPath, to: c.to }));
@@ -4939,7 +4942,7 @@ const optionsCommand = {
   ],
   async run({ io, options }) {
     if (options["firebase-rules"]) {
-      const { firestoreRules } = await import("./chunks/firestoreRules-DyI9VR01.mjs");
+      const { firestoreRules } = await import("./chunks/firestoreRules-Cx95dsqP.mjs");
       const email = String(options["firebase-rules"]);
       const rules = firestoreRules(email);
       printResult(io, { email, rules, where: "Firebase console → Firestore Database → Rules → paste → Publish (or `firebase deploy --only firestore:rules` with the rules in firestore.rules)." }, () => rules);

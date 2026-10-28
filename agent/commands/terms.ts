@@ -454,8 +454,8 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
         // Posts whose primary category is gone move to the root on the
         // next repair (with or without --detach).
         const rootBound = p.moveTo ? [] : p.changes.filter((c) => c.post.status === "online" && c.primary);
-        if (rootBound.length) next.push(`Run \`agentcms regenerate repair\` — ${rootBound.length} online post(s) lost their category, so their URL changes.`);
-        if (!p.moveTo || !online.length) next.push(`Run \`agentcms regenerate everything\` so the archives, listings and plugin files (sitemaps, RSS feeds, search index) stop listing the deleted ${p.term.type}.`);
+        if (rootBound.length) next.push(`Run \`agentcms regenerate repair --site ${s.site.alias}\` — ${rootBound.length} online post(s) lost their category, so their URL changes.`);
+        if (!p.moveTo || !online.length) next.push(`Run \`agentcms regenerate everything --site ${s.site.alias}\` so the archives, listings and plugin files (sitemaps, RSS feeds, search index) stop listing the deleted ${p.term.type}.`);
         next.push(...menuHints(s.site.alias, p, menuItems));
         if (p.archivePath && !archiveRemoved) next.push(`${p.archivePath} is still published (re-run with --remove-archive, or delete it by hand).`);
         // Links stored in configs to the archive or the moved posts.

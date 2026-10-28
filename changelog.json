@@ -2,6 +2,17 @@
   "$comment": "Newest first. Read by agents (agentcms status) to tell users what changed and what to run. `breaking`: an older admin, skill or site setup stops working without action. `actions`: steps a hosted site needs after updating — deploy-admin, regenerate-all, sync-theme-assets. Keep every entry in English.",
   "versions": [
     {
+      "version": "0.3.3",
+      "date": "2026-10-28",
+      "breaking": false,
+      "changes": [
+        "Hermes Agent support: the four skills (install, manage, admin, extensions) for Hermes and other Python-first agents in `hermes/skills/` (`hermes skills install fleox/agentcms/hermes/skills/<skill>`), with a stdlib-only Python wrapper of the CLI (`scripts/agentcms.py`, also importable: `run(...)` / `AgentcmsError`) and task scripts: `publish_markdown.py` (a Markdown file with front matter → images uploaded, entry created or updated, published), `upload_media.py`, `site_report.py`, `update_sites.py`.",
+        "A write interrupted by a concurrent change (another editor, agent or a deploy commit to the same repository) now fails with code `conflict` and the hint to re-run the command, instead of an internal error.",
+        "`terms delete` next steps name the site (`--site`)."
+      ],
+      "actions": []
+    },
+    {
       "version": "0.3.2",
       "date": "2026-10-28",
       "breaking": false,

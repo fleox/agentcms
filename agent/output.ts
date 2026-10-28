@@ -38,6 +38,9 @@ export function printResult(io: Io, data: unknown, human: () => string): void {
 // Known errors thrown by the admin's own code, translated into codes and
 // hints an agent can act on.
 function knownError(error: unknown): CliError | null {
+  if (error instanceof Error && error.name === "DocConflictError") {
+    return new CliError("conflict", `The content changed elsewhere while this command ran (${(error as Error & { collection?: string; id?: string }).collection ?? "?"}/${(error as Error & { id?: string }).id ?? "?"}); nothing of this write was saved.`, "Run the same command again (it reloads the latest content). Happens when another editor, agent or a deploy commit to the same repository wrote at the same time.");
+  }
   if (error instanceof Error && error.name === "SqlitePassphraseError") {
     const reason = (error as Error & { reason?: string }).reason;
     return reason === "missing"

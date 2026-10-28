@@ -30,6 +30,8 @@ jobs:
             exit 1
           fi
       - run: npm run check:skills
+      # Hermes Agent skills (generated from plugin/skills) + their Python tests.
+      - run: npm run check:hermes
       - name: CLI smoke test
         run: |
           node dist/agent/agentcms.mjs version --json

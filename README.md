@@ -21,6 +21,7 @@ The fastest way: let your coding agent install the site for you. It asks where t
   /plugin install agentcms@agentcms
   ```
   then ask: *"Install a new AgentCMS site"* — and later *"write and publish an article about…"*, *"switch to the magazine theme with an orange accent"*, *"add a favicon and enable the RSS feed"*… Everything the back office does is available to the agent.
+- **Hermes Agent** (or any Python-first agent): `hermes skills install fleox/agentcms/hermes/skills/agentcms-install` (and `agentcms-manage`, `agentcms-admin`, `agentcms-extensions`) — same skills, with a Python wrapper and task scripts: see [hermes/README.md](hermes/README.md).
 - **Any other agent** (Codex, Cursor, Windsurf…): ask it to follow [AGENTS.md](AGENTS.md).
 - **Without an agent**: `npx -y @agent-cms/agentcms serve` (Node.js 20+) starts the admin on your computer — open the printed URL and follow the setup wizard.
 
@@ -125,6 +126,7 @@ agentcms/
 │   └── lib/             Small utilities (runtime config, toasts, admin folder detection)
 ├── agent/               The agentcms CLI (published to npm as @agent-cms/agentcms)
 ├── plugin/              Claude Code plugin + agent skills
+├── hermes/              Hermes Agent skills (generated from plugin/skills) + Python scripts
 ├── external/            External plugin / theme sources and scaffolds
 ├── scripts/
 │   ├── build-theme-tailwind.mjs Compiles each Tailwind-based theme's CSS before vite build (prebuild + predev)

@@ -57,7 +57,9 @@
     "pack:zips": "node scripts/pack-bundled-zips.mjs",
     "preview": "vite preview",
     "check:skills": "node scripts/check-skills.mjs",
-    "version": "node scripts/sync-version.mjs && npm run build && git add -A plugin dist",
+    "hermes:build": "node scripts/build-hermes.mjs",
+    "check:hermes": "node scripts/build-hermes.mjs --check && python3 -m unittest discover -s hermes/tests",
+    "version": "node scripts/sync-version.mjs && npm run build && node scripts/build-hermes.mjs && git add -A plugin dist hermes",
     "smoke:scaffold": "node scripts/smoke-scaffold.mjs"
   },
   "devDependencies": {
