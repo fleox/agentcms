@@ -27,6 +27,7 @@ Every `agentcms <command>` below runs through this skill's Python wrapper: `pyth
 
 - **Requirements:** Python 3.9+ (stdlib only) and **Node.js 20.6+**: the AgentCMS engine is the `@agent-cms/agentcms` npm package, fetched by `npx` on first use and pinned to the version of these skills. Without Node.js the wrapper answers `node-missing` with how to install it. `AGENTCMS_CMD` overrides the engine command (e.g. `node /path/to/agentcms.mjs` from a clone).
 - **From Python:** `sys.path.insert(0, "${HERMES_SKILL_DIR}/scripts")`, then `from agentcms import run, AgentcmsError` — `run("content", "list", site="blog")` returns `data` and raises `AgentcmsError(code, message, hint)` when `ok` is false.
+- **Plans:** a command that needs `--yes` and didn't get it writes nothing and answers `needsConfirmation: true` (on `data`, or on `data.result` for admin commands) — test it with `needs_confirmation(data)` from the wrapper. The sentence "re-run with --yes" only exists in the human output, never match on text.
 - **Secrets** never go through the chat. The user either types them in their own terminal (`python3 ${HERMES_SKILL_DIR}/scripts/agentcms.py credentials set <account>` asks at a hidden prompt), or puts them in environment variables (e.g. in `~/.hermes/.env`) that you pass by name: `credentials set <account> --from-env VAR` (`--from-env KEY_ID,SECRET` for S3).
 - **Helpers** in `${HERMES_SKILL_DIR}/scripts/` (each prints one JSON object; `--help` for options):
   - `publish_markdown.py`: Publish a Markdown file (with front matter) to an AgentCMS site.
@@ -41,7 +42,7 @@ Every `agentcms <command>` below runs through this skill's Python wrapper: `pyth
 - **Saving and publishing are different.** A post or page is a **draft** until published. Publishing renders its page and refreshes the home, category and author pages, `data/menu.json`, sitemaps, feeds and the search index.
 - **Editing an online entry republishes it** (`content update`), like the editor's Save button. Use `--no-publish` to keep the published version unchanged.
 - **Many other saves change nothing on the public site.** Settings, categories and tags, enabling a plugin, plugin or theme layout config, favicon all need a regeneration. Every command returns the exact one in `data.result.next`; run it, or tell the user why not.
-- **Confirmation.** Destructive or site-wide commands only print a plan without `--yes`: delete content, media, terms or users, `themes activate`, `transfer import`, `plugins action agentcms-import run`. Show the plan and get the user's go before re-running with `--yes`.
+- **Confirmation.** Destructive or site-wide commands only print a plan without `--yes`: delete content, media, terms or users, `themes activate`, `transfer import`, `plugins action agentcms-import run`. Show the plan and get the user's go before re-running with `--yes`. In JSON a plan is marked by `needsConfirmation: true` (in `data.result`; on `data` for `deploy-admin`, `ext install`, `compact-data`): nothing was written. Detect plans by that field, never by the human text.
 - **Identify the site.** Say which site you are working on ("Working on **my-blog** (https://...)"). Never switch sites silently.
 
 ## Commands at a glance

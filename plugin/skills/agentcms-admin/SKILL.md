@@ -26,7 +26,7 @@ Every command is `npx -y @agent-cms/agentcms@0.3.3 <command> … --site <alias> 
 - **Saving and publishing are different.** A post or page is a **draft** until published. Publishing renders its page and refreshes the home, category and author pages, `data/menu.json`, sitemaps, feeds and the search index.
 - **Editing an online entry republishes it** (`content update`), like the editor's Save button. Use `--no-publish` to keep the published version unchanged.
 - **Many other saves change nothing on the public site.** Settings, categories and tags, enabling a plugin, plugin or theme layout config, favicon all need a regeneration. Every command returns the exact one in `data.result.next`; run it, or tell the user why not.
-- **Confirmation.** Destructive or site-wide commands only print a plan without `--yes`: delete content, media, terms or users, `themes activate`, `transfer import`, `plugins action agentcms-import run`. Show the plan and get the user's go before re-running with `--yes`.
+- **Confirmation.** Destructive or site-wide commands only print a plan without `--yes`: delete content, media, terms or users, `themes activate`, `transfer import`, `plugins action agentcms-import run`. Show the plan and get the user's go before re-running with `--yes`. In JSON a plan is marked by `needsConfirmation: true` (in `data.result`; on `data` for `deploy-admin`, `ext install`, `compact-data`): nothing was written. Detect plans by that field, never by the human text.
 - **Identify the site.** Say which site you are working on ("Working on **my-blog** (https://...)"). Never switch sites silently.
 
 ## Commands at a glance

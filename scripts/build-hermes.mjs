@@ -70,6 +70,7 @@ function hermesHeader(name) {
     "",
     "- **Requirements:** Python 3.9+ (stdlib only) and **Node.js 20.6+**: the AgentCMS engine is the `@agent-cms/agentcms` npm package, fetched by `npx` on first use and pinned to the version of these skills. Without Node.js the wrapper answers `node-missing` with how to install it. `AGENTCMS_CMD` overrides the engine command (e.g. `node /path/to/agentcms.mjs` from a clone).",
     "- **From Python:** `sys.path.insert(0, \"${HERMES_SKILL_DIR}/scripts\")`, then `from agentcms import run, AgentcmsError` — `run(\"content\", \"list\", site=\"blog\")` returns `data` and raises `AgentcmsError(code, message, hint)` when `ok` is false.",
+    "- **Plans:** a command that needs `--yes` and didn't get it writes nothing and answers `needsConfirmation: true` (on `data`, or on `data.result` for admin commands) — test it with `needs_confirmation(data)` from the wrapper. The sentence \"re-run with --yes\" only exists in the human output, never match on text.",
     "- **Secrets** never go through the chat. The user either types them in their own terminal (`" + RUN_SKILL + " credentials set <account>` asks at a hidden prompt), or puts them in environment variables (e.g. in `~/.hermes/.env`) that you pass by name: `credentials set <account> --from-env VAR` (`--from-env KEY_ID,SECRET` for S3).",
     ...(helpers.length
       ? ["- **Helpers** in `${HERMES_SKILL_DIR}/scripts/` (each prints one JSON object; `--help` for options):", ...helpers.map((h) => `  - \`${h}\`: ${helperSummary(h)}`)]

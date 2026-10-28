@@ -72,7 +72,7 @@ Add `--deep` to also test write access (writes then deletes a probe file on file
 
 ## Update a hosted admin
 
-1. Plan only (writes nothing):
+1. Plan only (writes nothing; the JSON answer carries `data.needsConfirmation: true`):
    ```bash
    npx -y @agent-cms/agentcms@0.3.3 deploy-admin --site <alias> --json
    ```

@@ -161,6 +161,19 @@ def result(data: Any) -> Any:
     return data
 
 
+def needs_confirmation(data: Any) -> bool:
+    """True when the command only printed a plan and wrote nothing: re-run it
+    with --yes once the user agreed. The JSON marker is `needsConfirmation`
+    (on `data`, or on `data.result` for admin commands); the "re-run with
+    --yes" sentence is only in the human output, never rely on it."""
+    if not isinstance(data, dict):
+        return False
+    if data.get("needsConfirmation") is True:
+        return True
+    inner = result(data)
+    return inner is not data and isinstance(inner, dict) and inner.get("needsConfirmation") is True
+
+
 def main(argv: Sequence[str]) -> int:
     args = list(argv)
     if not args or args[0] in ("-h", "--help"):

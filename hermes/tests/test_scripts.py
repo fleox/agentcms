@@ -80,6 +80,17 @@ class WrapperTest(FakeEngine):
         finally:
             os.environ["PATH"] = path
 
+    def test_needs_confirmation_marker(self):
+        self.answer(
+            (["content", "delete"], admin({"needsConfirmation": True, "delete": [{"id": "p1"}]})),
+            (["deploy-admin"], ok({"needsConfirmation": True, "plans": []})),
+            (["content", "list"], admin([{"id": "a"}])),
+        )
+        self.assertTrue(agentcms.needs_confirmation(agentcms.run("content", "delete", "p1", site="blog")))
+        self.assertTrue(agentcms.needs_confirmation(agentcms.run("deploy-admin", "--all")))
+        self.assertFalse(agentcms.needs_confirmation(agentcms.run("content", "list", site="blog")))
+        self.assertFalse(agentcms.needs_confirmation(admin({"deleted": 1})["data"]))
+
     def test_interactive_credentials_are_not_captured(self):
         self.assertTrue(agentcms._interactive(["credentials", "set", "s3:x"]))
         self.assertFalse(agentcms._interactive(["credentials", "set", "s3:x", "--from-env", "A,B"]))

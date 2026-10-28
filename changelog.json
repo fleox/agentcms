@@ -2,6 +2,15 @@
   "$comment": "Newest first. Read by agents (agentcms status) to tell users what changed and what to run. `breaking`: an older admin, skill or site setup stops working without action. `actions`: steps a hosted site needs after updating — deploy-admin, regenerate-all, sync-theme-assets. Keep every entry in English.",
   "versions": [
     {
+      "version": "0.3.4",
+      "date": "2026-10-28",
+      "breaking": false,
+      "changes": [
+        "Skills: a plan (a command that needs `--yes`) is recognised by `needsConfirmation: true` in the JSON answer, never by the human \"re-run with --yes\" text, which only exists without `--json`. Hermes: new `needs_confirmation(data)` in `scripts/agentcms.py`."
+      ],
+      "actions": []
+    },
+    {
       "version": "0.3.3",
       "date": "2026-10-28",
       "breaking": false,

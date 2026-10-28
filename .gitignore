@@ -24,3 +24,6 @@ demo-content/marketplace-core/*
 #     freshly-built `dist/admin/config.js` both ship as
 #     `window.__AGENTCMS_CONFIG__ = null;` stubs — confirm with
 #     `grep null dist/admin/config.js` before committing.
+
+__pycache__/
+*.pyc
