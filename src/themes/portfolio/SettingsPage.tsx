@@ -296,6 +296,11 @@ function SingleTab({ config, save }: ThemeSettingsPageProps<PortfolioThemeConfig
           onChange={(v) => setDraft({ ...draft, showHero: v })}
         />
         <ToggleField
+          label={t("settings.single.heroGrayscale")}
+          value={draft.heroGrayscale}
+          onChange={(v) => setDraft({ ...draft, heroGrayscale: v })}
+        />
+        <ToggleField
           label={t("settings.single.showNextProject")}
           value={draft.showNextProject}
           onChange={(v) => setDraft({ ...draft, showNextProject: v })}

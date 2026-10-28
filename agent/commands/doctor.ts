@@ -56,6 +56,34 @@ export async function runDoctor(site: SiteRecord, opts: { deep?: boolean; fetchI
         : { id: "site", status: "fail", message: `Site not reachable: ${home.error ?? `HTTP ${home.status}`}.`, fix: "Check siteUrl, DNS, and that the host serves the bucket / repo (GitHub Pages enabled, S3 website hosting on)." },
   );
 
+  // Served home vs the one on the hosting: a Pages build still running
+  // (or queued behind earlier commits) or a CDN cache serves the old one.
+  const hostingCredForDeploy = site.credentials.hosting ? getCredential(site.credentials.hosting) : null;
+  if (home.ok && hostingCredForDeploy && site.hosting.connectorId) {
+    try {
+      installBrowserEnv();
+      const { hostingConnector } = await import("../ops/hosting");
+      const connector = hostingConnector({ connectorId: site.hosting.connectorId, settings: { ...site.hosting.settings, ...hostingCredForDeploy.values } });
+      const bytes = connector.getBytes ? await connector.getBytes("index.html") : null;
+      if (bytes) {
+        const norm = (t: string) => t.replace(/\s+/g, " ").trim();
+        const latest = new TextDecoder().decode(bytes);
+        add(
+          norm(latest) === norm(home.text)
+            ? { id: "deployment", status: "ok", message: "The site serves the latest home page written to the hosting." }
+            : {
+                id: "deployment",
+                status: "warn",
+                message: "The site still serves an older home page than the one on the hosting: a deployment is pending (Pages build running or queued, or a CDN cache).",
+                fix: `${pagesHost ? "Each command that writes is one commit and one build; builds queue up after bursts of commands. " : ""}Wait a minute or two, then re-run doctor before checking the live pages. If it never catches up, look at the host's build / deployment log.`,
+              },
+        );
+      }
+    } catch {
+      /* hosting unreadable here: the other checks cover it */
+    }
+  }
+
   const css = await fetchText(`${siteUrl}/theme-assets/default.css`, f);
   add(
     css.ok && css.contentType.includes("text/css")
@@ -193,7 +221,7 @@ export async function runDoctor(site: SiteRecord, opts: { deep?: boolean; fetchI
 export const doctorCommand: Command = {
   name: "doctor",
   summary:
-    "Health check of a site: HTTPS, home page, theme assets, hosted admin (consistent build, JavaScript content type, version), config.js without secrets, stored credentials, GitHub Pages. --deep also tests write access.",
+    "Health check of a site: HTTPS, home page, pending deployment (served home vs the hosting's), theme assets, hosted admin (consistent build, JavaScript content type, version), config.js without secrets, stored credentials, GitHub Pages. --deep also tests write access.",
   usage: "doctor [--site <alias>] [--deep]",
   options: [
     { name: "site", type: "string", description: "Site alias." },

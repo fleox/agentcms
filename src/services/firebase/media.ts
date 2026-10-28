@@ -177,6 +177,18 @@ export async function updateMedia(
   await updateDoc(mediaDoc(id), update);
 }
 
+// Replaces variants (re-cropped for another theme) on an existing
+// media: merged into its `formats` map, total size recomputed.
+export async function setMediaFormats(
+  id: string,
+  formats: Record<string, MediaVariant>,
+  size: number,
+): Promise<void> {
+  const update: Record<string, unknown> = { size };
+  for (const [name, variant] of Object.entries(formats)) update[`formats.${name}`] = variant;
+  await updateDoc(mediaDoc(id), update);
+}
+
 // Tries to wipe every published artifact tied to this asset, then drops the
 // Firestore doc. Order matters: even if the public-side cleanup fails, we
 // only want to leave the source-of-truth alive. A 404 on the delete call

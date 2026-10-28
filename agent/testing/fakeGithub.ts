@@ -11,6 +11,7 @@ interface Repo {
   refs: Map<string, string>;
   pages: boolean;
   private: boolean;
+  pagesHeld?: string | null;
 }
 
 export interface FakeGithub {
@@ -19,6 +20,11 @@ export interface FakeGithub {
   files(fullName: string, branch?: string): Map<string, string>;
   commits(fullName: string, branch?: string): string[];
   repo(fullName: string): Repo;
+  // Commits files straight to a branch (null deletes), like a push.
+  writeFiles(fullName: string, files: Record<string, string | null>, branch?: string, message?: string): void;
+  // Pages keeps serving the current head until called again with false
+  // (a build still running / queued).
+  holdPages(fullName: string, on: boolean): void;
   calls: string[];
 }
 
@@ -70,7 +76,8 @@ export function createFakeGithub(opts: { login: string; token: string }): FakeGi
       if (!repo?.pages) return new Response("Not found", { status: 404 });
       let path = decodeURIComponent(rest.join("/"));
       if (path === "" || path.endsWith("/")) path += "index.html";
-      const blob = headFiles(repo, repo.defaultBranch ?? "main").get(path);
+      const served = repo.pagesHeld ? trees.get(commits.get(repo.pagesHeld)!.tree)! : headFiles(repo, repo.defaultBranch ?? "main");
+      const blob = served.get(path);
       return blob ? new Response(new Uint8Array(blobs.get(blob)!), { status: 200, headers: { "content-type": mime(path) } }) : new Response("Not found", { status: 404 });
     }
 
@@ -175,6 +182,21 @@ export function createFakeGithub(opts: { login: string; token: string }): FakeGi
       repos.set(fullName, { defaultBranch: null, refs: new Map(), pages: false, private: !!o.private });
     },
     repo: (fullName) => repos.get(fullName)!,
+    writeFiles(fullName, files, branch = "main", message = "Test commit") {
+      const repo = repos.get(fullName)!;
+      const tree = new Map(headFiles(repo, branch));
+      for (const [path, content] of Object.entries(files)) {
+        if (content === null) tree.delete(path);
+        else tree.set(path, putBlob(Buffer.from(content)));
+      }
+      const parent = repo.refs.get(branch);
+      repo.refs.set(branch, putCommit(putTree(tree), parent ? [parent] : [], message));
+      repo.defaultBranch ??= branch;
+    },
+    holdPages(fullName, on) {
+      const repo = repos.get(fullName)!;
+      repo.pagesHeld = on ? repo.refs.get(repo.defaultBranch ?? "main") ?? null : null;
+    },
     files(fullName, branch = "main") {
       const t = headFiles(repos.get(fullName)!, branch);
       return new Map([...t].map(([p, s]) => [p, blobs.get(s)!.toString("utf8")]));

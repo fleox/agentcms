@@ -218,6 +218,22 @@ export async function updateMedia(
   });
 }
 
+// Mirrors firebase/media.ts.setMediaFormats.
+export async function setMediaFormats(
+  id: string,
+  formats: Record<string, MediaVariant>,
+  size: number,
+): Promise<void> {
+  const store = getDocStore();
+  await store.ready();
+  const existing = store.get(COLLECTION, id);
+  if (!existing) throw new Error(`Media not found: ${id}`);
+  const next: StoredDoc = { ...existing, size, formats: { ...((existing.formats as Record<string, MediaVariant>) ?? {}), ...formats } };
+  await store.write([{ op: "set", collection: COLLECTION, doc: next }], {
+    message: `Regenerate media formats: ${(existing.name as string) || id}`,
+  });
+}
+
 // Wipes the published artifacts first (best-effort), then drops the
 // metadata doc — same order as the other impls.
 export async function deleteMedia(media: Media): Promise<void> {

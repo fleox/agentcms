@@ -54,6 +54,12 @@ export function uploadMedia(
 ): ReturnType<typeof firebase.uploadMedia> {
   return impl().uploadMedia(...args);
 }
+export function setMediaFormats(
+  ...args: Parameters<typeof firebase.setMediaFormats>
+): ReturnType<typeof firebase.setMediaFormats> {
+  return impl().setMediaFormats(...args);
+}
+
 export function updateMedia(
   ...args: Parameters<typeof firebase.updateMedia>
 ): ReturnType<typeof firebase.updateMedia> {

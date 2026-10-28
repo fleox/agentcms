@@ -328,32 +328,46 @@ export const DEFAULT_CONFIG: ${configType} = {
 }
 
 function pluginI18n(c: Ctx): string {
-  return `// Bundled translations, loaded into the i18next namespace "${c.id}".
-// Components call useTranslation("${c.id}"). English is the fallback.
-export const i18n = {
-  en: {
-    settings: {
+  const en: string[] = [];
+  const fr: string[] = [];
+  if (c.has("settings")) {
+    en.push(`    settings: {
       navLabel: ${JSON.stringify(c.name)},
       title: ${JSON.stringify(c.name)},
       enabled: "Add the meta tag to every page",
       message: "Message",
       save: "Save",
       saved: "Saved. Regenerate the site to apply it to existing pages.",
-    },
-    callout: { title: "Callout", tone: "Tone", text: "Text", info: "Info", warning: "Warning", success: "Success" },
-    card: { title: ${JSON.stringify(c.name)}, posts: "Published posts", pages: "Published pages" },
-  },
-  fr: {
-    settings: {
+    },`);
+    fr.push(`    settings: {
       navLabel: ${JSON.stringify(c.name)},
       title: ${JSON.stringify(c.name)},
       enabled: "Ajouter la balise meta à chaque page",
       message: "Message",
       save: "Enregistrer",
       saved: "Enregistré. Régénérez le site pour l'appliquer aux pages existantes.",
-    },
-    callout: { title: "Encadré", tone: "Ton", text: "Texte", info: "Info", warning: "Attention", success: "Succès" },
-    card: { title: ${JSON.stringify(c.name)}, posts: "Articles publiés", pages: "Pages publiées" },
+    },`);
+  }
+  if (c.has("block")) {
+    en.push(`    callout: { title: "Callout", tone: "Tone", text: "Text", info: "Info", warning: "Warning", success: "Success" },`);
+    fr.push(`    callout: { title: "Encadré", tone: "Ton", text: "Texte", info: "Info", warning: "Attention", success: "Succès" },`);
+  }
+  if (c.has("dashboard-card")) {
+    en.push(`    card: { title: ${JSON.stringify(c.name)}, posts: "Published posts", pages: "Published pages" },`);
+    fr.push(`    card: { title: ${JSON.stringify(c.name)}, posts: "Articles publiés", pages: "Pages publiées" },`);
+  }
+  if (!en.length) {
+    en.push(`    // Your keys, e.g. greeting: "Hello",`);
+    fr.push(`    // Vos clés, par ex. greeting: "Bonjour",`);
+  }
+  return `// Bundled translations, loaded into the i18next namespace "${c.id}".
+// Components call useTranslation("${c.id}"). English is the fallback.
+export const i18n = {
+  en: {
+${en.join("\n")}
+  },
+  fr: {
+${fr.join("\n")}
   },
 };
 `;
@@ -1082,14 +1096,10 @@ export function compileCss(baseCss: string, config: ThemeConfig): string {
 export const i18n = {
   en: {
     public: { menu: "Menu", mainNav: "Main", footerNav: "Footer", tags: "Tags", empty: "Nothing published yet.", notFoundTitle: "Page not found", notFoundText: "The page you are looking for does not exist or has moved.", backHome: "Back to the home page", by: "By" },
-    settings: { navLabel: ${JSON.stringify(c.name)}, title: ${JSON.stringify(c.name + " settings")}, accent: "Accent color", background: "Background", text: "Text color", save: "Save", saved: "Saved — the theme CSS was uploaded with your colors. Visitors may need a hard refresh." },
-    callout: { title: "Callout", tone: "Tone", text: "Text", info: "Info", warning: "Warning", success: "Success" },
-  },
+${settings ? `    settings: { navLabel: ${JSON.stringify(c.name)}, title: ${JSON.stringify(c.name + " settings")}, accent: "Accent color", background: "Background", text: "Text color", save: "Save", saved: "Saved — the theme CSS was uploaded with your colors. Visitors may need a hard refresh." },\n` : ""}${block ? `    callout: { title: "Callout", tone: "Tone", text: "Text", info: "Info", warning: "Warning", success: "Success" },\n` : ""}  },
   fr: {
     public: { menu: "Menu", mainNav: "Principal", footerNav: "Pied de page", tags: "Étiquettes", empty: "Rien de publié pour le moment.", notFoundTitle: "Page introuvable", notFoundText: "La page que vous cherchez n'existe pas ou a été déplacée.", backHome: "Retour à l'accueil", by: "Par" },
-    settings: { navLabel: ${JSON.stringify(c.name)}, title: ${JSON.stringify("Réglages " + c.name)}, accent: "Couleur d'accent", background: "Fond", text: "Couleur du texte", save: "Enregistrer", saved: "Enregistré — le CSS du thème a été envoyé avec vos couleurs. Un rechargement forcé peut être nécessaire." },
-    callout: { title: "Encadré", tone: "Ton", text: "Texte", info: "Info", warning: "Attention", success: "Succès" },
-  },
+${settings ? `    settings: { navLabel: ${JSON.stringify(c.name)}, title: ${JSON.stringify("Réglages " + c.name)}, accent: "Couleur d'accent", background: "Fond", text: "Couleur du texte", save: "Enregistrer", saved: "Enregistré — le CSS du thème a été envoyé avec vos couleurs. Un rechargement forcé peut être nécessaire." },\n` : ""}${block ? `    callout: { title: "Encadré", tone: "Ton", text: "Texte", info: "Info", warning: "Attention", success: "Succès" },\n` : ""}  },
 };
 `;
   }

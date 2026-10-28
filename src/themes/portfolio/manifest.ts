@@ -35,7 +35,7 @@ type ManifestWithFilters = ThemeManifest<PortfolioThemeConfig> & {
 export const manifest: ManifestWithFilters = {
   id: "portfolio",
   name: "Portfolio",
-  version: "0.1.0",
+  version: "0.2.0",
   description:
     "The Minimalist Portfolio System — editorial canvas for designers, photographers and artists. Charcoal-on-warm-white, Playfair Display + Inter, sharp corners, zero shadows, rose accent for active state only.",
   // Tailwind pipeline — the Sass entry isn't reached because

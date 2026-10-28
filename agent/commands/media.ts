@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
-import { basename, extname, resolve } from "node:path";
+import { basename, dirname, extname, resolve } from "node:path";
 import type { Media, Post, Term, UserRecord } from "../../src/core/types";
 import { CliError } from "../output";
 import type { SiteSession } from "../ops/session";
@@ -139,13 +139,28 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
     }
 
     case "upload": {
-      if (!refs.length) throw new CliError("usage", "media upload needs one or more image files.", "e.g. `agentcms media upload photo.jpg --alt \"…\"`", 2);
-      const files = refs.map((f) => resolve(f));
+      // Files from the arguments (shared --alt / --caption) and / or from
+      // --data: [{ "file", "alt", "caption" }] (paths relative to the JSON
+      // file), each with its own texts.
+      type Item = { path: string; alt?: string; caption?: string };
+      const items: Item[] = refs.map((f) => ({ path: resolve(f), alt: str(options.alt), caption: str(options.caption) }));
+      if (options.data !== undefined) {
+        const { readJsonOption } = await import("../ops/adminCommon");
+        const raw = readJsonOption(options.data, "data");
+        const base = typeof options.data === "string" && options.data.startsWith("@") ? dirname(resolve(options.data.slice(1))) : process.cwd();
+        const list = Array.isArray(raw) ? raw : null;
+        if (!list || list.some((x) => !x || typeof x !== "object" || typeof (x as { file?: unknown }).file !== "string")) {
+          throw new CliError("usage", "--data must be a JSON array of { \"file\", \"alt\", \"caption\" }.", "e.g. --data '[{\"file\":\"fjord.jpg\",\"alt\":\"…\"}]' or --data @media.json", 2);
+        }
+        for (const x of list as Array<{ file: string; alt?: unknown; caption?: unknown }>) {
+          items.push({ path: resolve(base, x.file), alt: x.alt === undefined ? str(options.alt) : String(x.alt), caption: x.caption === undefined ? str(options.caption) : String(x.caption) });
+        }
+      }
+      if (!items.length) throw new CliError("usage", "media upload needs one or more image files.", "e.g. `agentcms media upload photo.jpg --alt \"…\"`, or --data @media.json for one alt text per file.", 2);
+      const files = items.map((x) => x.path);
       for (const f of files) {
         if (!existsSync(f) || !statSync(f).isFile()) throw new CliError("not-found", `${f} does not exist.`, undefined, 2);
       }
-      const alt = str(options.alt);
-      const caption = str(options.caption);
       return runAdmin(io, alias, { write: true, hosting: true, extensions: true, lock: true }, async (s) => {
         const { uploadMedia, updateMedia, validateMediaFile, listAllMedia } = await import("../../src/services/media");
         const { withStorageBatch } = await import("../../src/services/siteFiles");
@@ -168,19 +183,22 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
         });
         const uploadedBy = await currentUserId();
         const out: Array<{ file: string; ok: boolean; id?: string; url?: string | null; formats?: Awaited<ReturnType<typeof summarize>>["formats"]; error?: string }> = [];
-        // One file after the other, like the admin.
-        for (const [i, file] of prepared.entries()) {
-          try {
-            // One commit per file on git hostings (the admin defers to an idle commit).
-            const created = await withStorageBatch(() => uploadMedia(file, uploadedBy, settings));
-            if (alt !== undefined || caption !== undefined) await updateMedia(created.id, { alt, caption });
-            const fresh = (await listAllMedia()).find((m) => m.id === created.id) ?? created;
-            const sum = await summarize(fresh);
-            out.push({ file: files[i], ok: true, id: created.id, url: sum.url, formats: sum.formats });
-          } catch (err) {
-            out.push({ file: files[i], ok: false, error: (err as Error).message });
+        // One file after the other, like the admin, in ONE storage batch:
+        // a single commit (one Pages build) for the whole command.
+        await withStorageBatch(async () => {
+          for (const [i, file] of prepared.entries()) {
+            try {
+              const created = await uploadMedia(file, uploadedBy, settings);
+              const { alt, caption } = items[i];
+              if (alt !== undefined || caption !== undefined) await updateMedia(created.id, { alt, caption });
+              const fresh = (await listAllMedia()).find((m) => m.id === created.id) ?? created;
+              const sum = await summarize(fresh);
+              out.push({ file: files[i], ok: true, id: created.id, url: sum.url, formats: sum.formats });
+            } catch (err) {
+              out.push({ file: files[i], ok: false, error: (err as Error).message });
+            }
           }
-        }
+        });
         return out;
       }, (rows) => rows.map((r) => (r.ok ? `✓ ${basename(r.file)} → ${r.id}  ${r.url}` : `✗ ${basename(r.file)} — ${r.error}`)).join("\n"));
     }
@@ -197,6 +215,59 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
         const fresh = (await listAllMedia()).find((x) => x.id === m.id) ?? m;
         return { id: m.id, alt: fresh.alt ?? null, caption: fresh.caption ?? null, note: "Published pages keep the old alt text until they are republished (`agentcms regenerate all`)." };
       }, (r) => `Updated ${r.id}: alt=${JSON.stringify(r.alt)} caption=${JSON.stringify(r.caption)}\n${r.note}`);
+    }
+
+    case "regenerate": {
+      // Re-crop media for the active theme (after a theme switch): the
+      // formats it declares that a media lacks or has at another size.
+      const allFormats = !!options["all-formats"];
+      const plan = async (s: SiteSession) => {
+        const all = await s.media();
+        const targets = refs.length ? refs.map((r) => requireMedia(all, r)) : all;
+        const { planMediaRegeneration } = await import("../../src/services/mediaRegenerate");
+        return { targets, plan: planMediaRegeneration(targets, s.settings(), { all: allFormats }) };
+      };
+      const theme = (s: SiteSession) => s.settings().activeThemeId ?? "default";
+      if (!options.yes) {
+        return runAdmin(io, alias, { extensions: true }, async (s) => {
+          const { plan: p } = await plan(s);
+          const todo = p.filter((x) => x.formats.length);
+          return { needsConfirmation: todo.length > 0, theme: theme(s), media: todo, upToDate: p.filter((x) => !x.formats.length && !x.skipped).length, skipped: p.filter((x) => x.skipped) };
+        }, (r) =>
+          r.media.length
+            ? [`${r.media.length} media need ${r.theme}'s formats:`, ...r.media.map((m) => `  ${m.id} ${m.name}: ${m.formats.join(", ")}`), ...r.skipped.map((m) => `  skip ${m.id} ${m.name}: ${m.skipped}`), "Nothing changed — re-run with --yes once the user agrees."].join("\n")
+            : `Every media already has ${r.theme}'s formats.${r.skipped.length ? ` (${r.skipped.length} skipped)` : ""}`);
+      }
+      return runAdmin(io, alias, { write: true, hosting: true, extensions: true, lock: true }, async (s) => {
+        const { targets, plan: p } = await plan(s);
+        const { regenerateMediaFormats } = await import("../../src/services/mediaRegenerate");
+        const { withStorageBatch } = await import("../../src/services/siteFiles");
+        const out: Array<{ id: string; name: string; ok: boolean; formats: string[]; error?: string }> = [];
+        // One commit for the whole run.
+        await withStorageBatch(async () => {
+          for (const item of p) {
+            if (!item.formats.length) continue;
+            const media = targets.find((m) => m.id === item.id)!;
+            try {
+              const done = await regenerateMediaFormats(media, item.formats, s.settings());
+              out.push({ id: media.id, name: media.name, ok: true, formats: done });
+            } catch (err) {
+              out.push({ id: media.id, name: media.name, ok: false, formats: [], error: (err as Error).message });
+            }
+          }
+        });
+        return {
+          theme: theme(s),
+          regenerated: out,
+          skipped: p.filter((x) => x.skipped),
+          next: out.some((x) => x.ok) ? [`agentcms regenerate all --site ${s.site.alias}`] : [],
+        };
+      }, (r) =>
+        [
+          ...r.regenerated.map((m) => (m.ok ? `✓ ${m.name}: ${m.formats.join(", ")}` : `✗ ${m.name} — ${m.error}`)),
+          ...(r.regenerated.length ? [] : [`Every media already has ${r.theme}'s formats.`]),
+          ...r.next.map((n) => `Then: ${n} (pages pick the new sizes when re-rendered).`),
+        ].join("\n"));
     }
 
     case "delete": {
@@ -242,21 +313,23 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
     }
 
     default:
-      throw new CliError("usage", action ? `Unknown media action "${action}".` : "media needs an action.", "Actions: list, get, upload, update, delete.", 2);
+      throw new CliError("usage", action ? `Unknown media action "${action}".` : "media needs an action.", "Actions: list, get, upload, update, delete, regenerate.", 2);
   }
 }
 
 export const mediaCommand: Command = {
   name: "media",
   summary:
-    "The Media library: list [--search], get <id> (variants, URLs, where it is used), upload <file…> (the admin's pipeline: the active theme's variants + admin formats, then the record; --alt / --caption), update <id> --alt/--caption, delete <id…> (files + record; plan first, --yes; warns about posts / avatars still using it).",
-  usage: "media <list|get|upload|update|delete> [ids|files…] --site <alias> [--search <q>] [--alt <text>] [--caption <text>] [--yes]",
+    "The Media library: list [--search], get <id> (variants, URLs, where it is used), upload <file…> (the admin's pipeline: the active theme's variants + admin formats, then the record; --alt / --caption, or --data @media.json for one alt / caption per file; one commit per command), update <id> --alt/--caption, delete <id…> (files + record; plan first, --yes; warns about posts / avatars still using it), regenerate [id…] (after a theme switch: re-crops media to the active theme's formats from their high-resolution copy; plan first, --yes; then `regenerate all`).",
+  usage: "media <list|get|upload|update|delete|regenerate> [ids|files…] --site <alias> [--search <q>] [--alt <text>] [--caption <text>] [--data <json>|@file] [--all-formats] [--yes]",
   options: [
     { name: "site", type: "string", description: "Site alias." },
     { name: "search", type: "string", description: "list: words that must all appear in the name, alt or caption." },
     { name: "alt", type: "string", description: "upload/update: alternative text (\"\" clears)." },
     { name: "caption", type: "string", description: "upload/update: caption (\"\" clears)." },
-    { name: "yes", type: "boolean", description: "delete: apply (otherwise only the plan)." },
+    { name: "data", type: "string", description: "upload: JSON array (or @file.json) of { \"file\", \"alt\", \"caption\" } — one alt text / caption per file; paths are relative to the JSON file. All files go up in one commit." },
+    { name: "all-formats", type: "boolean", description: "regenerate: redo every format of the active theme, not only the missing / wrong-size ones." },
+    { name: "yes", type: "boolean", description: "delete / regenerate: apply (otherwise only the plan)." },
   ],
   run,
 };

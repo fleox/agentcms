@@ -3,6 +3,10 @@ import { join, relative } from "node:path";
 import { ADMIN_MANIFEST, missingIndexReferences, type AdminManifest } from "../../src/services/adminDeploy";
 import { buildConfigJsSource, type CmsRuntimeConfig } from "../../src/lib/runtimeConfig";
 import { instantiateStorageConnector } from "../../src/services/storage/registry";
+import { browserMirrorFactory } from "../../src/services/storage/connectors/browserMirror";
+import { gitPagesFactory } from "../../src/services/storage/connectors/gitPages";
+import { localFolderFactory } from "../../src/services/storage/connectors/localFolder";
+import { s3Factory } from "../../src/services/storage/connectors/s3";
 import type { PublishTarget } from "../../src/services/storage/target";
 import type { BatchOp, StorageConnector } from "../../src/services/storage/types";
 import { setSqlJsWasmBinary } from "../../src/services/docstore/sqliteFileStore";
@@ -14,8 +18,17 @@ import { cleanFolder } from "./plan";
 // on disk (the admin build, theme assets). One batch = one commit on git
 // hosts, so a whole admin update triggers a single Pages build.
 
+// Built from the built-in factories, not through the registry: a session
+// registers a ready instance (settings + secrets) in place of the
+// factory, so a second site handled in the same process would otherwise
+// get the first site's connector.
+const BUILTIN_FACTORIES = new Map<string, { create(settings: never): StorageConnector }>(
+  [gitPagesFactory, s3Factory, localFolderFactory, browserMirrorFactory].map((f) => [f.id, f as unknown as { create(settings: never): StorageConnector }]),
+);
+
 export function hostingConnector(target: PublishTarget): StorageConnector {
-  return instantiateStorageConnector(target.connectorId, target.settings);
+  const factory = BUILTIN_FACTORIES.get(target.connectorId);
+  return factory ? factory.create(target.settings as never) : instantiateStorageConnector(target.connectorId, target.settings);
 }
 
 const putOp = (path: string, bytes: Uint8Array): BatchOp => ({

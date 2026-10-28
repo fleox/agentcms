@@ -67,10 +67,7 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
         break;
       }
       case "everything": {
-        await syncAssets();
-        const ctx = await s.context({ refreshTerms: true });
-        await pub.regenerateAll(ctx, s.log);
-        await runTargets(targets, ctx);
+        await (await import("../ops/regenerateAll")).regenerateEverything(s);
         break;
       }
       default: {

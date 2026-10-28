@@ -17,7 +17,7 @@ Each command below is `npx -y @agent-cms/agentcms@0.3.0 <command> … --site <al
 | Category / tag names, slugs, descriptions, SEO | `regenerate everything` (`repair` first if a category slug changed) |
 | Plugin enabled / disabled | `regenerate everything` |
 | Plugin config (head / body output: custom code, search, favicon, multilang…) | `regenerate all`, plus the plugin's own target (`regenerate <plugin-id>`) |
-| Theme switch (`themes activate --yes`) | nothing (it regenerates everything itself) |
+| Theme switch (`themes activate --yes`) | nothing (it regenerates everything itself); `media regenerate --yes` + `regenerate all` if media were uploaded under another theme |
 | Content imported (`transfer import`, `agentcms-import run`) | `regenerate everything` |
 
 Regeneration commands:
@@ -106,6 +106,7 @@ Links typed into theme or plugin settings (promo links, call-to-action URLs…) 
 
 - `themes list` shows the bundled and installed themes and which is active.
 - `themes activate <id>` prints the plan. `--yes` switches theme and regenerates the whole site (several minutes on big sites).
+- Each theme has its own image formats. Media uploaded under another theme lack them, and pages fall back to another size (wrong crop, empty bands). After a switch, run `media regenerate` (plan), then `media regenerate --yes` and `regenerate all`.
 - **Configuration:** `themes config <id> --schema`, `--get`, `--merge '{…}'` or `--set`. Typical keys:
   - `style{vars{…},fontSerif,fontSans}`: colors and fonts. The CSS is recompiled and uploaded at once, and `next` stays empty.
     - `--schema` lists `cssVariables`, the theme's custom properties with their current default values.

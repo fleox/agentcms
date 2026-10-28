@@ -40,6 +40,9 @@ export interface PortfolioSingleConfig {
   // Toggle the full-bleed grayscale hero. When off, the hero collapses
   // to a contained image at the top of the body.
   showHero: boolean;
+  // Black-and-white hero photo (the original look). Off = the photo's
+  // own colours.
+  heroGrayscale: boolean;
   // Toggle the next-project teaser at the bottom of every single page.
   showNextProject: boolean;
   // Default "services" labels shown on every project's left meta col
@@ -51,6 +54,7 @@ export interface PortfolioSingleConfig {
 
 export const DEFAULT_PORTFOLIO_SINGLE: PortfolioSingleConfig = {
   showHero: true,
+  heroGrayscale: true,
   showNextProject: true,
   defaultServicesLabel: "SERVICES",
   defaultYearLabel: "YEAR",

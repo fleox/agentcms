@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { installBrowserEnv } from "./browserEnv";
@@ -69,6 +69,7 @@ beforeAll(async () => {
   expect((await run(["credentials", "set", "github:me", "--from-env", "E2E_ADMIN_DATA_TOKEN"])).code).toBe(0);
   await install("blog", "content", "site");
   await install("copy", "content2", "site2");
+  await install("pics", "content3", "site3");
 }, 120_000);
 
 afterAll(() => {
@@ -96,8 +97,8 @@ describe("media, users, transfer, stats (fake GitHub)", () => {
     expect(res.code).toBe(0);
     const rows = res.body.data.result as Array<{ ok: boolean; id: string; url: string; formats: Record<string, { url: string; width: number; height: number }> }>;
     expect(rows.map((r) => r.ok)).toEqual([true, true]);
-    // One commit per uploaded file.
-    expect(gh.commits("me/site").length).toBe(before + 2);
+    // One commit for the whole command (one Pages build).
+    expect(gh.commits("me/site").length).toBe(before + 1);
     [mediaId, jpegId] = rows.map((r) => r.id);
 
     // The default theme's formats + the admin ones, at planFit's sizes.
@@ -126,6 +127,46 @@ describe("media, users, transfer, stats (fake GitHub)", () => {
     expect((await run(["media", "update", jpegId, "--site", "blog", "--alt", "Portrait"])).body.data.result).toMatchObject({ alt: "Portrait", caption: "Made in a test" });
     const listed = await run(["media", "list", "--site", "blog", "--search", "portrait"]);
     expect(listed.body.data.result.map((m: { id: string }) => m.id)).toEqual([jpegId]);
+  }, 120_000);
+
+  it("uploads several files with their own alt texts (--data), then re-crops missing formats (media regenerate)", async () => {
+    const dir = join(root, "batch");
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, "fjord.png"), await encodeImage(gradient(1000, 700), "image/png", 100));
+    writeFileSync(join(dir, "dune.png"), await encodeImage(gradient(900, 600), "image/png", 100));
+    writeFileSync(join(dir, "media.json"), JSON.stringify([{ file: "fjord.png", alt: "A fjord", caption: "Norway" }, { file: "dune.png", alt: "A dune" }]));
+    const before = gh.commits("me/site3").length;
+    const up = await run(["media", "upload", "--data", `@${join(dir, "media.json")}`, "--site", "pics"]);
+    expect(up.code).toBe(0);
+    const [fjord, dune] = up.body.data.result as Array<{ ok: boolean; id: string }>;
+    expect([fjord.ok, dune.ok]).toEqual([true, true]);
+    expect(gh.commits("me/site3").length).toBe(before + 1);
+    expect((await run(["media", "get", fjord.id, "--site", "pics"])).body.data.result).toMatchObject({ alt: "A fjord", caption: "Norway" });
+    expect((await run(["media", "get", dune.id, "--site", "pics"])).body.data.result).toMatchObject({ alt: "A dune" });
+
+    // Every format of the active theme is there.
+    expect((await run(["media", "regenerate", "--site", "pics"])).body.data.result).toMatchObject({ needsConfirmation: false, media: [], upToDate: 2 });
+
+    // Simulate media uploaded under another theme: "large" missing,
+    // "medium" at another size.
+    const media = JSON.parse(gh.files("me/content3").get("media.json")!) as Array<{ id: string; formats: Record<string, { width: number; height: number }> }>;
+    const doc = media.find((m) => m.id === fjord.id)!;
+    delete doc.formats.large;
+    doc.formats.medium = { ...doc.formats.medium, width: 640, height: 480 };
+    gh.writeFiles("me/content3", { "media.json": JSON.stringify(media, null, 2) });
+
+    const plan = await run(["media", "regenerate", "--site", "pics"]);
+    expect(plan.body.data.result).toMatchObject({ needsConfirmation: true, theme: "default", media: [{ id: fjord.id, formats: ["medium", "large"] }], upToDate: 1 });
+    const done = await run(["media", "regenerate", "--site", "pics", "--yes"]);
+    expect(done.code).toBe(0);
+    expect(done.body.data.result.regenerated).toEqual([expect.objectContaining({ id: fjord.id, ok: true, formats: ["medium", "large"] })]);
+    expect(done.body.data.result.next).toEqual(["agentcms regenerate all --site pics"]);
+    const fresh = (await run(["media", "get", fjord.id, "--site", "pics"])).body.data.result;
+    expect(fresh.formats.large).toMatchObject({ width: 1600, height: 900 });
+    expect(fresh.formats.medium).toMatchObject({ width: 800, height: 800 });
+    const img = await decodeImage((await fetchBytes(fresh.formats.large.url))!);
+    expect([img.width, img.height]).toEqual([1600, 900]);
+    expect((await run(["media", "regenerate", "--site", "pics"])).body.data.result.media).toEqual([]);
   }, 120_000);
 
   it("updates an author profile and republishes authors.json + the author archive", async () => {

@@ -70,7 +70,7 @@ Every template gets `site: SiteContext` plus its own props. `BaseLayout` gets `B
 | 404 | `"Page not found"` | — | — | `404.html` |
 
 - **single**: `{ post: Post, bodyHtml: string, author?: AuthorView, hero?: MediaView, primaryTerm?: Term, tags: Term[] }`. `bodyHtml` is sanitised HTML already processed by the `post.html.body` filters: render it with `dangerouslySetInnerHTML`. No related posts are provided. Render a placeholder and fill it at runtime from `data/posts.json` if you want them.
-- **home**: `{ posts: CardPost[], staticPage?: { post, bodyHtml }, archivesLink?: { href, label } }`. `heroHtml`, `listHtml`, `mostReadHtml` and `promoCardHtml` are only filled for built-in themes, never for yours. When `staticPage` is set, render its `bodyHtml` (a page made of blocks is the usual way to build a landing page).
+- **home**: `{ posts: CardPost[], staticPage?: { post, bodyHtml }, archivesLink?: { href, label } }` (`label` is already translated and ends with " →": print it as is). `heroHtml`, `listHtml`, `mostReadHtml` and `promoCardHtml` are only filled for built-in themes, never for yours. When `staticPage` is set, render its `bodyHtml` (a page made of blocks is the usual way to build a landing page).
 - **category**: `{ term, posts: CardPost[], categoryRssUrl?, archivesLink?, allCategories?: Term[], popularTags?: Term[] }`.
 - **author**: `{ author: AuthorView, posts: CardPost[] }`.
 - **notFound**: only `{ site }`.
@@ -217,7 +217,9 @@ const set = ["small", "medium", "large"].map((n) => hero?.formats[n]).filter(Boo
 
 ## Screenshots and hover
 
-The preview's screenshots have no hover: `(hover: hover)` is false, so hover-reveal designs show their touch/default state. Make sure that state looks right too. Lazy images are loaded before each capture.
+The preview's screenshots have no hover: `(hover: hover)` is false, so hover-reveal designs show their touch/default state. Make sure that state looks right too. Lazy images are loaded before each capture, and the page is scrolled to the bottom and back so scroll-triggered reveals have run.
+
+**Scroll animations.** Hide elements before their reveal only from JavaScript (add the hidden state in the loader, never in the static CSS), so pages stay readable without JS and in feed readers; honour `prefers-reduced-motion`. The theme's runtime script is `jsText` (published as `theme-assets/<id>-menu.js`).
 
 ## Fonts chosen in the settings
 

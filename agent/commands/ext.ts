@@ -141,7 +141,7 @@ async function preview({ io, options, positionals }: CommandContext) {
   }
   if (options.screenshots) {
     const { screenshotPages } = await import("../ops/extScreenshot");
-    screenshots = await screenshotPages(baseUrl, res.pages, join(res.outDir, ".screenshots"), options["screenshot-js"] ? String(options["screenshot-js"]) : undefined);
+    screenshots = await screenshotPages(baseUrl, res.pages, join(res.outDir, ".screenshots"), options["screenshot-js"] ? String(options["screenshot-js"]) : undefined, options["max-height"] ? Number(options["max-height"]) : undefined);
   }
   const data = {
     ...res,
@@ -220,7 +220,7 @@ export const extCommand: Command = {
   summary:
     "Build, test and ship plugins and themes: new <plugin|theme> <id> (scaffold a project), check <path> (validate + render a demo site, exit 1 on errors), preview <path…> (render a full demo site locally; --serve, --screenshots, --site <alias> for a site's real content), pack <project> (ZIP for the admin's Install button), install <zip> --site <alias> (upload to a site; plan first, --yes to apply), list --site <alias>, uninstall <id> --site <alias>.",
   usage:
-    "ext new <plugin|theme> <id> [--with <features>] [--dir <path>] [--name <name>] [--description <text>] [--author <name>] [--force] | ext check <path> [--kind <plugin|theme>] [--out <dir>] | ext preview <path…> [--theme <id>] [--enable <ids>] [--settings <json>] [--theme-config <json>] [--plugin-configs <json>] [--site <alias>] [--out <dir>] [--port <n>] [--base-path </dir>] [--home blocks] [--demo empty] [--screenshots] [--screenshot-js <code>] [--serve] | ext pack <project> [--out <zip>] | ext install <zip|folder> --site <alias> [--activate] [--yes] | ext list --site <alias> | ext uninstall <id> --site <alias> [--yes]",
+    "ext new <plugin|theme> <id> [--with <features>] [--dir <path>] [--name <name>] [--description <text>] [--author <name>] [--force] | ext check <path> [--kind <plugin|theme>] [--out <dir>] | ext preview <path…> [--theme <id>] [--enable <ids>] [--settings <json>] [--theme-config <json>] [--plugin-configs <json>] [--site <alias>] [--out <dir>] [--port <n>] [--base-path </dir>] [--home blocks] [--demo empty] [--screenshots] [--screenshot-js <code>] [--max-height <px>] [--serve] | ext pack <project> [--out <zip>] | ext install <zip|folder> --site <alias> [--activate] [--no-regenerate] [--yes] | ext list --site <alias> | ext uninstall <id> --site <alias> [--yes]",
   options: [
     { name: "dir", type: "string", description: "new: target folder (default: ./<id>)." },
     { name: "name", type: "string", description: "new: display name." },
@@ -244,7 +244,9 @@ export const extCommand: Command = {
     { name: "screenshot-js", type: "string", description: "preview: JavaScript run in every page before its screenshot (after load), e.g. to click a consent button or open the menu. Async code is awaited." },
     { name: "screenshots", type: "boolean", description: "preview: PNG screenshots (desktop + mobile) of each kind of page with a local Chrome/Chromium/Edge." },
     { name: "site", type: "string", description: "preview: render a registered site's real content (read-only copy). install/list/uninstall: the site." },
-    { name: "activate", type: "boolean", description: "install: also activate it (theme: make it the active theme; plugin: enable it)." },
+    { name: "max-height", type: "string", description: "preview --screenshots: cap each capture's height in CSS px (default: the whole page, up to 6000)." },
+    { name: "activate", type: "boolean", description: "install: also activate it (theme: make it the active theme; plugin: enable it), then regenerate the whole site." },
+    { name: "no-regenerate", type: "boolean", description: "install: don't regenerate the site (by default it is regenerated when the package is activated, or upgrades the active theme / an enabled plugin)." },
     { name: "yes", type: "boolean", description: "install/uninstall: apply (without it, only print the plan)." },
   ],
   async run(ctx) {

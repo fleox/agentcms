@@ -1,15 +1,14 @@
 /**
- * Magazine theme — runtime sidebar loader.
+ * Portfolio theme — runtime loader.
  *
- * Populates `[data-cms-related]` and `[data-cms-author-bio]` hosts
+ * Populates `[data-cms-related]` (and `[data-cms-author-bio]`) hosts
  * from `/data/posts.json` and `/data/authors.json` respectively. Same
  * lifecycle as default's posts-loader: fetched once on
  * DOMContentLoaded, paint passes are independent and tolerate each
  * other's failure.
  *
- * The injected DOM uses magazine-specific class names
- * (`magazine-related-*`, `magazine-bio-*`) — matching CSS rules live
- * in `theme.css` under `@layer components`. The author-bio host
+ * The related-projects DOM uses `portfolio-related-*` class names —
+ * matching CSS rules live in `theme.css` under `@layer components`. The author-bio host
  * provides its own card chrome (background / border / padding /
  * radius) via Tailwind utilities in `SingleTemplate.tsx`; the
  * related host carries no chrome (just a section heading + bordered
@@ -94,17 +93,17 @@
       });
   }
 
-  // ─── Related posts ────────────────────────────────────────────────
+  // ─── Related projects ─────────────────────────────────────────────
   //
-  // DOM emitted (matches the editorial mockup — small-caps section
-  // heading + flex-column list with top-bordered items):
+  // DOM emitted:
   //
-  //   <h4 class="magazine-related-heading">Latest from {{site}}</h4>
-  //   <div class="magazine-related-list">
-  //     <a class="magazine-related-link group" href="/...">
-  //       <span class="magazine-related-eyebrow">Category</span>
-  //       <h5 class="magazine-related-title">Title</h5>
-  //       <time class="magazine-related-date">Nov 12, 2024</time>
+  //   <h4 class="portfolio-related-heading">More in this category</h4>
+  //   <div class="portfolio-related-grid">
+  //     <a class="portfolio-related-card" href="/...">
+  //       <div class="portfolio-related-media"><img …></div>
+  //       <span class="portfolio-related-eyebrow">Category</span>
+  //       <h5 class="portfolio-related-title">Title</h5>
+  //       <time class="portfolio-related-date">12 nov. 2024</time>
   //     </a>
   //     ...
   //   </div>
@@ -112,20 +111,30 @@
   function renderRelatedItem(entry) {
     var a = document.createElement("a");
     a.href = withBase("/" + entry.url);
-    a.className = "magazine-related-link";
+    a.className = "portfolio-related-card";
+    if (entry.hero) {
+      var media = document.createElement("div");
+      media.className = "portfolio-related-media";
+      var img = document.createElement("img");
+      img.src = withBase(entry.hero);
+      img.alt = "";
+      img.loading = "lazy";
+      media.appendChild(img);
+      a.appendChild(media);
+    }
     if (entry.category && entry.category.name) {
       var eyebrow = document.createElement("span");
-      eyebrow.className = "magazine-related-eyebrow";
+      eyebrow.className = "portfolio-related-eyebrow";
       eyebrow.textContent = entry.category.name;
       a.appendChild(eyebrow);
     }
     var title = document.createElement("h5");
-    title.className = "magazine-related-title";
+    title.className = "portfolio-related-title";
     title.textContent = entry.title || "";
     a.appendChild(title);
     if (entry.dateLabel) {
       var date = document.createElement("time");
-      date.className = "magazine-related-date";
+      date.className = "portfolio-related-date";
       date.textContent = entry.dateLabel;
       a.appendChild(date);
     }
@@ -136,9 +145,8 @@
     var termId = host.getAttribute("data-cms-term-id") || "";
     var currentId = host.getAttribute("data-cms-current-id") || "";
     var limit = parseInt(host.getAttribute("data-cms-limit") || "3", 10);
-    var label = host.getAttribute("data-cms-label") || "Continue reading";
-    var fallbackLabel =
-      host.getAttribute("data-cms-fallback-label") || "Latest articles";
+    var label = host.getAttribute("data-cms-label") || "More in this category";
+    var fallbackLabel = host.getAttribute("data-cms-fallback-label") || "Latest projects";
 
     var matching = [];
     var heading = label;
@@ -171,15 +179,15 @@
     host.removeAttribute("hidden");
     host.innerHTML = "";
     var headingEl = document.createElement("h4");
-    headingEl.className = "magazine-related-heading";
+    headingEl.className = "portfolio-related-heading";
     headingEl.textContent = heading;
     host.appendChild(headingEl);
-    var list = document.createElement("div");
-    list.className = "magazine-related-list";
+    var grid = document.createElement("div");
+    grid.className = "portfolio-related-grid";
     matching.forEach(function (entry) {
-      list.appendChild(renderRelatedItem(entry));
+      grid.appendChild(renderRelatedItem(entry));
     });
-    host.appendChild(list);
+    host.appendChild(grid);
   }
 
   // ─── Author bio ───────────────────────────────────────────────────

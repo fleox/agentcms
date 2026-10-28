@@ -129,6 +129,18 @@ async function capture(cdp: Cdp, url: string, vp: (typeof VIEWPORTS)[keyof typeo
       },
       sessionId,
     );
+    // Scroll-triggered reveals (IntersectionObserver fade-ins) leave
+    // everything below the fold hidden in a full-page capture: scroll
+    // through the page once, give the transitions time to end, back to
+    // the top.
+    await cdp.send(
+      "Runtime.evaluate",
+      {
+        expression: `(async () => { const wait = (ms) => new Promise((r) => setTimeout(r, ms)); const step = Math.max(200, Math.floor(innerHeight * 0.8)); for (let y = 0; y < document.documentElement.scrollHeight; y += step) { scrollTo(0, y); await wait(120); } scrollTo(0, document.documentElement.scrollHeight); await wait(900); scrollTo(0, 0); await wait(300); })()`,
+        awaitPromise: true,
+      },
+      sessionId,
+    );
     // Fonts, runtime loaders (menus from data/menu.json…), embeds.
     const { result: frames } = await cdp.send<{ result: { value?: number } }>("Runtime.evaluate", { expression: "document.querySelectorAll('iframe').length", returnByValue: true }, sessionId);
     await new Promise((r) => setTimeout(r, frames.value ? 2500 : 600));

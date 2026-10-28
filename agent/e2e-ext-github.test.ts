@@ -102,6 +102,10 @@ describe("ext install / list / uninstall on markdown-git + GitHub Pages", () => 
     expect(files.has("theme-assets/acme-blog-menu.js")).toBe(true);
     expect(JSON.parse(gh.files("me/content").get("settings/site.json")!).activeThemeId).toBe("acme-blog");
     expect(registry().themes).toContainEqual(expect.objectContaining({ id: "acme-blog", entryPath: "themes/acme-blog/bundle.js" }));
+    // Activated = the whole site regenerated with it, in the same command.
+    expect(res.body.data.regenerated).toMatchObject({ errors: [] });
+    expect(files.get("index.html")).toContain("/theme-assets/acme-blog.css");
+    expect(files.get("404.html")).toContain("/theme-assets/acme-blog.css");
 
     const listed = await cli(["ext", "list", "--site", "blog"]);
     expect(listed.body.data.activeTheme).toBe("acme-blog");
@@ -110,6 +114,35 @@ describe("ext install / list / uninstall on markdown-git + GitHub Pages", () => 
     expect((await cli(["ext", "uninstall", "acme-blog", "--site", "blog", "--yes"])).body.error?.code).toBe("theme-active");
     expect((await cli(["ext", "uninstall", "nope", "--site", "blog", "--yes"])).body.error?.code).toBe("not-installed");
   }, 120_000);
+
+  it("upgrading the active theme regenerates with the new bundle, even while Pages still serves the old one", async () => {
+    for (const f of ["manifest.json", "src/manifest.tsx", "package.json"]) edit(theme, f, /"?version"?: "1\.0\.0"/, f.endsWith(".tsx") ? 'version: "1.1.0"' : '"version": "1.1.0"');
+    edit(theme, "src/templates/BaseLayout.tsx", '<body className=', '<body data-acme-version="v2" className=');
+    await buildProject(theme);
+    // A Pages build still running: the site keeps serving the v1 bundle.
+    gh.holdPages("me/site", true);
+    try {
+      const res = await cli(["ext", "install", theme, "--site", "blog", "--yes"]);
+      expect(res.body.data).toMatchObject({ installed: true, action: "upgrade", from: "1.0.0", to: "1.1.0", regenerated: { errors: [] } });
+      expect(gh.files("me/site").get("index.html")).toContain('data-acme-version="v2"');
+      expect(JSON.stringify(res.body.data.notices)).not.toContain("registry says");
+      // doctor sees the served home lagging behind the hosting's.
+      const doc = await cli(["doctor", "--site", "blog"]);
+      expect(doc.body.data.checks).toContainEqual(expect.objectContaining({ id: "deployment", status: "warn" }));
+    } finally {
+      gh.holdPages("me/site", false);
+    }
+    const doc = await cli(["doctor", "--site", "blog"]);
+    expect(doc.body.data.checks).toContainEqual(expect.objectContaining({ id: "deployment", status: "ok" }));
+    // Later commands render with v2 too.
+    await cli(["regenerate", "home", "--site", "blog"]);
+    expect(gh.files("me/site").get("index.html")).toContain('data-acme-version="v2"');
+
+    // --no-regenerate leaves the pages alone and says what to run.
+    const again = await cli(["ext", "install", theme, "--site", "blog", "--yes", "--no-regenerate"]);
+    expect(again.body.data).toMatchObject({ installed: true, regenerated: null });
+    expect(again.body.data.next[0]).toContain("agentcms regenerate everything --site blog");
+  }, 180_000);
 
   it("uninstalls an inactive extension: plan first, then registry + files", async () => {
     const plan = await cli(["ext", "uninstall", "acme-tools", "--site", "blog"]);
@@ -147,6 +180,8 @@ describe("ext install / list / uninstall on markdown-git + GitHub Pages", () => 
     const res = await cli(["ext", "preview", theme, "--site", "blog", "--out", out]);
     expect(res.body).toMatchObject({ ok: true, data: { site: "blog", themeId: "acme-blog" } });
     expect(res.body.data.files).toContain("hello-real.html");
+    // The site's bundled plugins run in the preview (search, sitemaps…).
+    expect(res.body.data.plugins).toEqual(expect.arrayContaining(["agentcms-search", "agentcms-sitemaps"]));
     expect(readFileSync(join(out, "hello-real.html"), "utf8")).toContain("Hello from the real site");
     expect(readFileSync(join(out, "index.html"), "utf8")).toContain("Hello from the real site");
     // Read-only: nothing written back to the content repo or the site.

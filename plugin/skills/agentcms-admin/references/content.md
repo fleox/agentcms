@@ -12,7 +12,7 @@
 | body | `--body @file.md` (or text, or `-` for stdin) | Markdown, see below |
 | excerpt | `--excerpt` | Shown on listings, and used in feeds and as the meta description fallback. `""` clears it. |
 | category | `--category <slug\|name\|id>` | Posts only. `""` removes it. Missing → `--create-terms` |
-| tags | `--tags a,b` | Replaces the tags. Missing ones are created with `--create-terms`. |
+| tags | `--tags a,b` | Tag **names** as readers see them, with accents (`--tags "Grèce,États-Unis"`, not slugs). Replaces the tags. Missing ones are created with `--create-terms`, the given text becoming their name. |
 | featured image | `--hero <media id>` | From `media upload` / `media list`. `""` removes it. |
 | author | `--author <user id\|email>` | Default on create: the signed-in user |
 | SEO | `--seo-title`, `--seo-description`, `--seo-image <url>` | `<title>`, meta description, og:image. Themes append " — <site title>" to `<title>` (unless the SEO title already contains it): don't add the brand yourself. |
@@ -95,11 +95,13 @@ Theme blocks have no attribute descriptions yet. Start from the defaults `conten
   - Returns `id`, the default `url`, and `formats.<name>` = `{ url, width, height, bytes, fit, adminOnly }` for every size, as in `media list`.
     - `fit: "cover"`: cropped to exactly `width`×`height` (e.g. a square). `fit: "contain"`: the whole image, proportions kept.
     - Formats with `adminOnly: true` (`admin-thumb`, `admin-preview`, `admin-original`) are the media library's own: don't use them in content.
-  - `--alt` and `--caption` apply to every file of the command. For different texts, upload one file per command, or fix them afterwards with `media update`.
+  - `--alt` and `--caption` apply to every file of the command. For a different text per file, use `--data @media.json` with `[{"file": "fjord.jpg", "alt": "…", "caption": "…"}, …]` (paths relative to the JSON file).
+  - One command = one commit on git hostings: upload all images in one command rather than one per image (each commit starts a Pages build).
 - **Other commands:**
   - `media list [--search]` / `media get <id>`: `get` shows where the media is used.
   - `media update <id> --alt … --caption …`.
   - `media delete <id…> --yes`. Pages that still show it keep a broken image until they are edited and republished; check `usages` first.
+- **After a theme switch:** `media regenerate` (plan) then `--yes` re-crops existing media to the active theme's formats; then `regenerate all`.
 - **Featured image of a post:** `content update <ref> --hero <id>`.
 - **Author avatar:** `users update me --avatar <id>`.
 - **Theme logo and favicon** aren't media: use `themes logo` and `plugins action agentcms-favicon set`.

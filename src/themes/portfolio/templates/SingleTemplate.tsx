@@ -3,7 +3,7 @@ import { i18n, pickFormat, pickPublicLocale } from "@agent-cms/runtime";
 import type { PortfolioThemeConfig } from "../config";
 import { DEFAULT_PORTFOLIO_SINGLE } from "../config";
 
-// Portfolio single — full-bleed grayscale hero, 4-col meta + 8-col
+// Portfolio single — full-bleed hero (grayscale unless turned off), 4-col meta + 8-col
 // intro, body markdown below in `portfolio-prose`. Pages
 // (`post.type === "page"`) bypass the hero / meta and render in a
 // constrained `portfolio-page-body` container.
@@ -52,7 +52,7 @@ export function SingleTemplate({
           <img
             src={heroUrl}
             alt={hero?.alt ?? post.title}
-            className="w-full h-full object-cover grayscale"
+            className={`w-full h-full object-cover${single.heroGrayscale ? " grayscale" : ""}`}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent flex flex-col justify-end px-margin-edge-mobile md:px-margin-edge pb-section-gap-mobile md:pb-section-gap">
             <div className="max-w-container-max mx-auto w-full">
@@ -104,12 +104,17 @@ export function SingleTemplate({
         </div>
       </section>
 
-      {/* Related projects placeholder — populated by posts-loader.js at
-          runtime. Hidden by CSS when empty. Phase 2 wires this up. */}
+      {/* Related projects — filled by posts-loader.js from
+          data/posts.json (same category first, else the latest ones).
+          Stays hidden when there is nothing to show. */}
       <section
-        className="max-w-container-max mx-auto px-margin-edge-mobile md:px-margin-edge pb-section-gap-mobile md:pb-section-gap"
+        className="portfolio-related max-w-container-max mx-auto px-margin-edge-mobile md:px-margin-edge pb-section-gap-mobile md:pb-section-gap"
         data-cms-related
-        data-cms-related-count="3"
+        data-cms-current-id={post.id}
+        data-cms-term-id={primaryTerm?.id ?? ""}
+        data-cms-limit="3"
+        data-cms-label={t("publicBaked.relatedHeading")}
+        data-cms-fallback-label={t("publicBaked.relatedFallback")}
         hidden
       />
     </article>

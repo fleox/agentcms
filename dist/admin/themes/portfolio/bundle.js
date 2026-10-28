@@ -1,12 +1,12 @@
-import { jsxs as b, Fragment as Gr, jsx as u } from "react/jsx-runtime";
-import { i18n as $e, pickPublicLocale as Ue, canonicalUrl as qr, pickFormat as he, uploadFile as Kr, useCmsData as Yr, logoPath as Xr, FontSelect as tn, toast as R, uploadThemeLogo as Qr, removeThemeLogo as Zr, fetchAllPosts as nn, publishMenuJson as ei } from "@agent-cms/runtime";
+import { jsxs as b, Fragment as Wr, jsx as u } from "react/jsx-runtime";
+import { i18n as $e, pickPublicLocale as Ue, canonicalUrl as qr, pickFormat as me, uploadFile as Kr, useCmsData as Yr, logoPath as Xr, FontSelect as tn, toast as R, uploadThemeLogo as Qr, removeThemeLogo as Zr, fetchAllPosts as nn, publishMenuJson as ei } from "@agent-cms/runtime";
 import L, { forwardRef as Bt, createElement as Qe, useState as D, useRef as ti, createRef as ni, memo as ri, createContext as Dn, version as rn, useContext as ii } from "react";
 import { useTranslation as V } from "react-i18next";
 import oi, { flushSync as si } from "react-dom";
 function ai({ site: r }) {
   var o;
   const { settings: e } = r, t = $e.getFixedT(Ue(e.language), "theme-portfolio"), n = r.themeConfig, i = ((o = n == null ? void 0 : n.brand.wordmark) == null ? void 0 : o.trim()) || e.title.toUpperCase();
-  return /* @__PURE__ */ b(Gr, { children: [
+  return /* @__PURE__ */ b(Wr, { children: [
     /* @__PURE__ */ u("header", { className: "sticky top-0 z-50 bg-surface border-b border-primary", children: /* @__PURE__ */ b("div", { className: "max-w-container-max mx-auto flex items-center justify-between px-margin-edge-mobile md:px-margin-edge py-6", children: [
       /* @__PURE__ */ b("div", { className: "flex items-center gap-4", children: [
         /* @__PURE__ */ u(
@@ -131,7 +131,7 @@ function ci({
 }
 function Pt({ card: r }) {
   var l, c, d, f, p, h, g, m;
-  const e = r.hero ? he(r.hero, "portrait") || he(r.hero) : "", t = ((l = r.hero) == null ? void 0 : l.alt) ?? r.title, n = ((d = (c = r.publishedAt) == null ? void 0 : c.toMillis) == null ? void 0 : d.call(c)) ?? ((p = (f = r.createdAt) == null ? void 0 : f.toMillis) == null ? void 0 : p.call(f)) ?? null, i = n ? new Date(n).getUTCFullYear() : "", s = [((g = (h = r.category) == null ? void 0 : h.name) == null ? void 0 : g.toUpperCase()) ?? "", i ? String(i) : ""].filter(Boolean).join(" / "), a = (m = r.category) != null && m.url ? r.category.url.replace(/^\/+/, "").split("/")[0] : "";
+  const e = r.hero ? me(r.hero, "portrait") || me(r.hero) : "", t = ((l = r.hero) == null ? void 0 : l.alt) ?? r.title, n = ((d = (c = r.publishedAt) == null ? void 0 : c.toMillis) == null ? void 0 : d.call(c)) ?? ((p = (f = r.createdAt) == null ? void 0 : f.toMillis) == null ? void 0 : p.call(f)) ?? null, i = n ? new Date(n).getUTCFullYear() : "", s = [((g = (h = r.category) == null ? void 0 : h.name) == null ? void 0 : g.toUpperCase()) ?? "", i ? String(i) : ""].filter(Boolean).join(" / "), a = (m = r.category) != null && m.url ? r.category.url.replace(/^\/+/, "").split("/")[0] : "";
   return /* @__PURE__ */ b(
     "a",
     {
@@ -169,7 +169,7 @@ const ct = [
   "foreground",
   "outlines",
   "accent"
-], me = {
+], ge = {
   serif: {
     "Playfair Display": "Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700",
     Newsreader: "Newsreader:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,700",
@@ -191,17 +191,17 @@ const ct = [
     "Space Grotesk": "Space+Grotesk:wght@400;500;600;700",
     "Bricolage Grotesque": "Bricolage+Grotesque:wght@400;500;600;700"
   }
-}, ge = "Playfair Display", be = "Inter", Se = {
+}, be = "Playfair Display", ye = "Inter", Ce = {
   vars: {},
-  fontSerif: ge,
-  fontSans: be
+  fontSerif: be,
+  fontSans: ye
 }, Fn = [
   {
     id: "minimal",
     swatch: ["--color-background", "--color-surface-container", "--color-primary", "--color-error"],
     vars: {},
-    fontSerif: ge,
-    fontSans: be
+    fontSerif: be,
+    fontSans: ye
   },
   {
     id: "earth",
@@ -313,19 +313,19 @@ function ui(r) {
 }
 function on(r, e) {
   const t = {
-    ...me.serif,
-    ...me.sans
+    ...ge.serif,
+    ...ge.sans
   };
   return t[r] ?? t[e];
 }
 function fi(r, e) {
-  const t = on(r, ge), n = on(e, be);
+  const t = on(r, be), n = on(e, ye);
   return t === n ? `https://fonts.googleapis.com/css2?family=${t}&display=swap` : `https://fonts.googleapis.com/css2?family=${t}&family=${n}&display=swap`;
 }
 function pi() {
   return `https://fonts.googleapis.com/css2?${[
-    ...Object.keys(me.serif),
-    ...Object.keys(me.sans)
+    ...Object.keys(ge.serif),
+    ...Object.keys(ge.sans)
   ].map((t) => `family=${t.replace(/ /g, "+")}`).join("&")}&display=swap`;
 }
 function hi(r) {
@@ -346,7 +346,7 @@ function Un(r, e) {
   const t = {};
   for (const [f, p] of Object.entries(e.vars ?? {}))
     p && p.trim() && (t[f] = p.trim());
-  const n = e.fontSerif || ge, i = e.fontSans || be, o = n !== ge || i !== be, s = Object.keys(t).length > 0;
+  const n = e.fontSerif || be, i = e.fontSans || ye, o = n !== be || i !== ye, s = Object.keys(t).length > 0;
   if (!o && !s) return r;
   let a = r;
   if (o) {
@@ -380,6 +380,7 @@ const dt = {
   showFilters: !1
 }, jt = {
   showHero: !0,
+  heroGrayscale: !0,
   showNextProject: !0,
   defaultServicesLabel: "SERVICES",
   defaultYearLabel: "YEAR",
@@ -399,7 +400,7 @@ const dt = {
   author: Dt,
   footer: Vn,
   brand: Hn,
-  style: Se,
+  style: Ce,
   cssUpdatedAt: 0
 };
 function gi({
@@ -449,7 +450,7 @@ function bi({
   primaryTerm: n,
   site: i
 }) {
-  var g, m, y, x, A;
+  var g, m, y, v, A;
   const { settings: o } = i, s = $e.getFixedT(Ue(o.language), "theme-portfolio"), a = i.themeConfig, l = { ...jt, ...(a == null ? void 0 : a.single) ?? {} };
   if (r.type === "page")
     return /* @__PURE__ */ u("article", { className: "pt-section-gap-mobile md:pt-section-gap pb-section-gap-mobile md:pb-section-gap", children: /* @__PURE__ */ u(
@@ -459,7 +460,7 @@ function bi({
         dangerouslySetInnerHTML: { __html: e }
       }
     ) });
-  const d = t ? he(t, "hero") || he(t) : "", f = ((m = (g = r.publishedAt) == null ? void 0 : g.toMillis) == null ? void 0 : m.call(g)) ?? ((x = (y = r.createdAt) == null ? void 0 : y.toMillis) == null ? void 0 : x.call(y)) ?? null, p = f ? new Date(f).getUTCFullYear() : "", h = [(A = n == null ? void 0 : n.name) == null ? void 0 : A.toUpperCase(), p ? String(p) : ""].filter(Boolean).join(" / ");
+  const d = t ? me(t, "hero") || me(t) : "", f = ((m = (g = r.publishedAt) == null ? void 0 : g.toMillis) == null ? void 0 : m.call(g)) ?? ((v = (y = r.createdAt) == null ? void 0 : y.toMillis) == null ? void 0 : v.call(y)) ?? null, p = f ? new Date(f).getUTCFullYear() : "", h = [(A = n == null ? void 0 : n.name) == null ? void 0 : A.toUpperCase(), p ? String(p) : ""].filter(Boolean).join(" / ");
   return /* @__PURE__ */ b("article", { children: [
     l.showHero && d && /* @__PURE__ */ b("section", { className: "w-full relative h-[60vh] md:h-[80vh] overflow-hidden", children: [
       /* @__PURE__ */ u(
@@ -467,7 +468,7 @@ function bi({
         {
           src: d,
           alt: (t == null ? void 0 : t.alt) ?? r.title,
-          className: "w-full h-full object-cover grayscale"
+          className: `w-full h-full object-cover${l.heroGrayscale ? " grayscale" : ""}`
         }
       ),
       /* @__PURE__ */ u("div", { className: "absolute inset-0 bg-gradient-to-t from-black/40 to-transparent flex flex-col justify-end px-margin-edge-mobile md:px-margin-edge pb-section-gap-mobile md:pb-section-gap", children: /* @__PURE__ */ b("div", { className: "max-w-container-max mx-auto w-full", children: [
@@ -500,9 +501,13 @@ function bi({
     /* @__PURE__ */ u(
       "section",
       {
-        className: "max-w-container-max mx-auto px-margin-edge-mobile md:px-margin-edge pb-section-gap-mobile md:pb-section-gap",
+        className: "portfolio-related max-w-container-max mx-auto px-margin-edge-mobile md:px-margin-edge pb-section-gap-mobile md:pb-section-gap",
         "data-cms-related": !0,
-        "data-cms-related-count": "3",
+        "data-cms-current-id": r.id,
+        "data-cms-term-id": (n == null ? void 0 : n.id) ?? "",
+        "data-cms-limit": "3",
+        "data-cms-label": s("publicBaked.relatedHeading"),
+        "data-cms-fallback-label": s("publicBaked.relatedFallback"),
         hidden: !0
       }
     )
@@ -527,7 +532,7 @@ function wi({
   posts: e,
   site: t
 }) {
-  const { settings: n } = t, i = $e.getFixedT(Ue(n.language), "theme-portfolio"), o = t.themeConfig, s = { ...Dt, ...(o == null ? void 0 : o.author) ?? {} }, a = r.avatar ? he(r.avatar, "portrait") || he(r.avatar) : "";
+  const { settings: n } = t, i = $e.getFixedT(Ue(n.language), "theme-portfolio"), o = t.themeConfig, s = { ...Dt, ...(o == null ? void 0 : o.author) ?? {} }, a = r.avatar ? me(r.avatar, "portrait") || me(r.avatar) : "";
   return /* @__PURE__ */ b("article", { className: "max-w-container-max mx-auto px-margin-edge-mobile md:px-margin-edge py-section-gap-mobile md:py-section-gap", children: [
     /* @__PURE__ */ b("section", { className: "grid grid-cols-12 gap-gutter mb-section-gap-mobile md:mb-section-gap", children: [
       /* @__PURE__ */ u("aside", { className: "col-span-12 md:col-span-4", children: a && /* @__PURE__ */ u(
@@ -550,14 +555,14 @@ function wi({
     e.length > 0 && /* @__PURE__ */ u("section", { className: "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter", children: e.map((l) => /* @__PURE__ */ u(Pt, { card: l }, l.id)) })
   ] });
 }
-function xi(r) {
+function vi(r) {
   return /* @__PURE__ */ b("article", { className: "max-w-container-max mx-auto px-margin-edge-mobile md:px-margin-edge py-section-gap-mobile md:py-section-gap min-h-[60vh] flex flex-col items-center justify-center text-center gap-12", children: [
     /* @__PURE__ */ u("h1", { className: "font-serif text-[120px] md:text-[200px] text-on-surface leading-none display-serif", children: "404" }),
     /* @__PURE__ */ u("p", { className: "font-sans text-body-lg text-secondary max-w-md", children: "This page does not exist. The page may have moved, or you typed an address that was never published here." }),
     /* @__PURE__ */ u("a", { href: "/index.html", className: "portfolio-btn-outline", children: "Return home" })
   ] });
 }
-const ln = '@import"https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@400;500;600;700&display=swap";@import"https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap";*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.19 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:var(--font-sans),Inter,system-ui,sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}:root{--color-background:253 248 248;--color-surface:253 248 248;--color-surface-container-lowest:255 255 255;--color-surface-container-low:247 243 242;--color-surface-container:241 237 236;--color-on-surface:28 27 27;--color-on-surface-variant:68 71 72;--color-outline:116 120 120;--color-outline-variant:196 199 199;--color-primary:0 0 0;--color-on-primary:255 255 255;--color-secondary:93 95 95;--color-on-secondary:255 255 255;--color-secondary-container:223 224 224;--color-on-secondary-container:97 99 99;--color-error:225 29 72;--font-serif:"Playfair Display";--font-sans:"Inter"}body,html{background-color:rgb(var(--color-background));color:rgb(var(--color-on-surface));font-family:var(--font-sans),"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased}.container{width:100%}@media(min-width:640px){.container{max-width:640px}}@media(min-width:768px){.container{max-width:768px}}@media(min-width:1024px){.container{max-width:1024px}}@media(min-width:1280px){.container{max-width:1280px}}@media(min-width:1536px){.container{max-width:1536px}}.display-serif{font-family:var(--font-serif),"Playfair Display",Georgia,serif;font-weight:700;letter-spacing:-.02em}.material-symbols-outlined{font-variation-settings:"FILL" 0,"wght" 400,"GRAD" 0,"opsz" 24;vertical-align:middle;line-height:1}.nav-link{position:relative;font-family:var(--font-sans),Inter,sans-serif;font-size:12px;font-weight:600;line-height:1;letter-spacing:.05em;text-transform:uppercase;color:rgb(var(--color-secondary));transition:color .2s}.nav-link.is-active,.nav-link:hover{color:rgb(var(--color-on-surface))}.nav-link.is-active:after{content:"";position:absolute;left:50%;bottom:-10px;transform:translate(-50%);width:4px;height:4px;background:rgb(var(--color-error));border-radius:0}.portfolio-btn-outline{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.625rem 1.5rem;border:1px solid rgb(var(--color-primary));font-family:var(--font-sans),Inter,sans-serif;font-size:12px;font-weight:600;line-height:1;letter-spacing:.05em;text-transform:uppercase;color:rgb(var(--color-on-surface));background:transparent;transition:background .3s,color .3s;cursor:pointer}.portfolio-btn-outline:hover{background:rgb(var(--color-primary));color:rgb(var(--color-on-primary))}.project-card{cursor:pointer;display:block;color:inherit;text-decoration:none}.project-card__image{overflow:hidden;background:rgb(var(--color-surface-container));margin-bottom:1rem}.project-card__image img{display:block;width:100%;height:auto;transition:transform .7s ease}.project-card:hover .project-card__image img{transform:scale(1.02)}.project-card__title{font-family:var(--font-serif),"Playfair Display",Georgia,serif;font-size:24px;line-height:1.3;font-weight:500;color:rgb(var(--color-on-surface));margin-bottom:.25rem}.project-card__meta{font-family:var(--font-sans),Inter,sans-serif;font-size:12px;font-weight:600;line-height:1;letter-spacing:.1em;text-transform:uppercase;color:rgb(var(--color-secondary))}@media(min-width:768px){.portfolio-staggered>:nth-child(2){margin-top:3rem}.portfolio-staggered>:nth-child(4){margin-top:6rem}.portfolio-staggered>:nth-child(6){margin-top:-3rem}.portfolio-staggered>:nth-child(8){margin-top:4.5rem}.portfolio-staggered>:nth-child(10){margin-top:-1.5rem}}.portfolio-masonry{-moz-column-count:1;column-count:1;-moz-column-gap:2rem;column-gap:2rem}@media(min-width:768px){.portfolio-masonry{-moz-column-count:3;column-count:3}}@media(min-width:1024px){.portfolio-masonry{-moz-column-count:4;column-count:4}}.portfolio-masonry>*{-moz-column-break-inside:avoid;break-inside:avoid;margin-bottom:3rem}.burger-menu{position:fixed;top:0;right:0;bottom:0;left:0;background:rgb(var(--color-surface));z-index:60;display:none;padding:4rem 2.5rem}.burger-menu ul,.burger-menu.is-open{display:flex;flex-direction:column;gap:2rem}.burger-menu ul{list-style:none;padding:0;margin:0}.burger-menu a{font-family:var(--font-serif),"Playfair Display",Georgia,serif;font-size:32px;font-weight:500;text-decoration:none}.burger-menu a,.portfolio-prose{color:rgb(var(--color-on-surface))}.portfolio-prose{font-family:var(--font-sans),Inter,sans-serif;font-size:18px;line-height:1.7;max-width:700px}.portfolio-prose p{margin-bottom:1.5rem}.portfolio-prose h2{font-size:32px;font-weight:600;line-height:1.3;margin-top:3rem;margin-bottom:1rem}.portfolio-prose h2,.portfolio-prose h3{font-family:var(--font-serif),"Playfair Display",Georgia,serif}.portfolio-prose h3{font-size:24px;font-weight:500;margin-top:2rem;margin-bottom:.5rem}.portfolio-prose ol,.portfolio-prose ul{padding-left:1.5rem;margin-bottom:1.5rem}.portfolio-prose ul{list-style:disc}.portfolio-prose ol{list-style:decimal}.portfolio-prose blockquote{border-left:1px solid rgb(var(--color-primary));padding-left:1.5rem;margin:2rem 0;font-family:var(--font-serif),"Playfair Display",Georgia,serif;font-style:italic;font-size:24px}.portfolio-prose a{color:rgb(var(--color-on-surface));text-decoration:underline;text-underline-offset:4px}.portfolio-prose a:hover{color:rgb(var(--color-error))}.portfolio-prose img{display:block;width:100%;height:auto;margin:2rem 0}.portfolio-page-body{max-width:800px;margin:0 auto;padding:0 1.25rem;font-family:var(--font-sans),Inter,sans-serif;font-size:18px;line-height:1.7;color:rgb(var(--color-on-surface))}@media(min-width:768px){.portfolio-page-body{padding:0 2.5rem}}.portfolio-page-body p{margin-bottom:1.5rem}.portfolio-page-body h1{font-family:var(--font-serif),"Playfair Display",Georgia,serif;font-size:48px;line-height:1.2;letter-spacing:-.01em;font-weight:700;margin-top:2rem;margin-bottom:2rem}@media(min-width:768px){.portfolio-page-body h1{font-size:80px;line-height:1.1;letter-spacing:-.02em}}.portfolio-page-body h2{font-size:32px;font-weight:600;line-height:1.3;margin-top:4rem;margin-bottom:1rem}.portfolio-page-body h2,.portfolio-page-body h3{font-family:var(--font-serif),"Playfair Display",Georgia,serif}.portfolio-page-body h3{font-size:24px;font-weight:500;margin-top:2.5rem;margin-bottom:.5rem}.portfolio-page-body img{width:100%;height:auto;margin:3rem 0}.portfolio-page-body ol,.portfolio-page-body ul{padding-left:1.5rem;margin-bottom:1.5rem}.portfolio-page-body ul{list-style:disc}.portfolio-page-body ol{list-style:decimal}.portfolio-page-body a{color:rgb(var(--color-on-surface));text-decoration:underline;text-underline-offset:4px}.portfolio-page-body a:hover{color:rgb(var(--color-error))}.visible{visibility:visible}.invisible{visibility:hidden}.static{position:static}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{top:0;right:0;bottom:0;left:0}.top-0{top:0}.z-10{z-index:10}.z-50{z-index:50}.col-span-12{grid-column:span 12/span 12}.col-span-4{grid-column:span 4/span 4}.col-span-8{grid-column:span 8/span 8}.mx-auto{margin-left:auto;margin-right:auto}.my-4{margin-top:1rem;margin-bottom:1rem}.-mb-px{margin-bottom:-1px}.mb-1{margin-bottom:.25rem}.mb-12{margin-bottom:3rem}.mb-16{margin-bottom:4rem}.mb-2{margin-bottom:.5rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}.mb-6{margin-bottom:1.5rem}.mb-8{margin-bottom:2rem}.mb-section-gap-mobile{margin-bottom:4rem}.mt-1{margin-top:.25rem}.mt-16{margin-top:4rem}.mt-8{margin-top:2rem}.mt-section-gap-mobile{margin-top:4rem}.line-clamp-2{overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}.block{display:block}.inline{display:inline}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.aspect-\\[4\\/5\\]{aspect-ratio:4/5}.h-1\\/2{height:50%}.h-10{height:2.5rem}.h-16{height:4rem}.h-20{height:5rem}.h-3\\.5{height:.875rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-8{height:2rem}.h-\\[600px\\]{height:600px}.h-\\[60vh\\]{height:60vh}.h-full{height:100%}.min-h-\\[40vh\\]{min-height:40vh}.min-h-\\[60vh\\]{min-height:60vh}.w-3\\.5{width:.875rem}.w-4{width:1rem}.w-40{width:10rem}.w-5{width:1.25rem}.w-auto{width:auto}.w-full{width:100%}.min-w-0{min-width:0}.max-w-2xl{max-width:42rem}.max-w-4xl{max-width:56rem}.max-w-\\[240px\\]{max-width:240px}.max-w-container-max{max-width:1440px}.max-w-md{max-width:28rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.transform{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes spin{to{transform:rotate(1turn)}}.animate-spin{animation:spin 1s linear infinite}.grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}.grid-cols-12{grid-template-columns:repeat(12,minmax(0,1fr))}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-end{align-items:flex-end}.items-center{align-items:center}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:.25rem}.gap-1\\.5{gap:.375rem}.gap-12{gap:3rem}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.gap-8,.gap-gutter{gap:2rem}.-space-x-1>:not([hidden])~:not([hidden]){--tw-space-x-reverse:0;margin-right:calc(-.25rem*var(--tw-space-x-reverse));margin-left:calc(-.25rem*(1 - var(--tw-space-x-reverse)))}.space-y-2>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem*var(--tw-space-y-reverse))}.space-y-3>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.75rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.75rem*var(--tw-space-y-reverse))}.space-y-4>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem*var(--tw-space-y-reverse))}.space-y-6>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem*var(--tw-space-y-reverse))}.overflow-hidden,.truncate{overflow:hidden}.truncate{text-overflow:ellipsis;white-space:nowrap}.rounded,.rounded-full,.rounded-lg{border-radius:0}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-b-2{border-bottom-width:2px}.border-t{border-top-width:1px}.border-dashed{border-style:dashed}.border-blue-600{--tw-border-opacity:1;border-color:rgb(37 99 235/var(--tw-border-opacity,1))}.border-outline-variant{--tw-border-opacity:1;border-color:rgb(var(--color-outline-variant)/var(--tw-border-opacity,1))}.border-primary{--tw-border-opacity:1;border-color:rgb(var(--color-primary)/var(--tw-border-opacity,1))}.border-transparent{border-color:transparent}.bg-background{--tw-bg-opacity:1;background-color:rgb(var(--color-background)/var(--tw-bg-opacity,1))}.bg-blue-50{--tw-bg-opacity:1;background-color:rgb(239 246 255/var(--tw-bg-opacity,1))}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235/var(--tw-bg-opacity,1))}.bg-surface{--tw-bg-opacity:1;background-color:rgb(var(--color-surface)/var(--tw-bg-opacity,1))}.bg-surface-container{--tw-bg-opacity:1;background-color:rgb(var(--color-surface-container)/var(--tw-bg-opacity,1))}.bg-surface-container-lowest{--tw-bg-opacity:1;background-color:rgb(var(--color-surface-container-lowest)/var(--tw-bg-opacity,1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.bg-gradient-to-t{background-image:linear-gradient(to top,var(--tw-gradient-stops))}.from-black\\/40{--tw-gradient-from:rgba(0,0,0,.4) var(--tw-gradient-from-position);--tw-gradient-to:transparent var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.to-transparent{--tw-gradient-to:transparent var(--tw-gradient-to-position)}.object-contain{-o-object-fit:contain;object-fit:contain}.object-cover{-o-object-fit:cover;object-fit:cover}.p-1{padding:.25rem}.p-2{padding:.5rem}.p-3{padding:.75rem}.p-4{padding:1rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-margin-edge-mobile{padding-left:1.25rem;padding-right:1.25rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.py-section-gap-mobile{padding-top:4rem;padding-bottom:4rem}.pb-12{padding-bottom:3rem}.pb-section-gap-mobile{padding-bottom:4rem}.pr-0{padding-right:0}.pt-3{padding-top:.75rem}.pt-4{padding-top:1rem}.pt-section-gap-mobile{padding-top:4rem}.text-left{text-align:left}.text-center{text-align:center}.font-sans{font-family:var(--font-sans),Inter,system-ui,sans-serif}.font-serif{font-family:var(--font-serif),Playfair Display,Georgia,serif}.text-\\[120px\\]{font-size:120px}.text-body-lg{font-size:18px;line-height:1.7;font-weight:400}.text-body-md{font-size:16px;line-height:1.6;font-weight:400}.text-display-lg-mobile{font-size:48px;line-height:1.2;letter-spacing:-.01em;font-weight:700}.text-headline-lg-mobile{font-size:32px;line-height:1.3;font-weight:600}.text-headline-md{font-size:32px;line-height:1.3;font-weight:500}.text-label-sm{font-size:12px;line-height:1;letter-spacing:.05em;font-weight:600}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xs{font-size:.75rem;line-height:1rem}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.italic{font-style:italic}.leading-none{line-height:1}.tracking-\\[0\\.2em\\]{letter-spacing:.2em}.tracking-\\[0\\.3em\\]{letter-spacing:.3em}.tracking-tight{letter-spacing:-.025em}.tracking-wide{letter-spacing:.025em}.tracking-widest{letter-spacing:.1em}.text-blue-500{--tw-text-opacity:1;color:rgb(59 130 246/var(--tw-text-opacity,1))}.text-error{--tw-text-opacity:1;color:rgb(var(--color-error)/var(--tw-text-opacity,1))}.text-on-primary{--tw-text-opacity:1;color:rgb(var(--color-on-primary)/var(--tw-text-opacity,1))}.text-on-primary\\/80{color:rgb(var(--color-on-primary)/.8)}.text-on-surface{--tw-text-opacity:1;color:rgb(var(--color-on-surface)/var(--tw-text-opacity,1))}.text-on-surface-variant{--tw-text-opacity:1;color:rgb(var(--color-on-surface-variant)/var(--tw-text-opacity,1))}.text-primary{--tw-text-opacity:1;color:rgb(var(--color-primary)/var(--tw-text-opacity,1))}.text-red-600{--tw-text-opacity:1;color:rgb(220 38 38/var(--tw-text-opacity,1))}.text-secondary{--tw-text-opacity:1;color:rgb(var(--color-secondary)/var(--tw-text-opacity,1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.shadow{--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.outline{outline-style:solid}.ring-1{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color)}.ring-1,.ring-2{box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.ring-2{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color)}.ring-blue-500\\/60{--tw-ring-color:rgba(59,130,246,.6)}.grayscale{--tw-grayscale:grayscale(100%)}.filter,.grayscale{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.duration-500{transition-duration:.5s}.hover\\:scale-\\[1\\.02\\]:hover{--tw-scale-x:1.02;--tw-scale-y:1.02;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\\:bg-blue-700:hover{--tw-bg-opacity:1;background-color:rgb(29 78 216/var(--tw-bg-opacity,1))}.hover\\:bg-primary:hover{--tw-bg-opacity:1;background-color:rgb(var(--color-primary)/var(--tw-bg-opacity,1))}.hover\\:bg-red-50:hover{--tw-bg-opacity:1;background-color:rgb(254 242 242/var(--tw-bg-opacity,1))}.hover\\:underline:hover{text-decoration-line:underline}.focus\\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.focus\\:ring-blue-500:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(59 130 246/var(--tw-ring-opacity,1))}.disabled\\:opacity-50:disabled{opacity:.5}.group:hover .group-hover\\:text-on-primary{--tw-text-opacity:1;color:rgb(var(--color-on-primary)/var(--tw-text-opacity,1))}.group:hover .group-hover\\:text-on-primary\\/60{color:rgb(var(--color-on-primary)/.6)}@media(min-width:640px){.sm\\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(min-width:768px){.md\\:col-span-12{grid-column:span 12/span 12}.md\\:col-span-4{grid-column:span 4/span 4}.md\\:col-span-6{grid-column:span 6/span 6}.md\\:col-span-8{grid-column:span 8/span 8}.md\\:mb-section-gap{margin-bottom:8rem}.md\\:mt-0{margin-top:0}.md\\:mt-section-gap{margin-top:8rem}.md\\:flex{display:flex}.md\\:inline-flex{display:inline-flex}.md\\:hidden{display:none}.md\\:h-\\[800px\\]{height:800px}.md\\:h-\\[80vh\\]{height:80vh}.md\\:grid-cols-12{grid-template-columns:repeat(12,minmax(0,1fr))}.md\\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.md\\:flex-row{flex-direction:row}.md\\:items-end{align-items:flex-end}.md\\:items-center{align-items:center}.md\\:px-margin-edge{padding-left:2.5rem;padding-right:2.5rem}.md\\:py-12{padding-top:3rem;padding-bottom:3rem}.md\\:py-section-gap{padding-top:8rem}.md\\:pb-section-gap,.md\\:py-section-gap{padding-bottom:8rem}.md\\:pr-16{padding-right:4rem}.md\\:pt-section-gap{padding-top:8rem}.md\\:text-right{text-align:right}.md\\:text-\\[200px\\]{font-size:200px}.md\\:text-display-lg{font-size:80px;line-height:1.1;letter-spacing:-.02em;font-weight:700}.md\\:text-headline-lg{font-size:48px;line-height:1.2;font-weight:600}}@media(min-width:1024px){.lg\\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.lg\\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}}@media(prefers-color-scheme:dark){.dark\\:border-blue-500{--tw-border-opacity:1;border-color:rgb(59 130 246/var(--tw-border-opacity,1))}.dark\\:bg-blue-950\\/30{background-color:#1725544d}}', vi = `/**
+const ln = '@import"https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Inter:wght@400;500;600;700&display=swap";@import"https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap";*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.19 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:var(--font-sans),Inter,system-ui,sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}:root{--color-background:253 248 248;--color-surface:253 248 248;--color-surface-container-lowest:255 255 255;--color-surface-container-low:247 243 242;--color-surface-container:241 237 236;--color-on-surface:28 27 27;--color-on-surface-variant:68 71 72;--color-outline:116 120 120;--color-outline-variant:196 199 199;--color-primary:0 0 0;--color-on-primary:255 255 255;--color-secondary:93 95 95;--color-on-secondary:255 255 255;--color-secondary-container:223 224 224;--color-on-secondary-container:97 99 99;--color-error:225 29 72;--font-serif:"Playfair Display";--font-sans:"Inter"}body,html{background-color:rgb(var(--color-background));color:rgb(var(--color-on-surface));font-family:var(--font-sans),"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased}.container{width:100%}@media(min-width:640px){.container{max-width:640px}}@media(min-width:768px){.container{max-width:768px}}@media(min-width:1024px){.container{max-width:1024px}}@media(min-width:1280px){.container{max-width:1280px}}@media(min-width:1536px){.container{max-width:1536px}}.display-serif{font-family:var(--font-serif),"Playfair Display",Georgia,serif;font-weight:700;letter-spacing:-.02em}.material-symbols-outlined{font-variation-settings:"FILL" 0,"wght" 400,"GRAD" 0,"opsz" 24;vertical-align:middle;line-height:1}.nav-link{position:relative;font-family:var(--font-sans),Inter,sans-serif;font-size:12px;font-weight:600;line-height:1;letter-spacing:.05em;text-transform:uppercase;color:rgb(var(--color-secondary));transition:color .2s}.nav-link.is-active,.nav-link:hover{color:rgb(var(--color-on-surface))}.nav-link.is-active:after{content:"";position:absolute;left:50%;bottom:-10px;transform:translate(-50%);width:4px;height:4px;background:rgb(var(--color-error));border-radius:0}.portfolio-btn-outline{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.625rem 1.5rem;border:1px solid rgb(var(--color-primary));font-family:var(--font-sans),Inter,sans-serif;font-size:12px;font-weight:600;line-height:1;letter-spacing:.05em;text-transform:uppercase;color:rgb(var(--color-on-surface));background:transparent;transition:background .3s,color .3s;cursor:pointer}.portfolio-btn-outline:hover{background:rgb(var(--color-primary));color:rgb(var(--color-on-primary))}.portfolio-related-heading{font-family:var(--font-sans),Inter,sans-serif;font-size:12px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:rgb(var(--color-secondary));border-top:1px solid rgb(var(--color-outline-variant,var(--color-secondary))/.4);padding-top:2rem;margin-bottom:2rem}.portfolio-related-grid{display:grid;grid-template-columns:1fr;gap:2rem}@media(min-width:768px){.portfolio-related-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}.portfolio-related-card{display:flex;flex-direction:column;gap:.75rem;color:inherit;text-decoration:none}.portfolio-related-media{aspect-ratio:4/3;overflow:hidden;background:rgb(var(--color-surface-container,var(--color-surface)))}.portfolio-related-media img{width:100%;height:100%;-o-object-fit:cover;object-fit:cover;transition:transform .6s ease}.portfolio-related-card:hover .portfolio-related-media img{transform:scale(1.04)}.portfolio-related-eyebrow{font-family:var(--font-sans),Inter,sans-serif;font-size:11px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:rgb(var(--color-secondary))}.portfolio-related-title{font-family:var(--font-serif),"Playfair Display",Georgia,serif;font-size:1.375rem;line-height:1.25;color:rgb(var(--color-on-surface))}.portfolio-related-date{font-family:var(--font-sans),Inter,sans-serif;font-size:12px;color:rgb(var(--color-secondary))}.project-card{cursor:pointer;display:block;color:inherit;text-decoration:none}.project-card__image{overflow:hidden;background:rgb(var(--color-surface-container));margin-bottom:1rem}.project-card__image img{display:block;width:100%;height:auto;transition:transform .7s ease}.project-card:hover .project-card__image img{transform:scale(1.02)}.project-card__title{font-family:var(--font-serif),"Playfair Display",Georgia,serif;font-size:24px;line-height:1.3;font-weight:500;color:rgb(var(--color-on-surface));margin-bottom:.25rem}.project-card__meta{font-family:var(--font-sans),Inter,sans-serif;font-size:12px;font-weight:600;line-height:1;letter-spacing:.1em;text-transform:uppercase;color:rgb(var(--color-secondary))}@media(min-width:768px){.portfolio-staggered>:nth-child(2){margin-top:3rem}.portfolio-staggered>:nth-child(4){margin-top:6rem}.portfolio-staggered>:nth-child(6){margin-top:-3rem}.portfolio-staggered>:nth-child(8){margin-top:4.5rem}.portfolio-staggered>:nth-child(10){margin-top:-1.5rem}}.portfolio-masonry{-moz-column-count:1;column-count:1;-moz-column-gap:2rem;column-gap:2rem}@media(min-width:768px){.portfolio-masonry{-moz-column-count:3;column-count:3}}@media(min-width:1024px){.portfolio-masonry{-moz-column-count:4;column-count:4}}.portfolio-masonry>*{-moz-column-break-inside:avoid;break-inside:avoid;margin-bottom:3rem}.burger-menu{position:fixed;top:0;right:0;bottom:0;left:0;background:rgb(var(--color-surface));z-index:60;display:none;padding:4rem 2.5rem}.burger-menu ul,.burger-menu.is-open{display:flex;flex-direction:column;gap:2rem}.burger-menu ul{list-style:none;padding:0;margin:0}.burger-menu a{font-family:var(--font-serif),"Playfair Display",Georgia,serif;font-size:32px;font-weight:500;text-decoration:none}.burger-menu a,.portfolio-prose{color:rgb(var(--color-on-surface))}.portfolio-prose{font-family:var(--font-sans),Inter,sans-serif;font-size:18px;line-height:1.7;max-width:700px}.portfolio-prose p{margin-bottom:1.5rem}.portfolio-prose h2{font-size:32px;font-weight:600;line-height:1.3;margin-top:3rem;margin-bottom:1rem}.portfolio-prose h2,.portfolio-prose h3{font-family:var(--font-serif),"Playfair Display",Georgia,serif}.portfolio-prose h3{font-size:24px;font-weight:500;margin-top:2rem;margin-bottom:.5rem}.portfolio-prose ol,.portfolio-prose ul{padding-left:1.5rem;margin-bottom:1.5rem}.portfolio-prose ul{list-style:disc}.portfolio-prose ol{list-style:decimal}.portfolio-prose blockquote{border-left:1px solid rgb(var(--color-primary));padding-left:1.5rem;margin:2rem 0;font-family:var(--font-serif),"Playfair Display",Georgia,serif;font-style:italic;font-size:24px}.portfolio-prose a{color:rgb(var(--color-on-surface));text-decoration:underline;text-underline-offset:4px}.portfolio-prose a:hover{color:rgb(var(--color-error))}.portfolio-prose img{display:block;width:100%;height:auto;margin:2rem 0}.portfolio-page-body{max-width:800px;margin:0 auto;padding:0 1.25rem;font-family:var(--font-sans),Inter,sans-serif;font-size:18px;line-height:1.7;color:rgb(var(--color-on-surface))}@media(min-width:768px){.portfolio-page-body{padding:0 2.5rem}}.portfolio-page-body p{margin-bottom:1.5rem}.portfolio-page-body h1{font-family:var(--font-serif),"Playfair Display",Georgia,serif;font-size:48px;line-height:1.2;letter-spacing:-.01em;font-weight:700;margin-top:2rem;margin-bottom:2rem}@media(min-width:768px){.portfolio-page-body h1{font-size:80px;line-height:1.1;letter-spacing:-.02em}}.portfolio-page-body h2{font-size:32px;font-weight:600;line-height:1.3;margin-top:4rem;margin-bottom:1rem}.portfolio-page-body h2,.portfolio-page-body h3{font-family:var(--font-serif),"Playfair Display",Georgia,serif}.portfolio-page-body h3{font-size:24px;font-weight:500;margin-top:2.5rem;margin-bottom:.5rem}.portfolio-page-body img{width:100%;height:auto;margin:3rem 0}.portfolio-page-body ol,.portfolio-page-body ul{padding-left:1.5rem;margin-bottom:1.5rem}.portfolio-page-body ul{list-style:disc}.portfolio-page-body ol{list-style:decimal}.portfolio-page-body a{color:rgb(var(--color-on-surface));text-decoration:underline;text-underline-offset:4px}.portfolio-page-body a:hover{color:rgb(var(--color-error))}.visible{visibility:visible}.invisible{visibility:hidden}.static{position:static}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{top:0;right:0;bottom:0;left:0}.top-0{top:0}.z-10{z-index:10}.z-50{z-index:50}.col-span-12{grid-column:span 12/span 12}.col-span-4{grid-column:span 4/span 4}.col-span-8{grid-column:span 8/span 8}.mx-auto{margin-left:auto;margin-right:auto}.my-4{margin-top:1rem;margin-bottom:1rem}.-mb-px{margin-bottom:-1px}.mb-1{margin-bottom:.25rem}.mb-12{margin-bottom:3rem}.mb-16{margin-bottom:4rem}.mb-2{margin-bottom:.5rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}.mb-6{margin-bottom:1.5rem}.mb-8{margin-bottom:2rem}.mb-section-gap-mobile{margin-bottom:4rem}.mt-1{margin-top:.25rem}.mt-16{margin-top:4rem}.mt-8{margin-top:2rem}.mt-section-gap-mobile{margin-top:4rem}.line-clamp-2{overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}.block{display:block}.inline{display:inline}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.aspect-\\[4\\/5\\]{aspect-ratio:4/5}.h-1\\/2{height:50%}.h-10{height:2.5rem}.h-16{height:4rem}.h-20{height:5rem}.h-3\\.5{height:.875rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-8{height:2rem}.h-\\[600px\\]{height:600px}.h-\\[60vh\\]{height:60vh}.h-full{height:100%}.min-h-\\[40vh\\]{min-height:40vh}.min-h-\\[60vh\\]{min-height:60vh}.w-3\\.5{width:.875rem}.w-4{width:1rem}.w-40{width:10rem}.w-5{width:1.25rem}.w-auto{width:auto}.w-full{width:100%}.min-w-0{min-width:0}.max-w-2xl{max-width:42rem}.max-w-4xl{max-width:56rem}.max-w-\\[240px\\]{max-width:240px}.max-w-container-max{max-width:1440px}.max-w-md{max-width:28rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.transform{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes spin{to{transform:rotate(1turn)}}.animate-spin{animation:spin 1s linear infinite}.grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}.grid-cols-12{grid-template-columns:repeat(12,minmax(0,1fr))}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-end{align-items:flex-end}.items-center{align-items:center}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:.25rem}.gap-1\\.5{gap:.375rem}.gap-12{gap:3rem}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.gap-8,.gap-gutter{gap:2rem}.-space-x-1>:not([hidden])~:not([hidden]){--tw-space-x-reverse:0;margin-right:calc(-.25rem*var(--tw-space-x-reverse));margin-left:calc(-.25rem*(1 - var(--tw-space-x-reverse)))}.space-y-2>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem*var(--tw-space-y-reverse))}.space-y-3>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.75rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.75rem*var(--tw-space-y-reverse))}.space-y-4>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem*var(--tw-space-y-reverse))}.space-y-6>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem*var(--tw-space-y-reverse))}.overflow-hidden,.truncate{overflow:hidden}.truncate{text-overflow:ellipsis;white-space:nowrap}.rounded,.rounded-full,.rounded-lg{border-radius:0}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-b-2{border-bottom-width:2px}.border-t{border-top-width:1px}.border-dashed{border-style:dashed}.border-blue-600{--tw-border-opacity:1;border-color:rgb(37 99 235/var(--tw-border-opacity,1))}.border-outline-variant{--tw-border-opacity:1;border-color:rgb(var(--color-outline-variant)/var(--tw-border-opacity,1))}.border-primary{--tw-border-opacity:1;border-color:rgb(var(--color-primary)/var(--tw-border-opacity,1))}.border-transparent{border-color:transparent}.bg-background{--tw-bg-opacity:1;background-color:rgb(var(--color-background)/var(--tw-bg-opacity,1))}.bg-blue-50{--tw-bg-opacity:1;background-color:rgb(239 246 255/var(--tw-bg-opacity,1))}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235/var(--tw-bg-opacity,1))}.bg-surface{--tw-bg-opacity:1;background-color:rgb(var(--color-surface)/var(--tw-bg-opacity,1))}.bg-surface-container{--tw-bg-opacity:1;background-color:rgb(var(--color-surface-container)/var(--tw-bg-opacity,1))}.bg-surface-container-lowest{--tw-bg-opacity:1;background-color:rgb(var(--color-surface-container-lowest)/var(--tw-bg-opacity,1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.bg-gradient-to-t{background-image:linear-gradient(to top,var(--tw-gradient-stops))}.from-black\\/40{--tw-gradient-from:rgba(0,0,0,.4) var(--tw-gradient-from-position);--tw-gradient-to:transparent var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.to-transparent{--tw-gradient-to:transparent var(--tw-gradient-to-position)}.object-contain{-o-object-fit:contain;object-fit:contain}.object-cover{-o-object-fit:cover;object-fit:cover}.p-1{padding:.25rem}.p-2{padding:.5rem}.p-3{padding:.75rem}.p-4{padding:1rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-margin-edge-mobile{padding-left:1.25rem;padding-right:1.25rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.py-section-gap-mobile{padding-top:4rem;padding-bottom:4rem}.pb-12{padding-bottom:3rem}.pb-section-gap-mobile{padding-bottom:4rem}.pr-0{padding-right:0}.pt-3{padding-top:.75rem}.pt-4{padding-top:1rem}.pt-section-gap-mobile{padding-top:4rem}.text-left{text-align:left}.text-center{text-align:center}.font-sans{font-family:var(--font-sans),Inter,system-ui,sans-serif}.font-serif{font-family:var(--font-serif),Playfair Display,Georgia,serif}.text-\\[120px\\]{font-size:120px}.text-body-lg{font-size:18px;line-height:1.7;font-weight:400}.text-body-md{font-size:16px;line-height:1.6;font-weight:400}.text-display-lg-mobile{font-size:48px;line-height:1.2;letter-spacing:-.01em;font-weight:700}.text-headline-lg-mobile{font-size:32px;line-height:1.3;font-weight:600}.text-headline-md{font-size:32px;line-height:1.3;font-weight:500}.text-label-sm{font-size:12px;line-height:1;letter-spacing:.05em;font-weight:600}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xs{font-size:.75rem;line-height:1rem}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.italic{font-style:italic}.leading-none{line-height:1}.tracking-\\[0\\.2em\\]{letter-spacing:.2em}.tracking-\\[0\\.3em\\]{letter-spacing:.3em}.tracking-tight{letter-spacing:-.025em}.tracking-wide{letter-spacing:.025em}.tracking-widest{letter-spacing:.1em}.text-blue-500{--tw-text-opacity:1;color:rgb(59 130 246/var(--tw-text-opacity,1))}.text-error{--tw-text-opacity:1;color:rgb(var(--color-error)/var(--tw-text-opacity,1))}.text-on-primary{--tw-text-opacity:1;color:rgb(var(--color-on-primary)/var(--tw-text-opacity,1))}.text-on-primary\\/80{color:rgb(var(--color-on-primary)/.8)}.text-on-surface{--tw-text-opacity:1;color:rgb(var(--color-on-surface)/var(--tw-text-opacity,1))}.text-on-surface-variant{--tw-text-opacity:1;color:rgb(var(--color-on-surface-variant)/var(--tw-text-opacity,1))}.text-primary{--tw-text-opacity:1;color:rgb(var(--color-primary)/var(--tw-text-opacity,1))}.text-red-600{--tw-text-opacity:1;color:rgb(220 38 38/var(--tw-text-opacity,1))}.text-secondary{--tw-text-opacity:1;color:rgb(var(--color-secondary)/var(--tw-text-opacity,1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.shadow{--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.outline{outline-style:solid}.ring-1{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color)}.ring-1,.ring-2{box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.ring-2{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color)}.ring-blue-500\\/60{--tw-ring-color:rgba(59,130,246,.6)}.grayscale{--tw-grayscale:grayscale(100%)}.filter,.grayscale{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.duration-500{transition-duration:.5s}.hover\\:scale-\\[1\\.02\\]:hover{--tw-scale-x:1.02;--tw-scale-y:1.02;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\\:bg-blue-700:hover{--tw-bg-opacity:1;background-color:rgb(29 78 216/var(--tw-bg-opacity,1))}.hover\\:bg-primary:hover{--tw-bg-opacity:1;background-color:rgb(var(--color-primary)/var(--tw-bg-opacity,1))}.hover\\:bg-red-50:hover{--tw-bg-opacity:1;background-color:rgb(254 242 242/var(--tw-bg-opacity,1))}.hover\\:underline:hover{text-decoration-line:underline}.focus\\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.focus\\:ring-blue-500:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(59 130 246/var(--tw-ring-opacity,1))}.disabled\\:opacity-50:disabled{opacity:.5}.group:hover .group-hover\\:text-on-primary{--tw-text-opacity:1;color:rgb(var(--color-on-primary)/var(--tw-text-opacity,1))}.group:hover .group-hover\\:text-on-primary\\/60{color:rgb(var(--color-on-primary)/.6)}@media(min-width:640px){.sm\\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(min-width:768px){.md\\:col-span-12{grid-column:span 12/span 12}.md\\:col-span-4{grid-column:span 4/span 4}.md\\:col-span-6{grid-column:span 6/span 6}.md\\:col-span-8{grid-column:span 8/span 8}.md\\:mb-section-gap{margin-bottom:8rem}.md\\:mt-0{margin-top:0}.md\\:mt-section-gap{margin-top:8rem}.md\\:flex{display:flex}.md\\:inline-flex{display:inline-flex}.md\\:hidden{display:none}.md\\:h-\\[800px\\]{height:800px}.md\\:h-\\[80vh\\]{height:80vh}.md\\:grid-cols-12{grid-template-columns:repeat(12,minmax(0,1fr))}.md\\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.md\\:flex-row{flex-direction:row}.md\\:items-end{align-items:flex-end}.md\\:items-center{align-items:center}.md\\:px-margin-edge{padding-left:2.5rem;padding-right:2.5rem}.md\\:py-12{padding-top:3rem;padding-bottom:3rem}.md\\:py-section-gap{padding-top:8rem}.md\\:pb-section-gap,.md\\:py-section-gap{padding-bottom:8rem}.md\\:pr-16{padding-right:4rem}.md\\:pt-section-gap{padding-top:8rem}.md\\:text-right{text-align:right}.md\\:text-\\[200px\\]{font-size:200px}.md\\:text-display-lg{font-size:80px;line-height:1.1;letter-spacing:-.02em;font-weight:700}.md\\:text-headline-lg{font-size:48px;line-height:1.2;font-weight:600}}@media(min-width:1024px){.lg\\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.lg\\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}}@media(prefers-color-scheme:dark){.dark\\:border-blue-500{--tw-border-opacity:1;border-color:rgb(59 130 246/var(--tw-border-opacity,1))}.dark\\:bg-blue-950\\/30{background-color:#1725544d}}', xi = `/**
  * Storefront theme — runtime menu loader.
  *
  * Same contract as default / magazine / corporate: fetches /data/menu.json
@@ -798,17 +803,16 @@ const ln = '@import"https://fonts.googleapis.com/css2?family=Playfair+Display:it
   });
 })();
 `, ki = `/**
- * Magazine theme — runtime sidebar loader.
+ * Portfolio theme — runtime loader.
  *
- * Populates \`[data-cms-related]\` and \`[data-cms-author-bio]\` hosts
+ * Populates \`[data-cms-related]\` (and \`[data-cms-author-bio]\`) hosts
  * from \`/data/posts.json\` and \`/data/authors.json\` respectively. Same
  * lifecycle as default's posts-loader: fetched once on
  * DOMContentLoaded, paint passes are independent and tolerate each
  * other's failure.
  *
- * The injected DOM uses magazine-specific class names
- * (\`magazine-related-*\`, \`magazine-bio-*\`) — matching CSS rules live
- * in \`theme.css\` under \`@layer components\`. The author-bio host
+ * The related-projects DOM uses \`portfolio-related-*\` class names —
+ * matching CSS rules live in \`theme.css\` under \`@layer components\`. The author-bio host
  * provides its own card chrome (background / border / padding /
  * radius) via Tailwind utilities in \`SingleTemplate.tsx\`; the
  * related host carries no chrome (just a section heading + bordered
@@ -893,17 +897,17 @@ const ln = '@import"https://fonts.googleapis.com/css2?family=Playfair+Display:it
       });
   }
 
-  // ─── Related posts ────────────────────────────────────────────────
+  // ─── Related projects ─────────────────────────────────────────────
   //
-  // DOM emitted (matches the editorial mockup — small-caps section
-  // heading + flex-column list with top-bordered items):
+  // DOM emitted:
   //
-  //   <h4 class="magazine-related-heading">Latest from {{site}}</h4>
-  //   <div class="magazine-related-list">
-  //     <a class="magazine-related-link group" href="/...">
-  //       <span class="magazine-related-eyebrow">Category</span>
-  //       <h5 class="magazine-related-title">Title</h5>
-  //       <time class="magazine-related-date">Nov 12, 2024</time>
+  //   <h4 class="portfolio-related-heading">More in this category</h4>
+  //   <div class="portfolio-related-grid">
+  //     <a class="portfolio-related-card" href="/...">
+  //       <div class="portfolio-related-media"><img …></div>
+  //       <span class="portfolio-related-eyebrow">Category</span>
+  //       <h5 class="portfolio-related-title">Title</h5>
+  //       <time class="portfolio-related-date">12 nov. 2024</time>
   //     </a>
   //     ...
   //   </div>
@@ -911,20 +915,30 @@ const ln = '@import"https://fonts.googleapis.com/css2?family=Playfair+Display:it
   function renderRelatedItem(entry) {
     var a = document.createElement("a");
     a.href = withBase("/" + entry.url);
-    a.className = "magazine-related-link";
+    a.className = "portfolio-related-card";
+    if (entry.hero) {
+      var media = document.createElement("div");
+      media.className = "portfolio-related-media";
+      var img = document.createElement("img");
+      img.src = withBase(entry.hero);
+      img.alt = "";
+      img.loading = "lazy";
+      media.appendChild(img);
+      a.appendChild(media);
+    }
     if (entry.category && entry.category.name) {
       var eyebrow = document.createElement("span");
-      eyebrow.className = "magazine-related-eyebrow";
+      eyebrow.className = "portfolio-related-eyebrow";
       eyebrow.textContent = entry.category.name;
       a.appendChild(eyebrow);
     }
     var title = document.createElement("h5");
-    title.className = "magazine-related-title";
+    title.className = "portfolio-related-title";
     title.textContent = entry.title || "";
     a.appendChild(title);
     if (entry.dateLabel) {
       var date = document.createElement("time");
-      date.className = "magazine-related-date";
+      date.className = "portfolio-related-date";
       date.textContent = entry.dateLabel;
       a.appendChild(date);
     }
@@ -935,9 +949,8 @@ const ln = '@import"https://fonts.googleapis.com/css2?family=Playfair+Display:it
     var termId = host.getAttribute("data-cms-term-id") || "";
     var currentId = host.getAttribute("data-cms-current-id") || "";
     var limit = parseInt(host.getAttribute("data-cms-limit") || "3", 10);
-    var label = host.getAttribute("data-cms-label") || "Continue reading";
-    var fallbackLabel =
-      host.getAttribute("data-cms-fallback-label") || "Latest articles";
+    var label = host.getAttribute("data-cms-label") || "More in this category";
+    var fallbackLabel = host.getAttribute("data-cms-fallback-label") || "Latest projects";
 
     var matching = [];
     var heading = label;
@@ -970,15 +983,15 @@ const ln = '@import"https://fonts.googleapis.com/css2?family=Playfair+Display:it
     host.removeAttribute("hidden");
     host.innerHTML = "";
     var headingEl = document.createElement("h4");
-    headingEl.className = "magazine-related-heading";
+    headingEl.className = "portfolio-related-heading";
     headingEl.textContent = heading;
     host.appendChild(headingEl);
-    var list = document.createElement("div");
-    list.className = "magazine-related-list";
+    var grid = document.createElement("div");
+    grid.className = "portfolio-related-grid";
     matching.forEach(function (entry) {
-      list.appendChild(renderRelatedItem(entry));
+      grid.appendChild(renderRelatedItem(entry));
     });
-    host.appendChild(list);
+    host.appendChild(grid);
   }
 
   // ─── Author bio ───────────────────────────────────────────────────
@@ -1274,6 +1287,8 @@ const ln = '@import"https://fonts.googleapis.com/css2?family=Playfair+Display:it
   awardsLabel: "AWARDS",
   nextProject: "NEXT PROJECT",
   viewCaseStudy: "VIEW CASE STUDY",
+  relatedHeading: "MORE IN THIS CATEGORY",
+  relatedFallback: "LATEST PROJECTS",
   // Author archive
   selectExperience: "Select Experience",
   recognition: "Recognition",
@@ -1380,6 +1395,7 @@ const ln = '@import"https://fonts.googleapis.com/css2?family=Playfair+Display:it
   single: {
     description: "Single-project layout. Hero + meta + body + next-project teaser.",
     showHero: "Show full-bleed hero image",
+    heroGrayscale: "Black-and-white hero image",
     showNextProject: "Show next-project teaser at the bottom",
     defaultServicesLabel: "Services label",
     defaultYearLabel: "Year label",
@@ -1422,6 +1438,8 @@ const ln = '@import"https://fonts.googleapis.com/css2?family=Playfair+Display:it
   awardsLabel: "RÉCOMPENSES",
   nextProject: "PROJET SUIVANT",
   viewCaseStudy: "VOIR L'ÉTUDE DE CAS",
+  relatedHeading: "DANS LA MÊME CATÉGORIE",
+  relatedFallback: "DERNIERS PROJETS",
   selectExperience: "Expérience choisie",
   recognition: "Distinctions",
   loadMore: "VOIR PLUS",
@@ -1513,6 +1531,7 @@ const ln = '@import"https://fonts.googleapis.com/css2?family=Playfair+Display:it
   single: {
     description: "Page projet — hero + métadonnées + corps + annonce du suivant.",
     showHero: "Afficher l'image hero en pleine largeur",
+    heroGrayscale: "Image hero en noir et blanc",
     showNextProject: "Afficher l'annonce du projet suivant en bas",
     defaultServicesLabel: "Libellé Services",
     defaultYearLabel: "Libellé Année",
@@ -1633,7 +1652,7 @@ const _n = q("ArrowRight", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Wn = q("Info", [
+const Gn = q("Info", [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
@@ -1644,7 +1663,7 @@ const Wn = q("Info", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Gn = q("LayoutGrid", [
+const Wn = q("LayoutGrid", [
   ["rect", { width: "7", height: "7", x: "3", y: "3", rx: "1", key: "1g98yp" }],
   ["rect", { width: "7", height: "7", x: "14", y: "3", rx: "1", key: "6d4xhi" }],
   ["rect", { width: "7", height: "7", x: "14", y: "14", rx: "1", key: "nxv5o0" }],
@@ -1773,7 +1792,7 @@ function Ji({
         ]
       }
     ),
-    n === "home" && /* @__PURE__ */ u(Gi, { config: r, save: e }),
+    n === "home" && /* @__PURE__ */ u(Wi, { config: r, save: e }),
     n === "single" && /* @__PURE__ */ u(qi, { config: r, save: e }),
     n === "author" && /* @__PURE__ */ u(Ki, { config: r, save: e }),
     n === "footer" && /* @__PURE__ */ u(Yi, { config: r, save: e }),
@@ -1829,7 +1848,7 @@ function _i({ label: r, value: e, onChange: t, help: n, rows: i = 3 }) {
     n && /* @__PURE__ */ u("p", { className: "text-xs text-surface-500 mt-1", children: n })
   ] });
 }
-function Wi({ label: r, value: e, onChange: t, help: n, min: i = 0 }) {
+function Gi({ label: r, value: e, onChange: t, help: n, min: i = 0 }) {
   return /* @__PURE__ */ b("div", { children: [
     /* @__PURE__ */ u("label", { className: "label", children: r }),
     /* @__PURE__ */ u(
@@ -1845,7 +1864,7 @@ function Wi({ label: r, value: e, onChange: t, help: n, min: i = 0 }) {
     n && /* @__PURE__ */ u("p", { className: "text-xs text-surface-500 mt-1", children: n })
   ] });
 }
-function ze({ label: r, value: e, onChange: t, help: n }) {
+function pe({ label: r, value: e, onChange: t, help: n }) {
   return /* @__PURE__ */ b("div", { className: "flex items-start gap-3", children: [
     /* @__PURE__ */ u(
       "input",
@@ -1862,7 +1881,7 @@ function ze({ label: r, value: e, onChange: t, help: n }) {
     ] })
   ] });
 }
-function ve({ onSave: r, saving: e }) {
+function ke({ onSave: r, saving: e }) {
   const { t } = V("theme-portfolio");
   return /* @__PURE__ */ u("div", { className: "flex justify-end gap-2 pt-3 border-t border-surface-200 dark:border-surface-800", children: /* @__PURE__ */ b(
     "button",
@@ -1879,7 +1898,7 @@ function ve({ onSave: r, saving: e }) {
     }
   ) });
 }
-function Gi({ config: r, save: e }) {
+function Wi({ config: r, save: e }) {
   const { t } = V("theme-portfolio"), [n, i] = D({ ...dt, ...r.home }), [o, s] = D(!1);
   async function a() {
     s(!0);
@@ -1927,7 +1946,7 @@ function Gi({ config: r, save: e }) {
         )
       ] }),
       /* @__PURE__ */ u(
-        Wi,
+        Gi,
         {
           label: t("settings.home.cardLimit"),
           value: n.cardLimit,
@@ -1936,7 +1955,7 @@ function Gi({ config: r, save: e }) {
         }
       ),
       /* @__PURE__ */ u(
-        ze,
+        pe,
         {
           label: t("settings.home.showFilters"),
           value: n.showFilters,
@@ -1945,7 +1964,7 @@ function Gi({ config: r, save: e }) {
         }
       )
     ] }),
-    /* @__PURE__ */ u(ve, { onSave: a, saving: o })
+    /* @__PURE__ */ u(ke, { onSave: a, saving: o })
   ] });
 }
 function qi({ config: r, save: e }) {
@@ -1963,7 +1982,7 @@ function qi({ config: r, save: e }) {
   return /* @__PURE__ */ b("div", { className: "space-y-4", children: [
     /* @__PURE__ */ b(X, { title: t("settings.single.description"), children: [
       /* @__PURE__ */ u(
-        ze,
+        pe,
         {
           label: t("settings.single.showHero"),
           value: n.showHero,
@@ -1971,7 +1990,15 @@ function qi({ config: r, save: e }) {
         }
       ),
       /* @__PURE__ */ u(
-        ze,
+        pe,
+        {
+          label: t("settings.single.heroGrayscale"),
+          value: n.heroGrayscale,
+          onChange: (l) => i({ ...n, heroGrayscale: l })
+        }
+      ),
+      /* @__PURE__ */ u(
+        pe,
         {
           label: t("settings.single.showNextProject"),
           value: n.showNextProject,
@@ -2005,7 +2032,7 @@ function qi({ config: r, save: e }) {
         )
       ] })
     ] }),
-    /* @__PURE__ */ u(ve, { onSave: a, saving: o })
+    /* @__PURE__ */ u(ke, { onSave: a, saving: o })
   ] });
 }
 function Ki({ config: r, save: e }) {
@@ -2023,7 +2050,7 @@ function Ki({ config: r, save: e }) {
   return /* @__PURE__ */ b("div", { className: "space-y-4", children: [
     /* @__PURE__ */ b(X, { title: t("settings.author.description"), children: [
       /* @__PURE__ */ u(
-        ze,
+        pe,
         {
           label: t("settings.author.showExperience"),
           value: n.showExperience,
@@ -2031,7 +2058,7 @@ function Ki({ config: r, save: e }) {
         }
       ),
       /* @__PURE__ */ u(
-        ze,
+        pe,
         {
           label: t("settings.author.showRecognition"),
           value: n.showRecognition,
@@ -2039,7 +2066,7 @@ function Ki({ config: r, save: e }) {
         }
       )
     ] }),
-    /* @__PURE__ */ u(ve, { onSave: a, saving: o })
+    /* @__PURE__ */ u(ke, { onSave: a, saving: o })
   ] });
 }
 function Yi({ config: r, save: e }) {
@@ -2064,7 +2091,7 @@ function Yi({ config: r, save: e }) {
         help: t("settings.footer.copyrightHelp")
       }
     ) }),
-    /* @__PURE__ */ u(ve, { onSave: a, saving: o })
+    /* @__PURE__ */ u(ke, { onSave: a, saving: o })
   ] });
 }
 function Xi({ config: r, save: e }) {
@@ -2097,7 +2124,7 @@ function Xi({ config: r, save: e }) {
       l(!1);
     }
   }
-  async function x(k) {
+  async function v(k) {
     if (!fn.includes(k.type)) {
       R.error("Unsupported file type. Use JPG, PNG, WebP, or SVG.");
       return;
@@ -2178,7 +2205,7 @@ function Xi({ config: r, save: e }) {
               onChange: (k) => {
                 var M;
                 const E = (M = k.target.files) == null ? void 0 : M[0];
-                E && x(E);
+                E && v(E);
               }
             }
           ),
@@ -2216,11 +2243,11 @@ function Xi({ config: r, save: e }) {
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ u(ve, { onSave: y, saving: a })
+    /* @__PURE__ */ u(ke, { onSave: y, saving: a })
   ] });
 }
 function Qi({ config: r, save: e }) {
-  const { t } = V("theme-portfolio"), [n, i] = D({ ...Se, ...r.style }), [o, s] = D(!1);
+  const { t } = V("theme-portfolio"), [n, i] = D({ ...Ce, ...r.style }), [o, s] = D(!1);
   async function a() {
     s(!0);
     try {
@@ -2237,9 +2264,9 @@ function Qi({ config: r, save: e }) {
   async function l() {
     s(!0);
     try {
-      i(Se), await e({ ...r, style: Se, cssUpdatedAt: Date.now() }), await an({
+      i(Ce), await e({ ...r, style: Ce, cssUpdatedAt: Date.now() }), await an({
         baseCssText: jn.cssText ?? "",
-        style: Se
+        style: Ce
       }), R.success(t("settings.buttons.saved"));
     } catch (p) {
       R.error(p.message);
@@ -2255,8 +2282,8 @@ function Qi({ config: r, save: e }) {
     delete h[p], i({ ...n, vars: h });
   }
   const f = [
-    ...Object.keys(me.serif).map((p) => ({ name: p, fallback: "serif" })),
-    ...Object.keys(me.sans).map((p) => ({ name: p, fallback: "sans-serif" }))
+    ...Object.keys(ge.serif).map((p) => ({ name: p, fallback: "serif" })),
+    ...Object.keys(ge.sans).map((p) => ({ name: p, fallback: "sans-serif" }))
   ];
   return /* @__PURE__ */ b("div", { className: "space-y-4", children: [
     /* @__PURE__ */ u(Zi, { draft: n, setDraft: i }),
@@ -2269,7 +2296,7 @@ function Qi({ config: r, save: e }) {
             tn,
             {
               options: f,
-              value: n.fontSerif || ge,
+              value: n.fontSerif || be,
               onChange: (p) => i({ ...n, fontSerif: p })
             }
           )
@@ -2280,7 +2307,7 @@ function Qi({ config: r, save: e }) {
             tn,
             {
               options: f,
-              value: n.fontSans || be,
+              value: n.fontSans || ye,
               onChange: (p) => i({ ...n, fontSans: p })
             }
           )
@@ -2337,7 +2364,7 @@ function Qi({ config: r, save: e }) {
           ]
         }
       ),
-      /* @__PURE__ */ u(ve, { onSave: a, saving: o })
+      /* @__PURE__ */ u(ke, { onSave: a, saving: o })
     ] })
   ] });
 }
@@ -2415,10 +2442,10 @@ function Ve(r, e) {
 function Kn(r) {
   return `portfolio${r.charAt(0).toUpperCase()}${r.slice(1)}`;
 }
-function ye(r) {
+function we(r) {
   return typeof r != "string" ? "" : r.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
-function G(r) {
+function W(r) {
   return typeof r != "string" ? "" : r.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 const ut = {
@@ -2433,11 +2460,11 @@ function no(r) {
   const e = (r.rows ?? []).filter((n) => n.label || n.value);
   if (e.length === 0) return { html: "" };
   const t = e.map((n) => {
-    const i = n.value.split(/\r?\n/).map((o) => o.trim()).filter(Boolean).map((o) => G(o)).join("<br/>");
-    return `<div class="flex flex-col gap-2"><span class="font-sans text-label-sm uppercase tracking-widest text-secondary">${G(n.label)}</span><p class="font-sans text-body-md text-on-surface">${i}</p></div>`;
+    const i = n.value.split(/\r?\n/).map((o) => o.trim()).filter(Boolean).map((o) => W(o)).join("<br/>");
+    return `<div class="flex flex-col gap-2"><span class="font-sans text-label-sm uppercase tracking-widest text-secondary">${W(n.label)}</span><p class="font-sans text-body-md text-on-surface">${i}</p></div>`;
   }).join("");
   return {
-    html: `<aside class="portfolio-project-meta max-w-container-max mx-auto px-margin-edge-mobile md:px-margin-edge py-section-gap-mobile md:py-section-gap grid grid-cols-1 md:grid-cols-${Math.min(e.length, 4)} gap-gutter" data-attrs="${ye("")}">${t}</aside>`
+    html: `<aside class="portfolio-project-meta max-w-container-max mx-auto px-margin-edge-mobile md:px-margin-edge py-section-gap-mobile md:py-section-gap grid grid-cols-1 md:grid-cols-${Math.min(e.length, 4)} gap-gutter" data-attrs="${we("")}">${t}</aside>`
   };
 }
 const ro = /<div\s+([^>]*data-cms-block="portfolio\/project-meta"[^>]*)>\s*<\/div>/g;
@@ -2460,7 +2487,7 @@ const ft = {
 };
 function oo(r) {
   if (!!!(r.headline || r.body) && !r.imageUrl) return { html: "" };
-  const t = r.eyebrow ? `<span class="font-sans text-label-sm uppercase tracking-widest text-error mb-4 block">${G(r.eyebrow)}</span>` : "", n = r.headline ? `<h3 class="font-serif text-headline-lg-mobile md:text-headline-lg text-on-surface mb-8 italic">${G(r.headline)}</h3>` : "", i = r.body ? `<p class="font-sans text-body-lg text-on-surface mb-8">${G(r.body)}</p>` : "", o = (c, d) => c || d ? `<div class="border-t border-outline-variant pt-4"><span class="font-sans text-label-sm uppercase tracking-widest text-on-surface block mb-1">${G(c)}</span><p class="font-sans text-body-md text-on-surface-variant">${G(d)}</p></div>` : "", s = r.step1Label || r.step1Text || r.step2Label || r.step2Text ? `<div class="grid grid-cols-2 gap-4">${o(r.step1Label, r.step1Text)}${o(r.step2Label, r.step2Text)}</div>` : "", a = r.imageUrl ? `<div class="col-span-12 md:col-span-6"><img src="${ye(r.imageUrl)}" alt="${ye(r.imageAlt)}" class="w-full aspect-[4/5] object-cover" loading="lazy"/></div>` : "";
+  const t = r.eyebrow ? `<span class="font-sans text-label-sm uppercase tracking-widest text-error mb-4 block">${W(r.eyebrow)}</span>` : "", n = r.headline ? `<h3 class="font-serif text-headline-lg-mobile md:text-headline-lg text-on-surface mb-8 italic">${W(r.headline)}</h3>` : "", i = r.body ? `<p class="font-sans text-body-lg text-on-surface mb-8">${W(r.body)}</p>` : "", o = (c, d) => c || d ? `<div class="border-t border-outline-variant pt-4"><span class="font-sans text-label-sm uppercase tracking-widest text-on-surface block mb-1">${W(c)}</span><p class="font-sans text-body-md text-on-surface-variant">${W(d)}</p></div>` : "", s = r.step1Label || r.step1Text || r.step2Label || r.step2Text ? `<div class="grid grid-cols-2 gap-4">${o(r.step1Label, r.step1Text)}${o(r.step2Label, r.step2Text)}</div>` : "", a = r.imageUrl ? `<div class="col-span-12 md:col-span-6"><img src="${we(r.imageUrl)}" alt="${we(r.imageAlt)}" class="w-full aspect-[4/5] object-cover" loading="lazy"/></div>` : "";
   return {
     html: `<section class="portfolio-storytelling max-w-container-max mx-auto px-margin-edge-mobile md:px-margin-edge py-section-gap-mobile md:py-section-gap grid grid-cols-12 gap-gutter items-center">${`<div class="col-span-12 md:col-span-6 pr-0 md:pr-16">${t}${n}${i}${s}</div>`}${a}</section>`
   };
@@ -2484,7 +2511,7 @@ const pt = {
   wideImageAlt: ""
 };
 function Je(r, e, t, n = !1) {
-  return r ? `<img src="${ye(r)}" alt="${ye(e)}" class="${t}${n ? " grayscale" : ""}" loading="lazy"/>` : `<div class="${t} bg-surface-container"></div>`;
+  return r ? `<img src="${we(r)}" alt="${we(e)}" class="${t}${n ? " grayscale" : ""}" loading="lazy"/>` : `<div class="${t} bg-surface-container"></div>`;
 }
 function lo(r) {
   if (!(r.mainImageUrl || r.subTopImageUrl || r.subBottomImageUrl || r.wideImageUrl)) return { html: "" };
@@ -2510,7 +2537,7 @@ function fo(r) {
   if (!r.title) return { html: "" };
   const e = r.href || "#";
   return {
-    html: `<section class="portfolio-next-project border-t border-primary mt-section-gap-mobile md:mt-section-gap"><a class="group flex flex-col md:flex-row justify-between items-start md:items-center w-full px-margin-edge-mobile md:px-margin-edge py-section-gap-mobile md:py-section-gap max-w-container-max mx-auto hover:bg-primary transition-colors duration-500 overflow-hidden relative" href="${ye(e)}"><div class="z-10 flex flex-col gap-2"><span class="font-sans text-label-sm uppercase tracking-[0.3em] text-secondary group-hover:text-on-primary/60 transition-colors">${G(r.eyebrow)}</span><h2 class="font-serif text-display-lg-mobile md:text-display-lg group-hover:text-on-primary transition-colors display-serif">${G(r.title)}</h2></div><div class="z-10 mt-8 md:mt-0 flex items-center gap-4 text-primary group-hover:text-on-primary transition-colors"><span class="font-sans text-label-sm uppercase tracking-widest">${G(r.ctaLabel)}</span><span class="material-symbols-outlined">arrow_forward</span></div></a></section>`
+    html: `<section class="portfolio-next-project border-t border-primary mt-section-gap-mobile md:mt-section-gap"><a class="group flex flex-col md:flex-row justify-between items-start md:items-center w-full px-margin-edge-mobile md:px-margin-edge py-section-gap-mobile md:py-section-gap max-w-container-max mx-auto hover:bg-primary transition-colors duration-500 overflow-hidden relative" href="${we(e)}"><div class="z-10 flex flex-col gap-2"><span class="font-sans text-label-sm uppercase tracking-[0.3em] text-secondary group-hover:text-on-primary/60 transition-colors">${W(r.eyebrow)}</span><h2 class="font-serif text-display-lg-mobile md:text-display-lg group-hover:text-on-primary transition-colors display-serif">${W(r.title)}</h2></div><div class="z-10 mt-8 md:mt-0 flex items-center gap-4 text-primary group-hover:text-on-primary transition-colors"><span class="font-sans text-label-sm uppercase tracking-widest">${W(r.ctaLabel)}</span><span class="material-symbols-outlined">arrow_forward</span></div></a></section>`
   };
 }
 const po = /<div\s+([^>]*data-cms-block="portfolio\/next-project"[^>]*)>\s*<\/div>/g;
@@ -2926,9 +2953,9 @@ class w {
   }
 }
 w.empty = new w([], 0);
-const xt = { index: 0, offset: 0 };
+const vt = { index: 0, offset: 0 };
 function _e(r, e) {
-  return xt.index = r, xt.offset = e, xt;
+  return vt.index = r, vt.offset = e, vt;
 }
 function et(r, e) {
   if (r === e)
@@ -3062,7 +3089,7 @@ class N {
 N.none = [];
 class tt extends Error {
 }
-class v {
+class x {
   /**
   Create a slice. When specifying a non-zero open depth, you must
   make sure that there are nodes of at least that depth at the
@@ -3089,13 +3116,13 @@ class v {
   */
   insertAt(e, t) {
     let n = Zn(this.content, e + this.openStart, t);
-    return n && new v(n, this.openStart, this.openEnd);
+    return n && new x(n, this.openStart, this.openEnd);
   }
   /**
   @internal
   */
   removeBetween(e, t) {
-    return new v(Qn(this.content, e + this.openStart, t + this.openStart), this.openStart, this.openEnd);
+    return new x(Qn(this.content, e + this.openStart, t + this.openStart), this.openStart, this.openEnd);
   }
   /**
   Tests whether this slice is equal to another slice.
@@ -3123,11 +3150,11 @@ class v {
   */
   static fromJSON(e, t) {
     if (!t)
-      return v.empty;
+      return x.empty;
     let n = t.openStart || 0, i = t.openEnd || 0;
     if (typeof n != "number" || typeof i != "number")
       throw new RangeError("Invalid input for Slice.fromJSON");
-    return new v(w.fromJSON(e, t.content), n, i);
+    return new x(w.fromJSON(e, t.content), n, i);
   }
   /**
   Create a slice from a fragment by taking the maximum possible
@@ -3139,10 +3166,10 @@ class v {
       n++;
     for (let o = e.lastChild; o && !o.isLeaf && (t || !o.type.spec.isolating); o = o.lastChild)
       i++;
-    return new v(e, n, i);
+    return new x(e, n, i);
   }
 }
-v.empty = new v(w.empty, 0, 0);
+x.empty = new x(w.empty, 0, 0);
 function Qn(r, e, t) {
   let { index: n, offset: i } = r.findIndex(e), o = r.maybeChild(n), { index: s, offset: a } = r.findIndex(t);
   if (i == e || o.isText) {
@@ -3195,7 +3222,7 @@ function re(r, e) {
   let t = e.length - 1;
   t >= 0 && r.isText && r.sameMarkup(e[t]) ? e[t] = r.withText(e[t].text + r.text) : e.push(r);
 }
-function Ne(r, e, t, n) {
+function Ae(r, e, t, n) {
   let i = (e || r).node(t), o = 0, s = e ? e.index(t) : i.childCount;
   r && (o = r.index(t), r.depth > t ? o++ : r.textOffset && (re(r.nodeAfter, n), o++));
   for (let a = o; a < s; a++)
@@ -3207,15 +3234,15 @@ function ie(r, e) {
 }
 function nr(r, e, t, n, i) {
   let o = r.depth > i && It(r, e, i + 1), s = n.depth > i && It(t, n, i + 1), a = [];
-  return Ne(null, r, i, a), o && s && e.index(i) == t.index(i) ? (tr(o, s), re(ie(o, nr(r, e, t, n, i + 1)), a)) : (o && re(ie(o, nt(r, e, i + 1)), a), Ne(e, t, i, a), s && re(ie(s, nt(t, n, i + 1)), a)), Ne(n, null, i, a), new w(a);
+  return Ae(null, r, i, a), o && s && e.index(i) == t.index(i) ? (tr(o, s), re(ie(o, nr(r, e, t, n, i + 1)), a)) : (o && re(ie(o, nt(r, e, i + 1)), a), Ae(e, t, i, a), s && re(ie(s, nt(t, n, i + 1)), a)), Ae(n, null, i, a), new w(a);
 }
 function nt(r, e, t) {
   let n = [];
-  if (Ne(null, r, t, n), r.depth > t) {
+  if (Ae(null, r, t, n), r.depth > t) {
     let i = It(r, e, t + 1);
     re(ie(i, nt(r, e, t + 1)), n);
   }
-  return Ne(e, null, t, n), new w(n);
+  return Ae(e, null, t, n), new w(n);
 }
 function bo(r, e) {
   let t = e.depth - r.openStart, i = e.node(t).copy(r.content);
@@ -3519,7 +3546,7 @@ class rt {
     return this.$to.indexAfter(this.depth);
   }
 }
-const xo = /* @__PURE__ */ Object.create(null);
+const vo = /* @__PURE__ */ Object.create(null);
 let oe = class Ot {
   /**
   @internal
@@ -3638,7 +3665,7 @@ let oe = class Ot {
   attributes, and marks.
   */
   hasMarkup(e, t, n) {
-    return this.type == e && et(this.attrs, t || e.defaultAttrs || xo) && N.sameSet(this.marks, n || N.none);
+    return this.type == e && et(this.attrs, t || e.defaultAttrs || vo) && N.sameSet(this.marks, n || N.none);
   }
   /**
   Create a new node with the same markup as this node, containing
@@ -3668,9 +3695,9 @@ let oe = class Ot {
   */
   slice(e, t = this.content.size, n = !1) {
     if (e == t)
-      return v.empty;
+      return x.empty;
     let i = this.resolve(e), o = this.resolve(t), s = n ? 0 : i.sharedDepth(t), a = i.start(s), c = i.node(s).content.cut(i.pos - a, o.pos - a);
-    return new v(c, i.depth - s, o.depth - s);
+    return new x(c, i.depth - s, o.depth - s);
   }
   /**
   Replace the part of the document between the given positions with
@@ -3944,7 +3971,7 @@ class se {
   @internal
   */
   static parse(e, t) {
-    let n = new vo(e, t);
+    let n = new xo(e, t);
     if (n.next == null)
       return se.empty;
     let i = ir(n);
@@ -4096,7 +4123,7 @@ class se {
   }
 }
 se.empty = new se(!0);
-class vo {
+class xo {
   constructor(e, t) {
     this.string = e, this.nodeTypes = t, this.inline = null, this.pos = 0, this.tokens = e.split(/\s*(?=\b|\W|$)/), this.tokens[this.tokens.length - 1] == "" && this.tokens.pop(), this.tokens[0] == "" && this.tokens.shift();
   }
@@ -4658,7 +4685,7 @@ function zo(r) {
 function Lo(r) {
   return r.style != null;
 }
-class pe {
+class he {
   /**
   Create a parser that targets the given schema, using the given
   parsing rules.
@@ -4697,7 +4724,7 @@ class pe {
   */
   parseSlice(e, t = {}) {
     let n = new yn(this, t, !0);
-    return n.addAll(e, N.none, t.from, t.to), v.maxOpen(n.finish());
+    return n.addAll(e, N.none, t.from, t.to), x.maxOpen(n.finish());
   }
   /**
   @internal
@@ -4770,7 +4797,7 @@ class pe {
   [priority](https://prosemirror.net/docs/ref/#model.GenericParseRule.priority).
   */
   static fromSchema(e) {
-    return e.cached.domParser || (e.cached.domParser = new pe(e, pe.schemaRules(e)));
+    return e.cached.domParser || (e.cached.domParser = new he(e, he.schemaRules(e)));
   }
 }
 const dr = {
@@ -4813,13 +4840,13 @@ const dr = {
   script: !0,
   style: !0,
   title: !0
-}, ur = { ol: !0, ul: !0 }, Be = 1, Rt = 2, Ae = 4;
+}, ur = { ol: !0, ul: !0 }, Be = 1, Rt = 2, Te = 4;
 function bn(r, e, t) {
-  return e != null ? (e ? Be : 0) | (e === "full" ? Rt : 0) : r && r.whitespace == "pre" ? Be | Rt : t & ~Ae;
+  return e != null ? (e ? Be : 0) | (e === "full" ? Rt : 0) : r && r.whitespace == "pre" ? Be | Rt : t & ~Te;
 }
-class We {
+class Ge {
   constructor(e, t, n, i, o, s) {
-    this.type = e, this.attrs = t, this.marks = n, this.solid = i, this.options = s, this.content = [], this.activeMarks = N.none, this.match = o || (s & Ae ? null : e.contentMatch);
+    this.type = e, this.attrs = t, this.marks = n, this.solid = i, this.options = s, this.content = [], this.activeMarks = N.none, this.match = o || (s & Te ? null : e.contentMatch);
   }
   findWrapping(e) {
     if (!this.match) {
@@ -4853,8 +4880,8 @@ class We {
 class yn {
   constructor(e, t, n) {
     this.parser = e, this.options = t, this.isOpen = n, this.open = 0, this.localPreserveWS = !1;
-    let i = t.topNode, o, s = bn(null, t.preserveWhitespace, 0) | (n ? Ae : 0);
-    i ? o = new We(i.type, i.attrs, N.none, !0, t.topMatch || i.type.contentMatch, s) : n ? o = new We(null, null, N.none, !0, null, s) : o = new We(e.schema.topNodeType, null, N.none, !0, null, s), this.nodes = [o], this.find = t.findPositions, this.needsBlock = !1;
+    let i = t.topNode, o, s = bn(null, t.preserveWhitespace, 0) | (n ? Te : 0);
+    i ? o = new Ge(i.type, i.attrs, N.none, !0, t.topMatch || i.type.contentMatch, s) : n ? o = new Ge(null, null, N.none, !0, null, s) : o = new Ge(e.schema.topNodeType, null, N.none, !0, null, s), this.nodes = [o], this.find = t.findPositions, this.needsBlock = !1;
   }
   get top() {
     return this.nodes[this.open];
@@ -5019,7 +5046,7 @@ class yn {
       o.match && (o.match = o.match.matchType(e.type));
       let s = N.none;
       for (let a of i.concat(e.marks))
-        (o.type ? o.type.allowsMarkType(a.type) : xn(a.type, e.type)) && (s = a.addToSet(s));
+        (o.type ? o.type.allowsMarkType(a.type) : vn(a.type, e.type)) && (s = a.addToSet(s));
       return o.content.push(e.mark(s)), !0;
     }
     return !1;
@@ -5036,9 +5063,9 @@ class yn {
     let s = this.top;
     s.match = s.match && s.match.matchType(e);
     let a = bn(e, o, s.options);
-    s.options & Ae && s.content.length == 0 && (a |= Ae);
+    s.options & Te && s.content.length == 0 && (a |= Te);
     let l = N.none;
-    return n = n.filter((c) => (s.type ? s.type.allowsMarkType(c.type) : xn(c.type, e)) ? (l = c.addToSet(l), !1) : !0), this.nodes.push(new We(e, t, l, i, null, a)), this.open++, n;
+    return n = n.filter((c) => (s.type ? s.type.allowsMarkType(c.type) : vn(c.type, e)) ? (l = c.addToSet(l), !1) : !0), this.nodes.push(new Ge(e, t, l, i, null, a)), this.open++, n;
   }
   // Make sure all nodes above this.open are finished and added to
   // their parents
@@ -5147,7 +5174,7 @@ function wn(r) {
     e[t] = r[t];
   return e;
 }
-function xn(r, e) {
+function vn(r, e) {
   let t = e.schema.nodes;
   for (let n in t) {
     let i = t[n];
@@ -5169,7 +5196,7 @@ const fr = 65535, pr = Math.pow(2, 16);
 function Do(r, e) {
   return r + e * pr;
 }
-function vn(r) {
+function xn(r) {
   return r & fr;
 }
 function Fo(r) {
@@ -5226,7 +5253,7 @@ class U {
   @internal
   */
   recover(e) {
-    let t = 0, n = vn(e);
+    let t = 0, n = xn(e);
     if (!this.inverted)
       for (let i = 0; i < n; i++)
         t += this.ranges[i * 3 + 2] - this.ranges[i * 3 + 1];
@@ -5263,7 +5290,7 @@ class U {
   @internal
   */
   touches(e, t) {
-    let n = 0, i = vn(t), o = this.inverted ? 2 : 1, s = this.inverted ? 1 : 2;
+    let n = 0, i = xn(t), o = this.inverted ? 2 : 1, s = this.inverted ? 1 : 2;
     for (let a = 0; a < this.ranges.length; a += 3) {
       let l = this.ranges[a] - (this.inverted ? n : 0);
       if (l > e)
@@ -5309,7 +5336,7 @@ class U {
   }
 }
 U.empty = new U([]);
-const vt = /* @__PURE__ */ Object.create(null);
+const xt = /* @__PURE__ */ Object.create(null);
 class P {
   /**
   Get the step map that represents the changes made by this step,
@@ -5334,7 +5361,7 @@ class P {
   static fromJSON(e, t) {
     if (!t || !t.stepType)
       throw new RangeError("Invalid input for Step.fromJSON");
-    let n = vt[t.stepType];
+    let n = xt[t.stepType];
     if (!n)
       throw new RangeError(`No step type ${t.stepType} defined`);
     return n.fromJSON(e, t);
@@ -5346,9 +5373,9 @@ class P {
   that's unlikely to clash with steps from other modules.
   */
   static jsonID(e, t) {
-    if (e in vt)
+    if (e in xt)
       throw new RangeError("Duplicate use of step JSON ID " + e);
-    return vt[e] = t, t.prototype.jsonID = e, t;
+    return xt[e] = t, t.prototype.jsonID = e, t;
   }
 }
 class O {
@@ -5401,7 +5428,7 @@ class Z extends P {
     super(), this.from = e, this.to = t, this.mark = n;
   }
   apply(e) {
-    let t = e.slice(this.from, this.to), n = e.resolve(this.from), i = n.node(n.sharedDepth(this.to)), o = new v($t(t.content, (s, a) => !s.isAtom || !a.type.allowsMarkType(this.mark.type) ? s : s.mark(this.mark.addToSet(s.marks)), i), t.openStart, t.openEnd);
+    let t = e.slice(this.from, this.to), n = e.resolve(this.from), i = n.node(n.sharedDepth(this.to)), o = new x($t(t.content, (s, a) => !s.isAtom || !a.type.allowsMarkType(this.mark.type) ? s : s.mark(this.mark.addToSet(s.marks)), i), t.openStart, t.openEnd);
     return O.fromReplace(e, this.from, this.to, o);
   }
   invert() {
@@ -5440,7 +5467,7 @@ class ee extends P {
     super(), this.from = e, this.to = t, this.mark = n;
   }
   apply(e) {
-    let t = e.slice(this.from, this.to), n = new v($t(t.content, (i) => i.mark(this.mark.removeFromSet(i.marks)), e), t.openStart, t.openEnd);
+    let t = e.slice(this.from, this.to), n = new x($t(t.content, (i) => i.mark(this.mark.removeFromSet(i.marks)), e), t.openStart, t.openEnd);
     return O.fromReplace(e, this.from, this.to, n);
   }
   invert() {
@@ -5483,7 +5510,7 @@ class te extends P {
     if (!t)
       return O.fail("No node at mark step's position");
     let n = t.type.create(t.attrs, null, this.mark.addToSet(t.marks));
-    return O.fromReplace(e, this.pos, this.pos + 1, new v(w.from(n), 0, t.isLeaf ? 0 : 1));
+    return O.fromReplace(e, this.pos, this.pos + 1, new x(w.from(n), 0, t.isLeaf ? 0 : 1));
   }
   invert(e) {
     let t = e.nodeAt(this.pos);
@@ -5527,7 +5554,7 @@ class Pe extends P {
     if (!t)
       return O.fail("No node at mark step's position");
     let n = t.type.create(t.attrs, null, this.mark.removeFromSet(t.marks));
-    return O.fromReplace(e, this.pos, this.pos + 1, new v(w.from(n), 0, t.isLeaf ? 0 : 1));
+    return O.fromReplace(e, this.pos, this.pos + 1, new x(w.from(n), 0, t.isLeaf ? 0 : 1));
   }
   invert(e) {
     let t = e.nodeAt(this.pos);
@@ -5580,10 +5607,10 @@ class j extends P {
     if (!(e instanceof j) || e.structure || this.structure)
       return null;
     if (this.from + this.slice.size == e.from && !this.slice.openEnd && !e.slice.openStart) {
-      let t = this.slice.size + e.slice.size == 0 ? v.empty : new v(this.slice.content.append(e.slice.content), this.slice.openStart, e.slice.openEnd);
+      let t = this.slice.size + e.slice.size == 0 ? x.empty : new x(this.slice.content.append(e.slice.content), this.slice.openStart, e.slice.openEnd);
       return new j(this.from, this.to + (e.to - e.from), t, this.structure);
     } else if (e.to == this.from && !this.slice.openStart && !e.slice.openEnd) {
-      let t = this.slice.size + e.slice.size == 0 ? v.empty : new v(e.slice.content.append(this.slice.content), e.slice.openStart, this.slice.openEnd);
+      let t = this.slice.size + e.slice.size == 0 ? x.empty : new x(e.slice.content.append(this.slice.content), e.slice.openStart, this.slice.openEnd);
       return new j(e.from, this.to, t, this.structure);
     } else
       return null;
@@ -5598,7 +5625,7 @@ class j extends P {
   static fromJSON(e, t) {
     if (typeof t.from != "number" || typeof t.to != "number")
       throw new RangeError("Invalid input for ReplaceStep.fromJSON");
-    return new j(t.from, t.to, v.fromJSON(e, t.slice), !!t.structure);
+    return new j(t.from, t.to, x.fromJSON(e, t.slice), !!t.structure);
   }
 }
 j.MAP_BIAS = 1;
@@ -5657,7 +5684,7 @@ class F extends P {
   static fromJSON(e, t) {
     if (typeof t.from != "number" || typeof t.to != "number" || typeof t.gapFrom != "number" || typeof t.gapTo != "number" || typeof t.insert != "number")
       throw new RangeError("Invalid input for ReplaceAroundStep.fromJSON");
-    return new F(t.from, t.to, t.gapFrom, t.gapTo, v.fromJSON(e, t.slice), t.insert, !!t.structure);
+    return new F(t.from, t.to, t.gapFrom, t.gapTo, x.fromJSON(e, t.slice), t.insert, !!t.structure);
   }
 }
 P.jsonID("replaceAround", F);
@@ -5678,7 +5705,7 @@ function zt(r, e, t) {
 function $o(r, e, t) {
   return (e == 0 || r.canReplace(e, r.childCount)) && (t == r.childCount || r.canReplace(0, t));
 }
-function ke(r) {
+function Se(r) {
   let t = r.parent.content.cutByIndex(r.startIndex, r.endIndex);
   for (let n = r.depth, i = 0, o = 0; ; --n) {
     let s = r.$from.node(n), a = r.$from.index(n) + i, l = r.$to.indexAfter(n) - o;
@@ -5758,7 +5785,7 @@ function mt(r, e, t = -1) {
     e = t < 0 ? n.before(i) : n.after(i);
   }
 }
-function Ut(r, e, t = e, n = v.empty) {
+function Ut(r, e, t = e, n = x.empty) {
   if (e == t && !n.size)
     return null;
   let i = r.resolve(e), o = r.resolve(t);
@@ -5794,7 +5821,7 @@ class _o {
     let o = this.placed, s = n.depth, a = i.depth;
     for (; s && a && o.childCount == 1; )
       o = o.firstChild.content, s--, a--;
-    let l = new v(o, s, a);
+    let l = new x(o, s, a);
     return e > -1 ? new F(n.pos, e, this.$to.pos, this.$to.end(), l, t) : l.size || n.pos != this.$to.pos ? new j(n.pos, i.pos, l) : null;
   }
   // Find a position on the start spine of `this.unplaced` that has
@@ -5828,15 +5855,15 @@ class _o {
   }
   openMore() {
     let { content: e, openStart: t, openEnd: n } = this.unplaced, i = kt(e, t);
-    return !i.childCount || i.firstChild.isLeaf ? !1 : (this.unplaced = new v(e, t + 1, Math.max(n, i.size + t >= e.size - n ? t + 1 : 0)), !0);
+    return !i.childCount || i.firstChild.isLeaf ? !1 : (this.unplaced = new x(e, t + 1, Math.max(n, i.size + t >= e.size - n ? t + 1 : 0)), !0);
   }
   dropNode() {
     let { content: e, openStart: t, openEnd: n } = this.unplaced, i = kt(e, t);
     if (i.childCount <= 1 && t > 0) {
       let o = e.size - t <= t + i.size;
-      this.unplaced = new v(Ce(e, t - 1, 1), t - 1, o ? t - 1 : n);
+      this.unplaced = new x(Ee(e, t - 1, 1), t - 1, o ? t - 1 : n);
     } else
-      this.unplaced = new v(Ce(e, t, 1), t, n);
+      this.unplaced = new x(Ee(e, t, 1), t, n);
   }
   // Move content from the unplaced slice at `sliceDepth` to the
   // frontier node at `frontierDepth`. Close that frontier node when
@@ -5861,12 +5888,12 @@ class _o {
       c++, (c > 1 || l == 0 || m.content.size) && (f = y, d.push(wr(m.mark(p.allowedMarks(m.marks)), c == 1 ? l : 0, c == a.childCount ? h : -1)));
     }
     let g = c == a.childCount;
-    g || (h = -1), this.placed = Ee(this.placed, t, w.from(d)), this.frontier[t].match = f, g && h < 0 && n && n.type == this.frontier[this.depth].type && this.frontier.length > 1 && this.closeFrontierNode();
+    g || (h = -1), this.placed = Ne(this.placed, t, w.from(d)), this.frontier[t].match = f, g && h < 0 && n && n.type == this.frontier[this.depth].type && this.frontier.length > 1 && this.closeFrontierNode();
     for (let m = 0, y = a; m < h; m++) {
-      let x = y.lastChild;
-      this.frontier.push({ type: x.type, match: x.contentMatchAt(x.childCount) }), y = x.content;
+      let v = y.lastChild;
+      this.frontier.push({ type: v.type, match: v.contentMatchAt(v.childCount) }), y = v.content;
     }
-    this.unplaced = g ? e == 0 ? v.empty : new v(Ce(s.content, e - 1, 1), e - 1, h < 0 ? s.openEnd : e - 1) : new v(Ce(s.content, e, c), s.openStart, s.openEnd);
+    this.unplaced = g ? e == 0 ? x.empty : new x(Ee(s.content, e - 1, 1), e - 1, h < 0 ? s.openEnd : e - 1) : new x(Ee(s.content, e, c), s.openStart, s.openEnd);
   }
   mustMoveInline() {
     if (!this.$to.parent.isTextblock)
@@ -5898,7 +5925,7 @@ class _o {
       return null;
     for (; this.depth > t.depth; )
       this.closeFrontierNode();
-    t.fit.childCount && (this.placed = Ee(this.placed, t.depth, t.fit)), e = t.move;
+    t.fit.childCount && (this.placed = Ne(this.placed, t.depth, t.fit)), e = t.move;
     for (let n = t.depth + 1; n <= e.depth; n++) {
       let i = e.node(n), o = i.type.contentMatch.fillBefore(i.content, !0, e.index(n));
       this.openFrontierNode(i.type, i.attrs, o);
@@ -5907,18 +5934,18 @@ class _o {
   }
   openFrontierNode(e, t = null, n) {
     let i = this.frontier[this.depth];
-    i.match = i.match.matchType(e), this.placed = Ee(this.placed, this.depth, w.from(e.create(t, n))), this.frontier.push({ type: e, match: e.contentMatch });
+    i.match = i.match.matchType(e), this.placed = Ne(this.placed, this.depth, w.from(e.create(t, n))), this.frontier.push({ type: e, match: e.contentMatch });
   }
   closeFrontierNode() {
     let t = this.frontier.pop().match.fillBefore(w.empty, !0);
-    t.childCount && (this.placed = Ee(this.placed, this.frontier.length, t));
+    t.childCount && (this.placed = Ne(this.placed, this.frontier.length, t));
   }
 }
-function Ce(r, e, t) {
-  return e == 0 ? r.cutByIndex(t, r.childCount) : r.replaceChild(0, r.firstChild.copy(Ce(r.firstChild.content, e - 1, t)));
-}
 function Ee(r, e, t) {
-  return e == 0 ? r.append(t) : r.replaceChild(r.childCount - 1, r.lastChild.copy(Ee(r.lastChild.content, e - 1, t)));
+  return e == 0 ? r.cutByIndex(t, r.childCount) : r.replaceChild(0, r.firstChild.copy(Ee(r.firstChild.content, e - 1, t)));
+}
+function Ne(r, e, t) {
+  return e == 0 ? r.append(t) : r.replaceChild(r.childCount - 1, r.lastChild.copy(Ne(r.lastChild.content, e - 1, t)));
 }
 function kt(r, e) {
   for (let t = 0; t < e; t++)
@@ -5936,15 +5963,15 @@ function St(r, e, t, n, i) {
   if (s == o.childCount && !t.compatibleContent(o.type))
     return null;
   let a = n.fillBefore(o.content, !0, s);
-  return a && !Wo(t, o.content, s) ? a : null;
+  return a && !Go(t, o.content, s) ? a : null;
 }
-function Wo(r, e, t) {
+function Go(r, e, t) {
   for (let n = t; n < e.childCount; n++)
     if (!r.allowsMarks(e.child(n).marks))
       return !0;
   return !1;
 }
-class Te extends P {
+class Me extends P {
   /**
   Construct an attribute step.
   */
@@ -5960,17 +5987,17 @@ class Te extends P {
       n[o] = t.attrs[o];
     n[this.attr] = this.value;
     let i = t.type.create(n, null, t.marks);
-    return O.fromReplace(e, this.pos, this.pos + 1, new v(w.from(i), 0, t.isLeaf ? 0 : 1));
+    return O.fromReplace(e, this.pos, this.pos + 1, new x(w.from(i), 0, t.isLeaf ? 0 : 1));
   }
   getMap() {
     return U.empty;
   }
   invert(e) {
-    return new Te(this.pos, this.attr, e.nodeAt(this.pos).attrs[this.attr]);
+    return new Me(this.pos, this.attr, e.nodeAt(this.pos).attrs[this.attr]);
   }
   map(e) {
     let t = e.mapResult(this.pos, 1);
-    return t.deletedAfter ? null : new Te(t.pos, this.attr, this.value);
+    return t.deletedAfter ? null : new Me(t.pos, this.attr, this.value);
   }
   toJSON() {
     return { stepType: "attr", pos: this.pos, attr: this.attr, value: this.value };
@@ -5978,10 +6005,10 @@ class Te extends P {
   static fromJSON(e, t) {
     if (typeof t.pos != "number" || typeof t.attr != "string")
       throw new RangeError("Invalid input for AttrStep.fromJSON");
-    return new Te(t.pos, t.attr, t.value);
+    return new Me(t.pos, t.attr, t.value);
   }
 }
-P.jsonID("attr", Te);
+P.jsonID("attr", Me);
 class st extends P {
   /**
   Construct an attribute step.
@@ -6033,7 +6060,7 @@ class S {
   `$head`.
   */
   constructor(e, t, n) {
-    this.$anchor = e, this.$head = t, this.ranges = n || [new Go(e.min(t), e.max(t))];
+    this.$anchor = e, this.$head = t, this.ranges = n || [new Wo(e.min(t), e.max(t))];
   }
   /**
   The selection's anchor, as an unresolved position.
@@ -6091,14 +6118,14 @@ class S {
   Replace the selection with a slice or, if no slice is given,
   delete the selection. Will append to the given transaction.
   */
-  replace(e, t = v.empty) {
+  replace(e, t = x.empty) {
     let n = t.content.lastChild, i = null;
     for (let a = 0; a < t.openEnd; a++)
       i = n, n = n.lastChild;
     let o = e.steps.length, s = this.ranges;
     for (let a = 0; a < s.length; a++) {
       let { $from: l, $to: c } = s[a], d = e.mapping.slice(o);
-      e.replaceRange(d.map(l.pos), d.map(c.pos), a ? v.empty : t), a == 0 && Nn(e, o, (n ? n.isInline : i && i.isTextblock) ? -1 : 1);
+      e.replaceRange(d.map(l.pos), d.map(c.pos), a ? x.empty : t), a == 0 && Nn(e, o, (n ? n.isInline : i && i.isTextblock) ? -1 : 1);
     }
   }
   /**
@@ -6191,7 +6218,7 @@ class S {
   }
 }
 S.prototype.visible = !0;
-class Go {
+class Wo {
   /**
   Create a range.
   */
@@ -6224,8 +6251,8 @@ class T extends S {
     let i = e.resolve(t.map(this.anchor));
     return new T(i.parent.inlineContent ? i : n, n);
   }
-  replace(e, t = v.empty) {
-    if (super.replace(e, t), t == v.empty) {
+  replace(e, t = x.empty) {
+    if (super.replace(e, t), t == x.empty) {
       let n = this.$from.marksAcross(this.$to);
       n && e.ensureMarks(n);
     }
@@ -6300,7 +6327,7 @@ class C extends S {
     return n ? S.near(o) : new C(o);
   }
   content() {
-    return new v(w.from(this.node), 0, 0);
+    return new x(w.from(this.node), 0, 0);
   }
   eq(e) {
     return e instanceof C && e.anchor == this.anchor;
@@ -6355,8 +6382,8 @@ class H extends S {
   constructor(e) {
     super(e.resolve(0), e.resolve(e.content.size));
   }
-  replace(e, t = v.empty) {
-    if (t == v.empty) {
+  replace(e, t = x.empty) {
+    if (t == x.empty) {
       e.delete(0, e.doc.content.size);
       let n = S.atStart(e.doc);
       n.eq(e.selection) || e.setSelection(n);
@@ -6423,33 +6450,33 @@ function Nn(r, e, t) {
 function An(r, e) {
   return !e || !r ? r : r.bind(e);
 }
-class Ge {
+class We {
   constructor(e, t, n) {
     this.name = e, this.init = An(t.init, n), this.apply = An(t.apply, n);
   }
 }
-new Ge("doc", {
+new We("doc", {
   init(r) {
     return r.doc || r.schema.topNodeType.createAndFill();
   },
   apply(r) {
     return r.doc;
   }
-}), new Ge("selection", {
+}), new We("selection", {
   init(r, e) {
     return r.selection || S.atStart(e.doc);
   },
   apply(r) {
     return r.selection;
   }
-}), new Ge("storedMarks", {
+}), new We("storedMarks", {
   init(r) {
     return r.storedMarks || null;
   },
   apply(r, e, t, n) {
     return n.selection.$cursor ? r.storedMarks : null;
   }
-}), new Ge("scrollToSelection", {
+}), new We("scrollToSelection", {
   init() {
     return 0;
   },
@@ -6457,10 +6484,10 @@ new Ge("doc", {
     return r.scrolledIntoView ? e + 1 : e;
   }
 });
-function xr(r, e, t) {
+function vr(r, e, t) {
   for (let n in r) {
     let i = r[n];
-    i instanceof Function ? i = i.bind(e) : n == "handleDOMEvents" && (i = xr(i, e, {})), t[n] = i;
+    i instanceof Function ? i = i.bind(e) : n == "handleDOMEvents" && (i = vr(i, e, {})), t[n] = i;
   }
   return t;
 }
@@ -6469,7 +6496,7 @@ class le {
   Create a plugin.
   */
   constructor(e) {
-    this.spec = e, this.props = {}, e.props && xr(e.props, this, this.props), this.key = e.key ? e.key.key : vr("plugin");
+    this.spec = e, this.props = {}, e.props && vr(e.props, this, this.props), this.key = e.key ? e.key.key : xr("plugin");
   }
   /**
   Extract the plugin's state field from an editor state.
@@ -6479,7 +6506,7 @@ class le {
   }
 }
 const Et = /* @__PURE__ */ Object.create(null);
-function vr(r) {
+function xr(r) {
   return r in Et ? r + "$" + ++Et[r] : (Et[r] = 0, r + "$");
 }
 class ce {
@@ -6487,7 +6514,7 @@ class ce {
   Create a plugin key.
   */
   constructor(e = "key") {
-    this.key = vr(e);
+    this.key = xr(e);
   }
   /**
   Get the active plugin with this key, if any, from an editor
@@ -6514,19 +6541,19 @@ const Sr = (r, e, t) => {
     return !1;
   let i = Jt(n);
   if (!i) {
-    let s = n.blockRange(), a = s && ke(s);
+    let s = n.blockRange(), a = s && Se(s);
     return a == null ? !1 : (e && e(r.tr.lift(s, a).scrollIntoView()), !0);
   }
   let o = i.nodeBefore;
   if (Rr(r, i, e, -1))
     return !0;
-  if (n.parent.content.size == 0 && (we(o, "end") || C.isSelectable(o)))
+  if (n.parent.content.size == 0 && (ve(o, "end") || C.isSelectable(o)))
     for (let s = n.depth; ; s--) {
-      let a = Ut(r.doc, n.before(s), n.after(s), v.empty);
+      let a = Ut(r.doc, n.before(s), n.after(s), x.empty);
       if (a && a.slice.size < a.to - a.from) {
         if (e) {
           let l = r.tr.step(a);
-          l.setSelection(we(o, "end") ? S.findFrom(l.doc.resolve(l.mapping.map(i.pos, -1)), -1) : C.create(l.doc, i.pos - o.nodeSize)), e(l.scrollIntoView());
+          l.setSelection(ve(o, "end") ? S.findFrom(l.doc.resolve(l.mapping.map(i.pos, -1)), -1) : C.create(l.doc, i.pos - o.nodeSize)), e(l.scrollIntoView());
         }
         return !0;
       }
@@ -6566,7 +6593,7 @@ function Cr(r, e, t) {
       return !1;
     a = d;
   }
-  let c = Ut(r.doc, o, l, v.empty);
+  let c = Ut(r.doc, o, l, x.empty);
   if (!c || c.from != o || c instanceof j && c.slice.size >= l - o)
     return !1;
   if (t) {
@@ -6575,7 +6602,7 @@ function Cr(r, e, t) {
   }
   return !0;
 }
-function we(r, e, t = !1) {
+function ve(r, e, t = !1) {
   for (let n = r; n; n = e == "start" ? n.firstChild : n.lastChild) {
     if (n.isTextblock)
       return !0;
@@ -6620,12 +6647,12 @@ const Ar = (r, e, t) => {
   let o = i.nodeAfter;
   if (Rr(r, i, e, 1))
     return !0;
-  if (n.parent.content.size == 0 && (we(o, "start") || C.isSelectable(o))) {
-    let s = Ut(r.doc, n.before(), n.after(), v.empty);
+  if (n.parent.content.size == 0 && (ve(o, "start") || C.isSelectable(o))) {
+    let s = Ut(r.doc, n.before(), n.after(), x.empty);
     if (s && s.slice.size < s.to - s.from) {
       if (e) {
         let a = r.tr.step(s);
-        a.setSelection(we(o, "start") ? S.findFrom(a.doc.resolve(a.mapping.map(i.pos)), 1) : C.create(a.doc, a.mapping.map(i.pos))), e(a.scrollIntoView());
+        a.setSelection(ve(o, "start") ? S.findFrom(a.doc.resolve(a.mapping.map(i.pos)), 1) : C.create(a.doc, a.mapping.map(i.pos))), e(a.scrollIntoView());
       }
       return !0;
     }
@@ -6677,14 +6704,14 @@ const Xo = (r, e) => {
     return !1;
   return e && e(r.tr.join(n).scrollIntoView()), !0;
 }, Zo = (r, e) => {
-  let { $from: t, $to: n } = r.selection, i = t.blockRange(n), o = i && ke(i);
+  let { $from: t, $to: n } = r.selection, i = t.blockRange(n), o = i && Se(i);
   return o == null ? !1 : (e && e(r.tr.lift(i, o).scrollIntoView()), !0);
 }, Mr = (r, e) => {
   let { $head: t, $anchor: n } = r.selection;
   return !t.parent.type.spec.code || !t.sameParent(n) ? !1 : (e && e(r.tr.insertText(`
 `).scrollIntoView()), !0);
 };
-function Wt(r) {
+function Gt(r) {
   for (let e = 0; e < r.edgeCount; e++) {
     let { type: t } = r.edge(e);
     if (t.isTextblock && !t.hasRequiredAttrs())
@@ -6696,7 +6723,7 @@ const es = (r, e) => {
   let { $head: t, $anchor: n } = r.selection;
   if (!t.parent.type.spec.code || !t.sameParent(n))
     return !1;
-  let i = t.node(-1), o = t.indexAfter(-1), s = Wt(i.contentMatchAt(o));
+  let i = t.node(-1), o = t.indexAfter(-1), s = Gt(i.contentMatchAt(o));
   if (!s || !i.canReplaceWith(o, o, s))
     return !1;
   if (e) {
@@ -6708,7 +6735,7 @@ const es = (r, e) => {
   let t = r.selection, { $from: n, $to: i } = t;
   if (t instanceof H || n.parent.inlineContent || i.parent.inlineContent)
     return !1;
-  let o = Wt(i.parent.contentMatchAt(i.indexAfter()));
+  let o = Gt(i.parent.contentMatchAt(i.indexAfter()));
   if (!o || !o.isTextblock)
     return !1;
   if (e) {
@@ -6725,7 +6752,7 @@ const es = (r, e) => {
     if (Y(r.doc, o))
       return e && e(r.tr.split(o).scrollIntoView()), !0;
   }
-  let n = t.blockRange(), i = n && ke(n);
+  let n = t.blockRange(), i = n && Se(n);
   return i == null ? !1 : (e && e(r.tr.lift(n, i).scrollIntoView()), !0);
 };
 function ts(r) {
@@ -6738,7 +6765,7 @@ function ts(r) {
     let o = [], s, a, l = !1, c = !1;
     for (let h = n.depth; ; h--)
       if (n.node(h).isBlock) {
-        l = n.end(h) == n.pos + (n.depth - h), c = n.start(h) == n.pos - (n.depth - h), a = Wt(n.node(h - 1).contentMatchAt(n.indexAfter(h - 1))), o.unshift(l && a ? { type: a } : null), s = h;
+        l = n.end(h) == n.pos + (n.depth - h), c = n.start(h) == n.pos - (n.depth - h), a = Gt(n.node(h - 1).contentMatchAt(n.indexAfter(h - 1))), o.unshift(l && a ? { type: a } : null), s = h;
         break;
       } else {
         if (h == 1)
@@ -6773,18 +6800,18 @@ function Rr(r, e, t, n) {
   if (c && (s = (a = i.contentMatchAt(i.childCount)).findWrapping(o.type)) && a.matchType(s[0] || o.type).validEnd) {
     if (t) {
       let h = e.pos + o.nodeSize, g = w.empty;
-      for (let x = s.length - 1; x >= 0; x--)
-        g = w.from(s[x].create(null, g));
+      for (let v = s.length - 1; v >= 0; v--)
+        g = w.from(s[v].create(null, g));
       g = w.from(i.copy(g));
-      let m = r.tr.step(new F(e.pos - 1, h, e.pos, h, new v(g, 1, 0), s.length, !0)), y = m.doc.resolve(h + 2 * s.length);
+      let m = r.tr.step(new F(e.pos - 1, h, e.pos, h, new x(g, 1, 0), s.length, !0)), y = m.doc.resolve(h + 2 * s.length);
       y.nodeAfter && y.nodeAfter.type == i.type && ae(m.doc, y.pos) && m.join(y.pos), t(m.scrollIntoView());
     }
     return !0;
   }
-  let d = o.type.spec.isolating || n > 0 && l ? null : S.findFrom(e, 1), f = d && d.$from.blockRange(d.$to), p = f && ke(f);
+  let d = o.type.spec.isolating || n > 0 && l ? null : S.findFrom(e, 1), f = d && d.$from.blockRange(d.$to), p = f && Se(f);
   if (p != null && p >= e.depth)
     return t && t(r.tr.lift(f, p).scrollIntoView()), !0;
-  if (c && we(o, "start", !0) && we(i, "end")) {
+  if (c && ve(o, "start", !0) && ve(i, "end")) {
     let h = i, g = [];
     for (; g.push(h), !h.isTextblock; )
       h = h.lastChild;
@@ -6793,10 +6820,10 @@ function Rr(r, e, t, n) {
       y++;
     if (h.canReplace(h.childCount, h.childCount, m.content)) {
       if (t) {
-        let x = w.empty;
+        let v = w.empty;
         for (let k = g.length - 1; k >= 0; k--)
-          x = w.from(g[k].copy(x));
-        let A = r.tr.step(new F(e.pos - g.length, e.pos + o.nodeSize, e.pos + y, e.pos + o.nodeSize - y, new v(x, g.length, 0), 0, !0));
+          v = w.from(g[k].copy(v));
+        let A = r.tr.step(new F(e.pos - g.length, e.pos + o.nodeSize, e.pos + y, e.pos + o.nodeSize - y, new x(v, g.length, 0), 0, !0));
         t(A.scrollIntoView());
       }
       return !0;
@@ -6852,7 +6879,7 @@ function Tn(r, e = null) {
     return !0;
   };
 }
-function Gt(...r) {
+function Wt(...r) {
   return function(e, t, n) {
     for (let i = 0; i < r.length; i++)
       if (r[i](e, t, n))
@@ -6860,9 +6887,9 @@ function Gt(...r) {
     return !1;
   };
 }
-Gt(Ht, Sr, Er);
-Gt(Ht, Ar, Tr);
-Gt(Mr, Ir, Or, ns);
+Wt(Ht, Sr, Er);
+Wt(Ht, Ar, Tr);
+Wt(Mr, Ir, Or, ns);
 typeof navigator < "u" ? /Mac|iP(hone|[oa]d)/.test(navigator.platform) : typeof os < "u" && os.platform && os.platform() == "darwin";
 function cs(r, e = null) {
   return function(t, n) {
@@ -6888,7 +6915,7 @@ function us(r, e, t, n, i) {
   let o = w.empty;
   for (let d = t.length - 1; d >= 0; d--)
     o = w.from(t[d].type.create(t[d].attrs, o));
-  r.step(new F(e.start - (n ? 2 : 0), e.end, e.start, e.end, new v(o, 0, 0), t.length, !0));
+  r.step(new F(e.start - (n ? 2 : 0), e.end, e.start, e.end, new x(o, 0, 0), t.length, !0));
   let s = 0;
   for (let d = 0; d < t.length; d++)
     t[d].type == i && (s = d + 1);
@@ -6905,8 +6932,8 @@ function fs(r) {
 }
 function ps(r, e, t, n) {
   let i = r.tr, o = n.end, s = n.$to.end(n.depth);
-  o < s && (i.step(new F(o - 1, s, o, s, new v(w.from(t.create(null, n.parent.copy())), 1, 0), 1, !0)), n = new rt(i.doc.resolve(n.$from.pos), i.doc.resolve(s), n.depth));
-  const a = ke(n);
+  o < s && (i.step(new F(o - 1, s, o, s, new x(w.from(t.create(null, n.parent.copy())), 1, 0), 1, !0)), n = new rt(i.doc.resolve(n.$from.pos), i.doc.resolve(s), n.depth));
+  const a = Se(n);
   if (a == null)
     return !1;
   i.lift(n, a);
@@ -6924,7 +6951,7 @@ function hs(r, e, t) {
   if (!c.canReplace(d + (a ? 0 : 1), d + 1, s.content.append(l ? w.empty : w.from(i))))
     return !1;
   let f = o.pos, p = f + s.nodeSize;
-  return n.step(new F(f - (a ? 1 : 0), p + (l ? 1 : 0), f + 1, p - 1, new v((a ? w.empty : w.from(i.copy(w.empty))).append(l ? w.empty : w.from(i.copy(w.empty))), a ? 0 : 1, l ? 0 : 1), a ? 0 : 1)), e(n.scrollIntoView()), !0;
+  return n.step(new F(f - (a ? 1 : 0), p + (l ? 1 : 0), f + 1, p - 1, new x((a ? w.empty : w.from(i.copy(w.empty))).append(l ? w.empty : w.from(i.copy(w.empty))), a ? 0 : 1, l ? 0 : 1), a ? 0 : 1)), e(n.scrollIntoView()), !0;
 }
 function ms(r) {
   return function(e, t) {
@@ -6938,7 +6965,7 @@ function ms(r) {
     if (l.type != r)
       return !1;
     if (t) {
-      let c = l.lastChild && l.lastChild.type == a.type, d = w.from(c ? r.create() : null), f = new v(w.from(r.create(null, w.from(a.type.create(null, d)))), c ? 3 : 1, 0), p = o.start, h = o.end;
+      let c = l.lastChild && l.lastChild.type == a.type, d = w.from(c ? r.create() : null), f = new x(w.from(r.create(null, w.from(a.type.create(null, d)))), c ? 3 : 1, 0), p = o.start, h = o.end;
       t(e.tr.step(new F(p - (c ? 3 : 1), h, p, h, f, 1, !0)).scrollIntoView());
     }
     return !0;
@@ -6995,8 +7022,8 @@ class gs {
   createChain(e, t = !0) {
     const { rawCommands: n, editor: i, state: o } = this, { view: s } = i, a = [], l = !!e, c = e || o.tr, d = () => (!l && t && !c.getMeta("preventDispatch") && !this.hasCustomState && s.dispatch(c), a.every((p) => p === !0)), f = {
       ...Object.fromEntries(Object.entries(n).map(([p, h]) => [p, (...m) => {
-        const y = this.buildProps(c, t), x = h(...m)(y);
-        return a.push(x), f;
+        const y = this.buildProps(c, t), v = h(...m)(y);
+        return a.push(v), f;
       }])),
       run: d
     };
@@ -7087,14 +7114,14 @@ function ws(r) {
 function K(r, e = void 0, ...t) {
   return ws(r) ? e ? r.bind(e)(...t) : r(...t) : r;
 }
-function xs(r) {
+function vs(r) {
   return Object.prototype.toString.call(r) === "[object RegExp]";
 }
-function vs(r) {
+function xs(r) {
   return Object.prototype.toString.call(r).slice(8, -1);
 }
 function qe(r) {
-  return vs(r) !== "Object" ? !1 : r.constructor === Object && Object.getPrototypeOf(r) === Object.prototype;
+  return xs(r) !== "Object" ? !1 : r.constructor === Object && Object.getPrototypeOf(r) === Object.prototype;
 }
 function qt(r, e) {
   const t = { ...r };
@@ -7102,7 +7129,7 @@ function qt(r, e) {
     qe(e[n]) && qe(r[n]) ? t[n] = qt(r[n], e[n]) : t[n] = e[n];
   }), t;
 }
-class W {
+class G {
   constructor(e = {}) {
     this.type = "extension", this.name = "extension", this.parent = null, this.child = null, this.config = {
       name: this.name,
@@ -7118,7 +7145,7 @@ class W {
     })) || {};
   }
   static create(e = {}) {
-    return new W(e);
+    return new G(e);
   }
   configure(e = {}) {
     const t = this.extend({
@@ -7128,7 +7155,7 @@ class W {
     return t.name = this.name, t.parent = this.parent, t;
   }
   extend(e = {}) {
-    const t = new W({ ...this.config, ...e });
+    const t = new G({ ...this.config, ...e });
     return t.parent = this, this.child = t, t.name = e.name ? e.name : t.parent.name, e.defaultOptions && Object.keys(e.defaultOptions).length > 0 && console.warn(`[tiptap warn]: BREAKING CHANGE: "defaultOptions" is deprecated. Please use "addOptions" instead. Found in extension: "${t.name}".`), t.options = K(_(t, "addOptions", {
       name: t.name
     })), t.storage = K(_(t, "addStorage", {
@@ -7160,7 +7187,7 @@ function ks(r, e, t) {
 function Ss(r) {
   return Object.fromEntries(Object.entries(r.nodes).filter(([, e]) => e.spec.toText).map(([e, t]) => [e, t.spec.toText]));
 }
-W.create({
+G.create({
   name: "clipboardTextSerializer",
   addOptions() {
     return {
@@ -7196,7 +7223,7 @@ const Cs = () => ({ editor: r, view: e }) => (requestAnimationFrame(() => {
       const { doc: c, mapping: d } = e, f = c.resolve(d.map(l)), p = c.resolve(d.map(l + a.nodeSize)), h = f.blockRange(p);
       if (!h)
         return;
-      const g = ke(h);
+      const g = Se(h);
       if (a.type.isTextblock) {
         const { defaultType: m } = f.parent.contentMatchAt(f.index());
         e.setNodeMarkup(h.start, m);
@@ -7240,7 +7267,7 @@ const Cs = () => ({ editor: r, view: e }) => (requestAnimationFrame(() => {
 }, zs = () => ({ state: r, dispatch: e }) => Ht(r, e), Ls = () => ({ commands: r }) => r.keyboardShortcut("Enter"), Bs = () => ({ state: r, dispatch: e }) => es(r, e);
 function at(r, e, t = { strict: !0 }) {
   const n = Object.keys(e);
-  return n.length ? n.every((i) => t.strict ? e[i] === r[i] : xs(e[i]) ? e[i].test(r[i]) : e[i] === r[i]) : !0;
+  return n.length ? n.every((i) => t.strict ? e[i] === r[i] : vs(e[i]) ? e[i].test(r[i]) : e[i] === r[i]) : !0;
 }
 function Pr(r, e, t = {}) {
   return r.find((n) => n.type === e && at(
@@ -7396,10 +7423,10 @@ function Fe(r, e, t) {
           }
         })
       });
-      if (t.slice ? pe.fromSchema(l).parseSlice(Ke(r), t.parseOptions) : pe.fromSchema(l).parse(Ke(r), t.parseOptions), t.errorOnInvalidContent && s)
+      if (t.slice ? he.fromSchema(l).parseSlice(Ke(r), t.parseOptions) : he.fromSchema(l).parse(Ke(r), t.parseOptions), t.errorOnInvalidContent && s)
         throw new Error("[tiptap error]: Invalid HTML content", { cause: new Error(`Invalid element found: ${a}`) });
     }
-    const o = pe.fromSchema(e);
+    const o = he.fromSchema(e);
     return t.slice ? o.parseSlice(Ke(r), t.parseOptions).content : o.parse(Ke(r), t.parseOptions);
   }
   return Fe("", e, t);
@@ -7470,8 +7497,8 @@ const Js = (r) => !("type" in r), _s = (r, e, t) => ({ tr: n, dispatch: i, edito
         m = e.map((y) => y.text || "").join("");
       else if (e instanceof w) {
         let y = "";
-        e.forEach((x) => {
-          x.text && (y += x.text);
+        e.forEach((v) => {
+          v.text && (y += v.text);
         }), m = y;
       } else typeof e == "object" && e && e.text ? m = e.text : m = e;
       n.insertText(m, d, f);
@@ -7480,7 +7507,7 @@ const Js = (r) => !("type" in r), _s = (r, e, t) => ({ tr: n, dispatch: i, edito
     t.updateSelection && Hs(n, n.steps.length - 1, -1), t.applyInputRules && n.setMeta("applyInputRules", { from: d, text: m }), t.applyPasteRules && n.setMeta("applyPasteRules", { from: d, text: m });
   }
   return !0;
-}, Ws = () => ({ state: r, dispatch: e }) => Xo(r, e), Gs = () => ({ state: r, dispatch: e }) => Qo(r, e), qs = () => ({ state: r, dispatch: e }) => Sr(r, e), Ks = () => ({ state: r, dispatch: e }) => Ar(r, e), Ys = () => ({ state: r, dispatch: e, tr: t }) => {
+}, Gs = () => ({ state: r, dispatch: e }) => Xo(r, e), Ws = () => ({ state: r, dispatch: e }) => Qo(r, e), qs = () => ({ state: r, dispatch: e }) => Sr(r, e), Ks = () => ({ state: r, dispatch: e }) => Ar(r, e), Ys = () => ({ state: r, dispatch: e, tr: t }) => {
   try {
     const n = mt(r.doc, r.selection.$from.pos, -1);
     return n == null ? !1 : (t.join(n, 2), e && e(t), !0);
@@ -7652,10 +7679,10 @@ function wa(r, e, t = {}) {
     r.doc.nodesBetween(h, g, (m, y) => {
       if (!m.isText && !m.marks.length)
         return;
-      const x = Math.max(h, y), A = Math.min(g, y + m.nodeSize), k = A - x;
+      const v = Math.max(h, y), A = Math.min(g, y + m.nodeSize), k = A - v;
       s += k, a.push(...m.marks.map((E) => ({
         mark: E,
-        from: x,
+        from: v,
         to: A
       })));
     });
@@ -7697,7 +7724,7 @@ function Vr(r, { checkChildren: e = !0, ignoreWhitespace: t = !1 } = {}) {
   }
   return !1;
 }
-function xa(r, e, t) {
+function va(r, e, t) {
   var n;
   const { selection: i } = e;
   let o = null;
@@ -7719,7 +7746,7 @@ function xa(r, e, t) {
     }), c;
   });
 }
-const va = (r, e = {}) => ({ tr: t, state: n, dispatch: i }) => {
+const xa = (r, e = {}) => ({ tr: t, state: n, dispatch: i }) => {
   const { selection: o } = t, { empty: s, ranges: a } = o, l = Q(r, n.schema);
   if (i)
     if (s) {
@@ -7733,15 +7760,15 @@ const va = (r, e = {}) => ({ tr: t, state: n, dispatch: i }) => {
         const d = c.$from.pos, f = c.$to.pos;
         n.doc.nodesBetween(d, f, (p, h) => {
           const g = Math.max(h, d), m = Math.min(h + p.nodeSize, f);
-          p.marks.find((x) => x.type === l) ? p.marks.forEach((x) => {
-            l === x.type && t.addMark(g, m, l.create({
-              ...x.attrs,
+          p.marks.find((v) => v.type === l) ? p.marks.forEach((v) => {
+            l === v.type && t.addMark(g, m, l.create({
+              ...v.attrs,
               ...e
             }));
           }) : t.addMark(g, m, l.create(e));
         });
       });
-  return xa(n, t, l);
+  return va(n, t, l);
 }, ka = (r, e) => ({ tr: t }) => (t.setMeta(r, e), !0), Sa = (r, e = {}) => ({ state: t, dispatch: n, chain: i }) => {
   const o = B(r, t.schema);
   let s;
@@ -7808,22 +7835,22 @@ const Aa = ({ keepMarks: r = !0 } = {}) => ({ tr: e, state: t, dispatch: n, edit
     if (l.depth === 2 || l.node(-3).type !== a || l.index(-2) !== l.node(-2).childCount - 1)
       return !1;
     if (i) {
-      let x = w.empty;
+      let v = w.empty;
       const A = l.index(-1) ? 1 : l.index(-2) ? 2 : 3;
       for (let J = l.depth - A; J >= l.depth - 3; J -= 1)
-        x = w.from(l.node(J).copy(x));
+        v = w.from(l.node(J).copy(v));
       const k = l.indexAfter(-1) < l.node(-2).childCount ? 1 : l.indexAfter(-2) < l.node(-3).childCount ? 2 : 3, E = {
         ...Xe(p, l.node().type.name, l.node().attrs),
         ...e
       }, M = ((s = a.contentMatch.defaultType) === null || s === void 0 ? void 0 : s.createAndFill(E)) || void 0;
-      x = x.append(w.from(a.createAndFill(null, M) || void 0));
+      v = v.append(w.from(a.createAndFill(null, M) || void 0));
       const I = l.before(l.depth - (A - 1));
-      t.replace(I, l.after(-k), new v(x, 4 - A, 0));
+      t.replace(I, l.after(-k), new x(v, 4 - A, 0));
       let $ = -1;
-      t.doc.nodesBetween(I, t.doc.content.size, (J, Wr) => {
+      t.doc.nodesBetween(I, t.doc.content.size, (J, Gr) => {
         if ($ > -1)
           return !1;
-        J.isTextblock && J.content.size === 0 && ($ = Wr + 1);
+        J.isTextblock && J.content.size === 0 && ($ = Gr + 1);
       }), $ > -1 && t.setSelection(T.near(t.doc.resolve($))), t.scrollIntoView();
     }
     return !0;
@@ -7843,7 +7870,7 @@ const Aa = ({ keepMarks: r = !0 } = {}) => ({ tr: e, state: t, dispatch: n, edit
   if (!Y(t.doc, l.pos, 2))
     return !1;
   if (i) {
-    const { selection: x, storedMarks: A } = n, { splittableMarks: k } = o.extensionManager, E = A || x.$to.parentOffset && x.$from.marks();
+    const { selection: v, storedMarks: A } = n, { splittableMarks: k } = o.extensionManager, E = A || v.$to.parentOffset && v.$from.marks();
     if (t.split(l.pos, 2, y).scrollIntoView(), !E || !i)
       return !0;
     const M = E.filter((I) => k.includes(I.type.name));
@@ -7869,7 +7896,7 @@ const Aa = ({ keepMarks: r = !0 } = {}) => ({ tr: e, state: t, dispatch: n, edit
   const i = r.doc.nodeAt(n);
   return t.node.type === (i == null ? void 0 : i.type) && ae(r.doc, n) && r.join(n), !0;
 }, Ma = (r, e, t, n = {}) => ({ editor: i, tr: o, state: s, dispatch: a, chain: l, commands: c, can: d }) => {
-  const { extensions: f, splittableMarks: p } = i.extensionManager, h = B(r, s.schema), g = B(e, s.schema), { selection: m, storedMarks: y } = s, { $from: x, $to: A } = m, k = x.blockRange(A), E = y || m.$to.parentOffset && m.$from.marks();
+  const { extensions: f, splittableMarks: p } = i.extensionManager, h = B(r, s.schema), g = B(e, s.schema), { selection: m, storedMarks: y } = s, { $from: v, $to: A } = m, k = v.blockRange(A), E = y || m.$to.parentOffset && m.$from.marks();
   if (!k)
     return !1;
   const M = Yt((I) => On(I.type.name, f))(m);
@@ -7944,11 +7971,11 @@ const Aa = ({ keepMarks: r = !0 } = {}) => ({ tr: e, state: t, dispatch: n, edit
       y < c && o && o === m.type && (h = Math.max(y, c), g = Math.min(y + m.nodeSize, d), f = y, p = m), y >= c && y <= d && (o && o === m.type && t.setNodeMarkup(y, void 0, {
         ...m.attrs,
         ...e
-      }), s && m.marks.length && m.marks.forEach((x) => {
-        if (s === x.type) {
+      }), s && m.marks.length && m.marks.forEach((v) => {
+        if (s === v.type) {
           const A = Math.max(y, c), k = Math.min(y + m.nodeSize, d);
           t.addMark(A, k, s.create({
-            ...x.attrs,
+            ...v.attrs,
             ...e
           }));
         }
@@ -7991,13 +8018,13 @@ var Fa = /* @__PURE__ */ Object.freeze({
   insertContent: Vs,
   insertContentAt: _s,
   joinBackward: qs,
-  joinDown: Gs,
+  joinDown: Ws,
   joinForward: Ks,
   joinItemBackward: Ys,
   joinItemForward: Xs,
   joinTextblockBackward: Qs,
   joinTextblockForward: Zs,
-  joinUp: Ws,
+  joinUp: Gs,
   keyboardShortcut: ta,
   lift: na,
   liftEmptyBlock: ra,
@@ -8012,7 +8039,7 @@ var Fa = /* @__PURE__ */ Object.freeze({
   selectTextblockEnd: fa,
   selectTextblockStart: pa,
   setContent: ma,
-  setMark: va,
+  setMark: xa,
   setMeta: ka,
   setNode: Sa,
   setNodeSelection: Ca,
@@ -8031,7 +8058,7 @@ var Fa = /* @__PURE__ */ Object.freeze({
   wrapIn: ja,
   wrapInList: Da
 });
-W.create({
+G.create({
   name: "commands",
   addCommands() {
     return {
@@ -8039,7 +8066,7 @@ W.create({
     };
   }
 });
-W.create({
+G.create({
   name: "drop",
   addProseMirrorPlugins() {
     return [
@@ -8059,7 +8086,7 @@ W.create({
     ];
   }
 });
-W.create({
+G.create({
   name: "editable",
   addProseMirrorPlugins() {
     return [
@@ -8073,7 +8100,7 @@ W.create({
   }
 });
 const $a = new ce("focusEvents");
-W.create({
+G.create({
   name: "focusEvents",
   addProseMirrorPlugins() {
     const { editor: r } = this;
@@ -8098,15 +8125,15 @@ W.create({
     ];
   }
 });
-W.create({
+G.create({
   name: "keymap",
   addKeyboardShortcuts() {
     const r = () => this.editor.commands.first(({ commands: s }) => [
       () => s.undoInputRule(),
       // maybe convert first text block node to default node
       () => s.command(({ tr: a }) => {
-        const { selection: l, doc: c } = a, { empty: d, $anchor: f } = l, { pos: p, parent: h } = f, g = f.parent.isTextblock && p > 0 ? a.doc.resolve(p - 1) : f, m = g.parent.type.spec.isolating, y = f.pos - f.parentOffset, x = m && g.parent.childCount === 1 ? y === f.pos : S.atStart(c).from === p;
-        return !d || !h.type.isTextblock || h.textContent.length || !x || x && f.parent.type.name === "paragraph" ? !1 : s.clearNodes();
+        const { selection: l, doc: c } = a, { empty: d, $anchor: f } = l, { pos: p, parent: h } = f, g = f.parent.isTextblock && p > 0 ? a.doc.resolve(p - 1) : f, m = g.parent.type.spec.isolating, y = f.pos - f.parentOffset, v = m && g.parent.childCount === 1 ? y === f.pos : S.atStart(c).from === p;
+        return !d || !h.type.isTextblock || h.textContent.length || !v || v && f.parent.type.name === "paragraph" ? !1 : s.clearNodes();
       }),
       () => s.deleteSelection(),
       () => s.joinBackward(),
@@ -8177,7 +8204,7 @@ W.create({
     ];
   }
 });
-W.create({
+G.create({
   name: "paste",
   addProseMirrorPlugins() {
     return [
@@ -8196,7 +8223,7 @@ W.create({
     ];
   }
 });
-W.create({
+G.create({
   name: "tabindex",
   addProseMirrorPlugins() {
     return [
@@ -8275,8 +8302,8 @@ let Ua = class {
     const m = this.getPos();
     if (typeof m != "number")
       return;
-    const y = C.create(c.state.doc, m), x = c.state.tr.setSelection(y);
-    c.dispatch(x);
+    const y = C.create(c.state.doc, m), v = c.state.tr.setSelection(y);
+    c.dispatch(v);
   }
   stopEvent(e) {
     var t;
@@ -8430,7 +8457,7 @@ function _a() {
     }
   };
 }
-class Wa extends L.Component {
+class Ga extends L.Component {
   constructor(e) {
     var t;
     super(e), this.editorContentRef = L.createRef(), this.initialized = !1, this.state = {
@@ -8479,15 +8506,15 @@ class Wa extends L.Component {
     );
   }
 }
-const Ga = Bt((r, e) => {
+const Wa = Bt((r, e) => {
   const t = L.useMemo(() => Math.floor(Math.random() * 4294967295).toString(), [r.editor]);
-  return L.createElement(Wa, {
+  return L.createElement(Ga, {
     key: t,
     innerRef: e,
     ...r
   });
 });
-L.memo(Ga);
+L.memo(Wa);
 var Mt = {};
 /**
  * @license React
@@ -8514,7 +8541,7 @@ function qa() {
       g.current = m;
     } else m = g.current;
     g = a(function() {
-      function x(I) {
+      function v(I) {
         if (!A) {
           if (A = !0, k = I, I = p(I), h !== void 0 && m.hasValue) {
             var $ = m.value;
@@ -8528,9 +8555,9 @@ function qa() {
       }
       var A = !1, k, E, M = f === void 0 ? null : f;
       return [function() {
-        return x(d());
+        return v(d());
       }, M === null ? void 0 : function() {
-        return x(M());
+        return v(M());
       }];
     }, [d, f, p, h]);
     var y = i(c, g[0], g[1]);
@@ -8823,7 +8850,7 @@ function yt({
 function wt(r) {
   return Kn(r.replace(/-([a-z])/g, (e, t) => t.toUpperCase()));
 }
-const Xt = "project-meta", Me = wt(Xt);
+const Xt = "project-meta", Ie = wt(Xt);
 function rl({ attrs: r, selected: e }) {
   const { t } = V("theme-portfolio"), n = r.rows.map((i) => i.label).filter(Boolean).join(" · ");
   return /* @__PURE__ */ u(
@@ -8832,7 +8859,7 @@ function rl({ attrs: r, selected: e }) {
       contentEditable: !1,
       className: "my-4 rounded-lg border border-dashed border-surface-300 bg-surface-50 p-4 dark:border-surface-600 dark:bg-surface-900 " + (e ? "ring-2 ring-blue-500/60" : ""),
       children: /* @__PURE__ */ b("div", { className: "flex items-start gap-3", children: [
-        /* @__PURE__ */ u(Wn, { className: "h-5 w-5 shrink-0 text-blue-500" }),
+        /* @__PURE__ */ u(Gn, { className: "h-5 w-5 shrink-0 text-blue-500" }),
         /* @__PURE__ */ b("div", { className: "min-w-0 flex-1", children: [
           /* @__PURE__ */ u("p", { className: "text-xs font-semibold uppercase tracking-wide text-surface-500 dark:text-surface-400", children: t("blocks.projectMeta.title") }),
           /* @__PURE__ */ u("p", { className: "text-sm text-surface-900 dark:text-surface-50 truncate", children: n || t("blocks.projectMeta.untitled") })
@@ -8842,9 +8869,9 @@ function rl({ attrs: r, selected: e }) {
   );
 }
 function il({ editor: r }) {
-  const e = r.getAttributes(Me), t = { ...ut, ...e.attrs ?? {} };
+  const e = r.getAttributes(Ie), t = { ...ut, ...e.attrs ?? {} };
   function n(a) {
-    r.chain().updateAttributes(Me, { attrs: { ...t, ...a } }).run();
+    r.chain().updateAttributes(Ie, { attrs: { ...t, ...a } }).run();
   }
   function i(a, l, c) {
     const d = [...t.rows];
@@ -8883,21 +8910,21 @@ const ol = yt({
   view: rl
 }), sl = {
   id: `portfolio/${Xt}`,
-  nodeName: Me,
+  nodeName: Ie,
   titleKey: "blocks.projectMeta.title",
   namespace: "theme-portfolio",
-  icon: Wn,
+  icon: Gn,
   category: "layout",
   extensions: [ol],
   insert: (r) => {
     r.focus().insertContent({
-      type: Me,
+      type: Ie,
       attrs: { attrs: ut }
     }).run();
   },
-  isActive: (r) => r.isActive(Me),
+  isActive: (r) => r.isActive(Ie),
   inspector: (r) => /* @__PURE__ */ u(il, { editor: r.editor })
-}, Qt = "storytelling", Ie = wt(Qt);
+}, Qt = "storytelling", Oe = wt(Qt);
 function al({ attrs: r, selected: e }) {
   const { t } = V("theme-portfolio");
   return /* @__PURE__ */ u(
@@ -8916,9 +8943,9 @@ function al({ attrs: r, selected: e }) {
   );
 }
 function ll({ editor: r }) {
-  const e = r.getAttributes(Ie), t = { ...ft, ...e.attrs ?? {} };
+  const e = r.getAttributes(Oe), t = { ...ft, ...e.attrs ?? {} };
   function n(i) {
-    r.chain().updateAttributes(Ie, { attrs: { ...t, ...i } }).run();
+    r.chain().updateAttributes(Oe, { attrs: { ...t, ...i } }).run();
   }
   return /* @__PURE__ */ b("div", { className: "space-y-3", children: [
     /* @__PURE__ */ b("div", { children: [
@@ -8967,7 +8994,7 @@ const cl = yt({
   view: al
 }), dl = {
   id: `portfolio/${Qt}`,
-  nodeName: Ie,
+  nodeName: Oe,
   titleKey: "blocks.storytelling.title",
   namespace: "theme-portfolio",
   icon: qn,
@@ -8975,13 +9002,13 @@ const cl = yt({
   extensions: [cl],
   insert: (r) => {
     r.focus().insertContent({
-      type: Ie,
+      type: Oe,
       attrs: { attrs: ft }
     }).run();
   },
-  isActive: (r) => r.isActive(Ie),
+  isActive: (r) => r.isActive(Oe),
   inspector: (r) => /* @__PURE__ */ u(ll, { editor: r.editor })
-}, Zt = "bento-gallery", Oe = wt(Zt);
+}, Zt = "bento-gallery", Re = wt(Zt);
 function ul({ attrs: r, selected: e }) {
   const { t } = V("theme-portfolio"), n = [
     r.mainImageUrl,
@@ -8995,7 +9022,7 @@ function ul({ attrs: r, selected: e }) {
       contentEditable: !1,
       className: "my-4 rounded-lg border border-dashed border-surface-300 bg-surface-50 p-4 dark:border-surface-600 dark:bg-surface-900 " + (e ? "ring-2 ring-blue-500/60" : ""),
       children: /* @__PURE__ */ b("div", { className: "flex items-start gap-3", children: [
-        /* @__PURE__ */ u(Gn, { className: "h-5 w-5 shrink-0 text-blue-500" }),
+        /* @__PURE__ */ u(Wn, { className: "h-5 w-5 shrink-0 text-blue-500" }),
         /* @__PURE__ */ b("div", { className: "min-w-0 flex-1", children: [
           /* @__PURE__ */ u("p", { className: "text-xs font-semibold uppercase tracking-wide text-surface-500 dark:text-surface-400", children: t("blocks.bentoGallery.title") }),
           /* @__PURE__ */ b("p", { className: "text-sm text-surface-900 dark:text-surface-50 truncate", children: [
@@ -9009,9 +9036,9 @@ function ul({ attrs: r, selected: e }) {
   );
 }
 function fl({ editor: r }) {
-  const e = r.getAttributes(Oe), t = { ...pt, ...e.attrs ?? {} };
+  const e = r.getAttributes(Re), t = { ...pt, ...e.attrs ?? {} };
   function n(o) {
-    r.chain().updateAttributes(Oe, { attrs: { ...t, ...o } }).run();
+    r.chain().updateAttributes(Re, { attrs: { ...t, ...o } }).run();
   }
   function i(o, s, a) {
     return /* @__PURE__ */ b("div", { className: "space-y-2 rounded border border-surface-200 p-2 dark:border-surface-700", children: [
@@ -9060,21 +9087,21 @@ const pl = yt({
   view: ul
 }), hl = {
   id: `portfolio/${Zt}`,
-  nodeName: Oe,
+  nodeName: Re,
   titleKey: "blocks.bentoGallery.title",
   namespace: "theme-portfolio",
-  icon: Gn,
+  icon: Wn,
   category: "media",
   extensions: [pl],
   insert: (r) => {
     r.focus().insertContent({
-      type: Oe,
+      type: Re,
       attrs: { attrs: pt }
     }).run();
   },
-  isActive: (r) => r.isActive(Oe),
+  isActive: (r) => r.isActive(Re),
   inspector: (r) => /* @__PURE__ */ u(fl, { editor: r.editor })
-}, en = "next-project", Re = wt(en);
+}, en = "next-project", ze = wt(en);
 function ml({ attrs: r, selected: e }) {
   const { t } = V("theme-portfolio");
   return /* @__PURE__ */ u(
@@ -9093,9 +9120,9 @@ function ml({ attrs: r, selected: e }) {
   );
 }
 function gl({ editor: r }) {
-  const e = r.getAttributes(Re), t = { ...ht, ...e.attrs ?? {} };
+  const e = r.getAttributes(ze), t = { ...ht, ...e.attrs ?? {} };
   function n(i) {
-    r.chain().updateAttributes(Re, { attrs: { ...t, ...i } }).run();
+    r.chain().updateAttributes(ze, { attrs: { ...t, ...i } }).run();
   }
   return /* @__PURE__ */ b("div", { className: "space-y-3", children: [
     /* @__PURE__ */ b("div", { children: [
@@ -9122,7 +9149,7 @@ const bl = yt({
   view: ml
 }), yl = {
   id: `portfolio/${en}`,
-  nodeName: Re,
+  nodeName: ze,
   titleKey: "blocks.nextProject.title",
   namespace: "theme-portfolio",
   icon: _n,
@@ -9130,22 +9157,22 @@ const bl = yt({
   extensions: [bl],
   insert: (r) => {
     r.focus().insertContent({
-      type: Re,
+      type: ze,
       attrs: { attrs: ht }
     }).run();
   },
-  isActive: (r) => r.isActive(Re),
+  isActive: (r) => r.isActive(ze),
   inspector: (r) => /* @__PURE__ */ u(gl, { editor: r.editor })
 }, jn = {
   id: "portfolio",
   name: "Portfolio",
-  version: "0.1.0",
+  version: "0.2.0",
   description: "The Minimalist Portfolio System — editorial canvas for designers, photographers and artists. Charcoal-on-warm-white, Playfair Display + Inter, sharp corners, zero shadows, rose accent for active state only.",
   // Tailwind pipeline — the Sass entry isn't reached because
   // theme.compiled.css exists.
   scssEntry: "theme.css",
   cssText: ln,
-  jsText: vi,
+  jsText: xi,
   jsTextPosts: ki,
   jsTextFilters: Si,
   i18n: { en: xe, fr: Ii, de: Oi, es: Ri, nl: zi, pt: Li, ko: Bi },
@@ -9178,7 +9205,7 @@ const bl = yt({
     single: bi,
     category: yi,
     author: wi,
-    notFound: xi
+    notFound: vi
   },
   blocks: [
     sl,

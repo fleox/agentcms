@@ -273,6 +273,14 @@ export async function renderPreview(opts: PreviewOptions): Promise<PreviewResult
   try {
     host.registry.clearExternalPlugins();
     host.registry.clearExternalThemes();
+    // The plugins every admin ships (SEO, sitemaps, RSS, archives,
+    // search…), so a site's content renders with the plugins it uses.
+    // The extension under test wins over a bundled copy of itself.
+    const { loadBundledPluginManifests } = await import("./adminFiles");
+    for (const m of await loadBundledPluginManifests(new Set(opts.extensions.map((e) => e.id)))) {
+      host.plugins.loadExternalPluginTranslations(m as PluginManifest);
+      host.registry.registerExternalPlugin(m as PluginManifest);
+    }
     registerExtensions(host, opts.extensions);
     const themes = opts.extensions.filter((e) => e.kind === "theme");
     const themeId = opts.themeId ?? (themes.length === 1 ? themes[0].id : themes.length === 0 ? "default" : undefined);
@@ -307,7 +315,7 @@ export async function renderPreview(opts: PreviewOptions): Promise<PreviewResult
     const enabledPlugins: Record<string, boolean> = { ...(baseSettings.enabledPlugins ?? {}) };
     // Bundled optional plugins stay off unless asked for: the preview
     // shows the extension under test, not the whole default set.
-    if (!opts.content) for (const id of ["core-seo", "agentcms-sitemaps", "agentcms-rss", "agentcms-archives", "agentcms-import"]) enabledPlugins[id] = false;
+    if (!opts.content) for (const id of ["core-seo", "agentcms-sitemaps", "agentcms-rss", "agentcms-archives", "agentcms-search", "agentcms-multilang", "agentcms-import"]) enabledPlugins[id] = false;
     for (const id of pluginIds) enabledPlugins[id] = true;
     const settings: SiteSettings = {
       ...host.defaultSettings,
@@ -453,7 +461,9 @@ export async function renderPreview(opts: PreviewOptions): Promise<PreviewResult
       outDir,
       baseUrl,
       themeId,
-      plugins: Object.entries(enabledPlugins).filter(([, on]) => on).map(([id]) => id),
+      // What actually ran: loaded plugins that are on (a missing flag
+      // means on, like in the admin) + the must-use ones.
+      plugins: host.plugins.listPlugins().filter((p) => enabledPlugins[p.id] !== false).map((p) => p.id),
       files,
       pages: {
         home: "index.html",

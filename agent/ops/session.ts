@@ -5,7 +5,8 @@ import type { PublishContext, PublishLogEntry, PublishLogger } from "../../src/s
 import type { ExternalManifest } from "../../src/services/externalRegistry";
 import { requireCredential } from "../credentials";
 import { CliError } from "../output";
-import { adminUrlOf, fetchHostedAdmin, fetchText, type HostedAdmin } from "../remote";
+import { adminUrlOf, fetchHostedAdmin, type HostedAdmin } from "../remote";
+import type { StorageConnector } from "../../src/services/storage/types";
 import { compareVersions } from "../semver";
 import { lockSite, resolveSite, type SiteRecord } from "../sites";
 import { readVersionInfo } from "../paths";
@@ -124,58 +125,45 @@ async function wireHosting(site: SiteRecord, host: HostModules): Promise<void> {
   if (!connectorId) throw new CliError("hosting-unknown", `The publish target of ${site.alias} is unknown.`);
   const values = site.credentials.hosting ? requireCredential(site.credentials.hosting).values : {};
   const settings = { ...site.hosting.settings, ...(stored?.settings ?? {}), ...values };
-  const instance = host.storageRegistry.instantiateStorageConnector(connectorId, settings);
+  const { hostingConnector } = await import("./hosting");
+  const instance = hostingConnector({ connectorId, settings });
   host.storageRegistry.registerStorageConnector(instance);
   host.storageRegistry.invalidateActiveStorageConnector();
 }
 
-async function readRegistryFor(site: SiteRecord): Promise<ExternalManifest> {
+async function readRegistryFor(site: SiteRecord, reader: StorageConnector | null): Promise<ExternalManifest> {
   const { readBackendRegistryForCli } = await import("./sessionRegistry");
   const stored = await readBackendRegistryForCli();
   if (stored) return stored;
-  const adminUrl = adminUrlOf(site);
-  for (const file of ["external.json", "external.default.json"]) {
-    if (!adminUrl) break;
-    const res = await fetchText(`${adminUrl}${file}`);
-    if (!res.ok) continue;
-    try {
-      const v = JSON.parse(res.text) as Partial<ExternalManifest>;
-      if (Array.isArray(v.plugins) || Array.isArray(v.themes)) return { plugins: v.plugins ?? [], themes: v.themes ?? [] };
-    } catch {
-      /* next */
-    }
-  }
-  return { plugins: [], themes: [] };
+  const { fallbackRegistry } = await import("./adminFiles");
+  return fallbackRegistry(site, reader);
 }
 
-// Imports every installed bundle: from the hosted admin when there is
-// one (exactly what the admin loads), else from this CLI's own build for
-// the bundled ones.
-async function loadExtensions(site: SiteRecord, host: HostModules, out: SiteSession["loadedExtensions"]): Promise<void> {
-  const { existsSync, readFileSync } = await import("node:fs");
-  const { join } = await import("node:path");
-  const { distRoot } = await import("../paths");
-  const registry = await readRegistryFor(site);
-  const adminUrl = adminUrlOf(site);
+// Imports every installed bundle, read from the hosting itself (the
+// version just installed, even before a Pages host or CDN serves it),
+// else from the served admin, else from this CLI's own build for the
+// bundled ones. A bundle whose version differs from the registry's is
+// only used as a last resort, with a warning.
+async function loadExtensions(site: SiteRecord, host: HostModules, out: SiteSession["loadedExtensions"], warnings: string[]): Promise<void> {
+  const { readAdminFile, siteHostingReader } = await import("./adminFiles");
+  const reader = await siteHostingReader(site);
+  const registry = await readRegistryFor(site, reader);
   host.registry.clearExternalPlugins();
   host.registry.clearExternalThemes();
   for (const [kind, list] of [["plugins", registry.plugins], ["themes", registry.themes]] as const) {
     for (const entry of list) {
       const path = entry.entryPath ?? `${kind}/${entry.id}/bundle.js`;
       try {
-        let source: string | null = null;
-        if (adminUrl) {
-          const res = await fetchText(`${adminUrl}${path.replace(/^\/+/, "")}?v=${encodeURIComponent(entry.version ?? "")}`);
-          if (res.ok && !/^\s*</.test(res.text)) source = res.text;
-        }
-        if (source == null) {
-          const local = join(distRoot(), "admin", path);
-          if (existsSync(local)) source = readFileSync(local, "utf8");
-        }
-        if (source == null) throw new Error("bundle not found on the site");
-        const { manifest } = await importExtensionBundle(source);
-        const m = manifest as { id?: string } | null;
+        const file = await readAdminFile(site, path, reader, { cacheKey: entry.version });
+        if (!file) throw new Error("bundle not found on the site");
+        const { manifest } = await importExtensionBundle(file.text);
+        const m = manifest as { id?: string; version?: string } | null;
         if (!m || m.id !== entry.id) throw new Error("bundle does not export the expected manifest");
+        if (entry.version && m.version && m.version !== entry.version) {
+          warnings.push(
+            `${kind === "plugins" ? "Plugin" : "Theme"} ${entry.id}: the site's registry says ${entry.version} but the bundle read from the ${file.source === "hosting" ? "hosting" : file.source === "site" ? "site" : "CLI build"} is ${m.version}. Pages render with ${m.version}; reinstall the package (ext install) if that's wrong.`,
+          );
+        }
         if (kind === "plugins") {
           host.plugins.loadExternalPluginTranslations(m as PluginManifest);
           host.registry.registerExternalPlugin(m as PluginManifest);
@@ -232,7 +220,7 @@ export async function openSession(alias: string | undefined, opts: OpenOptions =
     if (opts.hosting) await wireHosting(site, host);
     const loaded: SiteSession["loadedExtensions"] = { plugins: [], themes: [], failed: [] };
     if (opts.extensions) {
-      await loadExtensions(site, host, loaded);
+      await loadExtensions(site, host, loaded, warnings);
       for (const f of loaded.failed) warnings.push(`Could not load ${f.id}: ${f.error}`);
     }
     const entries: PublishLogEntry[] = [];

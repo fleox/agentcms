@@ -88,7 +88,7 @@ Details, examples and every option: [references/content.md](references/content.m
    - `--max-height 800` keeps only the top of each page; full pages can be very tall.
    - `--screenshot-js` runs code before the capture, e.g. to open the search: `'document.querySelector("[data-cms-search]")?.click(); await new Promise(r => setTimeout(r, 500))'`. To open the mobile menu, click the theme's burger button (`[aria-controls]` or `button[aria-label*="menu" i]`).
 2. Or fetch them (`curl -s <site URL>/<path>`) and check the title, the content and the links.
-3. Static hosts and CDNs can serve the previous version for a minute after an upload (GitHub Pages rebuilds after each commit). Wait and retry before concluding that something failed.
+3. Static hosts and CDNs can serve the previous version for a minute after an upload (GitHub / Cloudflare Pages rebuild after each commit, and builds queue up after many commands). `doctor` reports a pending deployment (`deployment` check); wait until it is ok before judging the live pages.
 
 ## Rules
 
@@ -97,7 +97,7 @@ Details, examples and every option: [references/content.md](references/content.m
 - Before deleting a post, page or category, read the plan: `menuItems` lists the menu entries that still point to it. Remove them with `menus remove <id> --menu <menu>`, or the menu keeps a dead link.
 - Keep the user's voice. Ask before deleting, unpublishing or overwriting someone else's text.
 - Images: always set `--alt`. Upload JPEG, PNG, WebP or GIF (convert SVG and HEIC first, e.g. `sips -s format jpeg` on macOS). The site makes its own resized variants.
-- **Git sites:** every command is one commit; avoid loops of tiny commands when one command can take several items (`content publish a b c`).
+- **Git sites:** every command is one commit and one Pages build; avoid loops of tiny commands when one command can take several items (`content publish a b c`, `media upload --data @media.json`).
 - **SQLite sites:** one writer at a time, and the CLI locks the site while it writes. If the user is editing in the admin at the same time, a save can hit a conflict. Retry, or ask them to reload the admin.
 - **Version mismatch:** if `warnings` say the hosted admin and this tool differ, offer `deploy-admin` (see `agentcms-manage`).
 - **Firebase sites:** the CLI keeps the sign-in between commands, but Firebase still rate-limits bursts. If a command fails with `firebase-rate-limited`, wait a few minutes. Prefer one command over many small ones.

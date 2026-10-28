@@ -1,6 +1,6 @@
 import { installBrowserEnv } from "../browserEnv";
 import { CliError, printResult } from "../output";
-import { adminUrlOf, fetchHostedAdmin, fetchText } from "../remote";
+import { adminUrlOf, fetchHostedAdmin } from "../remote";
 import { compareVersions } from "../semver";
 import { lockSite, resolveSite, type SiteRecord } from "../sites";
 import type { CommandContext } from "../commands/types";
@@ -31,22 +31,10 @@ async function readSiteRegistry(site: SiteRecord): Promise<{ registry: ExternalM
   const { readBackendRegistry } = await import("../../src/services/docstore/externalRegistryStore");
   const stored = await readBackendRegistry();
   if (stored) return { registry: stored, seeded: false };
-  // Same fallback as the admin's first boot: the build's defaults.
-  const adminUrl = adminUrlOf(site);
-  for (const file of ["external.json", "external.default.json"]) {
-    if (!adminUrl) break;
-    const res = await fetchText(`${adminUrl}${file}`);
-    if (!res.ok) continue;
-    try {
-      const v = JSON.parse(res.text) as Partial<ExternalManifest>;
-      if (Array.isArray(v.plugins) || Array.isArray(v.themes)) {
-        return { registry: { plugins: v.plugins ?? [], themes: v.themes ?? [] }, seeded: true };
-      }
-    } catch {
-      /* next */
-    }
-  }
-  return { registry: { plugins: [], themes: [] }, seeded: true };
+  // Same fallback as the admin's first boot: the build's defaults (read
+  // from the hosting first: a Pages site may not be served yet).
+  const { fallbackRegistry, siteHostingReader } = await import("./adminFiles");
+  return { registry: await fallbackRegistry(site, await siteHostingReader(site)), seeded: true };
 }
 
 export async function installExtensionCommand({ io, options, positionals }: CommandContext): Promise<number | void> {
@@ -95,7 +83,7 @@ export async function installExtensionCommand({ io, options, positionals }: Comm
     const { getDocStore } = await import("../../src/services/docstore");
     const settings = getDocStore().get("settings", "site") as { activeThemeId?: string } | undefined;
     if (kind === "themes" && settings?.activeThemeId === id) {
-      throw new CliError("theme-active", `${id} is the active theme of ${site.alias}.`, "Activate another theme in the admin (then regenerate) before uninstalling it.");
+      throw new CliError("theme-active", `${id} is the active theme of ${site.alias}.`, `Switch to another theme first: \`agentcms themes activate <id> --site ${site.alias} --yes\`.`);
     }
     const folder = `${site.adminFolder}/${kind}/${id}`;
     const plan = { site: site.alias, action: "uninstall", kind: kind === "plugins" ? "plugin" : "theme", id, deletes: `${folder}/` };
@@ -114,7 +102,7 @@ export async function installExtensionCommand({ io, options, positionals }: Comm
     } finally {
       unlock();
     }
-    printResult(io, { uninstalled: true, ...plan, next: ["Reload the admin. Pages published with this extension keep its output until they are regenerated (Regenerate → Everything)."] }, () => `Removed ${id} from ${site.alias}.`);
+    printResult(io, { uninstalled: true, ...plan, next: [`Pages published with this extension keep its output until they are regenerated: \`agentcms regenerate everything --site ${site.alias}\`.`, "Browsers that already opened the admin drop it after a reload."] }, () => `Removed ${id} from ${site.alias}.`);
     return;
   }
 
@@ -220,17 +208,54 @@ export async function installExtensionCommand({ io, options, positionals }: Comm
         activated = `plugin ${id} is enabled`;
       }
     }
-    const nextSteps = [
-      `Reload the admin (${adminUrl}) so it loads the new bundle.`,
-      kind === "themes"
-        ? activated
-          ? "Then Regenerate → Everything so every page is re-rendered with the new theme."
-          : "Activate it in Themes, then Regenerate → Everything."
-        : "Its hooks run on the next publish; Regenerate → Everything applies it to existing pages.",
-    ];
-    printResult(io, { installed: true, ...plan, seededRegistry: seeded, activated, next: nextSteps, notices: toasts.notices }, () =>
+    // Like the admin's theme switch ("Switch & regenerate"): pages are
+    // re-rendered whenever the package changes what they look like — it
+    // was just activated, or it upgrades the active theme / an enabled
+    // plugin. --no-regenerate leaves that to the caller.
+    const { getDocStore } = await import("../../src/services/docstore");
+    const current = (getDocStore().get("settings", "site") ?? {}) as { activeThemeId?: string; enabledPlugins?: Record<string, boolean> };
+    const inUse = kind === "themes" ? current.activeThemeId === id : current.enabledPlugins?.[id] !== false;
+    const affectsPages = !!activated || (!!existing && inUse);
+    let regenerated: { seconds: number; errors: string[] } | null = null;
+    if (affectsPages && !options["no-regenerate"]) {
+      io.err(`• ${site.alias}: regenerating the whole site with ${id} ${entry.version}…`);
+      const { openSession } = await import("./session");
+      const { subscribeToToasts } = await import("../../src/lib/toast");
+      const errors: string[] = [];
+      const stopToasts = subscribeToToasts((t) => {
+        if (t.level === "error") errors.push(t.message);
+      });
+      // The lock is already ours; the session reads the bundle just
+      // written straight from the hosting.
+      const s = await openSession(site.alias, { write: true, hosting: true, extensions: true });
+      try {
+        const { regenerateEverything } = await import("./regenerateAll");
+        const r = await regenerateEverything(s);
+        await (await import("../../src/services/storage/batch")).flushImplicitBatch();
+        for (const e of s.entries) if (e.level === "error") errors.push(e.message);
+        for (const w of s.warnings) toasts.notices.push({ level: "warn", message: w });
+        regenerated = { seconds: r.seconds, errors };
+      } finally {
+        stopToasts();
+        s.close();
+      }
+    }
+    const regenCmd = `agentcms regenerate everything --site ${site.alias}`;
+    const nextSteps: string[] = [];
+    if (regenerated) {
+      nextSteps.push(`Site regenerated with ${id} ${entry.version}${regenerated.errors.length ? ` (${regenerated.errors.length} error(s): see regenerated.errors)` : ""}.`);
+    } else if (affectsPages) {
+      nextSteps.push(`Run \`${regenCmd}\` to re-render every page with ${id} ${entry.version}.`);
+    } else if (kind === "themes") {
+      nextSteps.push(`Not active: \`agentcms themes activate ${id} --site ${site.alias} --yes\` switches to it and regenerates the site.`);
+    } else {
+      nextSteps.push(`Disabled on this site: \`agentcms plugins enable ${id} --site ${site.alias}\`, then \`${regenCmd}\`.`);
+    }
+    nextSteps.push(`Browsers that already opened the admin (${adminUrl}) load the new bundle after a reload.`);
+    printResult(io, { installed: true, ...plan, seededRegistry: seeded, activated, regenerated, next: nextSteps, notices: toasts.notices }, () =>
       [`${plan.action === "upgrade" ? "Upgraded" : "Installed"} ${plan.kind} ${id} ${plan.to} on ${site.alias}.${activated ? ` ${activated}.` : ""}`, ...nextSteps].join("\n"),
     );
+    return regenerated?.errors.length ? 1 : undefined;
   } finally {
     toasts.stop();
     unlock();

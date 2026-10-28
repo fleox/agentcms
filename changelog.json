@@ -2,6 +2,28 @@
   "$comment": "Newest first. Read by agents (agentcms status) to tell users what changed and what to run. `breaking`: an older admin, skill or site setup stops working without action. `actions`: steps a hosted site needs after updating — deploy-admin, regenerate-all, sync-theme-assets. Keep every entry in English.",
   "versions": [
     {
+      "version": "0.3.1",
+      "date": "2026-10-28",
+      "breaking": false,
+      "changes": [
+        "The CLI reads plugin and theme bundles straight from the hosting (repo head / bucket) instead of the served admin: right after an install or upgrade, while a Pages host or CDN still serves the old version, pages are rendered with the new bundle. A bundle whose version differs from the site's registry is reported.",
+        "Fix: on a new site whose hosting doesn't serve the admin yet (Cloudflare / GitHub Pages project not connected or still building), commands loaded no plugin at all — pages were published without sitemaps, RSS or SEO and `plugins disable` said the plugin didn't exist. `ext install` could also record a registry without the bundled plugins.",
+        "Fix: commands for two different sites run in one process (ext install followed by its regeneration, tests) could write to the first site's hosting.",
+        "`ext install` regenerates the whole site when the package is activated or upgrades the active theme / an enabled plugin (`--no-regenerate` to skip), and its `next` steps give CLI commands.",
+        "`doctor` reports a pending deployment (the served home page differs from the one on the hosting).",
+        "`media upload --data @media.json` gives each file its own alt text / caption; every upload command is now a single commit (one Pages build).",
+        "`media regenerate`: re-crops existing media to the active theme's formats after a theme switch (plan first, `--yes`).",
+        "Screenshots (`site screenshot`, `ext preview --screenshots`, `content preview --screenshots`) scroll through each page first, so scroll-triggered reveal animations show; `ext preview --max-height`.",
+        "`ext preview` runs the bundled plugins (SEO, sitemaps, RSS, archives, search…), so `--site` previews render like the live site (translated archive link, search).",
+        "Portfolio theme 0.2.0: the related-projects section under each project is styled, translated and filtered by category; the black-and-white hero photo can be turned off (Theme settings → Single).",
+        "`ext new` scaffolds only the translation keys of the features you pick; docs: Cloudflare Pages setup (connect after install, turn off preview branches), tags are names, scroll animations in themes."
+      ],
+      "actions": [
+        "deploy-admin",
+        "regenerate-all"
+      ]
+    },
+    {
       "version": "0.3.0",
       "date": "2026-10-27",
       "breaking": false,

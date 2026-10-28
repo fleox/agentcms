@@ -81,7 +81,7 @@ const THEMES = [
   { id: "magazine", name: "Magazine", version: "1.1.0" },
   { id: "corporate", name: "Corporate", version: "1.0.0" },
   { id: "storefront", name: "Storefront", version: "0.1.0" },
-  { id: "portfolio", name: "Portfolio", version: "0.1.0" },
+  { id: "portfolio", name: "Portfolio", version: "0.2.0" },
   // External-source theme — bundled into the admin distribution so a
   // fresh install ships with it pre-installed. Same convention as
   // `agentcms-multilang` above: `srcDir` is resolved relative to the

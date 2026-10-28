@@ -19,6 +19,8 @@ const publicBakedEn = {
   awardsLabel: "AWARDS",
   nextProject: "NEXT PROJECT",
   viewCaseStudy: "VIEW CASE STUDY",
+  relatedHeading: "MORE IN THIS CATEGORY",
+  relatedFallback: "LATEST PROJECTS",
   // Author archive
   selectExperience: "Select Experience",
   recognition: "Recognition",
@@ -132,6 +134,7 @@ const settingsEn = {
   single: {
     description: "Single-project layout. Hero + meta + body + next-project teaser.",
     showHero: "Show full-bleed hero image",
+    heroGrayscale: "Black-and-white hero image",
     showNextProject: "Show next-project teaser at the bottom",
     defaultServicesLabel: "Services label",
     defaultYearLabel: "Year label",
@@ -182,6 +185,8 @@ const publicBakedFr = {
   awardsLabel: "RÉCOMPENSES",
   nextProject: "PROJET SUIVANT",
   viewCaseStudy: "VOIR L'ÉTUDE DE CAS",
+  relatedHeading: "DANS LA MÊME CATÉGORIE",
+  relatedFallback: "DERNIERS PROJETS",
   selectExperience: "Expérience choisie",
   recognition: "Distinctions",
   loadMore: "VOIR PLUS",
@@ -279,6 +284,7 @@ const settingsFr = {
   single: {
     description: "Page projet — hero + métadonnées + corps + annonce du suivant.",
     showHero: "Afficher l'image hero en pleine largeur",
+    heroGrayscale: "Image hero en noir et blanc",
     showNextProject: "Afficher l'annonce du projet suivant en bas",
     defaultServicesLabel: "Libellé Services",
     defaultYearLabel: "Libellé Année",
