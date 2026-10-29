@@ -13,7 +13,7 @@
   <a href="https://github.com/fleox/agentcms/actions/workflows/ci.yml"><img src="https://github.com/fleox/agentcms/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://www.npmjs.com/package/@agent-cms/agentcms"><img src="https://img.shields.io/node/v/@agent-cms/agentcms?color=339933" alt="Node.js version"></a>
   <a href="#claude-code"><img src="https://img.shields.io/badge/Claude%20Code-plugin-d97757" alt="Claude Code plugin"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-PolyForm%20Noncommercial-6b7280" alt="License"></a>
+  <a href="https://github.com/fleox/agentcms/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-PolyForm%20Noncommercial-6b7280" alt="License"></a>
 </p>
 
 <p align="center">
@@ -21,8 +21,8 @@
   <a href="#features">Features</a> ·
   <a href="#themes">Themes</a> ·
   <a href="#how-it-works">How it works</a> ·
-  <a href="docs/README.md">Docs</a> ·
-  <a href="changelog.json">Changelog</a>
+  <a href="https://github.com/fleox/agentcms/blob/master/docs/README.md">Docs</a> ·
+  <a href="https://github.com/fleox/agentcms/blob/master/changelog.json">Changelog</a>
 </p>
 
 <p align="center">
@@ -39,25 +39,16 @@
 <table>
 <tr>
 <td width="33%" valign="top">
-
-### 🗂️ Nothing to run
-
-The public site is static files: HTML, CSS and images. There is no server or plugin to patch and no database to secure. It is fast everywhere, and hosting is often free (GitHub Pages, Cloudflare Pages, an S3 bucket).
-
+<h3>🗂️ Nothing to run</h3>
+<p>The public site is static files: HTML, CSS and images. There is no server or plugin to patch and no database to secure. It is fast everywhere, and hosting is often free (GitHub Pages, Cloudflare Pages, an S3 bucket).</p>
 </td>
 <td width="33%" valign="top">
-
-### 🔑 Your data, your hosting
-
-Content lives where you choose. It can be an **encrypted SQLite file** on your own hosting, **Markdown files in git**, **Firebase**, or **this browser**. There is no AgentCMS service, account or lock-in.
-
+<h3>🔑 Your data, your hosting</h3>
+<p>Content lives where you choose. It can be an <b>encrypted SQLite file</b> on your own hosting, <b>Markdown files in git</b>, <b>Firebase</b>, or <b>this browser</b>. There is no AgentCMS service, account or lock-in.</p>
 </td>
 <td width="33%" valign="top">
-
-### 🤖 Agent-native
-
-Everything the back office does is also a CLI command with JSON output, and ready-made skills cover Claude Code, Codex, Cursor and Hermes. Ask *"write and publish an article about…"* and your agent does it, with the same rules and the same output as the admin.
-
+<h3>🤖 Agent-native</h3>
+<p>Everything the back office does is also a CLI command with JSON output, and ready-made skills cover Claude Code, Codex, Cursor and Hermes. Ask <i>"write and publish an article about…"</i> and your agent does it, with the same rules and the same output as the admin.</p>
 </td>
 </tr>
 </table>
@@ -96,8 +87,8 @@ Once the site exists, the back office is a conversation:
 | Agent | Setup |
 |---|---|
 | **Claude Code** | the plugin above |
-| **Hermes Agent** / Python agents | `hermes skills install fleox/agentcms/hermes/skills/agentcms-install` (Python wrapper + task scripts, see [hermes/](hermes/README.md)) |
-| **Codex, Cursor, Windsurf, any other agent** | point it at [AGENTS.md](AGENTS.md) |
+| **Hermes Agent** / Python agents | `hermes skills install fleox/agentcms/hermes/skills/agentcms-install` (Python wrapper + task scripts, see [hermes/](https://github.com/fleox/agentcms/blob/master/hermes/README.md)) |
+| **Codex, Cursor, Windsurf, any other agent** | point it at [AGENTS.md](https://github.com/fleox/agentcms/blob/master/AGENTS.md) |
 
 ### Without an agent
 
@@ -107,7 +98,7 @@ npx -y @agent-cms/agentcms serve
 
 This starts the admin on your computer (Node.js 20+). Open the printed URL and follow the setup wizard: **data → hosting → install**. The wizard can also put the admin itself on your site (`/admin/`), so other editors only need a browser.
 
-More options, including a local build, a hand-made deploy and Firebase, are in [docs/self-hosting.md](docs/self-hosting.md).
+More options, including a local build, a hand-made deploy and Firebase, are in [docs/self-hosting.md](https://github.com/fleox/agentcms/blob/master/docs/self-hosting.md).
 
 ## Features
 
@@ -157,15 +148,9 @@ Every theme below is a real rendering of the bundled demo content, made by the p
 
 ## How it works
 
-```mermaid
-flowchart LR
-  subgraph Browser["Admin (in the browser or the agentcms CLI)"]
-    E[Editor] --> R["Theme rendering<br/>React → static HTML"]
-  end
-  D[("Your data<br/>SQLite file · Markdown in git<br/>Firebase · this browser")] <--> E
-  R --> H["Your hosting<br/>GitHub / Cloudflare / GitLab Pages<br/>S3-compatible bucket · ZIP"]
-  H --> V((Visitors))
-```
+<p align="center">
+  <img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/how-it-works.png" width="900" alt="Your data (SQLite file, Markdown in git, Firebase, this browser) is read and written by the admin, in the browser or the CLI; the admin renders static HTML with the theme and publishes only what changed to your hosting (GitHub, Cloudflare or GitLab Pages, Netlify, S3-compatible bucket, ZIP), which serves plain files to visitors">
+</p>
 
 The admin is the only runtime. When you click **Publish**, it reads the content and renders the page with the active theme (`renderToStaticMarkup`), right in the browser. It then uploads the HTML, together with every listing that depends on it, through the selected hosting connector. The **data backend** (where content lives) and the **hosting** (where the site is served) are independent choices:
 
@@ -176,7 +161,7 @@ The admin is the only runtime. When you click **Publish**, it reads the content 
 | **Firebase** | Real-time multi-editor work. Free tier. | Firebase Auth |
 | **This browser** | Trying things out, single user. | none |
 
-Hostings: **GitHub Pages**, **Cloudflare Pages**, **GitLab Pages**, any git-deployed host (Netlify, Vercel…), **S3-compatible buckets** (AWS, R2, OVH, Scaleway…), a local folder, or a ZIP to upload yourself. See [docs/publish-targets.md](docs/publish-targets.md).
+Hostings: **GitHub Pages**, **Cloudflare Pages**, **GitLab Pages**, any git-deployed host (Netlify, Vercel…), **S3-compatible buckets** (AWS, R2, OVH, Scaleway…), a local folder, or a ZIP to upload yourself. See [docs/publish-targets.md](https://github.com/fleox/agentcms/blob/master/docs/publish-targets.md).
 
 ## How AgentCMS compares
 
@@ -232,22 +217,22 @@ npm run preview    # demo site + desktop / mobile screenshots
   <img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/demo-theme.gif" width="820" alt="Terminal: ext new theme, npm install, build, check and preview, ending on the rendered demo site">
 </p>
 
-Guides: [creating a plugin](docs/creating-a-plugin.md) · [creating a theme](docs/creating-a-theme.md) · [runtime API](docs/runtime-api-reference.md). With Claude Code, the `agentcms-extensions` skill drives the whole loop.
+Guides: [creating a plugin](https://github.com/fleox/agentcms/blob/master/docs/creating-a-plugin.md) · [creating a theme](https://github.com/fleox/agentcms/blob/master/docs/creating-a-theme.md) · [runtime API](https://github.com/fleox/agentcms/blob/master/docs/runtime-api-reference.md). With Claude Code, the `agentcms-extensions` skill drives the whole loop.
 
 ## Documentation
 
 | | |
 |---|---|
-| [Publish targets](docs/publish-targets.md) | Every hosting option, its setup and its limits |
-| [Self-hosting](docs/self-hosting.md) | Setup wizard, local build, deploying and protecting the admin |
-| [Firebase](docs/firebase.md) | Firestore security rules and indexes |
-| [Themes and plugins](docs/themes-and-plugins.md) | How they work, and every built-in plugin |
-| [Architecture](docs/architecture.md) | Publish pipeline, URLs, menus, images, i18n, code layout |
-| [AGENTS.md](AGENTS.md) | Instructions for AI agents |
+| [Publish targets](https://github.com/fleox/agentcms/blob/master/docs/publish-targets.md) | Every hosting option, its setup and its limits |
+| [Self-hosting](https://github.com/fleox/agentcms/blob/master/docs/self-hosting.md) | Setup wizard, local build, deploying and protecting the admin |
+| [Firebase](https://github.com/fleox/agentcms/blob/master/docs/firebase.md) | Firestore security rules and indexes |
+| [Themes and plugins](https://github.com/fleox/agentcms/blob/master/docs/themes-and-plugins.md) | How they work, and every built-in plugin |
+| [Architecture](https://github.com/fleox/agentcms/blob/master/docs/architecture.md) | Publish pipeline, URLs, menus, images, i18n, code layout |
+| [AGENTS.md](https://github.com/fleox/agentcms/blob/master/AGENTS.md) | Instructions for AI agents |
 
 ## Contributing
 
-Bug reports and ideas are welcome: [open an issue](https://github.com/fleox/agentcms/issues/new/choose). Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. For security issues, follow [SECURITY.md](SECURITY.md) instead of opening a public issue.
+Bug reports and ideas are welcome: [open an issue](https://github.com/fleox/agentcms/issues/new/choose). Read [CONTRIBUTING.md](https://github.com/fleox/agentcms/blob/master/CONTRIBUTING.md) before opening a pull request. For security issues, follow [SECURITY.md](https://github.com/fleox/agentcms/blob/master/SECURITY.md) instead of opening a public issue.
 
 ```bash
 npm install --legacy-peer-deps
@@ -258,6 +243,6 @@ npm run build      # typecheck + admin + themes + CLI
 
 ## License
 
-Source-available under the [PolyForm Noncommercial License 1.0.0](LICENSE). Personal, hobbyist, educational, research and other noncommercial use is free, and you can fork, modify and redistribute under the same terms.
+Source-available under the [PolyForm Noncommercial License 1.0.0](https://github.com/fleox/agentcms/blob/master/LICENSE). Personal, hobbyist, educational, research and other noncommercial use is free, and you can fork, modify and redistribute under the same terms.
 
 **Commercial use requires written authorization.** This includes selling the software or hosting it as a paid service. For a commercial license, [open an issue](https://github.com/fleox/agentcms/issues).

@@ -2,6 +2,17 @@
   "$comment": "Newest first. Read by agents (agentcms status) to tell users what changed and what to run. `breaking`: an older admin, skill or site setup stops working without action. `actions`: steps a hosted site needs after updating — deploy-admin, regenerate-all, sync-theme-assets. Keep every entry in English.",
   "versions": [
     {
+      "version": "0.3.7",
+      "date": "2026-10-29",
+      "breaking": false,
+      "changes": [
+        "New AgentCMS logo in the admin (sidebar, sign-in, setup wizard, browser tab icon).",
+        "The CLI deletes each plugin / theme bundle copy right after importing it: an interrupted command (Ctrl+C) no longer leaves full bundle copies in the system temp folder.",
+        "New README and npm page: screenshots, real Claude Code demos, docs split into docs/ (self-hosting, Firebase, architecture, themes and plugins)."
+      ],
+      "actions": ["deploy-admin"]
+    },
+    {
       "version": "0.3.6",
       "date": "2026-10-29",
       "breaking": false,
