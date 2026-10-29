@@ -83,6 +83,18 @@ Then just ask:
 
 The agent asks where to store the content and where to host the site, then walks you through every token or key. Secrets never go into the chat.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/demo-install.gif" width="820" alt="A real Claude Code session: one sentence, and the agent installs an AgentCMS site on an S3 bucket with an encrypted SQLite database, checks it and gives the URLs">
+  <br><sub>A real Claude Code session. The only edit is the ×8 speed-up while the agent works.</sub>
+</p>
+
+Once the site exists, the back office is a conversation:
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/demo-content.gif" width="820" alt="A real Claude Code session: the agent publishes nine Markdown travel articles with their photos, then switches the site to the magazine theme">
+  <br><sub>Same site, a second request: Markdown articles and photos published, then a new theme. Sped up ×16 while the agent works; it ends on the live site.</sub>
+</p>
+
 | Agent | Setup |
 |---|---|
 | **Claude Code** | the plugin above |
@@ -217,6 +229,10 @@ cd my-theme && npm install
 npm run check      # validates it and renders a demo site through the real publisher
 npm run preview    # demo site + desktop / mobile screenshots
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/demo-theme.gif" width="820" alt="Terminal: ext new theme, npm install, build, check and preview, ending on the rendered demo site">
+</p>
 
 Guides: [creating a plugin](docs/creating-a-plugin.md) · [creating a theme](docs/creating-a-theme.md) · [runtime API](docs/runtime-api-reference.md). With Claude Code, the `agentcms-extensions` skill drives the whole loop.
 

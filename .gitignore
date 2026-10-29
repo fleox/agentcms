@@ -27,3 +27,4 @@ demo-content/marketplace-core/*
 
 __pycache__/
 *.pyc
+.github/demos/out/
