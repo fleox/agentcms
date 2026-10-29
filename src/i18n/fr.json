@@ -411,7 +411,7 @@
       "modeGlobal": "Standard (aucune configuration requise)",
       "modePaginated": "Pagination côté serveur (index Firestore requis)",
       "globalHelp": "Charge toute la collection d'articles dans une subscription temps réel. Tri, filtre et recherche se font en mémoire. Recommandé pour les sites de moins de ~5 000 articles.",
-      "paginatedHelp": "Subscriptions paginées par curseur, une page à la fois. Exige des index composites Firestore — voir README. Recommandé pour les très gros sites.",
+      "paginatedHelp": "Subscriptions paginées par curseur, une page à la fois. Exige des index composites Firestore — voir docs/firebase.md. Recommandé pour les très gros sites.",
       "savedReload": "Enregistré. Rechargez l'admin pour appliquer le nouveau mode."
     },
     "editor": {
@@ -519,7 +519,7 @@
     "missingCount_one": "{{count}} index manquant :",
     "missingCount_other": "{{count}} index manquants :",
     "openConsole": "Ouvrir Firebase Console pour créer",
-    "noUrl": "URL d'auto-suggestion introuvable — voir le README pour la commande gcloud.",
+    "noUrl": "URL d'auto-suggestion introuvable — voir docs/firebase.md pour la commande gcloud.",
     "howItWorks": "Comment ça marche",
     "step1": "Cliquez sur le lien de chaque index manquant — Firebase Console ouvre avec la définition pré-remplie.",
     "step2": "Cliquez sur « Create » et attendez 1 à 5 minutes la construction de l'index (statut dans la console).",
@@ -541,7 +541,7 @@
     "firebaseEnvMissing": "Les variables d'environnement suivantes sont manquantes :\n{{vars}}\n\nCopiez .env.example vers .env, renseignez vos identifiants Firebase, puis relancez le serveur de dev.",
     "adminEmailNotConfigured": "Email administrateur non configuré",
     "adminEmailMessage": "VITE_ADMIN_EMAIL est manquant dans .env. Renseignez l'email de l'administrateur initial.",
-    "consoleHint": "Consultez la console du navigateur et votre .env. Voir le README pour la configuration."
+    "consoleHint": "Consultez la console du navigateur et votre .env. Voir docs/firebase.md pour la configuration."
   },
   "identity": {
     "brandTitle": "AgentCMS",
@@ -635,9 +635,9 @@
       "firebaseUserDisabled": "Ce compte utilisateur Firebase est désactivé. Réactivez-le depuis Firebase Console → Authentication → Users.",
       "wrongAdminEmail": "Le compte Firebase auquel vous vous êtes connecté ne correspond pas à l'email admin saisi. Réessayez.",
       "rulesNotPinnedTitle": "Les règles Firestore ne vous reconnaissent pas comme bootstrap admin.",
-      "rulesNotPinnedHint": "Ouvrez Firebase Console → Firestore → Règles et remplacez la valeur de `bootstrapAdminEmail()` par : {{email}} — puis cliquez sur Publier. Le template de règles du README contient un placeholder `you@example.com` qui doit être remplacé par votre vrai email admin. Une fois les règles publiées, cliquez à nouveau sur Soumettre ici.",
+      "rulesNotPinnedHint": "Ouvrez Firebase Console → Firestore → Règles et remplacez la valeur de `bootstrapAdminEmail()` par : {{email}} — puis cliquez sur Publier. Le template de règles de docs/firebase.md contient un placeholder `you@example.com` qui doit être remplacé par votre vrai email admin. Une fois les règles publiées, cliquez à nouveau sur Soumettre ici.",
       "firestoreRulesTitle": "Firestore a refusé l'écriture de la configuration.",
-      "firestoreRulesHint": "Ouvrez Firebase Console → Firestore → Règles et vérifiez que l'email admin de bootstrap est bien '{{email}}'. Le README contient un modèle de règles à copier-coller.",
+      "firestoreRulesHint": "Ouvrez Firebase Console → Firestore → Règles et vérifiez que l'email admin de bootstrap est bien '{{email}}'. docs/firebase.md contient un modèle de règles à copier-coller.",
       "firestoreOther": "Échec de l'écriture Firestore",
       "generic": "Une erreur s'est produite."
     },

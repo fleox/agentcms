@@ -411,7 +411,7 @@
       "modeGlobal": "Standard (keine Einrichtung erforderlich)",
       "modePaginated": "Serverseitige Paginierung (Firestore-Indizes erforderlich)",
       "globalHelp": "Lädt die gesamte Posts-Sammlung in einem Live-Abonnement. Sortierung, Filter und Suche im Speicher. Empfohlen für Sites mit weniger als ~5 000 Beiträgen.",
-      "paginatedHelp": "Cursor-paginierte Abonnements, eine Seite gleichzeitig. Erfordert zusammengesetzte Firestore-Indizes — siehe README. Empfohlen für sehr große Sites.",
+      "paginatedHelp": "Cursor-paginierte Abonnements, eine Seite gleichzeitig. Erfordert zusammengesetzte Firestore-Indizes — siehe docs/firebase.md. Empfohlen für sehr große Sites.",
       "savedReload": "Gespeichert. Lade das Admin neu, um den neuen Modus anzuwenden."
     },
     "editor": {
@@ -519,7 +519,7 @@
     "missingCount_one": "{{count}} Index fehlt:",
     "missingCount_other": "{{count}} Indexes fehlen:",
     "openConsole": "Firebase Console zum Erstellen öffnen",
-    "noUrl": "Auto-Vorschlag-URL nicht extrahierbar — siehe README für den gcloud-Befehl.",
+    "noUrl": "Auto-Vorschlag-URL nicht extrahierbar — siehe docs/firebase.md für den gcloud-Befehl.",
     "howItWorks": "Wie es funktioniert",
     "step1": "Klicken Sie für jeden fehlenden Index auf den Link — Firebase Console öffnet sich mit der vorausgefüllten Index-Definition.",
     "step2": "Klicken Sie auf „Create\" und warten Sie 1–5 Minuten, bis der Index aufgebaut ist (Status in der Console).",
@@ -541,7 +541,7 @@
     "firebaseEnvMissing": "Die folgenden Umgebungsvariablen fehlen:\n{{vars}}\n\nKopieren Sie .env.example nach .env, tragen Sie Ihre Firebase-Projektdaten ein und starten Sie den Dev-Server neu.",
     "adminEmailNotConfigured": "Admin-E-Mail ist nicht konfiguriert",
     "adminEmailMessage": "VITE_ADMIN_EMAIL fehlt in .env. Setzen Sie sie auf die E-Mail-Adresse des Bootstrap-Administrators.",
-    "consoleHint": "Überprüfen Sie die Browser-Konsole und Ihre .env-Konfiguration. Siehe README für Setup-Anweisungen."
+    "consoleHint": "Überprüfen Sie die Browser-Konsole und Ihre .env-Konfiguration. Siehe docs/firebase.md für Setup-Anweisungen."
   },
   "identity": {
     "brandTitle": "AgentCMS",
@@ -635,9 +635,9 @@
       "firebaseUserDisabled": "Dieses Firebase-Benutzerkonto ist deaktiviert. Aktivieren Sie es über Firebase Console → Authentication → Users wieder.",
       "wrongAdminEmail": "Das Firebase-Konto, mit dem Sie sich angemeldet haben, stimmt nicht mit der eingegebenen Admin-E-Mail überein. Bitte erneut versuchen.",
       "rulesNotPinnedTitle": "Die Firestore-Regeln erkennen Sie noch nicht als Bootstrap-Admin.",
-      "rulesNotPinnedHint": "Öffnen Sie Firebase Console → Firestore → Rules und ersetzen Sie den Wert von `bootstrapAdminEmail()` durch: {{email}} — klicken Sie dann auf Veröffentlichen. Die Regelvorlage im README enthält einen Platzhalter `you@example.com`, der durch Ihre tatsächliche Admin-E-Mail ersetzt werden muss. Nachdem die aktualisierten Regeln veröffentlicht sind, klicken Sie hier erneut auf Absenden.",
+      "rulesNotPinnedHint": "Öffnen Sie Firebase Console → Firestore → Rules und ersetzen Sie den Wert von `bootstrapAdminEmail()` durch: {{email}} — klicken Sie dann auf Veröffentlichen. Die Regelvorlage im docs/firebase.md enthält einen Platzhalter `you@example.com`, der durch Ihre tatsächliche Admin-E-Mail ersetzt werden muss. Nachdem die aktualisierten Regeln veröffentlicht sind, klicken Sie hier erneut auf Absenden.",
       "firestoreRulesTitle": "Firestore hat das Schreiben der Konfiguration abgelehnt.",
-      "firestoreRulesHint": "Öffnen Sie Firebase Console → Firestore → Regeln und stellen Sie sicher, dass die Bootstrap-Admin-E-Mail auf '{{email}}' gesetzt ist. Im README finden Sie eine kopierfertige Regelvorlage.",
+      "firestoreRulesHint": "Öffnen Sie Firebase Console → Firestore → Regeln und stellen Sie sicher, dass die Bootstrap-Admin-E-Mail auf '{{email}}' gesetzt ist. Im docs/firebase.md finden Sie eine kopierfertige Regelvorlage.",
       "firestoreOther": "Firestore-Schreibvorgang fehlgeschlagen",
       "generic": "Etwas ist schiefgelaufen."
     },

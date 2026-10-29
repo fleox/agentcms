@@ -411,7 +411,7 @@
       "modeGlobal": "Standaard (geen setup nodig)",
       "modePaginated": "Server-side gepagineerd (Firestore-indexen vereist)",
       "globalHelp": "Laadt de hele berichten-collectie in één live abonnement. Sorteren, filteren en zoeken gebeurt in het geheugen. Aanbevolen voor sites met minder dan ~5 000 berichten.",
-      "paginatedHelp": "Cursor-gepagineerde abonnementen, één pagina per keer. Vereist Firestore-composite-indexen — zie README. Aanbevolen voor zeer grote sites.",
+      "paginatedHelp": "Cursor-gepagineerde abonnementen, één pagina per keer. Vereist Firestore-composite-indexen — zie docs/firebase.md. Aanbevolen voor zeer grote sites.",
       "savedReload": "Opgeslagen. Herlaad de admin om de nieuwe modus toe te passen."
     },
     "editor": {
@@ -519,7 +519,7 @@
     "missingCount_one": "{{count}} index ontbreekt:",
     "missingCount_other": "{{count}} indexes ontbreken:",
     "openConsole": "Firebase Console openen om aan te maken",
-    "noUrl": "Auto-suggestie-URL niet extraheerbaar — zie README voor het gcloud-commando.",
+    "noUrl": "Auto-suggestie-URL niet extraheerbaar — zie docs/firebase.md voor het gcloud-commando.",
     "howItWorks": "Hoe het werkt",
     "step1": "Klik op de link voor elke ontbrekende index — Firebase Console opent met de definitie vooraf ingevuld.",
     "step2": "Klik op \"Create\" en wacht 1–5 minuten tot de index is opgebouwd (status in de console).",
@@ -541,7 +541,7 @@
     "firebaseEnvMissing": "De volgende omgevingsvariabelen ontbreken:\n{{vars}}\n\nKopieer .env.example naar .env, vul uw Firebase-projectgegevens in en herstart de dev-server.",
     "adminEmailNotConfigured": "Admin-e-mail is niet geconfigureerd",
     "adminEmailMessage": "VITE_ADMIN_EMAIL ontbreekt in .env. Stel deze in op het e-mailadres van de bootstrap-beheerder.",
-    "consoleHint": "Controleer de browserconsole en uw .env-configuratie. Zie de README voor instellingsinstructies."
+    "consoleHint": "Controleer de browserconsole en uw .env-configuratie. Zie de docs/firebase.md voor instellingsinstructies."
   },
   "identity": {
     "brandTitle": "AgentCMS",
@@ -635,9 +635,9 @@
       "firebaseUserDisabled": "Dit Firebase-gebruikersaccount is uitgeschakeld. Schakel het opnieuw in via Firebase Console → Authentication → Users.",
       "wrongAdminEmail": "Het Firebase-account waarmee u bent aangemeld komt niet overeen met het ingevoerde admin-e-mailadres. Probeer het opnieuw.",
       "rulesNotPinnedTitle": "De Firestore-regels herkennen u nog niet als bootstrap-admin.",
-      "rulesNotPinnedHint": "Open Firebase Console → Firestore → Rules en vervang de waarde van `bootstrapAdminEmail()` door: {{email}} — klik daarna op Publiceren. De regelsjabloon in de README bevat een placeholder `you@example.com` die vervangen moet worden door uw echte admin-e-mailadres. Klik na het publiceren van de nieuwe regels hier opnieuw op Verzenden.",
+      "rulesNotPinnedHint": "Open Firebase Console → Firestore → Rules en vervang de waarde van `bootstrapAdminEmail()` door: {{email}} — klik daarna op Publiceren. De regelsjabloon in de docs/firebase.md bevat een placeholder `you@example.com` die vervangen moet worden door uw echte admin-e-mailadres. Klik na het publiceren van de nieuwe regels hier opnieuw op Verzenden.",
       "firestoreRulesTitle": "Firestore weigerde het schrijven van de configuratie.",
-      "firestoreRulesHint": "Open Firebase Console → Firestore → Regels en zorg dat het bootstrap-admin-e-mailadres is ingesteld op '{{email}}'. De README bevat een kant-en-klare regelsjabloon.",
+      "firestoreRulesHint": "Open Firebase Console → Firestore → Regels en zorg dat het bootstrap-admin-e-mailadres is ingesteld op '{{email}}'. De docs/firebase.md bevat een kant-en-klare regelsjabloon.",
       "firestoreOther": "Schrijven naar Firestore mislukt",
       "generic": "Er is iets misgegaan."
     },

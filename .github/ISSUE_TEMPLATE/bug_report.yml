@@ -1,0 +1,61 @@
+name: Bug report
+description: Something doesn't work as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a problem. **Never paste tokens, keys, passphrases or `credentials.json`.** Security issues go through [SECURITY.md](https://github.com/fleox/agentcms/blob/master/SECURITY.md).
+  - type: input
+    id: version
+    attributes:
+      label: AgentCMS version
+      description: "`npx -y @agent-cms/agentcms version`, or the version shown in the admin."
+      placeholder: "0.3.6"
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where does it happen?
+      options:
+        - Admin (browser)
+        - agentcms CLI
+        - An agent skill (Claude Code, Hermes, other)
+        - The published site
+    validations:
+      required: true
+  - type: dropdown
+    id: backend
+    attributes:
+      label: Data backend
+      options:
+        - SQLite file
+        - Markdown in git
+        - Firebase
+        - This browser
+        - Not relevant
+  - type: dropdown
+    id: hosting
+    attributes:
+      label: Hosting
+      options:
+        - GitHub Pages
+        - Cloudflare Pages
+        - GitLab Pages
+        - Other git host (Netlify, Vercel…)
+        - S3-compatible bucket
+        - Local folder / ZIP
+        - Not relevant
+  - type: textarea
+    id: steps
+    attributes:
+      label: What happened
+      description: Steps to reproduce, what you expected, what you got. Include the exact error, or the `--json` output of the command.
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Browser and OS, screenshots, the theme and plugins involved…

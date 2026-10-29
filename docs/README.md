@@ -1,8 +1,19 @@
 # AgentCMS — Documentation
 
+## Using AgentCMS
+
+- **[publish-targets.md](publish-targets.md)** — every hosting option (GitHub / Cloudflare / GitLab Pages, other git hosts, S3-compatible buckets, local folder, ZIP), its setup and its constraints.
+- **[self-hosting.md](self-hosting.md)** — the setup wizard, a local build, deploying and updating the admin, keeping it private.
+- **[firebase.md](firebase.md)** — Firestore security rules and indexes (Firebase backend only).
+- **[themes-and-plugins.md](themes-and-plugins.md)** — how themes and plugins work in the admin, and what each built-in plugin does.
+- **[architecture.md](architecture.md)** — the publish pipeline, URLs, menus, images, translations and the code layout.
+- **[releasing.md](releasing.md)** — how a release is cut (maintainers).
+
+## Building plugins and themes
+
 Authoring guides for **external** plugins and themes — packages that get distributed as a ZIP, dropped into the admin via the **Install** UI (which uploads them to `<admin folder>/plugins/<id>/` or `<admin folder>/themes/<id>/` on the publish target), and loaded at runtime.
 
-External authoring lives alongside the existing in-tree authoring (folders under `src/plugins/` and `src/themes/` — see the main `README.md`). Both styles share the same hook API and theme manifest shape; the difference is purely about how the bundle reaches the admin:
+External authoring lives alongside the existing in-tree authoring (folders under `src/plugins/` and `src/themes/` — see [themes-and-plugins.md](themes-and-plugins.md)). Both styles share the same hook API and theme manifest shape; the difference is purely about how the bundle reaches the admin:
 
 | | In-tree | External |
 |---|---|---|

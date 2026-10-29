@@ -411,7 +411,7 @@
       "modeGlobal": "표준 (설정 불필요)",
       "modePaginated": "서버 측 페이지네이션 (Firestore 인덱스 필요)",
       "globalHelp": "전체 게시물 컬렉션을 하나의 실시간 구독으로 로드합니다. 정렬, 필터링, 검색을 메모리에서 수행합니다. 게시물 약 5,000개 미만 사이트에 권장됩니다.",
-      "paginatedHelp": "커서 기반 페이지네이션 구독으로 한 번에 한 페이지씩 가져옵니다. Firestore 복합 인덱스가 필요합니다 — README 참조. 매우 큰 사이트에 권장됩니다.",
+      "paginatedHelp": "커서 기반 페이지네이션 구독으로 한 번에 한 페이지씩 가져옵니다. Firestore 복합 인덱스가 필요합니다 — docs/firebase.md 참조. 매우 큰 사이트에 권장됩니다.",
       "savedReload": "저장되었습니다. 새 모드를 적용하려면 관리자를 다시 로드하세요."
     },
     "editor": {
@@ -519,7 +519,7 @@
     "missingCount_one": "{{count}}개의 인덱스가 누락되었습니다:",
     "missingCount_other": "{{count}}개의 인덱스가 누락되었습니다:",
     "openConsole": "생성하려면 Firebase Console 열기",
-    "noUrl": "자동 제안 URL을 추출할 수 없습니다 — gcloud 명령은 README를 참조하세요.",
+    "noUrl": "자동 제안 URL을 추출할 수 없습니다 — gcloud 명령은 docs/firebase.md를 참조하세요.",
     "howItWorks": "작동 방식",
     "step1": "각 누락된 인덱스의 링크를 클릭하세요 — Firebase Console이 정의가 미리 채워진 상태로 열립니다.",
     "step2": "'Create'를 클릭하고 인덱스가 빌드될 때까지 1~5분 기다리세요 (콘솔에서 상태 확인).",
@@ -541,7 +541,7 @@
     "firebaseEnvMissing": "다음 환경 변수가 누락되었습니다:\n{{vars}}\n\n.env.example을 .env로 복사하고 Firebase 프로젝트 자격 증명을 입력한 후 개발 서버를 재시작하세요.",
     "adminEmailNotConfigured": "관리자 이메일이 설정되지 않았습니다",
     "adminEmailMessage": ".env에 VITE_ADMIN_EMAIL이 누락되었습니다. 부트스트랩 관리자의 이메일로 설정하세요.",
-    "consoleHint": "브라우저 콘솔과 .env 설정을 확인하세요. 설정 방법은 README를 참조하세요."
+    "consoleHint": "브라우저 콘솔과 .env 설정을 확인하세요. 설정 방법은 docs/firebase.md를 참조하세요."
   },
   "identity": {
     "brandTitle": "AgentCMS",
@@ -635,9 +635,9 @@
       "firebaseUserDisabled": "이 Firebase 사용자 계정은 비활성화되어 있습니다. Firebase 콘솔 → Authentication → Users에서 다시 활성화하세요.",
       "wrongAdminEmail": "로그인한 Firebase 계정이 입력한 관리자 이메일과 일치하지 않습니다. 다시 시도하세요.",
       "rulesNotPinnedTitle": "Firestore 규칙이 아직 부트스트랩 관리자로 인식하지 못합니다.",
-      "rulesNotPinnedHint": "Firebase 콘솔 → Firestore → 규칙을 열고 `bootstrapAdminEmail()`의 값을 다음으로 교체하세요: {{email}} — 그런 다음 게시를 클릭하세요. README의 규칙 템플릿에는 자리표시자 `you@example.com`이 있으며, 실제 관리자 이메일로 교체해야 합니다. 업데이트된 규칙을 게시한 후 여기에서 제출을 다시 클릭하세요.",
+      "rulesNotPinnedHint": "Firebase 콘솔 → Firestore → 규칙을 열고 `bootstrapAdminEmail()`의 값을 다음으로 교체하세요: {{email}} — 그런 다음 게시를 클릭하세요. docs/firebase.md의 규칙 템플릿에는 자리표시자 `you@example.com`이 있으며, 실제 관리자 이메일로 교체해야 합니다. 업데이트된 규칙을 게시한 후 여기에서 제출을 다시 클릭하세요.",
       "firestoreRulesTitle": "Firestore가 구성 쓰기를 거부했습니다.",
-      "firestoreRulesHint": "Firebase 콘솔 → Firestore → 규칙을 열고 부트스트랩 관리자 이메일이 '{{email}}'로 설정되어 있는지 확인하세요. README에 복사해서 붙여 넣을 수 있는 규칙 템플릿이 있습니다.",
+      "firestoreRulesHint": "Firebase 콘솔 → Firestore → 규칙을 열고 부트스트랩 관리자 이메일이 '{{email}}'로 설정되어 있는지 확인하세요. docs/firebase.md에 복사해서 붙여 넣을 수 있는 규칙 템플릿이 있습니다.",
       "firestoreOther": "Firestore 쓰기 실패",
       "generic": "문제가 발생했습니다."
     },

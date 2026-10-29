@@ -411,7 +411,7 @@
       "modeGlobal": "Standard (no setup required)",
       "modePaginated": "Server-side paginated (requires Firestore indexes)",
       "globalHelp": "Loads the whole posts collection in one live subscription. Sorting, filtering and search happen in memory. Best for sites under ~5 000 posts.",
-      "paginatedHelp": "Cursor-paginated subscriptions, one page at a time. Requires composite Firestore indexes — see README. Recommended for very large sites.",
+      "paginatedHelp": "Cursor-paginated subscriptions, one page at a time. Requires composite Firestore indexes — see docs/firebase.md. Recommended for very large sites.",
       "savedReload": "Saved. Reload the admin to apply the new mode."
     },
     "editor": {
@@ -519,7 +519,7 @@
     "missingCount_one": "{{count}} index missing:",
     "missingCount_other": "{{count}} indexes missing:",
     "openConsole": "Open Firebase Console to create",
-    "noUrl": "Couldn't extract the auto-suggest URL — see the README for the gcloud command.",
+    "noUrl": "Couldn't extract the auto-suggest URL — see docs/firebase.md for the gcloud command.",
     "howItWorks": "How this works",
     "step1": "Click the link for each missing index — Firebase Console opens with the index definition pre-filled.",
     "step2": "Click \"Create\" and wait 1–5 minutes for the index to build (status badge in the console).",
@@ -541,7 +541,7 @@
     "firebaseEnvMissing": "The following env variables are missing:\n{{vars}}\n\nCopy .env.example to .env, fill in your Firebase project credentials, and restart the dev server.",
     "adminEmailNotConfigured": "Admin email is not configured",
     "adminEmailMessage": "VITE_ADMIN_EMAIL is missing in .env. Set it to the email of the bootstrap administrator.",
-    "consoleHint": "Check the browser console and your .env configuration. See the README for setup instructions."
+    "consoleHint": "Check the browser console and your .env configuration. See docs/firebase.md for setup instructions."
   },
   "identity": {
     "brandTitle": "AgentCMS",
@@ -635,9 +635,9 @@
       "firebaseUserDisabled": "This Firebase user account is disabled. Re-enable it from Firebase Console → Authentication → Users.",
       "wrongAdminEmail": "The Firebase account you signed in with does not match the admin email you typed. Try again.",
       "rulesNotPinnedTitle": "Firestore rules don't recognize you as bootstrap admin yet.",
-      "rulesNotPinnedHint": "Open Firebase Console → Firestore → Rules and replace the value of `bootstrapAdminEmail()` with: {{email}} — then click Publish. The rules template in the README ships with a `you@example.com` placeholder that must be replaced with your real admin email. After publishing the updated rules, click Submit here again.",
+      "rulesNotPinnedHint": "Open Firebase Console → Firestore → Rules and replace the value of `bootstrapAdminEmail()` with: {{email}} — then click Publish. The rules template in docs/firebase.md ships with a `you@example.com` placeholder that must be replaced with your real admin email. After publishing the updated rules, click Submit here again.",
       "firestoreRulesTitle": "Firestore rejected the configuration write.",
-      "firestoreRulesHint": "Open Firebase Console → Firestore → Rules and make sure the bootstrap admin email is set to '{{email}}'. The README has a copy-pastable rules template.",
+      "firestoreRulesHint": "Open Firebase Console → Firestore → Rules and make sure the bootstrap admin email is set to '{{email}}'. docs/firebase.md has a copy-pastable rules template.",
       "firestoreOther": "Firestore write failed",
       "generic": "Something went wrong."
     },
