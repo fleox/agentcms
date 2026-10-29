@@ -107,6 +107,13 @@ interface Props {
   pickerLabel?: string;
 }
 
+// Secret fields of a connector (never in config.js: each browser enters
+// them once), e.g. for the SQLite access page.
+export function secretFieldsOf(connectorId: string): string[] {
+  const fields = (FIELDS as Record<string, Field[]>)[connectorId] ?? [];
+  return fields.filter((f) => f.type === "password").map((f) => f.key);
+}
+
 export function PublishTargetForm({
   value,
   onChange,

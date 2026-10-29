@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Database, KeyRound, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import agentcmsLogo from "../assets/agentcms-logo.svg";
-import { PublishTargetForm } from "../components/connectors/PublishTargetForm";
+import { secretFieldsOf } from "../components/connectors/PublishTargetForm";
+import { hostingOptionFor } from "../components/connectors/hostingOptions";
 import { LocaleSwitcher } from "../components/ui/LocaleSwitcher";
 import { getRuntimeConfig } from "../lib/runtimeConfig";
 import { getDocStore } from "../services/docstore";
@@ -15,7 +16,6 @@ import {
   splitConnectorSettings,
   type SqliteFileDocStore,
 } from "../services/docstore/sqliteFileStore";
-import type { PublishTarget } from "../services/storage/target";
 import { testStorageConnection } from "../services/storage/testConnection";
 
 // Shown by the "sqlite-file" backend when this browser lacks the
@@ -26,9 +26,9 @@ export function SqliteFileAccessPage() {
   const { t } = useTranslation();
   const config = getRuntimeConfig();
   const sqlite = config?.backend === "sqlite-file" ? config.sqlite : null;
-  const [location, setLocation] = useState<PublishTarget>(() =>
-    sqlite ? { connectorId: sqlite.connectorId, settings: connectorSettingsWithSecrets(sqlite) } : { connectorId: "", settings: {} },
-  );
+  // Everything public about the location is in config.js already: the
+  // page only asks for its secrets (token, secret key) and the passphrase.
+  const [settings, setSettings] = useState<Record<string, unknown>>(() => (sqlite ? connectorSettingsWithSecrets(sqlite) : {}));
   const store = getDocStore() as SqliteFileDocStore;
   const [passphrase, setPassphrase] = useState(() => getSqlitePassphrase() ?? "");
   const [busy, setBusy] = useState(false);
@@ -38,17 +38,26 @@ export function SqliteFileAccessPage() {
 
   if (!sqlite) return null;
   const askPassphrase = !!sqlite.encrypted || store.passphraseProblem?.() != null;
+  const connectorId = sqlite.connectorId;
+  const secretKeys = secretFieldsOf(connectorId);
+  const s = sqlite.settings as Record<string, unknown>;
+  const where =
+    connectorId === "git-pages"
+      ? `${s.provider === "gitlab" ? String(s.project ?? "") : `${String(s.owner ?? "")}/${String(s.repo ?? "")}`}${s.branch ? ` · ${t("sqliteAccess.branch")} ${String(s.branch)}` : ""}`
+      : connectorId === "s3"
+        ? `${String(s.bucket ?? "")}${s.prefix ? `/${String(s.prefix)}` : ""}`
+        : "";
 
   async function connect() {
     setBusy(true);
     setError(null);
     try {
-      const res = await testStorageConnection(location.connectorId, location.settings, { ignore: ["siteUrl"] });
+      const res = await testStorageConnection(connectorId, settings, { ignore: ["siteUrl"] });
       if (!res.ok) {
         setError(`${t("connectors.testFailed")} — ${res.detail}`);
         return;
       }
-      saveSqliteConnectorSecrets(splitConnectorSettings(location.settings).secrets);
+      saveSqliteConnectorSecrets(splitConnectorSettings(settings).secrets);
       if (askPassphrase) saveSqlitePassphrase(passphrase.trim() || null);
       store.resetSession();
       await notifyAuthChanged();
@@ -80,7 +89,7 @@ export function SqliteFileAccessPage() {
         <div className="card p-6">
           <h1 className="text-base font-semibold text-surface-900 dark:text-surface-50">{t("sqliteAccess.heading")}</h1>
           <p className="text-sm text-surface-500 mt-1 dark:text-surface-400">
-            {t("sqliteAccess.intro", { path: sqlite.path })}
+            {t("sqliteAccess.intro")}
           </p>
           <form
             className="mt-5 space-y-4"
@@ -90,16 +99,37 @@ export function SqliteFileAccessPage() {
               if (!busy) void connect();
             }}
           >
-            <PublishTargetForm
-              value={location}
-              onChange={setLocation}
-              lockHosting
-              hideFields={["siteUrl"]}
-              testIgnore={["siteUrl"]}
-            />
+            <div className="flex items-start gap-2.5 rounded-lg bg-surface-100 px-3 py-2.5 text-sm dark:bg-surface-800/60">
+              <Database className="h-4 w-4 mt-0.5 shrink-0 text-surface-500" />
+              <div className="min-w-0">
+                <p className="font-medium">{t(`hosting.${hostingOptionFor(connectorId, s).id}.title`)}</p>
+                {where && <p className="text-xs font-mono text-surface-500 break-all dark:text-surface-400">{where}</p>}
+                <p className="text-xs font-mono text-surface-500 break-all dark:text-surface-400">{sqlite.path}</p>
+              </div>
+            </div>
+            {secretKeys.map((key) => (
+              <div key={key}>
+                <label className="label" htmlFor={`sqlite-${key}`}>
+                  {t(`connectors.fields.${connectorId}.${key}`)}
+                </label>
+                <input
+                  id={`sqlite-${key}`}
+                  type="password"
+                  className="input font-mono"
+                  autoComplete="off"
+                  value={String(settings[key] ?? "")}
+                  onChange={(e) => setSettings({ ...settings, [key]: e.target.value })}
+                  required
+                />
+                <p className="text-[11px] text-surface-500 dark:text-surface-400 mt-1">
+                  {t(connectorId === "s3" ? "sqliteAccess.secretKeyHint" : "sqliteAccess.tokenHint")}
+                </p>
+              </div>
+            ))}
             {askPassphrase && (
               <div>
-                <label className="label" htmlFor="sqlite-passphrase">
+                <label className="label inline-flex items-center gap-1.5" htmlFor="sqlite-passphrase">
+                  <KeyRound className="h-3.5 w-3.5" />
                   {t("sqliteAccess.passphrase")}
                 </label>
                 <input

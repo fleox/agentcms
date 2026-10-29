@@ -4,6 +4,7 @@ import { CREDENTIAL_TYPES, listCredentials, parseAccount, removeCredential, requ
 import { generatePassphrase } from "../../src/services/docstore/sqliteCrypto";
 import { CliError, printResult } from "../output";
 import { listSites } from "../sites";
+import { timingSafeEqual } from "node:crypto";
 import type { Command } from "./types";
 
 // Values are never printed — not even masked.
@@ -11,14 +12,14 @@ import type { Command } from "./types";
 export const credentialsCommand: Command = {
   name: "credentials",
   summary:
-    "Store, list, copy or remove access tokens / keys per account (<type>:<name>). `set` reads the secret from --from-env, --from-gh, --from-aws-profile, --generate (passphrases) or a hidden prompt the USER types in; `copy` puts it on the clipboard without printing it.",
-  usage: "credentials <set|list|copy|remove|types> [<type>:<name>] [--from-env VAR[,VAR]] [--from-gh] [--from-aws-profile <name>] [--generate] [--field <name>]",
+    "Store, list, copy, verify or remove access tokens / keys per account (<type>:<name>). `set` reads the secret from --from-env, --from-gh, --from-aws-profile, --generate (passphrases) or a hidden prompt the USER types in; `copy` puts it on the clipboard without printing it; `verify` clears the clipboard, then the USER pastes the value from where they saved it (password manager) at a hidden prompt — proof they really kept it.",
+  usage: "credentials <set|list|copy|verify|remove|types> [<type>:<name>] [--from-env VAR[,VAR]] [--from-gh] [--from-aws-profile <name>] [--generate] [--field <name>]",
   options: [
     { name: "from-env", type: "string", description: "Read the value(s) from these environment variables (comma-separated, in field order)." },
     { name: "from-gh", type: "boolean", description: "github: take the token of the signed-in GitHub CLI (gh auth token)." },
     { name: "from-aws-profile", type: "string", description: "s3: import the key pair of this aws CLI profile." },
     { name: "generate", type: "boolean", description: "passphrase: generate a strong random passphrase." },
-    { name: "field", type: "string", description: "copy: which field (default: the first, e.g. token / passphrase)." },
+    { name: "field", type: "string", description: "copy / verify: which field (default: the first, e.g. token / passphrase)." },
   ],
   async run({ io, options, positionals }) {
     const [action = "list", account] = positionals;
@@ -59,7 +60,43 @@ export const credentialsCommand: Command = {
       printResult(io, { account, field, copied: true, tool }, () => `Copied ${field} of ${account} to the clipboard.`);
       return;
     }
-    if (action !== "set") throw new CliError("usage", `Unknown action "${action}".`, "Use set, list, copy, remove or types.", 2);
+    if (action === "verify") {
+      const cred = requireCredential(account);
+      const field = typeof options.field === "string" ? options.field : CREDENTIAL_TYPES[type].fields[0];
+      const stored = cred.values[field];
+      if (!stored) throw new CliError("usage", `${account} has no field "${field}".`, `Fields: ${Object.keys(cred.values).join(", ")}.`, 2);
+      if (!process.stdin.isTTY) {
+        throw new CliError(
+          "needs-terminal",
+          "verify reads the value the USER pastes in their own terminal.",
+          `Ask the user to run it themselves (in Claude Code: \`! npx -y @agent-cms/agentcms credentials verify ${account}\`).`,
+        );
+      }
+      // The clipboard may still hold the value from `copy`: empty it so the
+      // answer comes from where the user saved it, not from the clipboard.
+      let cleared = false;
+      try {
+        copyToClipboard("");
+        cleared = true;
+      } catch {
+        // No clipboard tool: nothing was copied there either.
+      }
+      io.err(`${cleared ? "Clipboard cleared. " : ""}Paste the ${field} of ${account} from where you saved it (password manager), then press Enter.`);
+      const typed = (await promptHidden(`${field}: `)).trim();
+      const a = Buffer.from(typed);
+      const b = Buffer.from(stored);
+      const match = a.length === b.length && timingSafeEqual(a, b);
+      if (!match) {
+        throw new CliError(
+          "mismatch",
+          `That is not the ${field} of ${account}.`,
+          `The saved copy is wrong or incomplete: copy it again (\`agentcms credentials copy ${account}\`), save it again, and re-run verify.`,
+        );
+      }
+      printResult(io, { account, field, verified: true }, () => `${field} of ${account} verified: the saved copy is correct.`);
+      return;
+    }
+    if (action !== "set") throw new CliError("usage", `Unknown action "${action}".`, "Use set, list, copy, verify, remove or types.", 2);
 
     const spec = CREDENTIAL_TYPES[type];
     let values: Record<string, string>;

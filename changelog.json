@@ -2,6 +2,16 @@
   "$comment": "Newest first. Read by agents (agentcms status) to tell users what changed and what to run. `breaking`: an older admin, skill or site setup stops working without action. `actions`: steps a hosted site needs after updating — deploy-admin, regenerate-all, sync-theme-assets. Keep every entry in English.",
   "versions": [
     {
+      "version": "0.3.10",
+      "date": "2026-10-29",
+      "breaking": false,
+      "changes": [
+        "SQLite sites: the admin's access screen only asks for what this browser doesn't have — the hosting's secret (S3 secret key or git token) and the database passphrase — with a read-only summary of where the database is, instead of the whole hosting form.",
+        "New `credentials verify <account>`: empties the clipboard, then the user pastes the value from their password manager at a hidden prompt — proof the database passphrase was really saved. `install` returns a separate `savePassphrase` block (and an ACTION REQUIRED banner in text mode); the install skill makes saving and verifying the passphrase a blocking step."
+      ],
+      "actions": ["deploy-admin"]
+    },
+    {
       "version": "0.3.9",
       "date": "2026-10-29",
       "breaking": false,

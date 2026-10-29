@@ -61,7 +61,8 @@ describe("SQLite on S3 (fake S3)", () => {
     expect(res.body).toMatchObject({ ok: true, data: { installed: true, credentials: { hosting: "s3:main", passphrase: "passphrase:shop" } } });
     const passphrase = getCredential("passphrase:shop")!.values.passphrase;
     expect(passphrase).toMatch(/^[a-z2-9-]{35}$/);
-    expect(res.body.data.nextSteps.join(" ")).toContain("credentials copy passphrase:shop");
+    expect(res.body.data.savePassphrase).toMatchObject({ account: "passphrase:shop" });
+    expect(res.body.data.savePassphrase.steps.join(" ")).toContain("credentials verify passphrase:shop");
 
     const db = s3.object("shop", "data/site.sqlite")!;
     expect(new TextDecoder().decode(db.body.slice(0, 8))).toBe("ACMSENC1");

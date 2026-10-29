@@ -927,12 +927,15 @@
   },
   "sqliteAccess": {
     "heading": "Connect to the database",
-    "intro": "This admin stores its content in {{path}}. Enter the access credentials for this browser.",
+    "intro": "This site keeps its content in a database on its hosting. Enter, once for this browser, what is not stored online:",
     "storage": "Credentials are kept in this browser only. Signing out forgets them.",
     "passphrase": "Database passphrase",
-    "passphraseHint": "The database is encrypted. Enter the passphrase chosen at install (kept in this browser only).",
+    "passphraseHint": "The database is encrypted: enter the passphrase created at install. On the computer that installed the site, `agentcms credentials copy passphrase:<site>` puts it on the clipboard.",
     "passphraseWrong": "Wrong passphrase: the database could not be opened.",
-    "passphraseMissing": "Enter the database passphrase."
+    "passphraseMissing": "Enter the database passphrase.",
+    "branch": "branch",
+    "tokenHint": "The GitHub / GitLab access token used at install (Contents: read & write on this repository).",
+    "secretKeyHint": "The secret key of the bucket's access key (the one used at install)."
   },
   "publicSite": {
     "notFoundTitle": "Page not found"

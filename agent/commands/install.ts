@@ -137,13 +137,9 @@ export const installCommand: Command = {
         nextSteps.push(
           `Each new browser asks once for the ${plan.dataLocation && plan.dataLocation !== plan.target ? "data location" : "hosting"} keys${plan.passphraseAccount ? " and the database passphrase" : ""} (they stay in that browser). No login: protect the admin folder at the hosting level.`,
         );
-        if (plan.passphraseAccount) {
-          nextSteps.push(
-            `The database is encrypted. Have the user save its passphrase in a password manager now: \`agentcms credentials copy ${plan.passphraseAccount}\` puts it on the clipboard. Without it the content can't be opened.`,
-          );
-        } else if (!plan.dataLocation || plan.dataLocation === plan.target) {
+        if (!plan.passphraseAccount && (!plan.dataLocation || plan.dataLocation === plan.target)) {
           nextSteps.push("Warning: the database is NOT encrypted and is served by the public site — anyone who guesses its path can download it.");
-        } else if (plan.dataLocation.connectorId === "git-pages") {
+        } else if (!plan.passphraseAccount && plan.dataLocation?.connectorId === "git-pages") {
           nextSteps.push("Warning: the database is NOT encrypted — anyone who can read the repository (public repos: everyone) can download it.");
         }
       }
@@ -157,10 +153,36 @@ export const installCommand: Command = {
         );
       }
       for (const w of summary.warnings) nextSteps.push(`Warning: ${w}`);
+      // A blocking step, kept apart from nextSteps so it can't be skimmed:
+      // the passphrase exists only on this computer until the user saves it.
+      const savePassphrase = plan.passphraseAccount
+        ? {
+            account: plan.passphraseAccount,
+            why: "The database is encrypted with this passphrase. It is stored only on this computer: without it no other browser or computer can open the content, and nobody can recover it.",
+            steps: [
+              `\`agentcms credentials copy ${plan.passphraseAccount}\` puts it on the clipboard (never print it).`,
+              "The user pastes it into their password manager NOW (entry: the site's admin URL) and confirms.",
+              `The user runs \`agentcms credentials verify ${plan.passphraseAccount}\` in their own terminal and pastes it FROM the password manager: it must say "verified".`,
+            ],
+          }
+        : null;
       nextSteps.push(`Check everything with \`agentcms doctor --site ${plan.alias}\`.`);
 
-      printResult(io, { ...summary, installed: true, files: outcome.files, adminVersion: outcome.adminVersion, notices: outcome.notices, nextSteps }, () =>
-        [`Installed ${plan.alias}.`, ...outcome.notices.map((n) => `${n.level}: ${n.message}`), ...nextSteps.map((s) => `- ${s}`)].join("\n"),
+      printResult(io, { ...summary, installed: true, files: outcome.files, adminVersion: outcome.adminVersion, notices: outcome.notices, savePassphrase, nextSteps }, () =>
+        [
+          `Installed ${plan.alias}.`,
+          ...(savePassphrase
+            ? [
+                "",
+                "!!! ACTION REQUIRED — SAVE THE DATABASE PASSPHRASE NOW !!!",
+                savePassphrase.why,
+                ...savePassphrase.steps.map((s, i) => `  ${i + 1}. ${s}`),
+                "",
+              ]
+            : []),
+          ...outcome.notices.map((n) => `${n.level}: ${n.message}`),
+          ...nextSteps.map((s) => `- ${s}`),
+        ].join("\n"),
       );
     } finally {
       unlock();

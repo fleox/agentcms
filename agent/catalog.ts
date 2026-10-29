@@ -54,7 +54,7 @@ export const DATA_BACKENDS: DataBackendSpec[] = [
     notes: [
       "A static host serves the database file like any page: keep it encrypted (default) and/or in a separate private location.",
       "No login screen: anyone who can open the admin and has the passphrase can edit; each browser asks for the keys + passphrase once.",
-      "Losing the passphrase means losing the content: have the user save it (`agentcms credentials copy passphrase:<alias>`).",
+      "Losing the passphrase means losing the content: right after install, have the user save it (`agentcms credentials copy passphrase:<alias>`) and prove it (`agentcms credentials verify passphrase:<alias>`, typed by the user from their password manager).",
     ],
   },
   {

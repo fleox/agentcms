@@ -117,7 +117,11 @@ python3 ${HERMES_SKILL_DIR}/scripts/agentcms.py doctor --site <alias> --json
 - A new site starts as "My site", in English, with the default theme and every plugin on: follow the first-steps item of `nextSteps` (title, language, theme, multilang off for one language, author name).
 - Once installed, content and settings are managed with the `agentcms-admin` skill (posts, media, menus, themes, plugins, regeneration).
 - Give the user the site URL and the admin URL, and remind them each new browser asks once for its access token or hosting keys (they are stored per browser, never online).
-- **Encrypted SQLite**: the passphrase is the only key to the content. Before finishing, run `python3 ${HERMES_SKILL_DIR}/scripts/agentcms.py credentials copy passphrase:<alias> --json` (it goes to the clipboard, never to the chat) and ask the user to save it in their password manager now; the admin asks for it once per browser.
+- **Encrypted SQLite: save the passphrase BEFORE anything else** (`data.savePassphrase` in the install result). It is the only key to the content, it exists only on this computer, and nobody can recover it. Users skim long summaries, so this is its own step, in its own message, and you don't go on until it is done:
+  1. Run `python3 ${HERMES_SKILL_DIR}/scripts/agentcms.py credentials copy passphrase:<alias> --json` (clipboard, never the chat).
+  2. Send a short message that contains only this, clearly marked (e.g. a heading "⚠️ Action required: save your database passphrase"): it is on the clipboard now; paste it into a password manager (entry name: the admin URL); without it no other browser or computer can open the site's content. Ask them to answer when it's saved.
+  3. Ask them to prove it: they run `python3 ${HERMES_SKILL_DIR}/scripts/agentcms.py credentials verify passphrase:<alias>` and paste the passphrase **from the password manager** (the command empties the clipboard first). Continue only when it prints `verified`; on `mismatch`, go back to step 1.
+  4. Only then hand over the URLs and the rest of `nextSteps`. The admin asks for the passphrase once per browser.
 - The plan file holds no secrets; offer to delete it or keep it for reference.
 
 ## Wizard fallback (this browser, local folder, ZIP)

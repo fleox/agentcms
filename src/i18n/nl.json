@@ -927,12 +927,15 @@
   },
   "sqliteAccess": {
     "heading": "Verbinding maken met de database",
-    "intro": "Deze admin slaat zijn content op in {{path}}. Voer de toegangsgegevens voor deze browser in.",
+    "intro": "Deze site bewaart zijn inhoud in een database op zijn hosting. Vul eenmalig, voor deze browser, in wat niet online wordt opgeslagen:",
     "storage": "De toegangsgegevens worden alleen in deze browser bewaard. Afmelden wist ze.",
     "passphrase": "Wachtzin van de database",
-    "passphraseHint": "De database is versleuteld. Voer de wachtzin in die bij de installatie is gekozen (alleen in deze browser bewaard).",
+    "passphraseHint": "De database is versleuteld: vul de wachtwoordzin in die bij de installatie is aangemaakt. Op de computer die de site installeerde, zet `agentcms credentials copy passphrase:<site>` hem op het klembord.",
     "passphraseWrong": "Verkeerde wachtzin: de database kon niet worden geopend.",
-    "passphraseMissing": "Voer de wachtzin van de database in."
+    "passphraseMissing": "Voer de wachtzin van de database in.",
+    "branch": "branch",
+    "tokenHint": "Het GitHub-/GitLab-toegangstoken dat bij de installatie is gebruikt (Contents: lezen en schrijven op deze repository).",
+    "secretKeyHint": "De geheime sleutel van de toegangssleutel van de bucket (die bij de installatie is gebruikt)."
   },
   "publicSite": {
     "notFoundTitle": "Pagina niet gevonden"

@@ -927,12 +927,15 @@
   },
   "sqliteAccess": {
     "heading": "Mit der Datenbank verbinden",
-    "intro": "Dieser Admin speichert seine Inhalte in {{path}}. Geben Sie die Zugangsdaten für diesen Browser ein.",
+    "intro": "Diese Website speichert ihre Inhalte in einer Datenbank auf ihrem Hosting. Geben Sie einmalig für diesen Browser ein, was nicht online gespeichert ist:",
     "storage": "Die Zugangsdaten werden nur in diesem Browser gespeichert. Beim Abmelden werden sie vergessen.",
     "passphrase": "Passphrase der Datenbank",
-    "passphraseHint": "Die Datenbank ist verschlüsselt. Gib die bei der Installation gewählte Passphrase ein (wird nur in diesem Browser gespeichert).",
+    "passphraseHint": "Die Datenbank ist verschlüsselt: Geben Sie die bei der Installation erstellte Passphrase ein. Auf dem Computer, der die Website installiert hat, kopiert `agentcms credentials copy passphrase:<site>` sie in die Zwischenablage.",
     "passphraseWrong": "Falsche Passphrase: Die Datenbank konnte nicht geöffnet werden.",
-    "passphraseMissing": "Gib die Passphrase der Datenbank ein."
+    "passphraseMissing": "Gib die Passphrase der Datenbank ein.",
+    "branch": "Branch",
+    "tokenHint": "Das bei der Installation verwendete GitHub-/GitLab-Zugriffstoken (Contents: Lesen und Schreiben für dieses Repository).",
+    "secretKeyHint": "Der geheime Schlüssel des Bucket-Zugriffsschlüssels (der bei der Installation verwendete)."
   },
   "publicSite": {
     "notFoundTitle": "Seite nicht gefunden"

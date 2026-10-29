@@ -927,12 +927,15 @@
   },
   "sqliteAccess": {
     "heading": "Connexion à la base de données",
-    "intro": "Cet admin stocke son contenu dans {{path}}. Saisissez les identifiants d'accès pour ce navigateur.",
+    "intro": "Ce site garde son contenu dans une base de données sur son hébergement. Saisissez une seule fois, pour ce navigateur, ce qui n'est pas stocké en ligne :",
     "storage": "Les identifiants sont conservés dans ce navigateur uniquement. La déconnexion les efface.",
     "passphrase": "Phrase secrète de la base",
-    "passphraseHint": "La base est chiffrée. Saisissez la phrase secrète choisie à l'installation (conservée dans ce navigateur uniquement).",
+    "passphraseHint": "La base est chiffrée : saisissez la phrase secrète créée à l'installation. Sur l'ordinateur qui a installé le site, `agentcms credentials copy passphrase:<site>` la copie dans le presse-papiers.",
     "passphraseWrong": "Phrase secrète incorrecte : la base n'a pas pu être ouverte.",
-    "passphraseMissing": "Saisissez la phrase secrète de la base."
+    "passphraseMissing": "Saisissez la phrase secrète de la base.",
+    "branch": "branche",
+    "tokenHint": "Le jeton d'accès GitHub / GitLab utilisé à l'installation (Contents : lecture et écriture sur ce dépôt).",
+    "secretKeyHint": "La clé secrète de la clé d'accès au bucket (celle utilisée à l'installation)."
   },
   "publicSite": {
     "notFoundTitle": "Page introuvable"

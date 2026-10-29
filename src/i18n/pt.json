@@ -927,12 +927,15 @@
   },
   "sqliteAccess": {
     "heading": "Ligar à base de dados",
-    "intro": "Este admin guarda o seu conteúdo em {{path}}. Introduza as credenciais de acesso para este browser.",
+    "intro": "Este site guarda o conteúdo numa base de dados no seu alojamento. Introduza uma única vez, para este navegador, o que não fica guardado online:",
     "storage": "As credenciais são guardadas apenas neste browser. Terminar sessão apaga-as.",
     "passphrase": "Frase-passe da base de dados",
-    "passphraseHint": "A base de dados está cifrada. Introduza a frase-passe escolhida na instalação (guardada apenas neste navegador).",
+    "passphraseHint": "A base de dados está encriptada: introduza a frase-passe criada na instalação. No computador que instalou o site, `agentcms credentials copy passphrase:<site>` copia-a para a área de transferência.",
     "passphraseWrong": "Frase-passe incorreta: não foi possível abrir a base de dados.",
-    "passphraseMissing": "Introduza a frase-passe da base de dados."
+    "passphraseMissing": "Introduza a frase-passe da base de dados.",
+    "branch": "branch",
+    "tokenHint": "O token de acesso GitHub / GitLab usado na instalação (Contents: leitura e escrita neste repositório).",
+    "secretKeyHint": "A chave secreta da chave de acesso ao bucket (a usada na instalação)."
   },
   "publicSite": {
     "notFoundTitle": "Página não encontrada"
