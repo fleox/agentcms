@@ -5,7 +5,7 @@ const require2 = __acmsRequire(import.meta.url);
 const __filename = __acmsPath(import.meta.url);
 const __dirname = __acmsDirname(__filename);
 import { r as resolveSite, c as readVersionInfo, e as adminUrlOf, f as fetchHostedAdmin, d as compareVersions, C as CliError, l as lockSite, b as requireCredential } from "../agentcms.mjs";
-import { bootExtensionHost, importExtensionBundle } from "./extHost-l9QNBuO-.mjs";
+import { bootExtensionHost, importExtensionBundle } from "./extHost-D1QbXuiB.mjs";
 import "node:util";
 import "node:fs";
 import "node:path";
@@ -106,11 +106,11 @@ async function readRegistryFor(site, reader) {
   const { readBackendRegistryForCli } = await import("./sessionRegistry-B-IhUX3J.mjs");
   const stored = await readBackendRegistryForCli();
   if (stored) return stored;
-  const { fallbackRegistry } = await import("./adminFiles-CtFpLgJa.mjs");
+  const { fallbackRegistry } = await import("./adminFiles-Bz2TNV9T.mjs");
   return fallbackRegistry(site, reader);
 }
 async function loadExtensions(site, host, out, warnings) {
-  const { readAdminFile, siteHostingReader } = await import("./adminFiles-CtFpLgJa.mjs");
+  const { readAdminFile, siteHostingReader } = await import("./adminFiles-Bz2TNV9T.mjs");
   const reader = await siteHostingReader(site);
   const registry = await readRegistryFor(site, reader);
   host.registry.clearExternalPlugins();
@@ -145,7 +145,7 @@ async function loadExtensions(site, host, out, warnings) {
   }
 }
 async function migrateLegacy(site, host) {
-  const { readAdminFile, siteHostingReader } = await import("./adminFiles-CtFpLgJa.mjs");
+  const { readAdminFile, siteHostingReader } = await import("./adminFiles-Bz2TNV9T.mjs");
   const file = await readAdminFile(site, "external.default.json", await siteHostingReader(site), {
     accept: (t) => {
       try {
@@ -171,7 +171,7 @@ async function openSession(alias, opts = {}) {
   const adminUrl = adminUrlOf(site);
   const hosted = adminUrl ? await fetchHostedAdmin(adminUrl) : null;
   if (hosted?.version && compareVersions(hosted.version, info.version) !== 0) {
-    const { readAdminFile, siteHostingReader } = await import("./adminFiles-CtFpLgJa.mjs");
+    const { readAdminFile, siteHostingReader } = await import("./adminFiles-Bz2TNV9T.mjs");
     const onHosting = await readAdminFile(site, "admin-files.json", await siteHostingReader(site), {
       accept: (t) => {
         try {

@@ -4,7 +4,7 @@ import { dirname as __acmsDirname } from "node:path";
 const require2 = __acmsRequire(import.meta.url);
 const __filename = __acmsPath(import.meta.url);
 const __dirname = __acmsDirname(__filename);
-import { writeFileSync, realpathSync, mkdtempSync, rmSync, copyFileSync, readFileSync } from "node:fs";
+import { writeFileSync, rmSync, realpathSync, mkdtempSync, copyFileSync, readFileSync } from "node:fs";
 import { register } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -99,10 +99,15 @@ async function importExtensionBundle(source) {
   await bootExtensionHost();
   const file = join(bundleDir, `bundle-${++counter}.mjs`);
   writeFileSync(file, source);
-  const mod = await import(
-    /* @vite-ignore */
-    pathToFileURL(file).href
-  );
+  let mod;
+  try {
+    mod = await import(
+      /* @vite-ignore */
+      pathToFileURL(file).href
+    );
+  } finally {
+    rmSync(file, { force: true });
+  }
   if (mod.default != null) return { manifest: mod.default, exportName: "default" };
   if (mod.manifest != null) return { manifest: mod.manifest, exportName: "manifest" };
   return { manifest: null, exportName: null };

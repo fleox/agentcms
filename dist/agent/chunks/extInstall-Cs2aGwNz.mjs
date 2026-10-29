@@ -25,7 +25,7 @@ async function readSiteRegistry(site) {
   const { readBackendRegistryForCli } = await import("./sessionRegistry-B-IhUX3J.mjs");
   const stored = await readBackendRegistryForCli();
   if (stored) return { registry: stored, seeded: false };
-  const { fallbackRegistry, siteHostingReader } = await import("./adminFiles-CtFpLgJa.mjs");
+  const { fallbackRegistry, siteHostingReader } = await import("./adminFiles-Bz2TNV9T.mjs");
   return { registry: await fallbackRegistry(site, await siteHostingReader(site)), seeded: true };
 }
 async function siteSettings() {
@@ -33,11 +33,11 @@ async function siteSettings() {
   return await getSettings();
 }
 async function connectSiteData(site) {
-  const { connectSiteData: connect } = await import("./session-CdJucxK2.mjs");
+  const { connectSiteData: connect } = await import("./session-DJalXzR6.mjs");
   await connect(site);
 }
 async function siteHostingTargetFor(site) {
-  const { siteHostingTargetFor: resolve } = await import("./session-CdJucxK2.mjs");
+  const { siteHostingTargetFor: resolve } = await import("./session-DJalXzR6.mjs");
   return resolve(site);
 }
 async function installExtensionCommand({ io, options, positionals }) {
@@ -105,7 +105,7 @@ async function installExtensionCommand({ io, options, positionals }) {
   if (action !== "install") throw new CliError("usage", `Unknown action ${action}.`, void 0, 2);
   if (!arg) throw new CliError("usage", "ext install needs the package: its .zip, project folder or unpacked folder.", void 0, 2);
   const { readExtensionPackage } = await import("./extPackage-4FSerswt.mjs");
-  const { checkExtension } = await import("./extCheck-DMfM_r9X.mjs");
+  const { checkExtension } = await import("./extCheck-DoO1fW4Q.mjs");
   const pkg = await readExtensionPackage(arg);
   const report = await checkExtension(pkg);
   if (!report.valid) {
@@ -171,7 +171,7 @@ async function installExtensionCommand({ io, options, positionals }) {
     }
     let activated = null;
     if (options.activate && kind === "themes") {
-      const { importExtensionBundle } = await import("./extHost-l9QNBuO-.mjs");
+      const { importExtensionBundle } = await import("./extHost-D1QbXuiB.mjs");
       const { bundleSource } = await import("./extPackage-4FSerswt.mjs");
       const { manifest } = await importExtensionBundle(bundleSource(pkg));
       const theme = manifest;
@@ -212,7 +212,7 @@ async function installExtensionCommand({ io, options, positionals }) {
     let mediaMissingFormats = 0;
     if (affectsPages && !options["no-regenerate"]) {
       io.err(`• ${site.alias}: regenerating the whole site with ${id} ${entry.version}…`);
-      const { openSession } = await import("./session-CdJucxK2.mjs");
+      const { openSession } = await import("./session-DJalXzR6.mjs");
       const { subscribeToToasts } = await import("./toast-CYyyaSAW.mjs");
       const errors = [];
       const stopToasts = subscribeToToasts((t) => {

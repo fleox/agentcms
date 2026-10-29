@@ -133,7 +133,14 @@ export async function importExtensionBundle(source: string): Promise<LoadedBundl
   await bootExtensionHost();
   const file = join(bundleDir!, `bundle-${++counter}.mjs`);
   writeFileSync(file, source);
-  const mod = (await import(/* @vite-ignore */ pathToFileURL(file).href)) as { default?: unknown; manifest?: unknown };
+  let mod: { default?: unknown; manifest?: unknown };
+  try {
+    mod = (await import(/* @vite-ignore */ pathToFileURL(file).href)) as typeof mod;
+  } finally {
+    // The module stays in memory once evaluated (bundles are single files):
+    // the copy is only needed to import it.
+    rmSync(file, { force: true });
+  }
   if (mod.default != null) return { manifest: mod.default, exportName: "default" };
   if (mod.manifest != null) return { manifest: mod.manifest, exportName: "manifest" };
   return { manifest: null, exportName: null };

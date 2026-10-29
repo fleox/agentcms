@@ -39,6 +39,8 @@ export default defineConfig({
     // jsdom on a per-file basis (// @vitest-environment jsdom) when needed.
     environment: "node",
     globals: true,
+    // One temp folder per run, removed at the end (agent/testing/tmpdirSetup.ts).
+    globalSetup: ["agent/testing/tmpdirSetup.ts"],
     // external/plugins/*/src: unit tests of the bundled external plugins
     // (agentcms-multilang), which mock @agent-cms/runtime.
     include: [

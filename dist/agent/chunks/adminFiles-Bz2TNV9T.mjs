@@ -78,7 +78,7 @@ async function importBundled(kind) {
   const { existsSync, readFileSync } = await import("node:fs");
   const { join } = await import("node:path");
   const { distRoot } = await import("../agentcms.mjs").then((n) => n.y);
-  const { importExtensionBundle } = await import("./extHost-l9QNBuO-.mjs");
+  const { importExtensionBundle } = await import("./extHost-D1QbXuiB.mjs");
   const root = join(distRoot(), "admin");
   const file = join(root, "external.default.json");
   if (!existsSync(file)) return [];

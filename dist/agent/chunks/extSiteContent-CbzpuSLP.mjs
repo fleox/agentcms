@@ -36,7 +36,7 @@ async function snapshotSiteContent(alias) {
   const active = content.settings?.activeThemeId;
   if (active && active !== "default") {
     const entry = registry?.themes?.find((t) => t.id === active);
-    const { readAdminFile, siteHostingReader } = await import("./adminFiles-CtFpLgJa.mjs");
+    const { readAdminFile, siteHostingReader } = await import("./adminFiles-Bz2TNV9T.mjs");
     const file = await readAdminFile(site, entry?.entryPath ?? `themes/${active}/bundle.js`, await siteHostingReader(site)).catch(() => null);
     themeBundle = file?.text ?? null;
   }
@@ -48,7 +48,7 @@ async function snapshotSiteContent(alias) {
   return { alias: site.alias, content, themeBundle };
 }
 async function snapshotFirebase(site) {
-  const { connectSiteData } = await import("./session-CdJucxK2.mjs");
+  const { connectSiteData } = await import("./session-DJalXzR6.mjs");
   await connectSiteData(site);
   const { fetchAllPosts, invalidateAllPostsCache } = await import("./posts-C__YnFuY.mjs");
   const { fetchAllTerms } = await import("./taxonomies-C8jbkjmm.mjs");
