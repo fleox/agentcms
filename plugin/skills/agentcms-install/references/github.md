@@ -13,7 +13,7 @@ Markdown content + GitHub Pages always uses **two** repositories. Never mention 
 
 Ask for them **one at a time** and check each answer before the next question - users easily swap them:
 
-1. "What is the name of the **private** repository for the content?" → check it: `npx -y @agent-cms/agentcms@0.3.9 install --plan agentcms-plan.json --dry-run --json` once the plan has it, or simply confirm with the user that GitHub shows a **Private** badge next to its name.
+1. "What is the name of the **private** repository for the content?" → check it: `npx -y @agent-cms/agentcms@0.3.10 install --plan agentcms-plan.json --dry-run --json` once the plan has it, or simply confirm with the user that GitHub shows a **Private** badge next to its name.
 2. "What is the name of the **public** repository for the website?" → same check (**Public** badge).
 3. Repeat both names back with their role ("content: `me/my-blog-content` (private) - site: `me/my-blog` (public)") and get a yes before writing the plan.
 
@@ -46,12 +46,12 @@ If GitHub ignores the query parameters, they set by hand:
 - Permissions -> Repository: **Contents: Read and write**, **Pages: Read and write** (lets AgentCMS switch Pages on), Metadata: Read-only (automatic).
 - Expiration: their choice (note the date - the site stops publishing when it expires).
 
-Then they store it themselves: `! npx -y @agent-cms/agentcms@0.3.9 credentials set github:<login>` and paste it at the hidden prompt.
+Then they store it themselves: `! npx -y @agent-cms/agentcms@0.3.10 credentials set github:<login>` and paste it at the hidden prompt.
 
 **Option B - reuse the GitHub CLI login** (broader `repo` scope, quickest):
 
 ```bash
-npx -y @agent-cms/agentcms@0.3.9 credentials set github:<login> --from-gh --json
+npx -y @agent-cms/agentcms@0.3.10 credentials set github:<login> --from-gh --json
 ```
 
 Each editor of a Markdown site later signs in to the admin with **their own** token (same permissions on the content repo); write access = editor, admin access = admin.

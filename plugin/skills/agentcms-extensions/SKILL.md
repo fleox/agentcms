@@ -3,7 +3,7 @@ name: agentcms-extensions
 description: Create, test and ship AgentCMS plugins and themes - scaffold a project, write templates / hooks / editor blocks / settings pages, validate the bundle exactly as the admin loads it, render a demo site (with screenshots), pack the ZIP and install it on a site. Use when the user wants a new theme or plugin for AgentCMS, wants to change or debug one, or asks how AgentCMS extensions work.
 license: PolyForm-Noncommercial-1.0.0
 metadata:
-  version: "0.3.9"
+  version: "0.3.10"
   repository: "https://github.com/fleox/agentcms"
 ---
 
@@ -28,7 +28,7 @@ The extension never knows which data backend or hosting the site uses: it only t
 
 ## The toolchain: `agentcms ext`
 
-Every command is `npx -y @agent-cms/agentcms@0.3.9 ext <action> … --json` (Node.js 20.6+, 22+ for screenshots). `--help` after any command prints its usage. Inside a scaffolded project the same CLI is a dev dependency, so use its npm scripts: `npm run build`, `npm run check`, `npm run preview`, `npm run serve`. For JSON, add `-s` so npm prints nothing else: `npm run -s check -- --json`.
+Every command is `npx -y @agent-cms/agentcms@0.3.10 ext <action> … --json` (Node.js 20.6+, 22+ for screenshots). `--help` after any command prints its usage. Inside a scaffolded project the same CLI is a dev dependency, so use its npm scripts: `npm run build`, `npm run check`, `npm run preview`, `npm run serve`. For JSON, add `-s` so npm prints nothing else: `npm run -s check -- --json`.
 
 | Action | What it does |
 |---|---|
@@ -44,7 +44,7 @@ Every command is `npx -y @agent-cms/agentcms@0.3.9 ext <action> … --json` (Nod
 1. **Understand the request.** Is it a *theme* (how the public site looks: markup, CSS, layouts) or a *plugin* (behaviour: extra tags or files, editor blocks, admin pages)? A new look is a theme. Adding something to any theme is a plugin. Pick an id: lower-case letters, digits and single dashes, globally unique (e.g. `acme-blog`). `core-*`, `agentcms-*` and `default` are reserved.
 2. **Scaffold.**
    ```bash
-   npx -y @agent-cms/agentcms@0.3.9 ext new theme acme-blog --with settings --json
+   npx -y @agent-cms/agentcms@0.3.10 ext new theme acme-blog --with settings --json
    cd acme-blog && npm install
    ```
    Only add `--with block` when the user wants an editor block: it bundles Tiptap (~200 KB).
@@ -79,10 +79,10 @@ Every command is `npx -y @agent-cms/agentcms@0.3.9 ext <action> … --json` (Nod
    - Offer `npm run serve` so the user can browse the demo site themselves and click through runtime behaviour.
 6. **Ship.** `npm run build` leaves `<id>.zip` in the project. Then either:
    - the user installs it in their admin (**Plugins** or **Themes** → **Install**, drop the ZIP; installing a ZIP whose version is newer upgrades in place); or
-   - for a site this computer manages (`npx -y @agent-cms/agentcms@0.3.9 site list --json`):
+   - for a site this computer manages (`npx -y @agent-cms/agentcms@0.3.10 site list --json`):
      ```bash
-     npx -y @agent-cms/agentcms@0.3.9 ext install acme-blog.zip --site <alias> --json          # plan only
-     npx -y @agent-cms/agentcms@0.3.9 ext install acme-blog.zip --site <alias> --activate --yes --json
+     npx -y @agent-cms/agentcms@0.3.10 ext install acme-blog.zip --site <alias> --json          # plan only
+     npx -y @agent-cms/agentcms@0.3.10 ext install acme-blog.zip --site <alias> --activate --yes --json
      ```
      The plan answer has `data.needsConfirmation: true` (nothing written). Show the plan and get the user's go before `--yes`. With `--activate` (or when upgrading the active theme), every page (and `404.html`) is regenerated in the same command: `data.regenerated` reports it; otherwise relay `data.next`. The CLI reads the bundle straight from the hosting, so a Pages host or CDN still serving the old version doesn't matter; visitors see the new pages after the host's next deployment (about a minute, more after bursts of commits: `doctor` reports a pending deployment). Works on every backend the CLI manages (Firebase, Markdown in git, SQLite file); Firebase sites sign in with their `firebase:<name>` login, so group installs to stay under Firebase's sign-in rate limit.
    - After switching to a theme with other image formats, `media regenerate --site <alias>` (plan, then `--yes`) re-crops existing media to them; then `regenerate all`.
@@ -108,11 +108,11 @@ Every command is `npx -y @agent-cms/agentcms@0.3.9 ext <action> … --json` (Nod
 
 ## When the CLI can't run
 
-If Node/npm is unavailable (e.g. a chat without a shell), write the project by hand following the reference files: the Vite config in [references/plugins.md](references/plugins.md) (“Build setup”), the manifests, and the templates in [references/themes.md](references/themes.md). Tell the user to run `npm install && npm run build` and then `npx -y @agent-cms/agentcms@0.3.9 ext check .` before installing the ZIP.
+If Node/npm is unavailable (e.g. a chat without a shell), write the project by hand following the reference files: the Vite config in [references/plugins.md](references/plugins.md) (“Build setup”), the manifests, and the templates in [references/themes.md](references/themes.md). Tell the user to run `npm install && npm run build` and then `npx -y @agent-cms/agentcms@0.3.10 ext check .` before installing the ZIP.
 
 ## Debugging an installed extension
 
-- **Bundle not loading** (the admin shows "N external bundle(s) failed to load"): run `ext check` on the same ZIP. Common causes are a bundled React, an import the import map doesn't provide, an id mismatch, or an apiVersion newer than the site's admin (`npx -y @agent-cms/agentcms@0.3.9 status --json` shows the site's admin version).
+- **Bundle not loading** (the admin shows "N external bundle(s) failed to load"): run `ext check` on the same ZIP. Common causes are a bundled React, an import the import map doesn't provide, an id mismatch, or an apiVersion newer than the site's admin (`npx -y @agent-cms/agentcms@0.3.10 status --json` shows the site's admin version).
 - **Plugin output missing on pages:** the theme lacks a sentinel (`ext check` on the theme), the plugin is disabled, or the pages were published before the plugin was installed (Regenerate → Everything).
 - **Block has no inspector:** `nodeName` is missing or wrong; `ext check` reports it.
 - **Theme CSS changes not visible:** Themes → Sync theme assets (saving the theme's settings page also re-uploads it), then hard-refresh the browser.

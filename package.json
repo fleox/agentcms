@@ -1,6 +1,6 @@
 {
   "name": "@agent-cms/agentcms",
-  "version": "0.3.9",
+  "version": "0.3.10",
   "type": "module",
   "description": "The static CMS your AI agent can run: a WordPress-style admin in the browser that publishes plain HTML to GitHub Pages, Cloudflare Pages, GitLab Pages or any S3-compatible bucket. Installed and managed by Claude Code, Codex, Hermes and other agents.",
   "license": "SEE LICENSE IN LICENSE",
