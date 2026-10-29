@@ -21,9 +21,13 @@ import * as firebase from "./firebase/posts";
 import * as docstore from "./docstore/posts";
 
 let _impl: typeof firebase | typeof docstore | null = null;
+// Backend the cached impl belongs to: a process that switches site
+// (the agentcms CLI) re-resolves it; the admin never does.
+let _implKind: ReturnType<typeof getBackendKind> | undefined;
 function impl(): typeof firebase {
-  if (!_impl) {
-    const kind = getBackendKind();
+  const kind = getBackendKind();
+  if (!_impl || kind !== _implKind) {
+    _implKind = kind;
     _impl = isDocStoreBackend(kind) ? docstore : firebase;
   }
   return _impl as typeof firebase;

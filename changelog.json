@@ -2,6 +2,16 @@
   "$comment": "Newest first. Read by agents (agentcms status) to tell users what changed and what to run. `breaking`: an older admin, skill or site setup stops working without action. `actions`: steps a hosted site needs after updating — deploy-admin, regenerate-all, sync-theme-assets. Keep every entry in English.",
   "versions": [
     {
+      "version": "0.3.5",
+      "date": "2026-10-29",
+      "breaking": false,
+      "changes": [
+        "`ext list`, `ext install`, `ext uninstall` and `ext preview --site` now work on Firebase sites too (they sign in with the site's `firebase:<name>` login, like the content commands).",
+        "Fix: a CLI command that switched data backend inside one run kept using the first one — e.g. `ext install` on a Firebase site checked the package on a demo store, then wrote the files into the local preview folder instead of the site."
+      ],
+      "actions": []
+    },
+    {
       "version": "0.3.4",
       "date": "2026-10-28",
       "breaking": false,

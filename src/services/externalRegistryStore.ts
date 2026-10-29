@@ -50,9 +50,13 @@ const LEGACY_MANIFEST_BROWSER_PATH = "external.json";
 // ─── Backend dispatcher (storage primitives) ─────────────────────────
 
 let _impl: typeof firebaseStore | typeof docstoreStore | null = null;
+// Backend the cached impl belongs to: a process that switches site
+// (the agentcms CLI) re-resolves it; the admin never does.
+let _implKind: ReturnType<typeof getBackendKind> | undefined;
 function impl(): typeof firebaseStore {
-  if (!_impl) {
-    const kind = getBackendKind();
+  const kind = getBackendKind();
+  if (!_impl || kind !== _implKind) {
+    _implKind = kind;
     _impl = isDocStoreBackend(kind) ? docstoreStore : firebaseStore;
   }
   return _impl as typeof firebaseStore;

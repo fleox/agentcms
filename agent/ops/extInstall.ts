@@ -28,13 +28,30 @@ function hostedApiCheck(hosted: Awaited<ReturnType<typeof fetchHostedAdmin>>, ap
 }
 
 async function readSiteRegistry(site: SiteRecord): Promise<{ registry: ExternalManifest; seeded: boolean }> {
-  const { readBackendRegistry } = await import("../../src/services/docstore/externalRegistryStore");
-  const stored = await readBackendRegistry();
+  const { readBackendRegistryForCli } = await import("./sessionRegistry");
+  const stored = await readBackendRegistryForCli();
   if (stored) return { registry: stored, seeded: false };
   // Same fallback as the admin's first boot: the build's defaults (read
   // from the hosting first: a Pages site may not be served yet).
   const { fallbackRegistry, siteHostingReader } = await import("./adminFiles");
   return { registry: await fallbackRegistry(site, await siteHostingReader(site)), seeded: true };
+}
+
+// The site settings document, on any backend (fresh read: the admin may
+// have changed it since the CLI's last command).
+async function siteSettings(): Promise<{ activeThemeId?: string; enabledPlugins?: Record<string, boolean>; themeConfigs?: Record<string, unknown> } | undefined> {
+  const { getSettings } = await import("../../src/services/settings");
+  return (await getSettings()) as unknown as { activeThemeId?: string; enabledPlugins?: Record<string, boolean>; themeConfigs?: Record<string, unknown> } | undefined;
+}
+
+async function connectSiteData(site: SiteRecord): Promise<void> {
+  const { connectSiteData: connect } = await import("./session");
+  await connect(site);
+}
+
+async function siteHostingTargetFor(site: SiteRecord) {
+  const { siteHostingTargetFor: resolve } = await import("./session");
+  return resolve(site);
 }
 
 export async function installExtensionCommand({ io, options, positionals }: CommandContext): Promise<number | void> {
@@ -44,11 +61,9 @@ export async function installExtensionCommand({ io, options, positionals }: Comm
   const adminUrl = adminUrlOf(site);
 
   if (action === "list") {
-    const { openSiteStore } = await import("./siteData");
-    await openSiteStore(site);
+    await connectSiteData(site);
     const { registry } = await readSiteRegistry(site);
-    const { getDocStore } = await import("../../src/services/docstore");
-    const settings = getDocStore().get("settings", "site") as { activeThemeId?: string; enabledPlugins?: Record<string, boolean> } | undefined;
+    const settings = await siteSettings();
     const data = {
       site: site.alias,
       activeTheme: settings?.activeThemeId ?? "default",
@@ -68,20 +83,18 @@ export async function installExtensionCommand({ io, options, positionals }: Comm
   }
 
   if (!site.adminFolder || !adminUrl) throw new CliError("not-hosted", `${site.alias} has no hosted admin.`, "Extensions are installed next to the hosted admin.");
-  const { siteHostingTarget, openSiteStore } = await import("./siteData");
-  const target = siteHostingTarget(site);
   const { readVersionInfo } = await import("../paths");
   const info = readVersionInfo();
 
   if (action === "uninstall") {
     const id = arg;
     if (!id) throw new CliError("usage", "ext uninstall needs the extension id.", undefined, 2);
-    await openSiteStore(site);
+    await connectSiteData(site);
+    const target = await siteHostingTargetFor(site);
     const { registry } = await readSiteRegistry(site);
     const kind: Kind | null = registry.plugins.some((e) => e.id === id) ? "plugins" : registry.themes.some((e) => e.id === id) ? "themes" : null;
     if (!kind) throw new CliError("not-installed", `${id} is not installed on ${site.alias}.`, "See `agentcms ext list --site <alias>`.");
-    const { getDocStore } = await import("../../src/services/docstore");
-    const settings = getDocStore().get("settings", "site") as { activeThemeId?: string } | undefined;
+    const settings = await siteSettings();
     if (kind === "themes" && settings?.activeThemeId === id) {
       throw new CliError("theme-active", `${id} is the active theme of ${site.alias}.`, `Switch to another theme first: \`agentcms themes activate <id> --site ${site.alias} --yes\`.`);
     }
@@ -93,7 +106,7 @@ export async function installExtensionCommand({ io, options, positionals }: Comm
     }
     const unlock = lockSite(site.alias);
     try {
-      const { writeBackendRegistry } = await import("../../src/services/docstore/externalRegistryStore");
+      const { writeBackendRegistryForCli: writeBackendRegistry } = await import("./sessionRegistry");
       // Registry first: a half-deleted folder must never stay referenced.
       await writeBackendRegistry({ ...registry, [kind]: registry[kind].filter((e) => e.id !== id) });
       const { applyOps, hostingConnector } = await import("./hosting");
@@ -124,7 +137,8 @@ export async function installExtensionCommand({ io, options, positionals }: Comm
   const refused = hostedApiCheck(hosted, report.apiVersion!, report.hostApi, info.version);
   if (refused) throw new CliError("api-incompatible", `Not installed: ${refused}.`);
 
-  await openSiteStore(site);
+  await connectSiteData(site);
+  const target = await siteHostingTargetFor(site);
   const { registry, seeded } = await readSiteRegistry(site);
   const existing = registry[kind].find((e) => e.id === id);
   const other = (kind === "plugins" ? registry.themes : registry.plugins).find((e) => e.id === id);
@@ -178,8 +192,7 @@ export async function installExtensionCommand({ io, options, positionals }: Comm
       const { bundleSource } = await import("./extPackage");
       const { manifest } = await importExtensionBundle(bundleSource(pkg)!);
       const theme = manifest as import("../../src/themes/types").ThemeManifest;
-      const { getDocStore } = await import("../../src/services/docstore");
-      const settings = (getDocStore().get("settings", "site") ?? {}) as { themeConfigs?: Record<string, unknown> };
+      const settings = ((await siteSettings()) ?? {}) as { themeConfigs?: Record<string, unknown> };
       let css = theme.cssText;
       if (theme.compileCss && theme.settings) css = theme.compileCss({ ...(theme.settings.defaultConfig as object), ...((settings.themeConfigs?.[id] as object) ?? {}) });
       ops.push({ type: "put", path: `theme-assets/${id}.css`, content: css });
@@ -189,7 +202,7 @@ export async function installExtensionCommand({ io, options, positionals }: Comm
     io.err(`• ${site.alias}: uploading ${files.length} files to ${folder}/…`);
     await applyOps(connector, ops);
     await settleHosting(target);
-    const { writeBackendRegistry } = await import("../../src/services/docstore/externalRegistryStore");
+    const { writeBackendRegistryForCli: writeBackendRegistry } = await import("./sessionRegistry");
     const next: ExternalManifest = {
       plugins: [...registry.plugins],
       themes: [...registry.themes],
@@ -213,8 +226,7 @@ export async function installExtensionCommand({ io, options, positionals }: Comm
     // re-rendered whenever the package changes what they look like — it
     // was just activated, or it upgrades the active theme / an enabled
     // plugin. --no-regenerate leaves that to the caller.
-    const { getDocStore } = await import("../../src/services/docstore");
-    const current = (getDocStore().get("settings", "site") ?? {}) as { activeThemeId?: string; enabledPlugins?: Record<string, boolean> };
+    const current = ((await siteSettings()) ?? {}) as { activeThemeId?: string; enabledPlugins?: Record<string, boolean> };
     const inUse = kind === "themes" ? current.activeThemeId === id : current.enabledPlugins?.[id] !== false;
     // A plugin is on unless explicitly disabled: a new one runs at once.
     const affectsPages = !!activated || inUse;

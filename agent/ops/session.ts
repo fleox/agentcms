@@ -115,6 +115,29 @@ async function signInBackend(site: SiteRecord, host: HostModules): Promise<void>
   await openSiteStore(site);
 }
 
+// Signs in to a site's data backend (Firebase login, git token, SQLite
+// keys) without the rest of a session: for commands that only read or
+// write data documents (ext install / list / uninstall, ext preview --site).
+export async function connectSiteData(site: SiteRecord): Promise<void> {
+  const storageRegistry = await import("../../src/services/storage/registry");
+  await signInBackend(site, { storageRegistry } as unknown as HostModules);
+}
+
+// The publish target with its secrets: the site's hosting credential on
+// top of the stored target (Firebase sites may keep secrets in
+// config/storage). Call after connectSiteData.
+export async function siteHostingTargetFor(site: SiteRecord): Promise<{ connectorId: string; settings: Record<string, unknown> }> {
+  const { getStorageConfig } = await import("../../src/services/storageConfig");
+  const stored = await getStorageConfig().catch(() => null);
+  const connectorId = stored?.connectorId ?? site.hosting.connectorId;
+  if (!connectorId) throw new CliError("hosting-unknown", `The publish target of ${site.alias} is unknown.`, "Re-register it with `agentcms site add … --hosting-credential`.");
+  const values = site.credentials.hosting ? requireCredential(site.credentials.hosting).values : {};
+  if (!site.credentials.hosting && site.runtime.backend !== "firebase") {
+    throw new CliError("credential-required", `No hosting credential recorded for ${site.alias}.`, `Attach one: \`agentcms site credentials ${site.alias} --hosting-credential <account>\`.`);
+  }
+  return { connectorId, settings: { ...site.hosting.settings, ...(stored?.settings ?? {}), ...values } };
+}
+
 // Publish target with the secrets the site's hosting credential holds
 // (docstore sites keep them out of the content; Firebase sites may store
 // them in config/storage already).
