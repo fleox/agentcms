@@ -4971,7 +4971,7 @@ const optionsCommand = {
   ],
   async run({ io, options }) {
     if (options["firebase-rules"]) {
-      const { firestoreRules } = await import("./chunks/firestoreRules-CX5Ka3wk.mjs");
+      const { firestoreRules } = await import("./chunks/firestoreRules-DB4Injgf.mjs");
       const email = String(options["firebase-rules"]);
       const rules = firestoreRules(email);
       printResult(io, { email, rules, where: "Firebase console → Firestore Database → Rules → paste → Publish (or `firebase deploy --only firestore:rules` with the rules in firestore.rules)." }, () => rules);
