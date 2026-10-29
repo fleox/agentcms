@@ -3,7 +3,7 @@ name: agentcms-admin
 description: Run an AgentCMS site like its back office does - write, edit, publish, unpublish and delete posts and pages (Markdown, editor blocks, images, categories, tags, SEO, translations), upload media, edit menus, site settings, categories and tags, users and author profiles, enable / disable / configure plugins (sitemaps, RSS, search, archives, favicon, custom code, import, multilang), switch and configure themes (logo, colors, layout), and run every regeneration. Use when the user wants to change content or settings of one of their AgentCMS sites, or asks to publish / regenerate.
 license: PolyForm-Noncommercial-1.0.0
 metadata:
-  version: "0.3.10"
+  version: "0.3.11"
   repository: "https://github.com/fleox/agentcms"
 ---
 
@@ -11,7 +11,7 @@ metadata:
 
 **Language:** talk to the user in their language. Commands, files and these instructions stay in English. Write the site's **content** in the site's language: see `settings get site`.
 
-Every command is `npx -y @agent-cms/agentcms@0.3.10 <command> … --site <alias> --json` (Node.js 20.6+). Without npm, use `node agentcms/dist/agent/agentcms.mjs` from a clone of the repository instead.
+Every command is `npx -y @agent-cms/agentcms@0.3.11 <command> … --site <alias> --json` (Node.js 20.6+). Without npm, use `node agentcms/dist/agent/agentcms.mjs` from a clone of the repository instead.
 - The output is one JSON object on stdout, `{ ok, data: { site, result, log, notices, warnings } }`. Progress lines go to stderr: don't merge the two streams when you parse the JSON.
 - When `ok` is false, act on `error.hint`.
 - `--help` after a command prints all its options.
@@ -20,8 +20,8 @@ Every command is `npx -y @agent-cms/agentcms@0.3.10 <command> … --site <alias>
 ## How it works
 
 - **Same code as the admin.** The CLI signs in to the site exactly like the back office: Firebase account, git token, or the SQLite file's keys and passphrase. It then runs the admin's own code headless, with the site's installed plugins and active theme. Everything you do is what an editor clicking in the admin would do, with the same rules and the same published output.
-- **Sites and credentials.** A site must be registered on this computer: `npx -y @agent-cms/agentcms@0.3.10 site list --json`. To register one, see the `agentcms-manage` skill.
-  - Firebase sites need the admin login stored as `firebase:<name>`. The user types it: `! npx -y @agent-cms/agentcms@0.3.10 credentials set firebase:<name>`.
+- **Sites and credentials.** A site must be registered on this computer: `npx -y @agent-cms/agentcms@0.3.11 site list --json`. To register one, see the `agentcms-manage` skill.
+  - Firebase sites need the admin login stored as `firebase:<name>`. The user types it: `! npx -y @agent-cms/agentcms@0.3.11 credentials set firebase:<name>`.
   - Never ask for a password or key in the chat.
 - **Saving and publishing are different.** A post or page is a **draft** until published. Publishing renders its page and refreshes the home, category and author pages, `data/menu.json`, sitemaps, feeds and the search index.
 - **Editing an online entry republishes it** (`content update`), like the editor's Save button. Use `--no-publish` to keep the published version unchanged.
@@ -56,7 +56,7 @@ Details, examples and every option: [references/content.md](references/content.m
 2. Upload images if needed: `media upload photo.jpg --alt "…"`. Keep the returned `id` and `url`.
 3. Write the Markdown to a file, then:
    ```bash
-   npx -y @agent-cms/agentcms@0.3.10 content create --site <alias> --title "…" --body @article.md --category "…" --tags "a,b" --hero <media id> --excerpt "…" --seo-description "…" --json
+   npx -y @agent-cms/agentcms@0.3.11 content create --site <alias> --title "…" --body @article.md --category "…" --tags "a,b" --hero <media id> --excerpt "…" --seo-description "…" --json
    ```
    This creates a draft. Preview it with `content preview <id> --screenshots` and look at the PNGs if you can read images. Publish when the user agrees: `content publish <id>`, or `--publish` on create.
    With `--create-terms`, missing categories and tags are created; `result.createdTerms` lists them. Tell the user.
