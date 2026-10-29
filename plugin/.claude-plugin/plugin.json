@@ -1,6 +1,6 @@
 {
   "name": "agentcms",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "Skills to install AgentCMS sites, then manage their content, themes and plugins.",
   "author": {
     "name": "fleox"

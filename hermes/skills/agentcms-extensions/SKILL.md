@@ -1,7 +1,7 @@
 ---
 name: agentcms-extensions
 description: "Create, test and ship AgentCMS plugins and themes - scaffold a project, write templates / hooks / editor blocks / settings pages, validate the bundle exactly as the admin loads it, render a demo site (with screenshots), pack the ZIP and install it on a site. Use when the user wants a new theme or plugin for AgentCMS, wants to change or debug one, or asks how AgentCMS extensions work."
-version: 0.3.6
+version: 0.3.7
 author: AgentCMS
 license: PolyForm-Noncommercial-1.0.0
 platforms: [macos, linux, windows]
