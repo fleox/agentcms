@@ -115,16 +115,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Without this, profile updates (admin locale, avatar, bio…) don't
   // reflect in the UI until a full reload — the local state would stay
   // pinned to the value loaded at sign-in time.
+  // Started only once the record exists: on a first sign-in the rules
+  // deny reading users/{uid} until ensureSelfUserRecord has created it
+  // (the invited account isn't an editor yet), which used to surface as
+  // "Missing or insufficient permissions" right after a successful join.
+  const hasRecord = !!record;
   useEffect(() => {
-    if (!user) return;
+    if (!user || !hasRecord) return;
     return subscribeToUserRecord(
       user.uid,
       (rec) => {
         if (rec) setRecord(rec);
       },
-      (err) => setError(err),
+      (err) => {
+        // A transient denial (token refresh, record just written) must not
+        // replace a working session with the error screen.
+        if ((err as { code?: string }).code !== "permission-denied") setError(err);
+      },
     );
-  }, [user]);
+  }, [user, hasRecord]);
 
   // Apply the user's saved admin locale only once the record is committed.
   // Calling setActiveLocale inside the auth callback above would emit an
