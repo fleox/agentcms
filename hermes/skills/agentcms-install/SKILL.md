@@ -1,7 +1,7 @@
 ---
 name: agentcms-install
 description: "Install a new AgentCMS site (static CMS) for the user - ask where content is stored (SQLite file, Markdown in GitHub/GitLab, Firebase, this browser), then where the site is hosted (GitHub/GitLab/Cloudflare Pages or an S3 / OVH bucket), help create or import the needed tokens and keys, and install everything with the agentcms CLI. Use when the user wants to create, set up or install an AgentCMS / AgentCMS site."
-version: 0.3.4
+version: 0.3.5
 author: AgentCMS
 license: PolyForm-Noncommercial-1.0.0
 platforms: [macos, linux, windows]

@@ -1,6 +1,6 @@
 # Site configuration: settings, menus, terms, plugins, themes, users
 
-Each command below is `npx -y @agent-cms/agentcms@0.3.4 <command> … --site <alias> --json`. Results carry `next`: the regeneration that makes the change visible.
+Each command below is `npx -y @agent-cms/agentcms@0.3.5 <command> … --site <alias> --json`. Results carry `next`: the regeneration that makes the change visible.
 
 ## What to regenerate after a change
 
