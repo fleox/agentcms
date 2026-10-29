@@ -41,7 +41,7 @@ Every command is `npx -y @agent-cms/agentcms@0.3.10 <command> … --site <alias>
 | Plugins page + plugin settings and buttons | `plugins list / enable / disable / config / action` |
 | Themes page + theme settings, logo | `themes list / activate / config / logo / sync-assets` |
 | Regenerate menu | `regenerate home / all / repair / assets / everything / targets / <target-id>` |
-| Users | `users list / get / update / role / disable / enable / delete / locale` |
+| Users | `users list / get / update / role / disable / enable / delete / locale`; Firebase: `users invites / invite <email> --role editor\|admin / uninvite <email>` (only invited addresses can join) |
 | Data export / import | `transfer export / import` |
 | Dashboard | `stats` |
 | Other files on the hosting (verification file, stray old page) | `files list / put / delete` |

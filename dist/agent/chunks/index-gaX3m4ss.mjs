@@ -1,0 +1,146 @@
+import { createRequire as __acmsRequire } from "node:module";
+import { fileURLToPath as __acmsPath } from "node:url";
+import { dirname as __acmsDirname } from "node:path";
+const require2 = __acmsRequire(import.meta.url);
+const __filename = __acmsPath(import.meta.url);
+const __dirname = __acmsDirname(__filename);
+import { g as getDocs, c as collection, l as limit, q as query, a as getDoc, d as doc } from "./index.node-DYLwqGPq.mjs";
+import { A, b, e, B, C, f, D, h, F, i, j, k, G, L, P, Q, m, n, o, p, r, s, t, u, v, S, T, w, V, W, x, y, z, E, H, I, J, K, M, N, _, O, R, U, X, Y, Z, $, a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, aa, ab, ac, ad, ae, af, ag, ah, ai, aj, ak, al, am, an, ao, ap, aq, ar, as, at, au, av, aw, ax, ay, az, aA, aB, aC, aD, aE, aF, aG, aH, aI, aJ, aK, aL, aM, aN, aO, aP, aQ, aR, aS, aT, aU, aV, aW, aX, aY, aZ, a_, a$, b0 } from "./index.node-DYLwqGPq.mjs";
+import "./index.esm2017-BUfxW6Jp.mjs";
+import "util";
+import "crypto";
+import "process";
+import "tls";
+import "fs";
+import "os";
+import "net";
+import "events";
+import "stream";
+import "./_commonjsHelpers-DtUDk_0l.mjs";
+import "path";
+import "http2";
+import "http";
+import "url";
+import "dns";
+import "zlib";
+export {
+  A as AbstractUserDataWriter,
+  b as AggregateField,
+  e as AggregateQuerySnapshot,
+  B as Bytes,
+  C as CACHE_SIZE_UNLIMITED,
+  f as CollectionReference,
+  D as DocumentReference,
+  h as DocumentSnapshot,
+  F as FieldPath,
+  i as FieldValue,
+  j as Firestore,
+  k as FirestoreError,
+  G as GeoPoint,
+  L as LoadBundleTask,
+  P as PersistentCacheIndexManager,
+  Q as Query,
+  m as QueryCompositeFilterConstraint,
+  n as QueryConstraint,
+  o as QueryDocumentSnapshot,
+  p as QueryEndAtConstraint,
+  r as QueryFieldFilterConstraint,
+  s as QueryLimitConstraint,
+  t as QueryOrderByConstraint,
+  u as QuerySnapshot,
+  v as QueryStartAtConstraint,
+  S as SnapshotMetadata,
+  T as Timestamp,
+  w as Transaction,
+  V as VectorValue,
+  W as WriteBatch,
+  x as _AutoId,
+  y as _ByteString,
+  z as _DatabaseId,
+  E as _DocumentKey,
+  H as _EmptyAppCheckTokenProvider,
+  I as _EmptyAuthCredentialsProvider,
+  J as _FieldPath,
+  K as _TestingHooks,
+  M as _cast,
+  N as _debugAssert,
+  _ as _internalAggregationQueryToProtoRunAggregationQueryRequest,
+  O as _internalQueryToProtoQueryTarget,
+  R as _isBase64Available,
+  U as _logWarn,
+  X as _validateIsNotUsedTogether,
+  Y as addDoc,
+  Z as aggregateFieldEqual,
+  $ as aggregateQuerySnapshotEqual,
+  a0 as and,
+  a1 as arrayRemove,
+  a2 as arrayUnion,
+  a3 as average,
+  a4 as clearIndexedDbPersistence,
+  collection,
+  a5 as collectionGroup,
+  a6 as connectFirestoreEmulator,
+  a7 as count,
+  a8 as deleteAllPersistentCacheIndexes,
+  a9 as deleteDoc,
+  aa as deleteField,
+  ab as disableNetwork,
+  ac as disablePersistentCacheIndexAutoCreation,
+  doc,
+  ad as documentId,
+  ae as documentSnapshotFromJSON,
+  af as enableIndexedDbPersistence,
+  ag as enableMultiTabIndexedDbPersistence,
+  ah as enableNetwork,
+  ai as enablePersistentCacheIndexAutoCreation,
+  aj as endAt,
+  ak as endBefore,
+  al as ensureFirestoreConfigured,
+  am as executeWrite,
+  an as getAggregateFromServer,
+  ao as getCountFromServer,
+  getDoc,
+  ap as getDocFromCache,
+  aq as getDocFromServer,
+  getDocs,
+  ar as getDocsFromCache,
+  as as getDocsFromServer,
+  at as getFirestore,
+  au as getPersistentCacheIndexManager,
+  av as increment,
+  aw as initializeFirestore,
+  limit,
+  ax as limitToLast,
+  ay as loadBundle,
+  az as memoryEagerGarbageCollector,
+  aA as memoryLocalCache,
+  aB as memoryLruGarbageCollector,
+  aC as namedQuery,
+  aD as onSnapshot,
+  aE as onSnapshotResume,
+  aF as onSnapshotsInSync,
+  aG as or,
+  aH as orderBy,
+  aI as persistentLocalCache,
+  aJ as persistentMultipleTabManager,
+  aK as persistentSingleTabManager,
+  query,
+  aL as queryEqual,
+  aM as querySnapshotFromJSON,
+  aN as refEqual,
+  aO as runTransaction,
+  aP as serverTimestamp,
+  aQ as setDoc,
+  aR as setIndexConfiguration,
+  aS as setLogLevel,
+  aT as snapshotEqual,
+  aU as startAfter,
+  aV as startAt,
+  aW as sum,
+  aX as terminate,
+  aY as updateDoc,
+  aZ as vector,
+  a_ as waitForPendingWrites,
+  a$ as where,
+  b0 as writeBatch
+};

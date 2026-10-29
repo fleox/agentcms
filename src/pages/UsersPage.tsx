@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {
   ImageIcon,
   Loader2,
+  MailPlus,
   Pencil,
   Save,
   ShieldCheck,
@@ -35,6 +36,8 @@ import { toast } from "../lib/toast";
 import type { SocialEntry, SocialNetwork, UserRecord } from "../core/types";
 import { SOCIAL_NETWORKS } from "../core/types";
 import { RemoteImage } from "../components/ui/RemoteImage";
+import { useAuth } from "../context/AuthContext";
+import { createInvite, deleteInvite, subscribeToInvites, type Invite } from "../services/firebase/invites";
 
 // Display labels for the curated social networks. Proper nouns —
 // not translated. Keep in sync with SOCIAL_NETWORKS.
@@ -91,6 +94,8 @@ export function UsersPage() {
         </p>
       </div>
 
+      {!isGit && !isLocal && !isSqliteFile && <InvitesPanel users={users} />}
+
       {users.length === 0 ? (
         <div className="card p-8 text-center space-y-2">
           <p className="text-sm font-medium text-surface-700 dark:text-surface-200">
@@ -135,6 +140,97 @@ export function UsersPage() {
 
       {editingUser && (
         <EditProfileModal user={editingUser} onClose={() => setEditingUser(null)} />
+      )}
+    </div>
+  );
+}
+
+// Firebase: who may join. Each sign-in method (password, email link,
+// Google) only gets access with an invitation (rules); the invite's role
+// becomes the account's role on first sign-in.
+function InvitesPanel({ users }: { users: UserRecord[] }) {
+  const { t } = useTranslation();
+  const { user: me } = useAuth();
+  const [invites, setInvites] = useState<Invite[]>([]);
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState<"editor" | "admin">("editor");
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => subscribeToInvites(setInvites, (err) => toast.error(err.message)), []);
+
+  const joined = new Set(users.map((u) => (u.email ?? "").toLowerCase()));
+  const valid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim());
+
+  async function invite() {
+    if (!valid || busy) return;
+    setBusy(true);
+    try {
+      await createInvite(email, role, me?.uid ?? "");
+      toast.success(t("users.invites.sent", { email: email.trim().toLowerCase() }));
+      setEmail("");
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="card p-4 space-y-3">
+      <div>
+        <h3 className="text-sm font-semibold">{t("users.invites.title")}</h3>
+        <p className="text-xs text-surface-500 mt-0.5 dark:text-surface-400">{t("users.invites.description")}</p>
+      </div>
+      <form
+        className="flex flex-col sm:flex-row gap-2"
+        data-form-type="other"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void invite();
+        }}
+      >
+        <input
+          type="email"
+          className="input flex-1"
+          placeholder={t("auth.emailPlaceholder")}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          autoComplete="off"
+        />
+        <select className="input sm:w-40" value={role} onChange={(e) => setRole(e.target.value as "editor" | "admin")}>
+          <option value="editor">{t("common.editor")}</option>
+          <option value="admin">{t("common.administrator")}</option>
+        </select>
+        <button type="submit" className="btn-primary justify-center" disabled={!valid || busy}>
+          <span className="inline-flex items-center gap-1.5">
+            <Loader2 className={"h-4 w-4 animate-spin " + (busy ? "" : "hidden")} />
+            <MailPlus className={"h-4 w-4 " + (busy ? "hidden" : "")} />
+            <span>{t("users.invites.invite")}</span>
+          </span>
+        </button>
+      </form>
+      {invites.length > 0 && (
+        <ul className="divide-y divide-surface-200 dark:divide-surface-800 text-sm">
+          {invites.map((inv) => (
+            <li key={inv.email} className="flex items-center gap-3 py-2">
+              <span className="flex-1 min-w-0 truncate font-mono text-xs">{inv.email}</span>
+              <span className="text-xs text-surface-500">{inv.role === "admin" ? t("common.administrator") : t("common.editor")}</span>
+              <span className={"text-xs " + (joined.has(inv.email) ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400")}>
+                {t(joined.has(inv.email) ? "users.invites.joined" : "users.invites.pending")}
+              </span>
+              <button
+                type="button"
+                className="btn-ghost p-1.5"
+                title={t("users.invites.revoke")}
+                onClick={() => {
+                  void deleteInvite(inv.email).catch((err) => toast.error((err as Error).message));
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );

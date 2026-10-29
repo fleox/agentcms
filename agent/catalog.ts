@@ -87,11 +87,13 @@ export const DATA_BACKENDS: DataBackendSpec[] = [
       { key: "firebase.storageBucket", required: false, description: "From the web app config." },
       { key: "firebase.messagingSenderId", required: false, description: "From the web app config." },
       { key: "credential", required: true, description: "firebase:<name> account (email + password of the bootstrap admin)." },
+      { key: "signInMethods", required: false, description: "Sign-in methods the admin offers: [\"password\", \"emailLink\", \"google\"] (password is always on — the CLI uses it). Enable the same in Firebase console → Authentication → Sign-in method and add the site's domain to Authorized domains." },
     ],
     credentialTypes: ["firebase"],
     notes: [
       "The project needs Authentication → Email/Password enabled, a user for the admin, Firestore created, and the AgentCMS Firestore rules published with that email pinned (`agentcms options --firebase-rules <email>`; illustrated console guide: docs/firebase.md). The CLI checks all of it before installing.",
       "Like the setup wizard, the publish target's keys are stored in Firestore config/storage (readable by the site's editors).",
+      "Only invited addresses get access (whatever the sign-in method): `agentcms users invite <email> --role editor|admin --site <alias>`.",
     ],
   },
   {

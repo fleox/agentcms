@@ -46,15 +46,36 @@
     "resetEmailSent": "Correo de restablecimiento de contraseña enviado a {{email}}.",
     "enterEmailFirst": "Introduce primero tu correo arriba y luego haz clic en restablecer.",
     "emailPasswordRequired": "El correo y la contraseña son obligatorios.",
-    "signInSubtitle": "Usa tu correo de trabajo y tu contraseña.",
-    "footer": "Las solicitudes de cuenta se gestionan a través de tu administrador.",
+    "signInSubtitle": "Inicia sesión con la cuenta que tu administrador invitó.",
+    "footer": "Solo las direcciones invitadas por un administrador tienen acceso.",
     "errors": {
       "invalidEmail": "Dirección de correo no válida.",
       "invalidCredentials": "Correo o contraseña no válidos.",
       "tooManyRequests": "Demasiados intentos. Inténtalo más tarde o restablece tu contraseña.",
       "userDisabled": "Esta cuenta ha sido deshabilitada.",
       "networkFailed": "Error de red. Comprueba tu conexión.",
-      "generic": "Error de autenticación."
+      "generic": "Error de autenticación.",
+      "popupClosed": "La ventana de Google se cerró antes de iniciar sesión.",
+      "popupBlocked": "El navegador bloqueó la ventana de Google: permite las ventanas emergentes para este sitio y vuelve a intentarlo.",
+      "unauthorizedDomain": "Este dominio no puede iniciar sesión: añádelo en la consola de Firebase → Authentication → Settings → Authorized domains.",
+      "methodDisabled": "Este método de acceso no está activado en la consola de Firebase → Authentication → Sign-in method.",
+      "linkExpired": "Este enlace de acceso ha caducado o ya se usó. Pide uno nuevo."
+    },
+    "continueWithGoogle": "Continuar con Google",
+    "or": "o",
+    "sendLink": "Recibir un enlace de acceso por email",
+    "linkSent": "Se ha enviado un enlace de acceso a {{email}}. Ábrelo en este navegador.",
+    "linkConfirmTitle": "Terminar el inicio de sesión",
+    "linkConfirmText": "Introduce la dirección de email a la que se envió el enlace.",
+    "access": {
+      "unverifiedTitle": "Verifica tu dirección de email",
+      "unverifiedText": "{{email}} aún no está verificada. Abre el email de verificación, haz clic en su enlace y vuelve aquí.",
+      "sendVerification": "Enviar el email de verificación",
+      "verificationSent": "Email de verificación enviado a {{email}}.",
+      "notInvitedTitle": "Sin acceso a este sitio",
+      "notInvitedText": "{{email}} no ha sido invitada. Pide a un administrador que invite esta dirección (página Usuarios) y vuelve a intentarlo.",
+      "retry": "Hecho — comprobar de nuevo",
+      "useAnother": "Usar otra cuenta"
     }
   },
   "nav": {
@@ -480,19 +501,19 @@
     "disabled": "Deshabilitado",
     "editProfileTitle": "Editar perfil — {{email}}",
     "profileSaved": "Perfil guardado.",
-    "descriptionFirebase": "Gestiona tu equipo. Las nuevas cuentas se crean en la Firebase Console y se replican aquí en el primer inicio de sesión.",
+    "descriptionFirebase": "Gestiona tu equipo. Invita una dirección de email: la persona inicia sesión con ella (contraseña, enlace por email o Google, según lo que ofrezca este sitio) y recibe el rol previsto.",
     "removeConfirmFirebase": "¿Eliminar la ficha de {{email}}? Se quita su perfil y rol del CMS. Para revocar el acceso, elimina además la cuenta en la Firebase Console.",
     "empty": {
       "title": "Aún no hay miembros del equipo",
-      "descriptionFirebase": "Crea la primera cuenta en la Firebase Console y luego inicia sesión aquí una vez para registrar el perfil."
+      "descriptionFirebase": "Invita arriba al primer miembro del equipo."
     },
     "help": {
       "title": "Cómo añadir un nuevo miembro al equipo",
       "bootstrapLine": "El admin inicial (siempre con acceso total) es:",
       "firebase": {
-        "step1": "Abre la Firebase Console → Authentication → Add user.",
-        "step2": "Pon un correo y una contraseña y envíalos al nuevo miembro.",
-        "step3": "Pídele que inicie sesión aquí una vez — su perfil aparece en la lista de arriba y puedes editar su rol y sus datos."
+        "step1": "Invita su dirección de email arriba, con un rol.",
+        "step2": "Solo acceso con contraseña: crea la cuenta en la consola de Firebase → Authentication → Add user (mismo email) y envíale la contraseña. El enlace por email y Google no necesitan nada más.",
+        "step3": "La persona inicia sesión aquí una vez — su perfil aparece en la lista de arriba."
       },
       "git": {
         "step1": "Añade a la persona como colaboradora del repositorio de contenido (escritura = editor, admin / maintainer = admin).",
@@ -510,7 +531,16 @@
     },
     "descriptionGit": "Los miembros del equipo son las personas con acceso de escritura al repositorio de contenido. Aparecen aquí tras su primer inicio de sesión; su rol sigue sus permisos en el repositorio.",
     "descriptionLocal": "Este admin funciona en modo de un solo usuario: el contenido se guarda en este navegador y no hay cuentas.",
-    "descriptionSqliteFile": "Sin cuentas de usuario con este backend: cualquiera que pueda abrir el admin puede editar. Protege la carpeta del admin desde tu alojamiento. Los perfiles de autor de abajo son informativos."
+    "descriptionSqliteFile": "Sin cuentas de usuario con este backend: cualquiera que pueda abrir el admin puede editar. Protege la carpeta del admin desde tu alojamiento. Los perfiles de autor de abajo son informativos.",
+    "invites": {
+      "title": "Invitaciones",
+      "description": "Solo las direcciones invitadas pueden unirse, sea cual sea el método de acceso. El rol se aplica en su primer inicio de sesión.",
+      "invite": "Invitar",
+      "sent": "{{email}} invitada.",
+      "pending": "pendiente",
+      "joined": "unida",
+      "revoke": "Revocar la invitación"
+    }
   },
   "firestoreSetup": {
     "title": "Configuración de Firestore necesaria",
@@ -595,11 +625,13 @@
     },
     "sections": {
       "firebase": "Firebase",
-      "admin": "Administrador inicial"
+      "admin": "Administrador inicial",
+      "signInMethods": "Métodos de acceso"
     },
     "help": {
       "firebase": "Encuentra estos valores en Firebase Console → Configuración del proyecto → General → Tus apps → Configuración del SDK.",
-      "admin": "Usa un usuario existente de Firebase Authentication. Cualquiera que inicie sesión con este correo es tratado como administrador y se salta la comprobación del registro de usuario. Crea el usuario en Firebase Console → Authentication si aún no existe."
+      "admin": "Usa un usuario existente de Firebase Authentication. Cualquiera que inicie sesión con este correo es tratado como administrador y se salta la comprobación del registro de usuario. Crea el usuario en Firebase Console → Authentication si aún no existe.",
+      "signInMethods": "Cómo inician sesión los editores en el admin. Activa los mismos métodos en la consola de Firebase → Authentication → Sign-in method y añade el dominio de este sitio en Settings → Authorized domains. Sea cual sea el método, solo tienen acceso las direcciones que invites (página Usuarios)."
     },
     "fields": {
       "apiKey": "Clave API",
@@ -739,6 +771,11 @@
       "doneBody": "El admin ya está en tu sitio. En GitHub Pages, activa primero Pages para el repositorio si aún no lo has hecho (Settings → Pages) y luego ábrelo:",
       "open": "Abrir el admin en línea",
       "continueHere": "Continuar en este admin"
+    },
+    "signInMethods": {
+      "password": "Email + contraseña (siempre activo: lo usan este asistente y la CLI agentcms)",
+      "emailLink": "Enlace por email (un enlace de acceso de un solo uso, sin contraseña)",
+      "google": "Cuenta de Google"
     }
   },
   "storage": {

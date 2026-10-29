@@ -1,7 +1,13 @@
 import {
+  GoogleAuthProvider,
+  isSignInWithEmailLink,
   onAuthStateChanged,
+  sendEmailVerification,
   sendPasswordResetEmail,
+  sendSignInLinkToEmail,
   signInWithEmailAndPassword,
+  signInWithEmailLink,
+  signInWithPopup,
   signOut as fbSignOut,
   type User as FirebaseUser,
 } from "firebase/auth";
@@ -15,6 +21,75 @@ export function subscribeToAuth(onChange: (user: FirebaseUser | null) => void): 
 export async function signIn(email: string, password: string): Promise<FirebaseUser> {
   const cred = await signInWithEmailAndPassword(getAuthClient(), email.trim(), password);
   return cred.user;
+}
+
+// "Continue with Google": a popup (redirects lose their state when the
+// browser blocks third-party storage). The provider must be enabled in
+// Firebase console and the admin's domain listed in Authorized domains.
+export async function signInWithGoogle(): Promise<FirebaseUser> {
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: "select_account" });
+  const cred = await signInWithPopup(getAuthClient(), provider);
+  return cred.user;
+}
+
+// Email link ("passwordless"): Firebase emails a one-time link back to
+// this admin page. The address is kept in this browser to finish the
+// sign-in without asking again (another browser asks for it).
+const EMAIL_FOR_LINK_KEY = "agentcms.emailForSignIn";
+
+function adminReturnUrl(): string {
+  return `${window.location.origin}${window.location.pathname}`;
+}
+
+export async function sendSignInLink(email: string): Promise<void> {
+  const address = email.trim();
+  await sendSignInLinkToEmail(getAuthClient(), address, { url: adminReturnUrl(), handleCodeInApp: true });
+  try {
+    window.localStorage.setItem(EMAIL_FOR_LINK_KEY, address);
+  } catch {
+    // Storage blocked: the page asks for the address when the link opens.
+  }
+}
+
+export function isEmailSignInLink(): boolean {
+  return typeof window !== "undefined" && isSignInWithEmailLink(getAuthClient(), window.location.href);
+}
+
+export function emailForSignInLink(): string | null {
+  try {
+    return window.localStorage.getItem(EMAIL_FOR_LINK_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export async function completeEmailLinkSignIn(email: string): Promise<FirebaseUser> {
+  const cred = await signInWithEmailLink(getAuthClient(), email.trim(), window.location.href);
+  try {
+    window.localStorage.removeItem(EMAIL_FOR_LINK_KEY);
+  } catch {
+    // ignore
+  }
+  // Drop the one-time code from the address bar (keeps the hash route).
+  window.history.replaceState(null, "", adminReturnUrl() + window.location.hash);
+  return cred.user;
+}
+
+// Password accounts start unverified: the rules only grant access to a
+// verified address, so the waiting screen can resend the email.
+export async function sendVerificationEmail(): Promise<void> {
+  const user = getAuthClient().currentUser;
+  if (user) await sendEmailVerification(user, { url: adminReturnUrl() });
+}
+
+export async function reloadCurrentUser(): Promise<FirebaseUser | null> {
+  const user = getAuthClient().currentUser;
+  if (!user) return null;
+  await user.reload();
+  // Refresh the ID token so Firestore sees email_verified right away.
+  await user.getIdToken(true);
+  return getAuthClient().currentUser;
 }
 
 export async function signOut(): Promise<void> {
@@ -69,6 +144,19 @@ export function authErrorKey(err: unknown): string {
       return "auth.errors.userDisabled";
     case "auth/network-request-failed":
       return "auth.errors.networkFailed";
+    case "auth/popup-closed-by-user":
+    case "auth/cancelled-popup-request":
+      return "auth.errors.popupClosed";
+    case "auth/popup-blocked":
+      return "auth.errors.popupBlocked";
+    case "auth/unauthorized-domain":
+    case "auth/unauthorized-continue-uri":
+      return "auth.errors.unauthorizedDomain";
+    case "auth/operation-not-allowed":
+      return "auth.errors.methodDisabled";
+    case "auth/invalid-action-code":
+    case "auth/expired-action-code":
+      return "auth.errors.linkExpired";
     default:
       return "auth.errors.generic";
   }

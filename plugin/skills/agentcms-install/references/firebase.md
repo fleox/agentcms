@@ -36,9 +36,15 @@ It prompts for email and password (hidden).
   "firebase": {
     "apiKey": "…", "authDomain": "<project>.firebaseapp.com", "projectId": "<project>",
     "storageBucket": "<project>.firebasestorage.app", "messagingSenderId": "…", "appId": "…"
-  }
+  },
+  "signInMethods": ["password", "emailLink", "google"]
 }
 ```
+
+`signInMethods` (optional, default `["password"]`): which buttons the admin's login screen shows. Password is always on (the bootstrap admin and the CLI use it). Ask the user which ones their editors should use, one question:
+- **Email link** - no password, Firebase emails a one-time link. Console: Authentication → Sign-in method → Email/Password → also turn on *Email link (passwordless sign-in)*.
+- **Google** - *Continue with Google*. Console: Sign-in method → Add new provider → Google → Enable.
+- For both: Authentication → Settings → **Authorized domains → Add domain** with the site's host (e.g. `my-login.github.io`), or sign-in fails with `auth/unauthorized-domain`.
 
 Pair it with any hosting (GitHub Pages, S3, …) as usual.
 
@@ -52,6 +58,12 @@ Pair it with any hosting (GitHub Pages, S3, …) as usual.
 
 Like the setup wizard, the publish target's keys (S3 secret, git token) are stored in Firestore `config/storage`, readable by the site's signed-in editors. Prefer a key limited to this site's bucket or repository.
 
-## Editors
+## Editors - invitations
 
-Create more editors in Authentication → Users. They appear in the admin's Users page after their first sign-in; the bootstrap admin can promote them there, or with `agentcms users role` (agentcms-admin).
+Signing in grants nothing by itself (anyone can create a Firebase account with the public apiKey, and Google / email-link sign-in is one click): only the bootstrap admin and **invited** addresses get a role. After install, invite the editors the user names:
+
+```bash
+npx -y @agent-cms/agentcms@0.3.10 users invite <email> --role editor --site <alias> --json   # or --role admin
+```
+
+Password accounts must also be created in Authentication → Users → Add user (same email); they verify their email at first sign-in. Email-link and Google editors need nothing else. Illustrated guide: https://github.com/fleox/agentcms/blob/master/docs/firebase.md#sign-in-methods

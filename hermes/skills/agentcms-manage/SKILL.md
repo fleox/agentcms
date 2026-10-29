@@ -102,6 +102,7 @@ Add `--deep` to also test write access (writes then deletes a probe file on file
 
 ## SQLite sites: encryption and history
 
+- **Firebase `firestore-rules: fail`** (`doctor --deep`): the site still has the rules from before invitations - any Firebase account can make itself an editor. Treat it as urgent: have the user publish the current rules (`python3 ${HERMES_SKILL_DIR}/scripts/agentcms.py options --firebase-rules <bootstrap admin email> --json`, paste `data.rules` in Firebase console → Firestore → Rules → Publish), then `users list` with them: invite the real editors (`users invite`) and `users disable` any account they don't recognise.
 - **Not encrypted yet** (`doctor` -> `database-exposure` fail, or the user asks): in the admin, Settings -> Data backend -> **Encrypt the database**. The admin generates a passphrase; the user saves it in their password manager, ticks the confirmation and applies. Other browsers then ask for it once. Store it for the CLI too: `python3 ${HERMES_SKILL_DIR}/scripts/agentcms.py credentials set passphrase:<alias>`.
 - **Change the passphrase** (leaked, editor left): same place, **Change the passphrase**. Old git commits still hold versions encrypted with the old one - compact the history afterwards (below).
 - **Data branch history** (database kept in git, e.g. `agentcms-data`): every save adds a full copy of the encrypted file. When the repository grows, or after a passphrase change:

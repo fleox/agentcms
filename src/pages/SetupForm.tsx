@@ -59,6 +59,7 @@ const INITIAL_STATE: SetupFormState = {
   appId: "",
   adminEmail: "",
   adminPassword: "",
+  signInMethods: ["password"],
 };
 
 const INITIAL_GIT: GitContent = {
@@ -638,6 +639,29 @@ function FirebaseFields({ form, patch }: { form: SetupFormState; patch: Patch })
           <Field type="email" label={t("setup.fields.adminEmail")} placeholder="you@company.com" value={form.adminEmail} onChange={(v) => patch("adminEmail", v)} required autoComplete="email" />
           <Field type="password" label={t("setup.fields.adminPassword")} placeholder="••••••••" value={form.adminPassword} onChange={(v) => patch("adminPassword", v)} required autoComplete="current-password" />
         </div>
+      </fieldset>
+      <fieldset className="space-y-2">
+        <legend className="text-sm font-semibold text-surface-900 dark:text-surface-50">{t("setup.sections.signInMethods")}</legend>
+        <p className="text-xs text-surface-500 dark:text-surface-400">{t("setup.help.signInMethods")}</p>
+        <label className="flex items-center gap-2 text-sm text-surface-500">
+          <input type="checkbox" checked disabled />
+          {t("setup.signInMethods.password")}
+        </label>
+        {(["emailLink", "google"] as const).map((m) => (
+          <label key={m} className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={form.signInMethods.includes(m)}
+              onChange={(e) =>
+                patch(
+                  "signInMethods",
+                  e.target.checked ? [...form.signInMethods, m] : form.signInMethods.filter((x) => x !== m),
+                )
+              }
+            />
+            {t(`setup.signInMethods.${m}`)}
+          </label>
+        ))}
       </fieldset>
     </div>
   );

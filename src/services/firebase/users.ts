@@ -1,3 +1,4 @@
+import { AccountAccessError, readOwnInvite } from "./invites";
 import {
   collection,
   deleteField,
@@ -75,15 +76,24 @@ export function subscribeToUserRecord(
 
 // Self-create record on first login. Tries `role: "admin"` first —
 // the Firestore rules accept this only when the user matches the
-// pinned bootstrap admin (verified email + pinned address); for
-// everyone else the rules reject the admin attempt and we fall back to
-// `role: "editor"`. This makes the bootstrap detection self-healing
-// without needing the email in the public client config — the rules
-// are the single source of truth and the record reflects them.
+// pinned bootstrap admin (verified email + pinned address). Everyone
+// else joins only with an invitation (invites/{email}, written by an
+// admin) and gets its role; an address without one gets no record and
+// no access (AccountAccessError) — whatever the sign-in method.
 export async function ensureSelfUserRecord(authUser: FirebaseUser): Promise<UserRecord> {
   const ref = userDoc(authUser.uid);
-  const snap = await getDoc(ref);
-  if (snap.exists()) return { id: snap.id, ...snap.data() } as UserRecord;
+  // Without a record, reading it is denied by the rules (only editors
+  // read users/*): treat that as "no record yet".
+  let snap;
+  try {
+    snap = await getDoc(ref);
+  } catch (err) {
+    if ((err as { code?: string })?.code !== "permission-denied") throw err;
+    snap = null;
+  }
+  if (snap?.exists()) return { id: snap.id, ...snap.data() } as UserRecord;
+  // The rules only let a VERIFIED address create its record.
+  if (!authUser.emailVerified) throw new AccountAccessError("unverified");
   const baseData = {
     email: (authUser.email ?? "").toLowerCase(),
     disabled: false,
@@ -102,9 +112,13 @@ export async function ensureSelfUserRecord(authUser: FirebaseUser): Promise<User
     // users, so this branch is the expected path for editors.
     const code = (err as { code?: string })?.code ?? "";
     if (code !== "permission-denied") throw err;
-    const editorData = { ...baseData, role: USER_ROLES.editor };
-    await setDoc(ref, editorData);
-    return { id: authUser.uid, ...editorData } as unknown as UserRecord;
+    // Not the bootstrap admin: only an invited address may join, with
+    // the role of its invitation.
+    const invite = await readOwnInvite(authUser.email ?? "");
+    if (!invite) throw new AccountAccessError("not-invited");
+    const invitedData = { ...baseData, role: invite.role };
+    await setDoc(ref, invitedData);
+    return { id: authUser.uid, ...invitedData } as unknown as UserRecord;
   }
 }
 

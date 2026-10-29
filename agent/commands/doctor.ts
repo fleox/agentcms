@@ -259,6 +259,33 @@ export async function runDoctor(site: SiteRecord, opts: { deep?: boolean; fetchI
     }
   }
 
+  if (opts.deep && site.runtime.backend === "firebase") {
+    // Rules from before invitations let ANY account (anyone can sign up
+    // with the public apiKey) create its own editor record. The current
+    // rules let an admin list invites/; the old ones deny everything there.
+    try {
+      installBrowserEnv();
+      const { connectSiteData } = await import("../ops/session");
+      await connectSiteData(site);
+      const { collection, getDocs, limit, query } = await import("firebase/firestore");
+      const { collections, getDb } = await import("../../src/services/firebaseClient");
+      await getDocs(query(collection(getDb(), collections.invites), limit(1)));
+      add({ id: "firestore-rules", status: "ok", message: "Firestore rules are current: only invited addresses can join." });
+    } catch (err) {
+      const code = (err as { code?: string }).code ?? "";
+      add(
+        code === "permission-denied"
+          ? {
+              id: "firestore-rules",
+              status: "fail",
+              message: "Outdated Firestore rules: any Firebase account (anyone can sign up with the site's public apiKey) can make itself an editor and change the content.",
+              fix: "Publish the current rules now: `agentcms options --firebase-rules <bootstrap admin email>` prints them (Firebase console → Firestore → Rules → Publish). Then check the Users list for accounts you don't know, invite your editors (`agentcms users invite <email> --site " + site.alias + "`) and disable the others.",
+            }
+          : { id: "firestore-rules", status: "warn", message: `Could not check the Firestore rules: ${code || (err as Error).message}.` },
+      );
+    }
+  }
+
   if (opts.deep) {
     if (!hostingCred) {
       add({ id: "hosting-access", status: "skip", message: "No hosting credential to test." });

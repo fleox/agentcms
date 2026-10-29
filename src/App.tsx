@@ -9,7 +9,7 @@ import { AppLayout } from "./components/layout/AppLayout";
 import { ErrorScreen } from "./components/ErrorScreen";
 import { ToastContainer } from "./components/ui/ToastContainer";
 import { FirestoreSetupGate } from "./components/FirestoreSetupGate";
-import { LoginPage } from "./pages/LoginPage";
+import { AccountAccessPage, LoginPage } from "./pages/LoginPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { PostsListPage } from "./pages/PostsListPage";
 import { PostEditPage } from "./pages/PostEditPage";
@@ -127,7 +127,7 @@ function RequireAdmin({ children }: { children: ReactNode }) {
 
 function AuthenticatedShell() {
   const { t } = useTranslation();
-  const { user, loading, disabled, error } = useAuth();
+  const { user, loading, disabled, error, accessIssue } = useAuth();
 
   if (loading) return <FullScreenSpinner />;
   if (!user) {
@@ -140,6 +140,7 @@ function AuthenticatedShell() {
     return <LoginPage />;
   }
 
+  if (accessIssue) return <AccountAccessPage reason={accessIssue} />;
   if (error) {
     return (
       <ErrorScreen

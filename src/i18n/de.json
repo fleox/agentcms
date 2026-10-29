@@ -46,15 +46,36 @@
     "resetEmailSent": "E-Mail zum Zurücksetzen des Passworts wurde an {{email}} gesendet.",
     "enterEmailFirst": "Geben Sie zuerst Ihre E-Mail-Adresse oben ein und klicken Sie dann auf Zurücksetzen.",
     "emailPasswordRequired": "E-Mail und Passwort sind erforderlich.",
-    "signInSubtitle": "Verwenden Sie Ihre Geschäfts-E-Mail und Ihr Passwort.",
-    "footer": "Kontoanfragen erfolgen über Ihren Administrator.",
+    "signInSubtitle": "Melden Sie sich mit dem Konto an, das Ihr Administrator eingeladen hat.",
+    "footer": "Nur von einem Administrator eingeladene Adressen erhalten Zugang.",
     "errors": {
       "invalidEmail": "Ungültige E-Mail-Adresse.",
       "invalidCredentials": "Ungültige E-Mail-Adresse oder ungültiges Passwort.",
       "tooManyRequests": "Zu viele Versuche. Versuchen Sie es später erneut oder setzen Sie Ihr Passwort zurück.",
       "userDisabled": "Dieses Konto wurde deaktiviert.",
       "networkFailed": "Netzwerkfehler. Überprüfen Sie Ihre Verbindung.",
-      "generic": "Authentifizierung fehlgeschlagen."
+      "generic": "Authentifizierung fehlgeschlagen.",
+      "popupClosed": "Das Google-Fenster wurde vor der Anmeldung geschlossen.",
+      "popupBlocked": "Der Browser hat das Google-Fenster blockiert: Erlauben Sie Pop-ups für diese Website und versuchen Sie es erneut.",
+      "unauthorizedDomain": "Diese Domain darf sich nicht anmelden: Fügen Sie sie in der Firebase-Konsole → Authentication → Settings → Authorized domains hinzu.",
+      "methodDisabled": "Diese Anmeldemethode ist in der Firebase-Konsole → Authentication → Sign-in method nicht aktiviert.",
+      "linkExpired": "Dieser Anmeldelink ist abgelaufen oder wurde schon verwendet. Fordern Sie einen neuen an."
+    },
+    "continueWithGoogle": "Weiter mit Google",
+    "or": "oder",
+    "sendLink": "Anmeldelink per E-Mail erhalten",
+    "linkSent": "Ein Anmeldelink wurde an {{email}} gesendet. Öffnen Sie ihn in diesem Browser.",
+    "linkConfirmTitle": "Anmeldung abschließen",
+    "linkConfirmText": "Geben Sie die E-Mail-Adresse ein, an die der Link gesendet wurde.",
+    "access": {
+      "unverifiedTitle": "Bestätigen Sie Ihre E-Mail-Adresse",
+      "unverifiedText": "{{email}} ist noch nicht bestätigt. Öffnen Sie die Bestätigungs-E-Mail, klicken Sie auf den Link und kommen Sie dann hierher zurück.",
+      "sendVerification": "Bestätigungs-E-Mail senden",
+      "verificationSent": "Bestätigungs-E-Mail an {{email}} gesendet.",
+      "notInvitedTitle": "Kein Zugang zu dieser Website",
+      "notInvitedText": "{{email}} wurde nicht eingeladen. Bitten Sie einen Administrator, diese Adresse einzuladen (Seite Benutzer), und versuchen Sie es erneut.",
+      "retry": "Erledigt — erneut prüfen",
+      "useAnother": "Anderes Konto verwenden"
     }
   },
   "nav": {
@@ -480,19 +501,19 @@
     "disabled": "Deaktiviert",
     "editProfileTitle": "Profil bearbeiten — {{email}}",
     "profileSaved": "Profil gespeichert.",
-    "descriptionFirebase": "Verwalten Sie Ihr Team. Neue Konten werden in der Firebase Console angelegt und beim ersten Login hier gespiegelt.",
+    "descriptionFirebase": "Verwalten Sie Ihr Team. Laden Sie eine E-Mail-Adresse ein: Die Person meldet sich damit an (Passwort, E-Mail-Link oder Google, je nach Angebot dieser Website) und erhält die vorgesehene Rolle.",
     "removeConfirmFirebase": "Datensatz von {{email}} löschen? Damit werden Profil und Rolle aus dem CMS entfernt. Um den Login-Zugang zu entziehen, löschen Sie das Konto zusätzlich in der Firebase Console.",
     "empty": {
       "title": "Noch keine Teammitglieder",
-      "descriptionFirebase": "Legen Sie das erste Konto in der Firebase Console an und melden Sie sich hier einmal an, um das Profil zu registrieren."
+      "descriptionFirebase": "Laden Sie oben das erste Teammitglied ein."
     },
     "help": {
       "title": "So fügen Sie ein neues Teammitglied hinzu",
       "bootstrapLine": "Der Bootstrap-Admin (immer voller Zugriff) ist:",
       "firebase": {
-        "step1": "Öffnen Sie Firebase Console → Authentication → Add user.",
-        "step2": "Legen Sie E-Mail und Passwort fest und übermitteln Sie diese dem neuen Mitglied.",
-        "step3": "Bitten Sie es, sich hier einmal anzumelden — das Profil erscheint in der Liste oben und Sie können Rolle und Details bearbeiten."
+        "step1": "Laden Sie oben die E-Mail-Adresse mit einer Rolle ein.",
+        "step2": "Nur bei Passwort-Anmeldung: Legen Sie das Konto in der Firebase-Konsole → Authentication → Add user an (gleiche E-Mail) und senden Sie das Passwort. E-Mail-Link und Google brauchen nichts weiter.",
+        "step3": "Die Person meldet sich hier einmal an — ihr Profil erscheint in der Liste oben."
       },
       "git": {
         "step1": "Fügen Sie die Person als Mitwirkende des Content-Repositorys hinzu (Schreibzugriff = Redakteur, Admin / Maintainer = Admin).",
@@ -510,7 +531,16 @@
     },
     "descriptionGit": "Teammitglieder sind die Personen mit Schreibzugriff auf das Content-Repository. Sie erscheinen hier nach ihrer ersten Anmeldung; ihre Rolle richtet sich nach ihren Repository-Berechtigungen.",
     "descriptionLocal": "Dieser Admin läuft im Einzelbenutzermodus: Inhalte werden in diesem Browser gespeichert und es gibt keine Konten.",
-    "descriptionSqliteFile": "Keine Benutzerkonten mit diesem Backend: Jeder, der den Admin öffnen kann, kann bearbeiten. Schützen Sie den Admin-Ordner auf Ebene Ihres Hostings. Die Autorenprofile unten dienen nur zur Information."
+    "descriptionSqliteFile": "Keine Benutzerkonten mit diesem Backend: Jeder, der den Admin öffnen kann, kann bearbeiten. Schützen Sie den Admin-Ordner auf Ebene Ihres Hostings. Die Autorenprofile unten dienen nur zur Information.",
+    "invites": {
+      "title": "Einladungen",
+      "description": "Nur eingeladene Adressen können beitreten, unabhängig von der Anmeldemethode. Die Rolle gilt ab der ersten Anmeldung.",
+      "invite": "Einladen",
+      "sent": "{{email}} eingeladen.",
+      "pending": "ausstehend",
+      "joined": "beigetreten",
+      "revoke": "Einladung widerrufen"
+    }
   },
   "firestoreSetup": {
     "title": "Firestore-Setup erforderlich",
@@ -595,11 +625,13 @@
     },
     "sections": {
       "firebase": "Firebase",
-      "admin": "Bootstrap-Administrator"
+      "admin": "Bootstrap-Administrator",
+      "signInMethods": "Anmeldemethoden"
     },
     "help": {
       "firebase": "Diese Werte finden Sie in Firebase Console → Projekteinstellungen → Allgemein → Ihre Apps → SDK-Setup und Konfiguration.",
-      "admin": "Verwenden Sie einen vorhandenen Benutzer aus Firebase Authentication. Wer sich mit dieser E-Mail anmeldet, wird als Administrator behandelt und umgeht die Benutzerdatensatz-Prüfung. Erstellen Sie den Benutzer bei Bedarf über Firebase Console → Authentication."
+      "admin": "Verwenden Sie einen vorhandenen Benutzer aus Firebase Authentication. Wer sich mit dieser E-Mail anmeldet, wird als Administrator behandelt und umgeht die Benutzerdatensatz-Prüfung. Erstellen Sie den Benutzer bei Bedarf über Firebase Console → Authentication.",
+      "signInMethods": "Wie sich Redakteure im Admin anmelden. Aktivieren Sie dieselben Methoden in der Firebase-Konsole → Authentication → Sign-in method und fügen Sie die Domain dieser Website unter Settings → Authorized domains hinzu. Unabhängig von der Methode erhalten nur eingeladene Adressen (Seite Benutzer) Zugang."
     },
     "fields": {
       "apiKey": "API-Schlüssel",
@@ -739,6 +771,11 @@
       "doneBody": "Der Admin ist jetzt auf Ihrer Website. Aktivieren Sie bei GitHub Pages zuerst Pages für das Repository, falls noch nicht geschehen (Settings → Pages), und öffnen Sie ihn dann:",
       "open": "Online-Admin öffnen",
       "continueHere": "In diesem Admin fortfahren"
+    },
+    "signInMethods": {
+      "password": "E-Mail + Passwort (immer aktiv: hier und von der agentcms-CLI verwendet)",
+      "emailLink": "E-Mail-Link (ein einmaliger Anmeldelink, ohne Passwort)",
+      "google": "Google-Konto"
     }
   },
   "storage": {

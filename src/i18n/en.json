@@ -46,15 +46,36 @@
     "resetEmailSent": "Password reset email sent to {{email}}.",
     "enterEmailFirst": "Enter your email above first, then click reset.",
     "emailPasswordRequired": "Email and password are required.",
-    "signInSubtitle": "Use your work email and password.",
-    "footer": "Account requests go through your administrator.",
+    "signInSubtitle": "Sign in with the account your administrator invited.",
+    "footer": "Only addresses invited by an administrator get access.",
     "errors": {
       "invalidEmail": "Invalid email address.",
       "invalidCredentials": "Invalid email or password.",
       "tooManyRequests": "Too many attempts. Try again later or reset your password.",
       "userDisabled": "This account has been disabled.",
       "networkFailed": "Network error. Check your connection.",
-      "generic": "Authentication failed."
+      "generic": "Authentication failed.",
+      "popupClosed": "The Google window was closed before signing in.",
+      "popupBlocked": "The browser blocked the Google window: allow pop-ups for this site and retry.",
+      "unauthorizedDomain": "This domain isn't allowed to sign in: add it in Firebase console → Authentication → Settings → Authorized domains.",
+      "methodDisabled": "This sign-in method isn't enabled in Firebase console → Authentication → Sign-in method.",
+      "linkExpired": "This sign-in link has expired or was already used. Ask for a new one."
+    },
+    "continueWithGoogle": "Continue with Google",
+    "or": "or",
+    "sendLink": "Email me a sign-in link",
+    "linkSent": "A sign-in link was sent to {{email}}. Open it in this browser.",
+    "linkConfirmTitle": "Finish signing in",
+    "linkConfirmText": "Enter the email address the sign-in link was sent to.",
+    "access": {
+      "unverifiedTitle": "Verify your email address",
+      "unverifiedText": "{{email}} isn't verified yet. Open the verification email, click its link, then come back here.",
+      "sendVerification": "Send the verification email",
+      "verificationSent": "Verification email sent to {{email}}.",
+      "notInvitedTitle": "No access to this site",
+      "notInvitedText": "{{email}} hasn't been invited. Ask an administrator to invite this address (Users page), then retry.",
+      "retry": "I've done it — check again",
+      "useAnother": "Use another account"
     }
   },
   "nav": {
@@ -480,19 +501,19 @@
     "disabled": "Disabled",
     "editProfileTitle": "Edit profile — {{email}}",
     "profileSaved": "Profile saved.",
-    "descriptionFirebase": "Manage your team. New accounts are created in the Firebase Console, then mirrored here on first sign-in.",
+    "descriptionFirebase": "Manage your team. Invite an email address: the person signs in with it (password, email link or Google, whatever this site offers) and gets the invited role.",
     "removeConfirmFirebase": "Delete the user record for {{email}}? This removes their profile + role from the CMS. To revoke sign-in access, also delete the account in the Firebase Console.",
     "empty": {
       "title": "No team members yet",
-      "descriptionFirebase": "Create the first account in the Firebase Console, then sign in here once to register the profile."
+      "descriptionFirebase": "Invite the first team member above."
     },
     "help": {
       "title": "How to add a new team member",
       "bootstrapLine": "The bootstrap admin (always full access) is:",
       "firebase": {
-        "step1": "Open the Firebase Console → Authentication → Add user.",
-        "step2": "Set an email and password and send them to the new team member.",
-        "step3": "Ask them to sign in here once — their profile appears in the list above and you can edit their role / details."
+        "step1": "Invite their email address above, with a role.",
+        "step2": "Password sign-in only: create the account in Firebase Console → Authentication → Add user (same email) and send them the password. Email-link and Google sign-in need nothing more.",
+        "step3": "They sign in here once — their profile appears in the list above."
       },
       "git": {
         "step1": "Add the person as a collaborator of the content repository (write access = editor, admin / maintainer = admin).",
@@ -510,7 +531,16 @@
     },
     "descriptionGit": "Team members are the people with write access to the content repository. They appear here after their first sign-in; their role follows their repository permissions.",
     "descriptionLocal": "This admin runs in single-user mode: content is stored in this browser and there are no accounts.",
-    "descriptionSqliteFile": "No user accounts with this backend: anyone who can open the admin can edit. Protect the admin folder at your hosting level. Author profiles below are informational."
+    "descriptionSqliteFile": "No user accounts with this backend: anyone who can open the admin can edit. Protect the admin folder at your hosting level. Author profiles below are informational.",
+    "invites": {
+      "title": "Invitations",
+      "description": "Only invited addresses can join, whatever the sign-in method. The role applies on their first sign-in.",
+      "invite": "Invite",
+      "sent": "{{email}} invited.",
+      "pending": "pending",
+      "joined": "joined",
+      "revoke": "Revoke the invitation"
+    }
   },
   "firestoreSetup": {
     "title": "Firestore setup needed",
@@ -595,11 +625,13 @@
     },
     "sections": {
       "firebase": "Firebase",
-      "admin": "Bootstrap administrator"
+      "admin": "Bootstrap administrator",
+      "signInMethods": "Sign-in methods"
     },
     "help": {
       "firebase": "Find these values in Firebase Console → Project settings → General → Your apps → SDK setup and configuration.",
-      "admin": "Use an existing user from Firebase Authentication. Anyone signing in with this email is treated as admin and bypasses the user-record check. Create the user via Firebase Console → Authentication if it doesn't exist yet."
+      "admin": "Use an existing user from Firebase Authentication. Anyone signing in with this email is treated as admin and bypasses the user-record check. Create the user via Firebase Console → Authentication if it doesn't exist yet.",
+      "signInMethods": "How editors sign in to the admin. Enable the same methods in Firebase console → Authentication → Sign-in method, and add this site's domain under Settings → Authorized domains. Whatever the method, only addresses you invite (Users page) get access."
     },
     "fields": {
       "apiKey": "API key",
@@ -739,6 +771,11 @@
       "doneBody": "The admin is now on your site. On GitHub Pages, enable Pages for the repository first if it isn't yet (Settings → Pages), then open it:",
       "open": "Open the online admin",
       "continueHere": "Continue in this admin"
+    },
+    "signInMethods": {
+      "password": "Email + password (always on: used here and by the agentcms CLI)",
+      "emailLink": "Email link (a one-time sign-in link, no password)",
+      "google": "Google account"
     }
   },
   "storage": {

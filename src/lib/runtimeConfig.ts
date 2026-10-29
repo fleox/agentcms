@@ -38,9 +38,16 @@ export function isDocStoreBackend(kind: BackendKind | null): kind is "sqlite-fil
   return kind === "sqlite-file" || kind === "markdown-git" || kind === "local";
 }
 
+// Sign-in methods the Firebase login screen offers (each one also has to
+// be enabled in Firebase console → Authentication → Sign-in method).
+export type FirebaseSignInMethod = "password" | "emailLink" | "google";
+export const FIREBASE_SIGN_IN_METHODS: readonly FirebaseSignInMethod[] = ["password", "emailLink", "google"];
+
 export interface FirebaseRuntimeConfig {
   backend: "firebase";
   firebase: FirebaseOptions;
+  // Default ["password"]. Public: it only decides which buttons show.
+  signInMethods?: FirebaseSignInMethod[];
   // Optional. Legacy field — modern admin builds detect the bootstrap
   // admin via a Firestore probe (`config/admin` rule) instead of
   // exposing the email publicly. Kept as an opt-in fallback so older
@@ -210,10 +217,15 @@ function readFromGlobal(): CmsRuntimeConfig | null {
   if (looksLikeFirebaseShape(raw)) {
     // Normalize: add `backend: "firebase"` so callers can rely on the
     // discriminator even when the source omitted it.
+    const methods = (raw as { signInMethods?: unknown }).signInMethods;
+    const signInMethods = Array.isArray(methods)
+      ? (methods.filter((m) => FIREBASE_SIGN_IN_METHODS.includes(m as FirebaseSignInMethod)) as FirebaseSignInMethod[])
+      : undefined;
     return {
       backend: "firebase",
       firebase: raw.firebase,
       adminEmail: raw.adminEmail,
+      ...(signInMethods?.length ? { signInMethods } : {}),
     };
   }
   return null;
@@ -292,7 +304,11 @@ export function buildConfigJsSource(config: CmsRuntimeConfig): string {
     "// re-run the admin setup form to update.\n";
   let serialisable: object;
   if (config.backend === "firebase") {
-    serialisable = { backend: config.backend, firebase: config.firebase };
+    serialisable = {
+      backend: config.backend,
+      firebase: config.firebase,
+      ...(config.signInMethods?.length && config.signInMethods.join() !== "password" ? { signInMethods: config.signInMethods } : {}),
+    };
   } else if (config.backend === "markdown-git") {
     // Repo coordinates only — tokens never leave the editor's browser.
     serialisable = { backend: config.backend, git: config.git };
@@ -303,4 +319,11 @@ export function buildConfigJsSource(config: CmsRuntimeConfig): string {
     serialisable = { backend: config.backend };
   }
   return `${banner}window.__AGENTCMS_CONFIG__ = ${JSON.stringify(serialisable, null, 2)};\n`;
+}
+
+// Sign-in methods of the active Firebase config (default: password).
+export function getSignInMethods(): FirebaseSignInMethod[] {
+  const config = getRuntimeConfig();
+  const methods = config?.backend === "firebase" ? config.signInMethods : undefined;
+  return methods?.length ? methods : ["password"];
 }

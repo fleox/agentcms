@@ -1,0 +1,80 @@
+import { createRequire as __acmsRequire } from "node:module";
+import { fileURLToPath as __acmsPath } from "node:url";
+import { dirname as __acmsDirname } from "node:path";
+const require2 = __acmsRequire(import.meta.url);
+const __filename = __acmsPath(import.meta.url);
+const __dirname = __acmsDirname(__filename);
+import "./media-Sz4XoZVh.mjs";
+import { d as deleteFile } from "./siteFiles-DcXWyoy2.mjs";
+import "./runtimeConfig-BNLCrrQo.mjs";
+import "./index.node-DYLwqGPq.mjs";
+import "./index.esm2017-BUfxW6Jp.mjs";
+import "util";
+import "crypto";
+import "process";
+import "tls";
+import "fs";
+import "os";
+import "net";
+import "events";
+import "stream";
+import "./_commonjsHelpers-DtUDk_0l.mjs";
+import "path";
+import "http2";
+import "http";
+import "url";
+import "dns";
+import "zlib";
+import "./firebaseClient-BjUVAcKz.mjs";
+import "./index-CuB-ym-g.mjs";
+import "./index-CjBqWaZn.mjs";
+import "./imageFormats-C1E7toWk.mjs";
+import "./themeLogo-Bu_dWmal.mjs";
+import "./index-B4uHS09W.mjs";
+import "./index-YdkzfKAt.mjs";
+import "./toast-CYyyaSAW.mjs";
+import "./types-DAD44Ttj.mjs";
+import "./slug-CZzRNKy4.mjs";
+import "./media-K2GXb5Xy.mjs";
+import "../agentcms.mjs";
+import "node:util";
+import "node:fs";
+import "node:path";
+import "node:url";
+import "node:os";
+import "node:child_process";
+import "node:crypto";
+import "node:http";
+import "./registry-Bhq3fghS.mjs";
+import "./gitStore-BkclOUWu.mjs";
+import "./index-K8rfbNOg.mjs";
+import "buffer";
+import "./batch-C9qX5FMx.mjs";
+import "./pluginRegistry-D4QLSYaL.mjs";
+import "./blockRegistry-BotpJ4Ww.mjs";
+import "./index--QpyX5Bx.mjs";
+import "./dashboardCardRegistry-2rhwfBuU.mjs";
+import "./regenerationTargetRegistry-3NmN64mg.mjs";
+import "./externalRegistry-DuO0IV8e.mjs";
+import "./authorsJsonPublisher-B-LVkD6z.mjs";
+import "./users-BHc41A-o.mjs";
+import "./invites-B26zWfc6.mjs";
+import "./markdown-74eSpmsS.mjs";
+import "./posts-RGcbBKyd.mjs";
+import "./taxonomies-CzS_LfWt.mjs";
+import "./menuResolver-BEzafl_Y.mjs";
+import "./menuPublisher-DZLCD2EI.mjs";
+import "./settings-B145vJbM.mjs";
+import "./settings-VHERPR8x.mjs";
+import "./generator-BzTq6dTT.mjs";
+import "./index-D5aHWd8R.mjs";
+async function cleanupOldCatalogPath(oldPath, newPath) {
+  if (!oldPath || oldPath === newPath) return;
+  try {
+    await deleteFile(oldPath);
+  } catch {
+  }
+}
+export {
+  cleanupOldCatalogPath
+};

@@ -1,6 +1,6 @@
 import { HOSTING_OPTIONS } from "../../src/components/connectors/hostingOptions";
 import { splitSecrets } from "../../src/services/docstore/markdownLayout";
-import type { CmsRuntimeConfig, MarkdownGitRuntimeConfig } from "../../src/lib/runtimeConfig";
+import { FIREBASE_SIGN_IN_METHODS, type CmsRuntimeConfig, type FirebaseSignInMethod, type MarkdownGitRuntimeConfig } from "../../src/lib/runtimeConfig";
 import { defaultSqliteLocation, SQLITE_DATA_BRANCH } from "../../src/services/docstore/sqliteLocation";
 import { missingFields } from "../../src/services/storage/testConnection";
 import type { PublishTarget } from "../../src/services/storage/target";
@@ -23,7 +23,7 @@ export interface InstallPlan {
   alias: string;
   data:
     | { backend: "markdown-git"; git: Partial<MarkdownGitRuntimeConfig["git"]>; credential: string }
-    | { backend: "firebase"; firebase: Record<string, string>; credential: string }
+    | { backend: "firebase"; firebase: Record<string, string>; credential: string; signInMethods?: string[] }
     | {
         backend: "sqlite-file";
         path: string;
@@ -132,6 +132,7 @@ export function resolvePlan(plan: InstallPlan): ResolvedPlan {
   let gitToken: string | undefined;
   let gitCfg: MarkdownGitRuntimeConfig["git"] | undefined;
   let firebaseCfg: Record<string, string> | undefined;
+  let signInMethods: FirebaseSignInMethod[] | undefined;
   let firebaseLogin: ResolvedPlan["firebaseLogin"];
   if (plan.data.backend === "markdown-git") {
     const g = plan.data.git ?? {};
@@ -165,6 +166,14 @@ export function resolvePlan(plan: InstallPlan): ResolvedPlan {
     firebaseCfg = Object.fromEntries(
       ["apiKey", "authDomain", "projectId", "storageBucket", "messagingSenderId", "appId", "measurementId"].filter((k) => str(fb[k])).map((k) => [k, str(fb[k])]),
     );
+    const methods = (plan.data as { signInMethods?: unknown }).signInMethods;
+    if (methods !== undefined) {
+      if (!Array.isArray(methods) || methods.some((m) => !FIREBASE_SIGN_IN_METHODS.includes(m as FirebaseSignInMethod))) {
+        fail(`data.signInMethods must be a list of ${FIREBASE_SIGN_IN_METHODS.join(", ")}.`);
+      }
+      // Password always: the CLI signs in with it.
+      signInMethods = [...new Set(["password", ...(methods as FirebaseSignInMethod[])])] as FirebaseSignInMethod[];
+    }
   } else if (!SQLITE_PATH_RE.test(str((plan.data as { path?: string }).path))) {
     fail("data.path must be a relative file path ending in .sqlite or .db, e.g. data/site.sqlite.");
   }
@@ -189,7 +198,7 @@ export function resolvePlan(plan: InstallPlan): ResolvedPlan {
   if (gitCfg) {
     runtime = { backend: "markdown-git", git: gitCfg };
   } else if (firebaseCfg) {
-    runtime = { backend: "firebase", firebase: firebaseCfg } as CmsRuntimeConfig;
+    runtime = { backend: "firebase", firebase: firebaseCfg, ...(signInMethods && signInMethods.length > 1 ? { signInMethods } : {}) } as CmsRuntimeConfig;
   } else {
     const data = plan.data as Extract<InstallPlan["data"], { backend: "sqlite-file" }>;
     if (data.location) {

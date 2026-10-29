@@ -2,7 +2,7 @@
 
 Everything a site that keeps its content in Firebase needs: the console setup, illustrated screen by screen, the Firestore security rules and the indexes. The other backends (SQLite file, Markdown in git, this browser) need none of this.
 
-**On this page:** [Set up the Firebase project](#set-up-the-firebase-project) · [Firestore security rules](#firestore-security-rules) · [Firestore indexes](#firestore-indexes) · [Updating the rules](#updating-firestore-security-rules)
+**On this page:** [Set up the Firebase project](#set-up-the-firebase-project) · [Sign-in methods](#sign-in-methods) · [Inviting editors](#inviting-editors) · [Firestore security rules](#firestore-security-rules) · [Firestore indexes](#firestore-indexes) · [Updating the rules](#updating-firestore-security-rules)
 
 ## Set up the Firebase project
 
@@ -20,6 +20,7 @@ About ten minutes in the [Firebase console](https://console.firebase.google.com)
 | 3️⃣ [Authentication](#3-authentication) | Email/password sign-in and the bootstrap admin | 12–18 |
 | 4️⃣ [Web app](#4-web-app) | The six public config values | 19–22 |
 | 5️⃣ [Security rules](#5-security-rules) | The AgentCMS rules, with your admin email | 23 |
+| ➕ [Sign-in methods](#sign-in-methods) *(optional)* | Email link and / or Google, on top of the password | — |
 | 6️⃣ [Connect AgentCMS](#6-connect-agentcms) | Setup wizard, agent or CLI | — |
 
 ### 1. Create the project
@@ -186,12 +187,95 @@ Pick one:
   "data": {
     "backend": "firebase",
     "credential": "firebase:<name>",
-    "firebase": { "apiKey": "…", "authDomain": "…", "projectId": "…", "storageBucket": "…", "messagingSenderId": "…", "appId": "…" }
+    "firebase": { "apiKey": "…", "authDomain": "…", "projectId": "…", "storageBucket": "…", "messagingSenderId": "…", "appId": "…" },
+    "signInMethods": ["password", "emailLink", "google"]
   }
   ```
 
+  `signInMethods` is optional (default: password only) — see [Sign-in methods](#sign-in-methods).
+
 > [!CAUTION]
 > If the rules still contain `you@example.com`, nobody gets admin rights: the wizard and the CLI stop with a message that gives the email to pin. Other sign-in errors are listed in [Self-hosting](self-hosting.md).
+
+## Sign-in methods
+
+The bootstrap admin always signs in with **email + password** (the setup wizard and the `agentcms` CLI use it). For the other editors, the login screen can also offer two password-free methods. Pick them in the setup wizard (*Sign-in methods*) or with `signInMethods` in the install plan; they are saved in the admin's `config.js` (public — it only decides which buttons show).
+
+| Method | What the editor does | Good for | Email verified |
+|---|---|---|---|
+| **Email + password** | Types an email and a password | The admin account, the CLI and agents, people without a Google account | **No** — the admin sends a verification email at first sign-in |
+| **Email link** | Types an email, clicks the one-time link Firebase emails them | Occasional editors: nothing to remember, nothing to leak | Yes, by Firebase |
+| **Google account** | Clicks *Continue with Google* and picks their account | Teams on Gmail / Google Workspace | Yes, by Firebase |
+
+> [!IMPORTANT]
+> Whatever the method, **signing in grants nothing by itself**: only the bootstrap admin and the addresses an admin [invited](#inviting-editors) get a role. Anyone else who signs in sees *"No access to this site"*.
+
+### Turning a method on
+
+All three are enabled in **Firebase console → Authentication → Sign-in method → Add new provider**:
+
+1. **Email + password** — *Email/Password* → **Enable** (already done in [step 15](#3-authentication)).
+2. **Email link** — open *Email/Password* again and also turn on **Email link (passwordless sign-in)** → **Save**.
+3. **Google** — *Google* → **Enable**, choose the *Project support email* → **Save**.
+
+Then, for the email link and Google, add the domain the admin is served from to **Authentication → Settings → Authorized domains → Add domain**: e.g. `my-login.github.io`, `my-site.pages.dev`, `www.example.com` (without `https://` or a path). `localhost` and `<project>.firebaseapp.com` are there by default. Without it, sign-in fails with *"This domain isn't allowed to sign in"*.
+
+> [!TIP]
+> With the password method, Firebase lets **anyone** create an account with the site's public `apiKey`. The rules keep those accounts out, but you can also stop them from being created: **Authentication → Settings → User actions → untick "Enable create (sign-up)"** (the admin still adds accounts in *Users → Add user*). Leave it on if editors may create their own password account after you invite them.
+
+### What each editor does the first time
+
+- **Email + password**: you invite their address, create the account in **Authentication → Users → Add user** with the same email, and send them the password. At first sign-in the admin asks them to verify their email (one click in the email Firebase sends), then they're in.
+- **Email link**: you invite their address. They type it on the login screen, click *Email me a sign-in link*, open the email **in the same browser**, and they're in. (In another browser, the admin asks them to type the address again.)
+- **Google**: you invite their Gmail / Workspace address. They click *Continue with Google* and pick that account.
+
+## Inviting editors
+
+In the admin: **Users → Invitations**: type the address, pick *Editor* or *Administrator*, **Invite**. The list shows each invitation as *pending* until the person's first sign-in, then *joined*. Revoking an invitation stops a person who hasn't joined yet; for someone who already joined, disable or delete their account on the same page.
+
+From the CLI or an agent:
+
+```bash
+npx -y @agent-cms/agentcms users invite anna@example.com --role editor --site <alias>
+npx -y @agent-cms/agentcms users invites --site <alias>
+npx -y @agent-cms/agentcms users uninvite anna@example.com --site <alias>
+```
+
+Invitations are stored in Firestore (`invites/<email>`, written by admins only). The role is applied once, at the person's first sign-in; change it later on the Users page.
+
+### Restricting the rules further (optional)
+
+The [rules below](#firestore-security-rules) work unchanged for the three methods: they only look at the signed-in email and whether it is verified. To narrow them, edit the two helpers at the top:
+
+<details>
+<summary><b>Google accounts only</b> (refuse password and email-link sign-ins for everyone but the bootstrap admin)</summary>
+
+```
+function verifiedEmail() {
+  return isSignedIn()
+    && request.auth.token.email != null
+    && request.auth.token.email_verified == true
+    && (request.auth.token.firebase.sign_in_provider == "google.com"
+        || request.auth.token.email.lower() == bootstrapAdminEmail());
+}
+```
+</details>
+
+<details>
+<summary><b>Your company's domain only</b> (e.g. a Google Workspace)</summary>
+
+```
+function verifiedEmail() {
+  return isSignedIn()
+    && request.auth.token.email != null
+    && request.auth.token.email_verified == true
+    && (request.auth.token.email.lower().matches(".*@example[.]com$")
+        || request.auth.token.email.lower() == bootstrapAdminEmail());
+}
+```
+
+With this, an invitation is still needed: the domain check only narrows who can be invited.
+</details>
 
 ## Firestore security rules
 
@@ -225,6 +309,23 @@ service cloud.firestore {
         && request.auth.token.email.lower() == bootstrapAdminEmail();
     }
 
+    // Verified address of the caller (Google and email-link sign-ins are
+    // verified by Firebase; password accounts after the verification email).
+    function verifiedEmail() {
+      return isSignedIn()
+        && request.auth.token.email != null
+        && request.auth.token.email_verified == true;
+    }
+
+    // An admin invited this address (invites/{lower-case email}).
+    function inviteOfCaller() {
+      return /databases/$(database)/documents/invites/$(request.auth.token.email.lower());
+    }
+
+    function isInvited() {
+      return verifiedEmail() && exists(inviteOfCaller());
+    }
+
     // Reads /users/{uid} for the caller. Returns null if no record yet.
     function selfRecord() {
       return exists(/databases/$(database)/documents/users/$(request.auth.uid))
@@ -248,27 +349,37 @@ service cloud.firestore {
         || (rec != null && (rec.role == "admin" || rec.role == "editor") && rec.disabled != true);
     }
 
+    // ─── invites/{email} ──────────────────────────────────────────────────
+    // Who may join, and with which role. Written by admins (Users page);
+    // an invited, verified address may read its own invitation.
+    match /invites/{email} {
+      allow read: if isAdmin()
+        || (verifiedEmail() && request.auth.token.email.lower() == email);
+      allow create, update: if isAdmin()
+        && email == email.lower()
+        && request.resource.data.role in ["admin", "editor"];
+      allow delete: if isAdmin();
+    }
+
     // ─── users/{uid} ──────────────────────────────────────────────────────
     // - Any signed-in editor can read the list (Users page + author lookup).
-    // - First login: self-create allowed if uid matches and role is "editor".
-    // - Self update: only `preferences.adminLocale` may change.
+    // - First login: self-create only for the bootstrap admin or an
+    //   INVITED, verified address — with the role of its invitation.
+    //   Any other account (whatever the sign-in method: password, email
+    //   link, Google) gets no record and no access.
+    // - Self update: only profile fields and `preferences.adminLocale`.
     // - Role/disabled changes: admin only.
     match /users/{uid} {
       allow read: if isEditor();
 
-      // Self-create on first login. Regular users may only create
-      // themselves with role "editor". The bootstrap admin (verified
-      // email + matching pinned address) may self-create with role
-      // "admin" so the UI shows admin features immediately, no manual
-      // promotion step needed. Either branch enforces email match and
-      // disabled=false.
-      allow create: if isSignedIn()
+      allow create: if verifiedEmail()
         && request.auth.uid == uid
         && request.resource.data.email == request.auth.token.email.lower()
         && request.resource.data.disabled == false
         && (
           (isBootstrapAdmin() && request.resource.data.role == "admin")
-          || (!isBootstrapAdmin() && request.resource.data.role == "editor")
+          || (!isBootstrapAdmin() && isInvited()
+              && request.resource.data.role == get(inviteOfCaller()).data.role)
         );
 
       allow update: if isAdmin()
@@ -339,7 +450,8 @@ service cloud.firestore {
 ### How the rules work
 
 - **Bootstrap admin**: a user whose email matches `bootstrapAdminEmail()` is treated as admin even without a `users/{uid}` document. This solves the chicken-and-egg problem of the first login (no record exists yet to grant the admin role).
-- **Self-create on first login**: any signed-in user can create their own `users/{uid}` document, but only with `role: "editor"` and `disabled: false` — this prevents privilege escalation. The admin promotes editors via the Users page afterwards.
+- **Invitations, whatever the sign-in method**: Firebase lets anyone create an account with the public `apiKey` (password sign-up), and with Google or email-link sign-in anyone can sign in in one click. So signing in proves nothing on its own: a `users/{uid}` record — and therefore any access — is only created for the bootstrap admin or for an address listed in `invites/` by an admin, with the invitation's role, once the address is verified. Everyone else stays locked out.
+- **Verified addresses only**: Google and email-link sign-ins are verified by Firebase. Password accounts start unverified; the admin shows them a "verify your email" screen that sends the verification email.
 - **Self update is restricted to profile fields**: a regular user can change their own `preferences` (admin language), `firstName`, `lastName`, `bio`, and `avatarMediaId` — the editable surface of the **Settings → Profile** form. They cannot touch their own role or disabled flag. Admins can update any field on any record.
 - **`config/*` docs require admin to write**: editors can read the publish target in `config/storage` (the publisher needs it), but only admins can change it. `config/admin` is excluded so editors can't pass the bootstrap probe.
 - **Each rule call performs one extra read** via `selfRecord()`. Acceptable for an internal tool; if you need to optimize later, switch to [Firebase Auth custom claims](https://firebase.google.com/docs/auth/admin/custom-claims) (requires an admin SDK backend to set them).
@@ -432,6 +544,9 @@ In **Standard** mode (the default) the gate is a pure pass-through — no ping, 
 After the indexes finish building (status: `READY` in the console), the post / page list pages load in under a second regardless of corpus size, and the dashboard's stat cards return their counts via aggregation queries (single read each).
 
 ## Updating Firestore security rules
+
+> [!WARNING]
+> **Sites installed before AgentCMS 0.3.11 must update their rules.** The previous rules let *any* signed-in Firebase account create its own editor record — and anyone can create an account with the site's public `apiKey`. Publish the current rules (`npx -y @agent-cms/agentcms options --firebase-rules <bootstrap admin email> --json` prints them with your email in place), then open **Users**: invite your real editors and disable any account you don't recognise. `agentcms doctor --site <alias> --deep` reports `firestore-rules: fail` until the rules are updated. Existing editors keep their access: their records already exist.
 
 The example Firestore rules above lock the `preferences.adminLocale` field to a closed list:
 

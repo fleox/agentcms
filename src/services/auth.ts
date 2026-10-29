@@ -64,3 +64,38 @@ export function authErrorKey(
 ): ReturnType<typeof firebase.authErrorKey> {
   return impl().authErrorKey(...args);
 }
+export function signInWithGoogle(
+  ...args: Parameters<typeof firebase.signInWithGoogle>
+): ReturnType<typeof firebase.signInWithGoogle> {
+  return impl().signInWithGoogle(...args);
+}
+export function sendSignInLink(
+  ...args: Parameters<typeof firebase.sendSignInLink>
+): ReturnType<typeof firebase.sendSignInLink> {
+  return impl().sendSignInLink(...args);
+}
+export function isEmailSignInLink(
+  ...args: Parameters<typeof firebase.isEmailSignInLink>
+): ReturnType<typeof firebase.isEmailSignInLink> {
+  return impl().isEmailSignInLink(...args);
+}
+export function emailForSignInLink(
+  ...args: Parameters<typeof firebase.emailForSignInLink>
+): ReturnType<typeof firebase.emailForSignInLink> {
+  return impl().emailForSignInLink(...args);
+}
+export function completeEmailLinkSignIn(
+  ...args: Parameters<typeof firebase.completeEmailLinkSignIn>
+): ReturnType<typeof firebase.completeEmailLinkSignIn> {
+  return impl().completeEmailLinkSignIn(...args);
+}
+export function sendVerificationEmail(
+  ...args: Parameters<typeof firebase.sendVerificationEmail>
+): ReturnType<typeof firebase.sendVerificationEmail> {
+  return impl().sendVerificationEmail(...args);
+}
+export function reloadCurrentUser(
+  ...args: Parameters<typeof firebase.reloadCurrentUser>
+): ReturnType<typeof firebase.reloadCurrentUser> {
+  return impl().reloadCurrentUser(...args);
+}

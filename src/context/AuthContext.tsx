@@ -2,10 +2,12 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import type { User as FirebaseUser } from "firebase/auth";
 import {
   probeBootstrapAdmin,
+  reloadCurrentUser,
   signIn,
   signOut,
   subscribeToAuth,
 } from "../services/auth";
+import { AccountAccessError } from "../services/firebase/invites";
 import { ensureSelfUserRecord, subscribeToUserRecord, USER_ROLES } from "../services/users";
 import { getAdminEmail } from "../services/firebaseClient";
 import { setActiveLocale } from "../i18n";
@@ -19,6 +21,11 @@ interface AuthValue {
   disabled: boolean;
   loading: boolean;
   error: Error | null;
+  // Signed in, but this account can't get a record (Firebase): its email
+  // isn't verified yet, or no admin invited it.
+  accessIssue: AccountAccessError["reason"] | null;
+  // Re-checks after the user verified their email (or got invited).
+  retryAccess: () => Promise<void>;
   signIn: typeof signIn;
   signOut: typeof signOut;
 }
@@ -30,6 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [record, setRecord] = useState<UserRecord | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [accessIssue, setAccessIssue] = useState<AccountAccessError["reason"] | null>(null);
   // Result of the rules-based bootstrap-admin probe. `null` means
   // "not yet probed" (or signed-out); after the probe runs once for a
   // given session, this stays sticky so we don't re-probe on every
@@ -39,6 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const unsub = subscribeToAuth(async (fbUser) => {
       setError(null);
+      setAccessIssue(null);
       if (!fbUser) {
         setUser(null);
         setRecord(null);
@@ -47,17 +56,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
       setUser(fbUser);
-      try {
-        const rec = await ensureSelfUserRecord(fbUser);
-        setRecord(rec);
-      } catch (err) {
-        setError(err as Error);
-      } finally {
-        setLoading(false);
-      }
+      await loadRecord(fbUser);
     });
     return unsub;
   }, []);
+
+  async function loadRecord(fbUser: FirebaseUser) {
+    try {
+      const rec = await ensureSelfUserRecord(fbUser);
+      setRecord(rec);
+      setAccessIssue(null);
+    } catch (err) {
+      if (err instanceof AccountAccessError) setAccessIssue(err.reason);
+      else setError(err as Error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function retryAccess() {
+    const fresh = await reloadCurrentUser();
+    if (!fresh) return;
+    setError(null);
+    setProbeResult(null);
+    await loadRecord(fresh);
+    probeBootstrapAdmin()
+      .then(setProbeResult)
+      .catch(() => setProbeResult(null));
+  }
 
   // Probe the rules-protected `config/admin` doc once per signed-in
   // session. This is the new (no-email-in-config.js) bootstrap-admin
@@ -134,10 +160,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       disabled,
       loading,
       error,
+      accessIssue,
+      retryAccess,
       signIn,
       signOut,
     };
-  }, [user, record, loading, error, probeResult]);
+    // retryAccess only uses setters and services: stable enough.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, record, loading, error, probeResult, accessIssue]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

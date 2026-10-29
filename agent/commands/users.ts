@@ -357,18 +357,81 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
         return { id: selfId, email: rec?.email ?? null, adminLocale: rec?.preferences?.adminLocale ?? code };
       }, (r) => `Admin language of ${r.email ?? r.id}: ${r.adminLocale} (applies at the next admin load).`);
     }
+    // Firebase: who may join (any sign-in method needs an invitation).
+    case "invites":
+    case "invite":
+    case "uninvite": {
+      const email = (refs[0] ?? "").trim().toLowerCase();
+      if (action !== "invites" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+        throw new CliError("usage", `users ${action} <email>${action === "invite" ? " [--role editor|admin]" : ""}`, undefined, 2);
+      }
+      const role = String(options.role ?? "editor");
+      if (action === "invite" && role !== "editor" && role !== "admin") throw new CliError("usage", "--role must be editor or admin.", undefined, 2);
+      return runAdmin(io, alias, action === "invites" ? {} : writeOpen, async (s) => {
+        const kind = await backend();
+        if (kind !== "firebase") {
+          throw new CliError(
+            "unsupported-backend",
+            "Invitations are for Firebase sites.",
+            kind === "markdown-git" ? "On Markdown sites, add the person as a collaborator of the content repository." : "This site has no accounts.",
+            2,
+          );
+        }
+        const { createInvite, deleteInvite } = await import("../../src/services/firebase/invites");
+        const { collection, getDocs } = await import("firebase/firestore");
+        const { collections, getDb } = await import("../../src/services/firebaseClient");
+        const read = async () => {
+          try {
+            return (await getDocs(collection(getDb(), collections.invites))).docs.map((d) => ({ email: d.id, role: String(d.data().role ?? "") }));
+          } catch (err) {
+            if ((err as { code?: string }).code === "permission-denied") {
+              throw new CliError(
+                "rules-outdated",
+                "The site's Firestore rules don't allow invitations yet.",
+                "Publish the current rules: `agentcms options --firebase-rules <bootstrap admin email>` prints them (Firebase console → Firestore → Rules → Publish).",
+              );
+            }
+            throw err;
+          }
+        };
+        const users = await loadUsers(s);
+        const joined = new Set(users.map((u) => (u.email ?? "").toLowerCase()));
+        if (action === "invite") {
+          await read();
+          const me = await selfAuthUser();
+          await createInvite(email, role as "editor" | "admin", me.uid);
+        } else if (action === "uninvite") {
+          await read();
+          await deleteInvite(email);
+        }
+        const invites = (await read()).map((i) => ({ ...i, joined: joined.has(i.email) }));
+        return {
+          action,
+          email: action === "invites" ? undefined : email,
+          invites,
+          note:
+            action === "invite"
+              ? "They sign in with any method the site offers (password accounts: create it in Firebase console → Authentication → Add user with this email; they verify their email at first sign-in)."
+              : undefined,
+        };
+      }, (r) =>
+        [
+          ...(r.action === "invite" ? [`Invited ${r.email}.`, r.note ?? ""] : r.action === "uninvite" ? [`Invitation of ${r.email} revoked (an existing account keeps its record: disable it with \`users disable\`).`] : []),
+          ...(r.invites.length ? r.invites.map((i) => `${i.email.padEnd(32)} ${i.role.padEnd(6)} ${i.joined ? "joined" : "pending"}`) : ["No invitations."]),
+        ].filter(Boolean).join("\n"));
+    }
 
     default:
-      throw new CliError("usage", action ? `Unknown users action "${action}".` : "users needs an action.", "Actions: list, get, update, role, disable, enable, delete, locale.", 2);
+      throw new CliError("usage", action ? `Unknown users action "${action}".` : "users needs an action.", "Actions: list, get, update, role, disable, enable, delete, locale, invites, invite, uninvite.", 2);
   }
 }
 
 export const usersCommand: Command = {
   name: "users",
   summary:
-    "The Users page: list, get [<id|email|me>], update <id|email|me> (public author profile; republishes data/authors.json and the author's archive), role <id|email> admin|editor, disable / enable <id|email>, delete <id|email> (the record only; plan first, --yes), locale <code> (the signed-in user's admin language).",
+    "The Users page: list, get [<id|email|me>], update <id|email|me> (public author profile; republishes data/authors.json and the author's archive), role <id|email> admin|editor, disable / enable <id|email>, delete <id|email> (the record only; plan first, --yes), locale <code> (the signed-in user's admin language); Firebase sites: invites, invite <email> [--role editor|admin], uninvite <email> (only invited addresses can join).",
   usage:
-    "users <list|get|update|role|disable|enable|delete|locale> [<id|email|me>] [admin|editor|<locale>] --site <alias> [--first-name <t>] [--last-name <t>] [--title <t>] [--bio <text>|@file|-] [--avatar <media id>|\"\"] [--social \"<network>=<url>[,hidden] …\"] [--data <json>|@file] [--yes]",
+    "users <list|get|update|role|disable|enable|delete|locale|invites|invite|uninvite> [<id|email|me>] [admin|editor|<locale>] --site <alias> [--role editor|admin] [--first-name <t>] [--last-name <t>] [--title <t>] [--bio <text>|@file|-] [--avatar <media id>|\"\"] [--social \"<network>=<url>[,hidden] …\"] [--data <json>|@file] [--yes]",
   options: [
     { name: "site", type: "string", description: "Site alias." },
     { name: "first-name", type: "string", description: "update: first name (\"\" clears)." },
@@ -385,6 +448,7 @@ export const usersCommand: Command = {
     { name: "data", type: "string", description: "update: fields as JSON (or @file.json): firstName, lastName, title, bio, avatarMediaId, socials { network: { url, visible } } (replaces all). Flags override it." },
     { name: "yes", type: "boolean", description: "delete: apply (otherwise only the plan)." },
     { name: "force", type: "boolean", description: "role: allow demoting your own account (never the last admin)." },
+    { name: "role", type: "string", description: "invite: the role the invited address gets at its first sign-in (editor, default, or admin)." },
   ],
   run,
 };

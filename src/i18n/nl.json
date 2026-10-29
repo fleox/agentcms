@@ -46,15 +46,36 @@
     "resetEmailSent": "E-mail om wachtwoord opnieuw in te stellen verzonden naar {{email}}.",
     "enterEmailFirst": "Voer eerst uw e-mail hierboven in en klik dan op resetten.",
     "emailPasswordRequired": "E-mail en wachtwoord zijn vereist.",
-    "signInSubtitle": "Gebruik uw werk-e-mail en wachtwoord.",
-    "footer": "Accountaanvragen verlopen via uw beheerder.",
+    "signInSubtitle": "Meld je aan met het account dat je beheerder heeft uitgenodigd.",
+    "footer": "Alleen door een beheerder uitgenodigde adressen krijgen toegang.",
     "errors": {
       "invalidEmail": "Ongeldig e-mailadres.",
       "invalidCredentials": "Ongeldig e-mailadres of wachtwoord.",
       "tooManyRequests": "Te veel pogingen. Probeer later opnieuw of stel uw wachtwoord opnieuw in.",
       "userDisabled": "Dit account is uitgeschakeld.",
       "networkFailed": "Netwerkfout. Controleer uw verbinding.",
-      "generic": "Authenticatie mislukt."
+      "generic": "Authenticatie mislukt.",
+      "popupClosed": "Het Google-venster is gesloten voordat je was aangemeld.",
+      "popupBlocked": "De browser heeft het Google-venster geblokkeerd: sta pop-ups toe voor deze site en probeer opnieuw.",
+      "unauthorizedDomain": "Dit domein mag niet aanmelden: voeg het toe in de Firebase-console → Authentication → Settings → Authorized domains.",
+      "methodDisabled": "Deze aanmeldmethode is niet ingeschakeld in de Firebase-console → Authentication → Sign-in method.",
+      "linkExpired": "Deze aanmeldlink is verlopen of al gebruikt. Vraag een nieuwe aan."
+    },
+    "continueWithGoogle": "Doorgaan met Google",
+    "or": "of",
+    "sendLink": "Stuur me een aanmeldlink per e-mail",
+    "linkSent": "Er is een aanmeldlink naar {{email}} gestuurd. Open hem in deze browser.",
+    "linkConfirmTitle": "Aanmelden afronden",
+    "linkConfirmText": "Vul het e-mailadres in waarnaar de link is gestuurd.",
+    "access": {
+      "unverifiedTitle": "Bevestig je e-mailadres",
+      "unverifiedText": "{{email}} is nog niet bevestigd. Open de bevestigingsmail, klik op de link en kom hier terug.",
+      "sendVerification": "Bevestigingsmail versturen",
+      "verificationSent": "Bevestigingsmail verstuurd naar {{email}}.",
+      "notInvitedTitle": "Geen toegang tot deze site",
+      "notInvitedText": "{{email}} is niet uitgenodigd. Vraag een beheerder dit adres uit te nodigen (pagina Gebruikers) en probeer opnieuw.",
+      "retry": "Gedaan — opnieuw controleren",
+      "useAnother": "Ander account gebruiken"
     }
   },
   "nav": {
@@ -480,19 +501,19 @@
     "disabled": "Uitgeschakeld",
     "editProfileTitle": "Profiel bewerken — {{email}}",
     "profileSaved": "Profiel opgeslagen.",
-    "descriptionFirebase": "Beheer uw team. Nieuwe accounts worden aangemaakt in de Firebase Console en hier gespiegeld bij de eerste keer inloggen.",
+    "descriptionFirebase": "Beheer je team. Nodig een e-mailadres uit: de persoon meldt zich daarmee aan (wachtwoord, e-maillink of Google, afhankelijk van deze site) en krijgt de voorziene rol.",
     "removeConfirmFirebase": "Het record van {{email}} verwijderen? Hiermee verwijdert u hun profiel en rol uit het CMS. Om hun login-toegang in te trekken, verwijdert u het account ook in de Firebase Console.",
     "empty": {
       "title": "Nog geen teamleden",
-      "descriptionFirebase": "Maak het eerste account aan in de Firebase Console en log hier daarna één keer in om het profiel te registreren."
+      "descriptionFirebase": "Nodig hierboven het eerste teamlid uit."
     },
     "help": {
       "title": "Hoe u een nieuw teamlid toevoegt",
       "bootstrapLine": "De bootstrap-admin (altijd volledige toegang) is:",
       "firebase": {
-        "step1": "Open de Firebase Console → Authentication → Add user.",
-        "step2": "Stel een e-mail en wachtwoord in en stuur ze naar het nieuwe teamlid.",
-        "step3": "Vraag hen om hier één keer in te loggen — hun profiel verschijnt in de lijst hierboven en u kunt hun rol en gegevens bewerken."
+        "step1": "Nodig hierboven het e-mailadres uit, met een rol.",
+        "step2": "Alleen bij aanmelden met wachtwoord: maak het account aan in de Firebase-console → Authentication → Add user (zelfde e-mail) en stuur het wachtwoord. E-maillink en Google hebben niets extra nodig.",
+        "step3": "De persoon meldt zich hier één keer aan — het profiel verschijnt in de lijst hierboven."
       },
       "git": {
         "step1": "Voeg de persoon toe als collaborator van de content-repository (schrijftoegang = redacteur, admin / maintainer = admin).",
@@ -510,7 +531,16 @@
     },
     "descriptionGit": "Teamleden zijn de personen met schrijftoegang tot de content-repository. Ze verschijnen hier na hun eerste login; hun rol volgt hun rechten op de repository.",
     "descriptionLocal": "Deze admin draait in modus voor één gebruiker: content wordt in deze browser opgeslagen en er zijn geen accounts.",
-    "descriptionSqliteFile": "Geen gebruikersaccounts met dit backend: iedereen die de admin kan openen, kan bewerken. Beveilig de admin-map op het niveau van uw hosting. De auteursprofielen hieronder zijn ter informatie."
+    "descriptionSqliteFile": "Geen gebruikersaccounts met dit backend: iedereen die de admin kan openen, kan bewerken. Beveilig de admin-map op het niveau van uw hosting. De auteursprofielen hieronder zijn ter informatie.",
+    "invites": {
+      "title": "Uitnodigingen",
+      "description": "Alleen uitgenodigde adressen kunnen meedoen, welke aanmeldmethode ook. De rol geldt vanaf de eerste aanmelding.",
+      "invite": "Uitnodigen",
+      "sent": "{{email}} uitgenodigd.",
+      "pending": "in afwachting",
+      "joined": "aangemeld",
+      "revoke": "Uitnodiging intrekken"
+    }
   },
   "firestoreSetup": {
     "title": "Firestore-setup vereist",
@@ -595,11 +625,13 @@
     },
     "sections": {
       "firebase": "Firebase",
-      "admin": "Bootstrap-beheerder"
+      "admin": "Bootstrap-beheerder",
+      "signInMethods": "Aanmeldmethoden"
     },
     "help": {
       "firebase": "Vind deze waarden in Firebase Console → Projectinstellingen → Algemeen → Uw apps → SDK-installatie en configuratie.",
-      "admin": "Gebruik een bestaande gebruiker uit Firebase Authentication. Iedereen die aanmeldt met dit e-mailadres wordt als beheerder behandeld en omzeilt de gebruikersrecord-controle. Maak de gebruiker via Firebase Console → Authentication als deze nog niet bestaat."
+      "admin": "Gebruik een bestaande gebruiker uit Firebase Authentication. Iedereen die aanmeldt met dit e-mailadres wordt als beheerder behandeld en omzeilt de gebruikersrecord-controle. Maak de gebruiker via Firebase Console → Authentication als deze nog niet bestaat.",
+      "signInMethods": "Hoe redacteuren zich aanmelden bij de admin. Schakel dezelfde methoden in via de Firebase-console → Authentication → Sign-in method en voeg het domein van deze site toe onder Settings → Authorized domains. Welke methode ook: alleen adressen die je uitnodigt (pagina Gebruikers) krijgen toegang."
     },
     "fields": {
       "apiKey": "API-sleutel",
@@ -739,6 +771,11 @@
       "doneBody": "De admin staat nu op uw site. Schakel bij GitHub Pages eerst Pages in voor de repository als dat nog niet is gebeurd (Settings → Pages) en open hem daarna:",
       "open": "Online admin openen",
       "continueHere": "Doorgaan in deze admin"
+    },
+    "signInMethods": {
+      "password": "E-mail + wachtwoord (altijd aan: gebruikt hier en door de agentcms-CLI)",
+      "emailLink": "E-maillink (een eenmalige aanmeldlink, zonder wachtwoord)",
+      "google": "Google-account"
     }
   },
   "storage": {

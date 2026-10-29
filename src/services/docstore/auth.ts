@@ -107,6 +107,31 @@ export async function sendResetEmail(_email: string): Promise<void> {
   throw new Error("Password reset by email is not available for this backend.");
 }
 
+// Google / email-link sign-in and email verification are Firebase-only:
+// the document-store backends have no accounts.
+const FIREBASE_ONLY = "Only available with the Firebase backend.";
+export async function signInWithGoogle(): Promise<FirebaseUser> {
+  throw new Error(FIREBASE_ONLY);
+}
+export async function sendSignInLink(_email: string): Promise<void> {
+  throw new Error(FIREBASE_ONLY);
+}
+export function isEmailSignInLink(): boolean {
+  return false;
+}
+export function emailForSignInLink(): string | null {
+  return null;
+}
+export async function completeEmailLinkSignIn(_email: string): Promise<FirebaseUser> {
+  throw new Error(FIREBASE_ONLY);
+}
+export async function sendVerificationEmail(): Promise<void> {
+  throw new Error(FIREBASE_ONLY);
+}
+export async function reloadCurrentUser(): Promise<FirebaseUser | null> {
+  return cachedUser;
+}
+
 // The admin role flows from the storage permissions (repo access for
 // git, always admin locally) — the identity IS the bootstrap answer.
 export async function probeBootstrapAdmin(): Promise<boolean> {

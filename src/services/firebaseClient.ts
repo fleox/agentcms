@@ -108,6 +108,8 @@ export const collections = {
   config: "config",
   users: "users",
   settings: "settings",
+  // invites/{lower-case email} → { role } — who may join (rules).
+  invites: "invites",
 } as const;
 
 export const configDocs = {

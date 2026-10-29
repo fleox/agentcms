@@ -2,6 +2,16 @@
   "$comment": "Newest first. Read by agents (agentcms status) to tell users what changed and what to run. `breaking`: an older admin, skill or site setup stops working without action. `actions`: steps a hosted site needs after updating — deploy-admin, regenerate-all, sync-theme-assets. Keep every entry in English.",
   "versions": [
     {
+      "version": "0.3.11",
+      "date": "2026-10-29",
+      "breaking": false,
+      "changes": [
+        "Security (Firebase sites): the previous Firestore rules let ANY Firebase account — anyone can create one with the site's public apiKey — create its own editor record and change the content. Access now requires an invitation: admins invite addresses with a role (Users page → Invitations, or `agentcms users invite <email> --role editor|admin`); anyone else who signs in gets no access. Publish the current rules (`agentcms options --firebase-rules <bootstrap admin email>`), then check the Users list. `doctor --deep` reports `firestore-rules: fail` until done. Existing editors keep their access.",
+        "Firebase sign-in methods: besides email + password, the admin can offer a one-time email link and / or \"Continue with Google\" (setup wizard, or `data.signInMethods` in the install plan). Password accounts verify their email at first sign-in. Guide: docs/firebase.md → Sign-in methods."
+      ],
+      "actions": ["deploy-admin"]
+    },
+    {
       "version": "0.3.10",
       "date": "2026-10-29",
       "breaking": false,

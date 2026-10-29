@@ -6,6 +6,7 @@ import {
   saveLocalRuntimeConfig,
   type FirebaseRuntimeConfig,
   type CmsRuntimeConfig,
+  type FirebaseSignInMethod,
   type MarkdownGitRuntimeConfig,
 } from "../../lib/runtimeConfig";
 import { getDocStore } from "../../services/docstore";
@@ -64,6 +65,9 @@ export interface SetupForm {
   // Firebase admin account
   adminEmail: string;
   adminPassword: string;
+  // Methods the login screen offers (password always: the admin signs
+  // in with it here and the agentcms CLI needs it).
+  signInMethods: FirebaseSignInMethod[];
 }
 
 export type GitContent = MarkdownGitRuntimeConfig["git"];
@@ -141,6 +145,7 @@ function firebaseRuntime(f: SetupForm): FirebaseRuntimeConfig {
       messagingSenderId: f.messagingSenderId,
       appId: f.appId,
     },
+    ...(f.signInMethods.length > 1 ? { signInMethods: f.signInMethods } : {}),
   };
 }
 
