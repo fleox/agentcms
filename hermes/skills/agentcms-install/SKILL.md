@@ -60,6 +60,8 @@ Present the entries of `data.hostings` with `cli: true` that fit the data choice
 
 Markdown content on GitHub/GitLab also needs the content repository: [references/github.md](references/github.md) / [references/gitlab.md](references/gitlab.md). Firebase content: [references/firebase.md](references/firebase.md).
 
+**Ask one thing at a time.** Each question gets its own message; check the answer (with the dry run, `credentials list`, or by repeating it back) before asking the next one. Never send the user a list of several things to create or paste at once. Markdown + GitHub Pages = exactly two repositories (content: private, site: public) - follow the table in the GitHub guide.
+
 ## Step 3 - Credentials (never through the chat)
 
 Secrets are stored per **account** (`github:<login>`, `gitlab:<name>`, `s3:<name>`, `firebase:<name>` (email + password of the admin), `passphrase:<alias>`), not per site - check `python3 ${HERMES_SKILL_DIR}/scripts/agentcms.py credentials list --json` first and reuse an account that is already there.
@@ -99,7 +101,7 @@ Then:
 python3 ${HERMES_SKILL_DIR}/scripts/agentcms.py install --plan agentcms-plan.json --dry-run --json
 ```
 
-Fix whatever `error.hint` says (token permissions, repo or bucket names, URL). Error `content-exists` means the content repo already publishes somewhere else: ask the user whether to keep that site (register it with `agentcms-manage`) or publish elsewhere (`--overwrite-target`).
+Fix whatever `error.hint` says (token permissions, repo or bucket names, URL). Show the user `data.repos` (each repository, its role and visibility) and get a yes. Error `repos-swapped`: the content repository is public and the site one private - ask the user, swap them in the plan, dry-run again. Error `content-public`: have the user make the content repository private. Error `content-exists` means the content repo already publishes somewhere else: ask the user whether to keep that site (register it with `agentcms-manage`) or publish elsewhere (`--overwrite-target`).
 
 ## Step 5 - Install, check, hand over
 

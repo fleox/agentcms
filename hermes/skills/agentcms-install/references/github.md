@@ -1,21 +1,34 @@
 # GitHub - content repo, GitHub Pages hosting, token
 
-## Repositories
+## Repositories - exactly two, one private, one public
 
-- **Content** (Markdown backend): a repository holding posts as `.md` files. Make it **private** - it contains drafts.
-- **Site** (GitHub Pages): a repository the admin publishes HTML into. On free GitHub plans Pages only works on **public** repositories.
-- Use two repositories, the content one **private**. Pages serves the whole published repository: content kept in it (even in a `content/` folder) is public — drafts, unpublished pages and `users.json` with the editors' emails. `install` and `doctor` (`content-exposure`) warn about it. If the user insists on one repository, publish the site from a `docs` folder (`hosting.settings.dir: "docs"`) so the content folder isn't served.
-- An empty repository is fine: the first install commit creates the branch.
-- Everything in the site repository is public on the site, including a `README.md` GitHub created: remove it with `agentcms files delete README.md --site <alias> --yes` if the user doesn't want it served.
+Markdown content + GitHub Pages always uses **two** repositories. Never mention a third one (the admin is not a repository: it is copied into the site repository's `admin/` folder). Explain it to the user with this table, in their language, before asking for anything:
 
-If `gh` is installed and signed in (`gh auth status`), offer to create them:
+| | **Content** repository | **Site** repository |
+|---|---|---|
+| Holds | the posts as `.md` files, drafts, settings, editors' emails | the generated HTML pages + the admin (`admin/` folder) |
+| Visibility | **Private** | **Public** (free GitHub plans only publish public repositories) |
+| Example name | `my-blog-content` | `my-blog` → `https://<owner>.github.io/my-blog` |
+| Plan field | `data.git.repo` | `hosting.settings.repo` |
 
-```bash
-gh repo create <owner>/<site-repo> --public --description "Website published by AgentCMS"
-gh repo create <owner>/<content-repo> --private --description "AgentCMS content"
-```
+Ask for them **one at a time** and check each answer before the next question - users easily swap them:
 
-Otherwise send the user to https://github.com/new (once per repository) and ask for the owner and the names.
+1. "What is the name of the **private** repository for the content?" → check it: `python3 <skill dir>/scripts/agentcms.py install --plan agentcms-plan.json --dry-run --json` once the plan has it, or simply confirm with the user that GitHub shows a **Private** badge next to its name.
+2. "What is the name of the **public** repository for the website?" → same check (**Public** badge).
+3. Repeat both names back with their role ("content: `me/my-blog-content` (private) - site: `me/my-blog` (public)") and get a yes before writing the plan.
+
+The dry run then verifies it for real: its `data.repos` lists each repository with its role and visibility, and it stops with `repos-swapped` (content public, site private: swap `data.git.repo` and `hosting.settings.repo`) or `content-public` (make the content repository private: Settings → General → Danger Zone → Change visibility). Use `--allow-public-content` only if the user explicitly wants their drafts public.
+
+- Creating the repositories: empty repositories are fine, and so is "Add a README file" - the install creates the first commit either way. A README in the site repository is served by the site; remove it later with `agentcms files delete README.md --site <alias> --yes` if the user doesn't want it.
+- If `gh` is installed and signed in (`gh auth status`), offer to create both, so the visibility can't be wrong:
+
+  ```bash
+  gh repo create <owner>/<site-repo> --public --description "Website published by AgentCMS"
+  gh repo create <owner>/<content-repo> --private --description "AgentCMS content"
+  ```
+
+  Otherwise send the user to https://github.com/new **twice** - once with *Private*, once with *Public* - and ask for each name as above.
+- One repository for both is possible but exposes the content (Pages serves the whole repository: drafts, unpublished pages, `users.json`). If the user insists, publish the site from a `docs` folder (`hosting.settings.dir: "docs"`); `install` and `doctor` (`content-exposure`) warn about it.
 
 ## Token
 

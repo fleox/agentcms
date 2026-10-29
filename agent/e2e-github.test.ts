@@ -47,8 +47,28 @@ describe("install markdown-git + GitHub Pages (fake GitHub)", () => {
       }),
     );
 
+    // The user swapped the repositories: caught before anything is written.
+    const swappedPlan = join(root, "plan-swapped.json");
+    writeFileSync(
+      swappedPlan,
+      JSON.stringify({
+        alias: "blog",
+        data: { backend: "markdown-git", git: { provider: "github", owner: "me", repo: "site" }, credential: "github:me" },
+        hosting: { type: "github-pages", settings: { owner: "me", repo: "content", siteUrl: "https://me.github.io/content" } },
+      }),
+    );
+    const swapped = await run(["install", "--plan", swappedPlan, "--dry-run"]);
+    expect(swapped.body.error?.code).toBe("repos-swapped");
+    expect(swapped.body.error?.message).toContain("me/site is public");
+    expect(gh.repo("me/content").refs.size).toBe(0);
+    expect(gh.repo("me/site").refs.size).toBe(0);
+
     const dry = await run(["install", "--plan", planFile, "--dry-run"]);
     expect(dry.body).toMatchObject({ ok: true, data: { checks: { data: { ok: true, existing: false }, hosting: { ok: true } } } });
+    expect(dry.body.data.repos).toEqual([
+      { role: "content", repo: "me/content", visibility: "private" },
+      { role: "site", repo: "me/site", visibility: "public" },
+    ]);
     expect(gh.repo("me/content").refs.size).toBe(0);
 
     const res = await run(["install", "--plan", planFile]);
@@ -151,4 +171,22 @@ describe("install markdown-git + GitHub Pages (fake GitHub)", () => {
     // The site's own branch can never be compacted.
     expect((await run(["compact-data", "--site", "blog"])).body.error?.code).toBe("not-applicable");
   }, 60_000);
+
+  it("refuses a public content repository unless asked", async () => {
+    gh.createRepo("me/open-content");
+    gh.createRepo("me/open-site");
+    const planFile = join(root, "plan-public.json");
+    writeFileSync(
+      planFile,
+      JSON.stringify({
+        alias: "open",
+        data: { backend: "markdown-git", git: { provider: "github", owner: "me", repo: "open-content" }, credential: "github:me" },
+        hosting: { type: "github-pages", settings: { owner: "me", repo: "open-site", siteUrl: "https://me.github.io/open-site" } },
+      }),
+    );
+    expect((await run(["install", "--plan", planFile, "--dry-run"])).body.error?.code).toBe("content-public");
+    const allowed = await run(["install", "--plan", planFile, "--dry-run", "--allow-public-content"]);
+    expect(allowed.body.ok).toBe(true);
+    expect(allowed.body.data.warnings.join(" ")).toContain("me/open-content is public");
+  });
 });

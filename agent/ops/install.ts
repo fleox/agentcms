@@ -14,7 +14,7 @@ import { invalidateActiveStorageConnector } from "../../src/services/storage/reg
 import { savePublishTarget } from "../../src/services/storage/target";
 import { testStorageConnection } from "../../src/services/storage/testConnection";
 import { subscribeToToasts } from "../../src/lib/toast";
-import { githubPagesCheck } from "../../src/services/storage/connectors/gitPages";
+import { githubPagesCheck, resolveGitPagesToken, type GitPagesSettings } from "../../src/services/storage/connectors/gitPages";
 import { adminOps, applyOps, hostingConnector, loadSqlWasm, themeAssetOps } from "./hosting";
 import type { ResolvedPlan } from "./plan";
 
@@ -22,8 +22,18 @@ import type { ResolvedPlan } from "./plan";
 // installers.ts), driven from Node: content store → publish target →
 // theme assets + admin copied onto the hosting in ONE batch.
 
+export interface RepoInfo {
+  role: "content" | "site";
+  repo: string;
+  visibility: "public" | "private" | "internal" | "unknown";
+}
+
 export interface CheckReport {
   hosting: { ok: boolean; detail: string };
+  // Content and site repositories with their visibility (git backends /
+  // git hostings only), checked before anything is written.
+  repos: RepoInfo[];
+  repoProblems: { code: "repos-swapped" | "content-public" | "site-private"; message: string; blocking: boolean }[];
   data: { ok: boolean; detail: string; existing: boolean; storedTarget?: { connectorId: string; settings: Record<string, unknown> } | null };
 }
 
@@ -112,7 +122,73 @@ export async function checkPlan(plan: ResolvedPlan): Promise<CheckReport> {
       data = { ok: false, detail: message, existing: false };
     }
   }
-  return { hosting, data };
+  const repos = await repoVisibility(plan);
+  return { hosting, data, repos, repoProblems: repoProblems(plan, repos) };
+}
+
+// Pages hostings that serve the repository themselves (Cloudflare Pages
+// and other hosts build from a private repo through their own app).
+const PAGES_NEEDS_PUBLIC = new Set(["github-pages", "gitlab-pages"]);
+
+async function repoVisibility(plan: ResolvedPlan): Promise<RepoInfo[]> {
+  const out: RepoInfo[] = [];
+  const probe = async (role: RepoInfo["role"], transport: ReturnType<typeof createRemoteGitTransport>) => {
+    const repo = transport.label.replace(/@[^@]*$/, "");
+    // One repository for both (site published from a docs folder): the
+    // content-exposure warning of `install` covers it.
+    if (out.some((r) => r.repo === repo)) {
+      out.splice(0, out.length);
+      return;
+    }
+    try {
+      out.push({ role, repo, visibility: (await transport.permissions()).visibility ?? "unknown" });
+    } catch {
+      out.push({ role, repo, visibility: "unknown" });
+    }
+  };
+  if (plan.runtime.backend === "markdown-git") await probe("content", gitTransport(plan.runtime.git, plan.gitToken ?? ""));
+  if (plan.target.connectorId === "git-pages") {
+    const s = plan.target.settings as unknown as GitPagesSettings;
+    const token = resolveGitPagesToken(s);
+    await probe(
+      "site",
+      createRemoteGitTransport(
+        s.provider === "gitlab"
+          ? { provider: "gitlab", project: s.project ?? "", branch: s.branch, token, apiBaseUrl: s.apiBaseUrl }
+          : { provider: "github", owner: s.owner ?? "", repo: s.repo ?? "", branch: s.branch, token, apiBaseUrl: s.apiBaseUrl },
+      ),
+    );
+  }
+  return out;
+}
+
+function repoProblems(plan: ResolvedPlan, repos: RepoInfo[]): CheckReport["repoProblems"] {
+  const content = repos.find((r) => r.role === "content");
+  const site = repos.find((r) => r.role === "site");
+  const problems: CheckReport["repoProblems"] = [];
+  if (content?.visibility === "public" && site?.visibility === "private") {
+    problems.push({
+      code: "repos-swapped",
+      blocking: true,
+      message: `The repositories look swapped: the content repository ${content.repo} is public and the site repository ${site.repo} is private. The content (drafts, editors' emails) must be private; the site repository is the one that gets published.`,
+    });
+    return problems;
+  }
+  if (content?.visibility === "public") {
+    problems.push({
+      code: "content-public",
+      blocking: true,
+      message: `The content repository ${content.repo} is public: drafts, unpublished pages and users.json (editors' emails) would be readable by anyone. Make it private (repository Settings → General → Danger Zone → Change visibility).`,
+    });
+  }
+  if (site?.visibility === "private" && PAGES_NEEDS_PUBLIC.has(plan.hostingType)) {
+    problems.push({
+      code: "site-private",
+      blocking: false,
+      message: `The site repository ${site.repo} is private: ${plan.hostingType === "gitlab-pages" ? "GitLab Pages must be visible to everyone in the project's Pages settings" : "GitHub Pages only works on private repositories with a paid plan (Pro, Team, Enterprise)"}. On a free plan, make it public.`,
+    });
+  }
+  return problems;
 }
 
 // The setup wizard's verifyFirebase: sign in, then the rules-pinned

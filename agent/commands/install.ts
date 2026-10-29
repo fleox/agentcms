@@ -33,11 +33,12 @@ export const installCommand: Command = {
   name: "install",
   summary:
     "Install a site from a JSON plan (see `options`): checks access, creates the content store, saves the publish target, uploads theme assets and the admin, registers the site. --dry-run only checks.",
-  usage: "install --plan <file|-> [--dry-run] [--overwrite-target]",
+  usage: "install --plan <file|-> [--dry-run] [--overwrite-target] [--allow-public-content]",
   options: [
     { name: "plan", type: "string", description: "Plan file path, or - for stdin." },
     { name: "dry-run", type: "boolean", description: "Validate the plan and test access without writing anything." },
     { name: "overwrite-target", type: "boolean", description: "Replace the publish target already stored in existing content." },
+    { name: "allow-public-content", type: "boolean", description: "Install even though the Markdown content repository is public (only when the user wants their drafts public)." },
   ],
   async run({ io, options }) {
     if (typeof options.plan !== "string") throw new CliError("usage", "install needs --plan <file|->.", "Run `agentcms options` for the format.", 2);
@@ -66,13 +67,33 @@ export const installCommand: Command = {
         adminUrlOf({ siteUrl: plan.siteUrl, adminFolder: plan.adminFolder }),
       credentials: plan.credentials,
       checks,
-      warnings: publicContentWarning(plan),
+      repos: checks.repos,
+      warnings: [
+        ...publicContentWarning(plan),
+        ...checks.repoProblems.filter((p) => !p.blocking || (p.code === "content-public" && options["allow-public-content"])).map((p) => p.message),
+      ],
     };
     if (!checks.hosting.ok || !checks.data.ok) {
       throw new CliError(
         "check-failed",
         [!checks.data.ok && `Data: ${checks.data.detail}`, !checks.hosting.ok && `Hosting: ${checks.hosting.detail}`].filter(Boolean).join(" — "),
         "Fix the access (token permissions, repo / bucket names, URL) and retry.",
+      );
+    }
+    const swapped = checks.repoProblems.find((p) => p.code === "repos-swapped");
+    if (swapped) {
+      throw new CliError(
+        "repos-swapped",
+        swapped.message,
+        "Ask the user which repository is which, then put the PRIVATE one in data.git (content) and the PUBLIC one in hosting.settings (site) and retry — or change the repositories' visibility on GitHub / GitLab.",
+      );
+    }
+    const publicContent = checks.repoProblems.find((p) => p.code === "content-public");
+    if (publicContent && !options["allow-public-content"]) {
+      throw new CliError(
+        "content-public",
+        publicContent.message,
+        "Ask the user to make the content repository private, then retry. Only if they want their drafts public: --allow-public-content.",
       );
     }
     if (conflict && !options["overwrite-target"]) {

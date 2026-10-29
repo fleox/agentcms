@@ -5,6 +5,7 @@ import {
   GitConflictError,
   type GitChange,
   type GitCommitOptions,
+  type GitPermissions,
   type GitRemoteConfig,
   type GitTransport,
   type GitTree,
@@ -204,15 +205,6 @@ export function createGitHubTransport(cfg: GitHubConfig): GitTransport {
   async function commit(changes: GitChange[], opts: GitCommitOptions): Promise<string> {
     // Binary blobs are uploaded once and reused across ref-race retries.
     const blobShas = new Map<string, string>();
-    for (const change of changes) {
-      if (change.type === "put" && change.encoding === "base64" && !blobShas.has(change.path)) {
-        const blob = await postJson<{ sha: string }>(`${repoUrl}/git/blobs`, {
-          content: change.content,
-          encoding: "base64",
-        });
-        blobShas.set(change.path, blob.sha);
-      }
-    }
 
     for (let attempt = 0; ; attempt++) {
       let head = await headSha();
@@ -220,6 +212,17 @@ export function createGitHubTransport(cfg: GitHubConfig): GitTransport {
         throw new GitConflictError(`Branch ${cfg.branch} moved`, head);
       }
       if (!head) head = await bootstrapBranch("Initialize branch — AgentCMS");
+      // After the bootstrap: on an empty repository GitHub refuses every
+      // git data write (blobs included) until the first commit exists.
+      for (const change of changes) {
+        if (change.type === "put" && change.encoding === "base64" && !blobShas.has(change.path)) {
+          const blob = await postJson<{ sha: string }>(`${repoUrl}/git/blobs`, {
+            content: change.content,
+            encoding: "base64",
+          });
+          blobShas.set(change.path, blob.sha);
+        }
+      }
       const baseTree = await treeShaOf(head);
 
       // Deleting a path that isn't in the base tree is a 422 on GitHub —
@@ -296,13 +299,21 @@ export function createGitHubTransport(cfg: GitHubConfig): GitTransport {
     return created.sha;
   }
 
-  async function permissions() {
+  async function permissions(): Promise<GitPermissions> {
     const [user, repo] = await Promise.all([
       getJson<{ login: string }>(`${api}/user`),
-      getJson<{ permissions?: { admin?: boolean; maintain?: boolean; push?: boolean } }>(repoUrl),
+      getJson<{ private?: boolean; visibility?: string; permissions?: { admin?: boolean; maintain?: boolean; push?: boolean } }>(repoUrl),
     ]);
     const p = repo.permissions ?? {};
-    return { login: user.login, canWrite: !!(p.push || p.maintain || p.admin), isAdmin: !!(p.admin || p.maintain) };
+    const visibility =
+      repo.visibility === "public" || repo.visibility === "private" || repo.visibility === "internal"
+        ? repo.visibility
+        : typeof repo.private === "boolean"
+          ? repo.private
+            ? "private"
+            : "public"
+          : undefined;
+    return { login: user.login, canWrite: !!(p.push || p.maintain || p.admin), isAdmin: !!(p.admin || p.maintain), visibility };
   }
 
   return {

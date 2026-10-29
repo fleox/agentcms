@@ -2,6 +2,17 @@
   "$comment": "Newest first. Read by agents (agentcms status) to tell users what changed and what to run. `breaking`: an older admin, skill or site setup stops working without action. `actions`: steps a hosted site needs after updating — deploy-admin, regenerate-all, sync-theme-assets. Keep every entry in English.",
   "versions": [
     {
+      "version": "0.3.8",
+      "date": "2026-10-29",
+      "breaking": false,
+      "changes": [
+        "Fix: installing on an EMPTY GitHub repository (no commit yet) failed — GitHub refuses file uploads before the first commit, and the admin's images / WASM were sent first. The first commit is now created before anything else.",
+        "`install` checks the visibility of the content and site repositories before writing anything and lists them in `data.repos`: it stops with `repos-swapped` when the content repository is public and the site one private, and with `content-public` when the content repository is public (`--allow-public-content` to go ahead anyway); a private site repository on GitHub / GitLab Pages is a warning.",
+        "Install skill: Markdown + Pages explained as exactly two repositories (content private, site public), asked one at a time and checked before the plan is written; the agent asks one question per message. Illustrated Firebase console guide in docs/firebase.md."
+      ],
+      "actions": []
+    },
+    {
       "version": "0.3.7",
       "date": "2026-10-29",
       "breaking": false,

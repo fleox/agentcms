@@ -42,6 +42,8 @@ export interface GitPermissions {
   login: string;
   canWrite: boolean;
   isAdmin: boolean;
+  // Repository visibility when the host reports it (GitHub, GitLab).
+  visibility?: "public" | "private" | "internal";
 }
 
 export interface GitTransport {

@@ -128,6 +128,11 @@ export function createFakeGithub(opts: { login: string; token: string }): FakeGi
       repo.defaultBranch ??= body.branch;
       return json({ commit: { sha: commit } }, 201);
     }
+    // Like GitHub: the git data API refuses writes before the first
+    // commit (only the contents API can create it).
+    if (!repo.refs.size && method === "POST" && /^\/git\/(blobs|trees|commits)$/.test(rest)) {
+      return json({ message: "Git Repository is empty." }, 409);
+    }
     let r = /^\/git\/ref\/heads\/(.+)$/.exec(rest);
     if (r && method === "GET") {
       const head = repo.refs.get(decodeURIComponent(r[1]));

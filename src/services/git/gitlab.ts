@@ -5,6 +5,7 @@ import {
   GitConflictError,
   type GitChange,
   type GitCommitOptions,
+  type GitPermissions,
   type GitRemoteConfig,
   type GitTransport,
   type GitTree,
@@ -168,10 +169,11 @@ export function createGitLabTransport(cfg: GitLabConfig): GitTransport {
     }
   }
 
-  async function permissions() {
+  async function permissions(): Promise<GitPermissions> {
     const [user, project] = await Promise.all([
       getJson<{ username: string }>(`${api}/user`),
       getJson<{
+        visibility?: string;
         permissions?: {
           project_access?: { access_level?: number } | null;
           group_access?: { access_level?: number } | null;
@@ -182,7 +184,9 @@ export function createGitLabTransport(cfg: GitLabConfig): GitTransport {
       project.permissions?.project_access?.access_level ?? 0,
       project.permissions?.group_access?.access_level ?? 0,
     );
-    return { login: user.username, canWrite: level >= WRITE_LEVEL, isAdmin: level >= ADMIN_LEVEL };
+    const v = project.visibility;
+    const visibility = v === "public" || v === "private" || v === "internal" ? v : undefined;
+    return { login: user.username, canWrite: level >= WRITE_LEVEL, isAdmin: level >= ADMIN_LEVEL, visibility };
   }
 
   return {
