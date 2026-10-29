@@ -4,7 +4,7 @@
 
 - **[publish-targets.md](publish-targets.md)** — every hosting option (GitHub / Cloudflare / GitLab Pages, other git hosts, S3-compatible buckets, local folder, ZIP), its setup and its constraints.
 - **[self-hosting.md](self-hosting.md)** — the setup wizard, a local build, deploying and updating the admin, keeping it private.
-- **[firebase.md](firebase.md)** — Firestore security rules and indexes (Firebase backend only).
+- **[firebase.md](firebase.md)** — Firebase console setup screen by screen, Firestore security rules and indexes (Firebase backend only).
 - **[themes-and-plugins.md](themes-and-plugins.md)** — how themes and plugins work in the admin, and what each built-in plugin does.
 - **[architecture.md](architecture.md)** — the publish pipeline, URLs, menus, images, translations and the code layout.
 - **[releasing.md](releasing.md)** — how a release is cut (maintainers).

@@ -4,12 +4,12 @@ Firebase keeps the content in Firestore and signs editors in with Firebase Authe
 
 ## What the user does in the Firebase console (https://console.firebase.google.com)
 
-Guide them step by step; none of it can be scripted without the `firebase` CLI.
+Guide them step by step; none of it can be scripted without the `firebase` CLI. An illustrated walkthrough with a screenshot of every screen is at https://github.com/fleox/agentcms/blob/master/docs/firebase.md (send the user there if they get lost in the console).
 
-1. **Create a project**. Google Analytics is not needed.
-2. **Build → Authentication → Get started → Sign-in method → Email/Password → Enable.**
-3. **Authentication → Users → Add user**: the admin's email and a strong password. This is the bootstrap administrator.
-4. **Build → Firestore Database → Create database**: production mode, a region near the visitors.
+1. **Create a project** (Get started → name → Continue). Google Analytics is not needed.
+2. **Databases & Storage → Firestore → Create database**: Standard edition, a location near the visitors (it can't be changed later), **production mode**.
+3. **Security → Authentication → Get started → Sign-in method → Email/Password → Enable → Save.**
+4. **Authentication → Users → Add user**: the admin's email and a strong password. This is the bootstrap administrator.
 5. **Firestore → Rules**: paste the AgentCMS rules with the admin email pinned, then **Publish**. Print them with:
    ```bash
    npx -y @agent-cms/agentcms@0.3.7 options --firebase-rules <admin email> --json

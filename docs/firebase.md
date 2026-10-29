@@ -1,6 +1,197 @@
 # Firebase backend
 
-Firestore security rules and indexes for sites that use the Firebase data backend. The other backends (SQLite file, Markdown in git, this browser) need none of this.
+Everything a site that keeps its content in Firebase needs: the console setup, illustrated screen by screen, the Firestore security rules and the indexes. The other backends (SQLite file, Markdown in git, this browser) need none of this.
+
+**On this page:** [Set up the Firebase project](#set-up-the-firebase-project) · [Firestore security rules](#firestore-security-rules) · [Firestore indexes](#firestore-indexes) · [Updating the rules](#updating-firestore-security-rules)
+
+## Set up the Firebase project
+
+About ten minutes in the [Firebase console](https://console.firebase.google.com), once per site. You need a Google account. At the end you have everything AgentCMS asks for: the six web-app config values and the bootstrap admin's email and password.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase-setup.gif" width="820" alt="Slideshow of the 23 Firebase console screens, from creating the project to publishing the security rules">
+  <br><sub>The whole setup at a glance. Open each phase below for the screenshots in full size.</sub>
+</p>
+
+| Phase | What you do | Steps |
+|---|---|---|
+| 1️⃣ [Create the project](#1-create-the-project) | A new Firebase project, without Analytics | 1–5 |
+| 2️⃣ [Firestore](#2-firestore) | A Firestore database in production mode | 6–11 |
+| 3️⃣ [Authentication](#3-authentication) | Email/password sign-in and the bootstrap admin | 12–18 |
+| 4️⃣ [Web app](#4-web-app) | The six public config values | 19–22 |
+| 5️⃣ [Security rules](#5-security-rules) | The AgentCMS rules, with your admin email | 23 |
+| 6️⃣ [Connect AgentCMS](#6-connect-agentcms) | Setup wizard, agent or CLI | — |
+
+### 1. Create the project
+
+<details open>
+<summary><b>Show the 5 steps</b></summary>
+<br>
+
+**Step 1.** Open the Firebase console and click **Get started by setting up a Firebase project**.
+
+<a href="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-01.jpg"><img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-01.jpg" width="720" alt="Step 1: Open the Firebase console and click Get started by setting up a Firebase project."></a>
+
+**Step 2.** Name the project and click **Continue**.
+
+<a href="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-02.jpg"><img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-02.jpg" width="720" alt="Step 2: Name the project and click Continue."></a>
+
+**Step 3.** Untick **Google Analytics** (not needed) and click **Create project**.
+
+<a href="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-03.jpg"><img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-03.jpg" width="720" alt="Step 3: Untick Google Analytics (not needed) and click Create project."></a>
+
+**Step 4.** When the project is ready, click **Continue**.
+
+<a href="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-04.jpg"><img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-04.jpg" width="720" alt="Step 4: When the project is ready, click Continue."></a>
+
+**Step 5.** Open the project from the list.
+
+<a href="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-05.jpg"><img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-05.jpg" width="720" alt="Step 5: Open the project from the list."></a>
+
+</details>
+
+### 2. Firestore
+
+<details>
+<summary><b>Show the 6 steps</b></summary>
+<br>
+
+**Step 6.** In the sidebar: **Databases & Storage → Firestore**.
+
+<a href="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-06.jpg"><img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-06.jpg" width="720" alt="Step 6: In the sidebar: Databases &amp; Storage → Firestore."></a>
+
+**Step 7.** Click **Create database**.
+
+<a href="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-07.jpg"><img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-07.jpg" width="720" alt="Step 7: Click Create database."></a>
+
+**Step 8.** Leave the database ID empty, pick **Standard edition**, click **Next**.
+
+<a href="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-08.jpg"><img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-08.jpg" width="720" alt="Step 8: Leave the database ID empty, pick Standard edition, click Next."></a>
+
+**Step 9.** Choose the location (it can't be changed later), click **Next**.
+
+<a href="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-09.jpg"><img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-09.jpg" width="720" alt="Step 9: Choose the location (it can't be changed later), click Next."></a>
+
+> [!WARNING]
+> The location is permanent. Pick the region closest to your editors and visitors.
+
+**Step 10.** Select **Start in production mode** and click **Create**.
+
+<a href="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-10.jpg"><img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-10.jpg" width="720" alt="Step 10: Select Start in production mode and click Create."></a>
+
+**Step 11.** The database is ready. Leave it empty: AgentCMS creates its collections.
+
+<a href="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-11.jpg"><img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-11.jpg" width="720" alt="Step 11: The database is ready. Leave it empty: AgentCMS creates its collections."></a>
+
+> [!TIP]
+> Firestore has no schema: don't create any collection. AgentCMS creates them the first time it saves.
+
+</details>
+
+### 3. Authentication
+
+<details>
+<summary><b>Show the 7 steps</b></summary>
+<br>
+
+**Step 12.** In the sidebar: **Security → Authentication**.
+
+<a href="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-12.jpg"><img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-12.jpg" width="720" alt="Step 12: In the sidebar: Security → Authentication."></a>
+
+**Step 13.** Click **Get started**.
+
+<a href="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-13.jpg"><img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-13.jpg" width="720" alt="Step 13: Click Get started."></a>
+
+**Step 14.** In **Sign-in method**, choose **Email/Password**.
+
+<a href="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-14.jpg"><img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-14.jpg" width="720" alt="Step 14: In Sign-in method, choose Email/Password."></a>
+
+**Step 15.** Turn **Enable** on and click **Save**.
+
+<a href="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-15.jpg"><img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-15.jpg" width="720" alt="Step 15: Turn Enable on and click Save."></a>
+
+**Step 16.** Email/Password is now **Enabled**.
+
+<a href="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-16.jpg"><img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-16.jpg" width="720" alt="Step 16: Email/Password is now Enabled."></a>
+
+**Step 17.** Open the **Users** tab and click **Add user**.
+
+<a href="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-17.jpg"><img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-17.jpg" width="720" alt="Step 17: Open the Users tab and click Add user."></a>
+
+**Step 18.** Create the **bootstrap admin**: the email and password you'll sign in to AgentCMS with.
+
+<a href="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-18.jpg"><img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-18.jpg" width="720" alt="Step 18: Create the bootstrap admin: the email and password you'll sign in to AgentCMS with."></a>
+
+> [!IMPORTANT]
+> Note this email and password. The email goes into the security rules (phase 5), and you sign in to AgentCMS with both.
+
+</details>
+
+### 4. Web app
+
+<details>
+<summary><b>Show the 4 steps</b></summary>
+<br>
+
+**Step 19.** Gear icon → **Project settings**.
+
+<a href="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-20-1.jpg"><img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-20-1.jpg" width="720" alt="Step 19: Gear icon → Project settings."></a>
+
+**Step 20.** Under **Your apps**, click the **</>** (Web) icon.
+
+<a href="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-20-3.jpg"><img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-20-3.jpg" width="720" alt="Step 20: Under Your apps, click the &lt;/&gt; (Web) icon."></a>
+
+**Step 21.** Give it a nickname and click **Register app** (skip Firebase Hosting).
+
+<a href="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-20-4.jpg"><img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-20-4.jpg" width="720" alt="Step 21: Give it a nickname and click Register app (skip Firebase Hosting)."></a>
+
+**Step 22.** Copy the six **firebaseConfig** values: AgentCMS asks for them.
+
+<a href="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-20-5.jpg"><img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-20-5.jpg" width="720" alt="Step 22: Copy the six firebaseConfig values: AgentCMS asks for them."></a>
+
+> [!NOTE]
+> These values are public by design: they end up in the admin's `config.js`. Your data is protected by the security rules, not by these values.
+
+</details>
+
+### 5. Security rules
+
+<details>
+<summary><b>Show the 1 steps</b></summary>
+<br>
+
+**Step 23.** **Firestore → Rules**: paste the AgentCMS rules with your admin email, then **Publish**.
+
+Print the rules with your admin email already in place, then paste them over the default rules:
+
+```bash
+npx -y @agent-cms/agentcms options --firebase-rules you@example.com --json   # data.rules
+```
+
+Or copy them from [Firestore security rules](#firestore-security-rules) below and replace `you@example.com` (lowercase).
+
+<a href="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-19.jpg"><img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/firebase/step-19.jpg" width="720" alt="Step 23: Firestore → Rules: paste the AgentCMS rules with your admin email, then Publish."></a>
+
+</details>
+
+### 6. Connect AgentCMS
+
+Pick one:
+
+- **With an AI agent**: ask *"Install a new AgentCMS site with Firebase"*. The agent asks for the six config values, then has you store the admin login yourself (`agentcms credentials set firebase:<name>`, hidden prompt).
+- **Setup wizard** (`npx -y @agent-cms/agentcms serve`, or an admin you host): choose **Firebase** on the *Data* step, paste the six values and sign in with the bootstrap admin. The wizard checks the project, the sign-in and the rules before going further.
+- **CLI install plan**: the `data` part of the plan:
+
+  ```json
+  "data": {
+    "backend": "firebase",
+    "credential": "firebase:<name>",
+    "firebase": { "apiKey": "…", "authDomain": "…", "projectId": "…", "storageBucket": "…", "messagingSenderId": "…", "appId": "…" }
+  }
+  ```
+
+> [!CAUTION]
+> If the rules still contain `you@example.com`, nobody gets admin rights: the wizard and the CLI stop with a message that gives the email to pin. Other sign-in errors are listed in [Self-hosting](self-hosting.md).
 
 ## Firestore security rules
 

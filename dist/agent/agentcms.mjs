@@ -4840,7 +4840,7 @@ const DATA_BACKENDS = [
     ],
     credentialTypes: ["firebase"],
     notes: [
-      "The project needs Authentication → Email/Password enabled, a user for the admin, Firestore created, and the AgentCMS Firestore rules published with that email pinned (README → Firestore rules). The CLI checks all of it before installing.",
+      "The project needs Authentication → Email/Password enabled, a user for the admin, Firestore created, and the AgentCMS Firestore rules published with that email pinned (`agentcms options --firebase-rules <email>`; illustrated console guide: docs/firebase.md). The CLI checks all of it before installing.",
       "Like the setup wizard, the publish target's keys are stored in Firestore config/storage (readable by the site's editors)."
     ]
   },
@@ -4971,7 +4971,7 @@ const optionsCommand = {
   ],
   async run({ io, options }) {
     if (options["firebase-rules"]) {
-      const { firestoreRules } = await import("./chunks/firestoreRules-ClmyqsUx.mjs");
+      const { firestoreRules } = await import("./chunks/firestoreRules-CX5Ka3wk.mjs");
       const email = String(options["firebase-rules"]);
       const rules = firestoreRules(email);
       printResult(io, { email, rules, where: "Firebase console → Firestore Database → Rules → paste → Publish (or `firebase deploy --only firestore:rules` with the rules in firestore.rules)." }, () => rules);

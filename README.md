@@ -158,7 +158,7 @@ The admin is the only runtime. When you click **Publish**, it reads the content 
 |---|---|---|
 | **SQLite file** *(default)* | One owner, the simplest setup. Encrypted file on your own hosting. | none |
 | **Markdown in git** | Teams. Every change is a commit, and editors use their own GitHub / GitLab token. | repository permissions |
-| **Firebase** | Real-time multi-editor work. Free tier. | Firebase Auth |
+| **Firebase** | Real-time multi-editor work. Free tier. [Illustrated setup](https://github.com/fleox/agentcms/blob/master/docs/firebase.md#set-up-the-firebase-project). | Firebase Auth |
 | **This browser** | Trying things out, single user. | none |
 
 Hostings: **GitHub Pages**, **Cloudflare Pages**, **GitLab Pages**, any git-deployed host (Netlify, Vercel…), **S3-compatible buckets** (AWS, R2, OVH, Scaleway…), a local folder, or a ZIP to upload yourself. See [docs/publish-targets.md](https://github.com/fleox/agentcms/blob/master/docs/publish-targets.md).
@@ -225,7 +225,7 @@ Guides: [creating a plugin](https://github.com/fleox/agentcms/blob/master/docs/c
 |---|---|
 | [Publish targets](https://github.com/fleox/agentcms/blob/master/docs/publish-targets.md) | Every hosting option, its setup and its limits |
 | [Self-hosting](https://github.com/fleox/agentcms/blob/master/docs/self-hosting.md) | Setup wizard, local build, deploying and protecting the admin |
-| [Firebase](https://github.com/fleox/agentcms/blob/master/docs/firebase.md) | Firestore security rules and indexes |
+| [Firebase](https://github.com/fleox/agentcms/blob/master/docs/firebase.md) | Console setup step by step (screenshots), security rules and indexes |
 | [Themes and plugins](https://github.com/fleox/agentcms/blob/master/docs/themes-and-plugins.md) | How they work, and every built-in plugin |
 | [Architecture](https://github.com/fleox/agentcms/blob/master/docs/architecture.md) | Publish pipeline, URLs, menus, images, i18n, code layout |
 | [AGENTS.md](https://github.com/fleox/agentcms/blob/master/AGENTS.md) | Instructions for AI agents |

@@ -90,7 +90,7 @@ export const DATA_BACKENDS: DataBackendSpec[] = [
     ],
     credentialTypes: ["firebase"],
     notes: [
-      "The project needs Authentication → Email/Password enabled, a user for the admin, Firestore created, and the AgentCMS Firestore rules published with that email pinned (README → Firestore rules). The CLI checks all of it before installing.",
+      "The project needs Authentication → Email/Password enabled, a user for the admin, Firestore created, and the AgentCMS Firestore rules published with that email pinned (`agentcms options --firebase-rules <email>`; illustrated console guide: docs/firebase.md). The CLI checks all of it before installing.",
       "Like the setup wizard, the publish target's keys are stored in Firestore config/storage (readable by the site's editors).",
     ],
   },
