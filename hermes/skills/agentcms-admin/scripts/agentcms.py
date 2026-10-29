@@ -36,7 +36,7 @@ from typing import Any, Dict, List, Optional, Sequence
 
 # Pinned to the release these skills were written for (kept in step by the
 # repository's release script).
-VERSION = "0.3.8"
+VERSION = "0.3.9"
 PACKAGE = "@agent-cms/agentcms"
 MIN_NODE = (20, 6)
 

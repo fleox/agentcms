@@ -3,7 +3,7 @@ name: agentcms-manage
 description: Check, repair and update existing AgentCMS sites - list the sites this computer manages, register one installed elsewhere, check their health (admin, theme assets, config.js, GitHub Pages, credentials), detect when a newer AgentCMS release or newer skills exist, and offer to update hosted admins. Use when the user asks about one of their AgentCMS / AgentCMS sites, says something is broken, or wants to update.
 license: PolyForm-Noncommercial-1.0.0
 metadata:
-  version: "0.3.8"
+  version: "0.3.9"
   repository: "https://github.com/fleox/agentcms"
 ---
 
@@ -13,12 +13,12 @@ This skill covers the sites themselves (registry, health, updates). To change a 
 
 **Language:** talk to the user in their language; keep commands and files in English.
 
-Every command is `npx -y @agent-cms/agentcms@0.3.8 <command> --json` (Node.js 20+); read `error.hint` whenever `ok` is false. Fallback without npm: `node agentcms/dist/agent/agentcms.mjs` from a clone of https://github.com/fleox/agentcms.
+Every command is `npx -y @agent-cms/agentcms@0.3.9 <command> --json` (Node.js 20+); read `error.hint` whenever `ok` is false. Fallback without npm: `node agentcms/dist/agent/agentcms.mjs` from a clone of https://github.com/fleox/agentcms.
 
 ## Always start with status
 
 ```bash
-npx -y @agent-cms/agentcms@0.3.8 status --json
+npx -y @agent-cms/agentcms@0.3.9 status --json
 ```
 
 It compares this tool (= these skills, same release) with the latest release, and each registered site's hosted admin with this release.
@@ -31,7 +31,7 @@ It compares this tool (= these skills, same release) with the latest release, an
 
 ## Which site?
 
-One computer can manage many sites. `npx -y @agent-cms/agentcms@0.3.8 site list --json` lists them.
+One computer can manage many sites. `npx -y @agent-cms/agentcms@0.3.9 site list --json` lists them.
 
 - Commands take `--site <alias>`; always pass it. Without it the tool uses `AGENTCMS_SITE` (environment), the folder's `agentcms.json` (`{ "site": "<alias>" }`), the only site, or the default chosen with `site use` (shared by every process on this computer) - otherwise it fails with `site-required`: ask the user which site.
 - Always say which site you are working on before changing anything ("Working on **my-blog** (https://...)").
@@ -44,10 +44,10 @@ Registry commands: `site show <alias>`, `site use <alias>`, `site rename <from> 
 (Setup wizard, another computer, by hand.)
 
 ```bash
-npx -y @agent-cms/agentcms@0.3.8 site add <alias> --admin-url https://example.com/admin/ --data-credential github:<login> --hosting-credential <account> --json
+npx -y @agent-cms/agentcms@0.3.9 site add <alias> --admin-url https://example.com/admin/ --data-credential github:<login> --hosting-credential <account> --json
 ```
 
-- `--data-credential` is required for Markdown-in-git sites (to read where the site publishes) and for Firebase sites (`firebase:<name>` = the admin's email + password, stored by the user with `! npx -y @agent-cms/agentcms@0.3.8 credentials set firebase:<name>`): the CLI signs in like the admin and reads the publish target from Firestore.
+- `--data-credential` is required for Markdown-in-git sites (to read where the site publishes) and for Firebase sites (`firebase:<name>` = the admin's email + password, stored by the user with `! npx -y @agent-cms/agentcms@0.3.9 credentials set firebase:<name>`): the CLI signs in like the admin and reads the publish target from Firestore.
 - `--hosting-credential` is needed to update the hosted admin later; for git hostings on the same account as the content it defaults to the data credential.
 - SQLite sites: `--hosting-credential` (or `--data-credential` when the database sits in a separate location) opens the database and reads the real publish target from it; an encrypted database also needs `--passphrase-credential passphrase:<name>` (store it first with `credentials set`).
 - S3 sites: pass the admin URL the user opens (the bucket's https address, or the http website one); the public site URL is read from the content. `--site-url` overrides it.
@@ -58,7 +58,7 @@ npx -y @agent-cms/agentcms@0.3.8 site add <alias> --admin-url https://example.co
 ## Health check
 
 ```bash
-npx -y @agent-cms/agentcms@0.3.8 doctor --site <alias> --json
+npx -y @agent-cms/agentcms@0.3.9 doctor --site <alias> --json
 ```
 
 Add `--deep` to also test write access (writes then deletes a probe file on file hosts). For each check with `status: "fail"` or `"warn"`, explain it in plain words and propose its `fix`. Common ones:
@@ -74,23 +74,23 @@ Add `--deep` to also test write access (writes then deletes a probe file on file
 
 1. Plan only (writes nothing; the JSON answer carries `data.needsConfirmation: true`):
    ```bash
-   npx -y @agent-cms/agentcms@0.3.8 deploy-admin --site <alias> --json
+   npx -y @agent-cms/agentcms@0.3.9 deploy-admin --site <alias> --json
    ```
    Show `from -> to`, the number of files and the changes (breaking first). If a plan has `refused`, explain why and stop for that site.
 2. After the user agrees:
    ```bash
-   npx -y @agent-cms/agentcms@0.3.8 deploy-admin --site <alias> --yes --json
+   npx -y @agent-cms/agentcms@0.3.9 deploy-admin --site <alias> --yes --json
    ```
    Add `--theme-assets` when the changes list the `sync-theme-assets` action. `--all` plans / updates every hosted site (list them all to the user first).
 3. Run the `pendingActions` (`regenerate-all` → `agentcms regenerate everything --site <alias>`; `sync-theme-assets` → `agentcms regenerate assets`) and run `doctor` again.
 
 ## SQLite sites: encryption and history
 
-- **Not encrypted yet** (`doctor` -> `database-exposure` fail, or the user asks): in the admin, Settings -> Data backend -> **Encrypt the database**. The admin generates a passphrase; the user saves it in their password manager, ticks the confirmation and applies. Other browsers then ask for it once. Store it for the CLI too: `! npx -y @agent-cms/agentcms@0.3.8 credentials set passphrase:<alias>`.
+- **Not encrypted yet** (`doctor` -> `database-exposure` fail, or the user asks): in the admin, Settings -> Data backend -> **Encrypt the database**. The admin generates a passphrase; the user saves it in their password manager, ticks the confirmation and applies. Other browsers then ask for it once. Store it for the CLI too: `! npx -y @agent-cms/agentcms@0.3.9 credentials set passphrase:<alias>`.
 - **Change the passphrase** (leaked, editor left): same place, **Change the passphrase**. Old git commits still hold versions encrypted with the old one - compact the history afterwards (below).
 - **Data branch history** (database kept in git, e.g. `agentcms-data`): every save adds a full copy of the encrypted file. When the repository grows, or after a passphrase change:
   ```bash
-  npx -y @agent-cms/agentcms@0.3.8 compact-data --site <alias> --json
+  npx -y @agent-cms/agentcms@0.3.9 compact-data --site <alias> --json
   ```
   shows the commit count; after the user agrees, re-run with `--yes` to keep one commit. GitHub only; branches holding anything else than the database are refused.
 
