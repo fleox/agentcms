@@ -1,7 +1,7 @@
 # GitLab - content repo, GitLab Pages hosting, token
 
 - Projects: one private project for content (Markdown backend), one for the site (GitLab Pages). Create them on https://gitlab.com/projects/new, or with `glab repo create <group>/<name> --private` / `--public` when `glab` is installed and signed in.
-- Token: project access token (Settings -> Access tokens) or personal token (Preferences -> Access tokens) with scope **`api`** and role **Developer** or higher on both projects. The user stores it: `! npx -y @agent-cms/agentcms@0.3.5 credentials set gitlab:<name>`.
+- Token: project access token (Settings -> Access tokens) or personal token (Preferences -> Access tokens) with scope **`api`** and role **Developer** or higher on both projects. The user stores it: `! npx -y @agent-cms/agentcms@0.3.6 credentials set gitlab:<name>`.
 - GitLab Pages needs the site in a folder: AgentCMS publishes into `public/` and commits a minimal `.gitlab-ci.yml` with the first publish.
 - Site URL: `https://<group>.gitlab.io/<project>` (or the custom domain from Deploy -> Pages).
 
