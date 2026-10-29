@@ -1,8 +1,6 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/logo.svg" width="88" height="88" alt="AgentCMS logo">
+  <img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/logo.png" width="200" height="200" alt="AgentCMS">
 </p>
-
-<h1 align="center">AgentCMS</h1>
 
 <p align="center">
   <strong>The static CMS your AI agent can run.</strong><br>
