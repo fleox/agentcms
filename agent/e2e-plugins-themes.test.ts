@@ -117,6 +117,15 @@ describe("plugins", () => {
     expect(has("news/news.xml")).toBe(false);
     expect(has("rss.xml")).toBe(false);
     expect(text("data/menu.json")).not.toContain("news.xml");
+
+    // A partial --set (what agents tend to send) keeps every other key at
+    // its default instead of crashing the plugin on a missing one.
+    const partial = await run(["plugins", "config", "agentcms-rss", "--set", '{"site":{"enabled":true,"addToFooter":true}}']);
+    expect(partial.body.ok).toBe(true);
+    expect(partial.body.data.result.config).toMatchObject({ site: { enabled: true, addToFooter: true, itemCount: cfg.site.itemCount }, categoryFeeds: [] });
+    const unknown = await run(["plugins", "config", "agentcms-rss", "--set", '{"showInFooter":true}']);
+    expect(unknown.body.ok).toBe(true);
+    expect(unknown.body.data.result.warnings.join(" ")).toContain('"showInFooter" is not a setting');
   }, 60_000);
 
   it("runs the sitemaps, search and archives buttons", async () => {

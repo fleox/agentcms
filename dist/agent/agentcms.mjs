@@ -3428,7 +3428,7 @@ Regenerate the site for it to show: ${r.next.join(" ; ")}` : ""}${r.warnings.map
         if (req.mode === "get") return { id: manifest.id, config: prev, stored: s.settings().pluginConfigs?.[manifest.id] ?? null };
         const { deepMerge, shapeWarnings, changedKeys, schemaErrors } = await import("./chunks/configEdit-ITtPKiyZ.mjs");
         const { keepManaged } = await import("./chunks/configEdit-ITtPKiyZ.mjs");
-        const next = req.mode === "set" ? keepManaged(prev, req.value, manifest.settings.schema) : deepMerge(prev, req.value);
+        const next = req.mode === "set" ? deepMerge(defaults, keepManaged(prev, req.value, manifest.settings.schema)) : deepMerge(prev, req.value);
         const invalid = schemaErrors(manifest.settings.schema, next, prev);
         if (invalid.length) throw new CliError("invalid-value", `${manifest.id}: ${invalid.join(" ")}`, `See \`agentcms plugins config ${manifest.id} --schema\`.`, 2);
         const warnings = shapeWarnings(defaults, req.value, manifest.id, manifest.settings.schema);
@@ -3499,7 +3499,7 @@ const pluginsCommand = {
     { name: "site", type: "string", description: "Site alias." },
     { name: "get", type: "boolean", description: "config: print the current config (stored merged over defaults) — the default." },
     { name: "schema", type: "boolean", description: "config: print the plugin's default config (every key it knows)." },
-    { name: "set", type: "string", description: "config: replace the whole config with this JSON object (or @file.json)." },
+    { name: "set", type: "string", description: "config: replace the whole config with this JSON object (or @file.json); keys left out get their default value." },
     { name: "merge", type: "string", description: "config: deep-merge this JSON object into the current config (arrays are replaced)." },
     { name: "default-robots", type: "boolean", description: "action agentcms-sitemaps robots: reset robots.txt to the default text first." },
     { name: "pwa", type: "string", description: "action agentcms-favicon set|manifest: PWA manifest fields as JSON {name, shortName, themeColor, backgroundColor, display}." },
@@ -3693,7 +3693,7 @@ ${r.mediaMissingFormats} media lack ${r.to}'s image formats: ${r.next.join(" ; "
         if (req.mode === "get") return { id: theme.id, config: prev, stored: s.settings().themeConfigs?.[theme.id] ?? null };
         const { deepMerge, shapeWarnings, changedKeys, schemaErrors } = await import("./chunks/configEdit-ITtPKiyZ.mjs");
         const { keepManaged } = await import("./chunks/configEdit-ITtPKiyZ.mjs");
-        let next = req.mode === "set" ? keepManaged(prev, { ...req.value }, theme.settings.schema) : deepMerge(prev, req.value);
+        let next = req.mode === "set" ? deepMerge(defaults, keepManaged(prev, { ...req.value }, theme.settings.schema)) : deepMerge(prev, req.value);
         if ("cssUpdatedAt" in defaults && JSON.stringify(prev.style) !== JSON.stringify(next.style)) next = { ...next, cssUpdatedAt: Date.now() };
         const invalid = schemaErrors(theme.settings.schema, next, prev);
         if (invalid.length) throw new CliError("invalid-value", `${theme.id}: ${invalid.join(" ")}`, `See \`agentcms themes config ${theme.id} --schema\`.`, 2);
@@ -3785,7 +3785,7 @@ const themesCommand = {
     { name: "site", type: "string", description: "Site alias." },
     { name: "get", type: "boolean", description: "config: print the current config (stored merged over defaults) — the default." },
     { name: "schema", type: "boolean", description: "config: print the theme's default config (every key it knows)." },
-    { name: "set", type: "string", description: "config: replace the whole config with this JSON object (or @file.json)." },
+    { name: "set", type: "string", description: "config: replace the whole config with this JSON object (or @file.json); keys left out get their default value." },
     { name: "merge", type: "string", description: "config: deep-merge this JSON object into the current config (arrays are replaced)." },
     { name: "remove", type: "boolean", description: "logo: delete the logo instead of uploading one." },
     { name: "yes", type: "boolean", description: "activate: switch and regenerate (otherwise only the plan)." }

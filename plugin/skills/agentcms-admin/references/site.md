@@ -84,7 +84,7 @@ Links typed into theme or plugin settings (promo links, call-to-action URLs…) 
 - **Configuration:**
   - `plugins config <id> --schema` lists every setting (`settings[]`: `path`, `type`, `default`, and when the plugin documents it `description`, accepted `values`, `min` / `max`, `format`). Read it before changing a setting you don't know. A value outside `values` / `min`–`max` is refused (`invalid-value`, nothing saved).
   - `--get` (the default) prints the current config.
-  - `--merge '{…}'` changes some keys; `--set '{…}'` replaces the whole config (settings the extension manages itself — timestamps, logo flags — are kept). Both accept `@file.json`. Unknown keys are kept but reported in `warnings`: fix typos.
+  - **Use `--merge '{…}'` for any change**: it changes only the keys you give. `--set '{…}'` resets the whole config to its defaults, then applies your object — every other setting the user made is lost (only what the extension manages itself — timestamps, logo flags — is kept); use it only to start over. Both accept `@file.json`. Unknown keys are kept but reported in `warnings`: fix typos (check the real names with `--schema` first).
   - Each runs the settings page's side effects.
 - `plugins action <id> <action>` runs a settings-page button.
 

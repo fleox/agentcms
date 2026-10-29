@@ -2,6 +2,15 @@
   "$comment": "Newest first. Read by agents (agentcms status) to tell users what changed and what to run. `breaking`: an older admin, skill or site setup stops working without action. `actions`: steps a hosted site needs after updating — deploy-admin, regenerate-all, sync-theme-assets. Keep every entry in English.",
   "versions": [
     {
+      "version": "0.3.9",
+      "date": "2026-10-29",
+      "breaking": false,
+      "changes": [
+        "Fix: `plugins config <id> --set` / `themes config <id> --set` with a partial object removed every other key, and plugins then crashed on the missing ones (agentcms-rss: \"Cannot read properties of undefined (reading 'map')\"). Keys left out now get their default value. Admin skill: use `--merge` for changes, `--set` only to start over."
+      ],
+      "actions": []
+    },
+    {
       "version": "0.3.8",
       "date": "2026-10-29",
       "breaking": false,

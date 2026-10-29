@@ -223,7 +223,9 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
         if (req.mode === "get") return { id: theme.id, config: prev, stored: (s.settings().themeConfigs as Record<string, unknown> | undefined)?.[theme.id] ?? null };
         const { deepMerge, shapeWarnings, changedKeys, schemaErrors } = await import("../ops/configEdit");
         const { keepManaged } = await import("../ops/configEdit");
-        let next = req.mode === "set" ? keepManaged(prev, { ...req.value }, theme.settings.schema) : deepMerge(prev, req.value);
+        // --set: keys left out get their default (a partial object must not
+        // leave the theme without keys its templates read).
+        let next = req.mode === "set" ? deepMerge(defaults, keepManaged(prev, { ...req.value }, theme.settings.schema)) : deepMerge(prev, req.value);
         // Like the settings pages: a style change bumps cssUpdatedAt, the
         // ?v= of the stylesheet link (returning visitors get the new CSS
         // once pages are regenerated).
@@ -329,7 +331,7 @@ export const themesCommand: Command = {
     { name: "site", type: "string", description: "Site alias." },
     { name: "get", type: "boolean", description: "config: print the current config (stored merged over defaults) — the default." },
     { name: "schema", type: "boolean", description: "config: print the theme's default config (every key it knows)." },
-    { name: "set", type: "string", description: "config: replace the whole config with this JSON object (or @file.json)." },
+    { name: "set", type: "string", description: "config: replace the whole config with this JSON object (or @file.json); keys left out get their default value." },
     { name: "merge", type: "string", description: "config: deep-merge this JSON object into the current config (arrays are replaced)." },
     { name: "remove", type: "boolean", description: "logo: delete the logo instead of uploading one." },
     { name: "yes", type: "boolean", description: "activate: switch and regenerate (otherwise only the plan)." },
