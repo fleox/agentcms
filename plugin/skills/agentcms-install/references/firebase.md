@@ -12,7 +12,7 @@ Guide them step by step; none of it can be scripted without the `firebase` CLI. 
 4. **Authentication → Users → Add user**: the admin's email and a strong password. This is the bootstrap administrator.
 5. **Firestore → Rules**: paste the AgentCMS rules with the admin email pinned, then **Publish**. Print them with:
    ```bash
-   npx -y @agent-cms/agentcms@0.3.11 options --firebase-rules <admin email> --json
+   npx -y @agent-cms/agentcms@0.3.12 options --firebase-rules <admin email> --json
    ```
    Paste `data.rules`. If the `firebase` CLI is installed and signed in, `firebase deploy --only firestore:rules` with the rules saved as `firestore.rules` works too.
 6. **Project settings (gear) → General → Your apps → Web app (</>)**: register an app with no hosting, then copy the `firebaseConfig` values. They are public (they end up in the site's config.js), so they can go in the plan.
@@ -22,7 +22,7 @@ Guide them step by step; none of it can be scripted without the `firebase` CLI. 
 The admin login is a secret: the user stores it themselves.
 
 ```bash
-! npx -y @agent-cms/agentcms@0.3.11 credentials set firebase:<name>
+! npx -y @agent-cms/agentcms@0.3.12 credentials set firebase:<name>
 ```
 
 It prompts for email and password (hidden).
@@ -63,7 +63,7 @@ Like the setup wizard, the publish target's keys (S3 secret, git token) are stor
 Signing in grants nothing by itself (anyone can create a Firebase account with the public apiKey, and Google / email-link sign-in is one click): only the bootstrap admin and **invited** addresses get a role. After install, invite the editors the user names:
 
 ```bash
-npx -y @agent-cms/agentcms@0.3.11 users invite <email> --role editor --site <alias> --json   # or --role admin
+npx -y @agent-cms/agentcms@0.3.12 users invite <email> --role editor --site <alias> --json   # or --role admin
 ```
 
 Password accounts must also be created in Authentication → Users → Add user (same email); they verify their email at first sign-in. Email-link and Google editors need nothing else. Illustrated guide: https://github.com/fleox/agentcms/blob/master/docs/firebase.md#sign-in-methods
