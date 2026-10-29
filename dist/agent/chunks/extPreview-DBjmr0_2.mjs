@@ -9,7 +9,7 @@ import { resolve, join, dirname, normalize, sep, relative } from "node:path";
 import { format } from "node:util";
 import { createHash } from "node:crypto";
 import { C as CliError } from "../agentcms.mjs";
-import { bootExtensionHost } from "./extHost-B0jwGhEV.mjs";
+import { bootExtensionHost } from "./extHost-DE9tKm2a.mjs";
 import "node:url";
 import "node:os";
 import "node:child_process";
@@ -333,7 +333,7 @@ async function renderPreview(opts) {
   try {
     host.registry.clearExternalPlugins();
     host.registry.clearExternalThemes();
-    const { loadBundledPluginManifests } = await import("./adminFiles-vEEBF_3w.mjs");
+    const { loadBundledPluginManifests } = await import("./adminFiles-DaySk4Kz.mjs");
     for (const m of await loadBundledPluginManifests(new Set(opts.extensions.map((e) => e.id)))) {
       host.plugins.loadExternalPluginTranslations(m);
       host.registry.registerExternalPlugin(m);

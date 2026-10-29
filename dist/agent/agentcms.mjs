@@ -1196,7 +1196,7 @@ function list(value) {
 async function loadAll(paths2) {
   const [{ readExtensionPackage, bundleSource }, { importExtensionBundle }] = await Promise.all([
     import("./chunks/extPackage-4FSerswt.mjs"),
-    import("./chunks/extHost-B0jwGhEV.mjs")
+    import("./chunks/extHost-DE9tKm2a.mjs")
   ]);
   const out = [];
   for (const p of paths2) {
@@ -1216,7 +1216,7 @@ async function check({ io, options, positionals }) {
   const kind = options.kind;
   if (kind && kind !== "plugin" && kind !== "theme") throw new CliError("usage", "--kind is plugin or theme.", void 0, 2);
   const { readExtensionPackage } = await import("./chunks/extPackage-4FSerswt.mjs");
-  const { checkExtension } = await import("./chunks/extCheck-BGb7iesn.mjs");
+  const { checkExtension } = await import("./chunks/extCheck-C9gAAP6I.mjs");
   const pkg = await readExtensionPackage(target);
   const report = await checkExtension(pkg, {
     kind,
@@ -1275,7 +1275,7 @@ async function freePort(from) {
 async function preview({ io, options, positionals }) {
   const paths2 = positionals.slice(1);
   const exts = await loadAll(paths2);
-  const { renderPreview } = await import("./chunks/extPreview-Dexov_2J.mjs");
+  const { renderPreview } = await import("./chunks/extPreview-DBjmr0_2.mjs");
   const port = options.port !== void 0 ? Number(options.port) : await freePort(4321);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new CliError("usage", `Invalid port: ${options.port}`, void 0, 2);
   const outDir = resolve(String(options.out ?? join(tmpdir(), `agentcms-preview-${exts.map((e) => e.id).join("+") || "default"}`)));
@@ -1283,12 +1283,12 @@ async function preview({ io, options, positionals }) {
   let siteAlias;
   let siteTheme = null;
   if (options.site) {
-    const { snapshotSiteContent } = await import("./chunks/extSiteContent-DD8t60oj.mjs");
+    const { snapshotSiteContent } = await import("./chunks/extSiteContent-BVfMHUhY.mjs");
     const snap = await snapshotSiteContent(String(options.site));
     content = snap.content;
     siteAlias = snap.alias;
     if (snap.themeBundle && !exts.some((e) => e.kind === "theme") && !options.theme) {
-      const { importExtensionBundle } = await import("./chunks/extHost-B0jwGhEV.mjs");
+      const { importExtensionBundle } = await import("./chunks/extHost-DE9tKm2a.mjs");
       const { manifest } = await importExtensionBundle(snap.themeBundle);
       const m = manifest;
       if (m?.id && m.templates) siteTheme = { kind: "theme", id: m.id, manifest: m };
@@ -1380,7 +1380,7 @@ async function scaffold({ io, options, positionals }) {
   const [, kind, id] = positionals;
   if (kind !== "plugin" && kind !== "theme") throw new CliError("usage", "ext new needs plugin or theme, then an id: ext new theme my-theme", void 0, 2);
   if (!id) throw new CliError("usage", `ext new ${kind} needs an id (lower-case, dashes), e.g. ext new ${kind} my-${kind}.`, void 0, 2);
-  const { scaffoldExtension } = await import("./chunks/extScaffold-Dz_SlIem.mjs");
+  const { scaffoldExtension } = await import("./chunks/extScaffold-eHk76S2a.mjs");
   const dir = resolve(String(options.dir ?? id));
   if (existsSync(dir) && (await import("node:fs")).readdirSync(dir).length > 0 && !options.force) {
     throw new CliError("dir-not-empty", `${dir} already exists and is not empty.`, "Pick another --dir (or --force to write into it).", 2);
@@ -1397,7 +1397,7 @@ async function scaffold({ io, options, positionals }) {
   printResult(io, res, () => [`Created ${kind} "${id}" in ${dir}:`, ...res.files.map((f) => `  ${f}`), "", ...res.next].join("\n"));
 }
 async function install(ctx) {
-  const { installExtensionCommand } = await import("./chunks/extInstall--wuqOb-0.mjs");
+  const { installExtensionCommand } = await import("./chunks/extInstall-BZIDL3Np.mjs");
   return installExtensionCommand(ctx);
 }
 const extCommand = {
@@ -1465,7 +1465,7 @@ async function allEntries$3() {
   return [...posts, ...pages2];
 }
 async function summarize$3(p, terms) {
-  const { iso } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+  const { iso } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
   const cat = p.primaryTermId ? terms.find((t) => t.id === p.primaryTermId) : void 0;
   return {
     id: p.id,
@@ -1483,7 +1483,7 @@ async function summarize$3(p, terms) {
   };
 }
 async function readFields$1(options) {
-  const { readTextOption, readJsonOption, listOption, dateOption } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+  const { readTextOption, readJsonOption, listOption, dateOption } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
   const data = readJsonOption(options.data, "data") ?? {};
   if (typeof data !== "object" || Array.isArray(data)) throw new CliError("usage", "--data must be a JSON object.", void 0, 2);
   const str = (v) => typeof v === "string" ? v : void 0;
@@ -1512,7 +1512,7 @@ async function readFields$1(options) {
 }
 async function resolveTerms(f, existing, createMissing, type) {
   const { fetchAllTerms, createTerm } = await import("./chunks/taxonomies-D8XKYfUh.mjs");
-  const { findTerm } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+  const { findTerm } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
   const { slugify, findAvailableSlug } = await import("./chunks/slug-CZzRNKy4.mjs");
   let terms = await fetchAllTerms();
   const createdTerms = [];
@@ -1551,7 +1551,7 @@ async function checkSlug$1(slug, type, primaryTermId, ignoreId, all, terms) {
   if (owner) throw new CliError("slug-taken", `${path} is already used by ${owner.kind} "${owner.label}".`, "Pick another --slug.", 2);
 }
 async function resolveMediaId(ref) {
-  const { listAllMedia } = await import("./chunks/media-Bj4j0oQO.mjs").then((n) => n.n);
+  const { listAllMedia } = await import("./chunks/media-9UyLuwBC.mjs").then((n) => n.n);
   const media = await listAllMedia();
   const m = media.find((x) => x.id === ref) ?? media.find((x) => x.name === ref);
   if (!m) throw new CliError("not-found", `No media "${ref}".`, "Upload it first (`agentcms media upload <file>`) and use its id.", 2);
@@ -1581,7 +1581,7 @@ function encodeB64Json(v) {
 }
 async function run$c({ io, options, positionals }) {
   const [action, ...refs] = positionals;
-  const { runAdmin, findPost, currentUserId, menuReferences, menuRemoveHints, pathMoves, reportStaleLinks } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+  const { runAdmin, findPost, currentUserId, menuReferences, menuRemoveHints, pathMoves, reportStaleLinks } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
   const alias = options.site;
   const type = kindOption(options.type);
   switch (action) {
@@ -1592,7 +1592,7 @@ async function run$c({ io, options, positionals }) {
         if (type) all = all.filter((p) => p.type === type);
         if (options.status) all = all.filter((p) => p.status === options.status);
         if (options.category) {
-          const { requireTerm } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+          const { requireTerm } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
           const cat = requireTerm(terms, String(options.category), "category");
           all = all.filter((p) => p.primaryTermId === cat.id);
         }
@@ -1607,7 +1607,7 @@ async function run$c({ io, options, positionals }) {
       return runAdmin(io, alias, {}, async () => {
         const terms = await (await import("./chunks/taxonomies-D8XKYfUh.mjs")).fetchAllTerms();
         const p = findPost(await allEntries$3(), refs[0], type);
-        const { iso } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+        const { iso } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
         return {
           ...await summarize$3(p, terms),
           excerpt: p.excerpt ?? null,
@@ -1825,7 +1825,7 @@ ${r.body}`);
           ...f.body !== void 0 ? { contentMarkdown: f.body } : {},
           ...f.excerpt !== void 0 ? { excerpt: f.excerpt ?? void 0 } : {}
         };
-        const { renderPostPreview } = await import("./chunks/previewRenderer-DZByK9q8.mjs");
+        const { renderPostPreview } = await import("./chunks/previewRenderer-DpERRjPd.mjs");
         const [terms, users, media] = await Promise.all([s.terms(), s.users(), s.media()]);
         const html = await renderPostPreview({
           draft,
@@ -1876,7 +1876,7 @@ ${r.body}`);
         if (refs[0] && !wanted.length) throw new CliError("not-found", `No block "${refs[0]}" on this site.`, "List them with `agentcms content blocks` (blocks of the active theme and plugins; an installed theme's blocks by id).", 2);
         const harbor = (await s.media())[0];
         const trials = await tryBlocks(wanted, harbor ? { id: harbor.id, url: s.host.cmsRuntime.pickMediaUrl(harbor), alt: harbor.alt ?? "" } : void 0);
-        const rawAttrs = options.attrs === void 0 ? null : (await import("./chunks/adminCommon-C-9C14oR.mjs")).readJsonOption(options.attrs, "attrs");
+        const rawAttrs = options.attrs === void 0 ? null : (await import("./chunks/adminCommon-DK5a9uhY.mjs")).readJsonOption(options.attrs, "attrs");
         if (rawAttrs !== null && (typeof rawAttrs !== "object" || Array.isArray(rawAttrs))) throw new CliError("usage", "--attrs must be a JSON object.", void 0, 2);
         const custom = rawAttrs;
         const { describeSettings, schemaErrors } = await import("./chunks/settingsSchema-DP7hBiko.mjs");
@@ -1954,7 +1954,7 @@ const contentCommand = {
 async function run$b({ io, options, positionals }) {
   const what = positionals[0];
   if (!what) throw new CliError("usage", "regenerate needs what to regenerate.", "home, all, repair, assets, everything, targets, or a target id (see `regenerate targets`).", 2);
-  const { runAdmin } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+  const { runAdmin } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
   const alias = options.site;
   const readOnly = what === "targets";
   return runAdmin(io, alias, readOnly ? { extensions: true } : { write: true, hosting: true, extensions: true, lock: true }, async (s) => (
@@ -1975,7 +1975,7 @@ async function run$b({ io, options, positionals }) {
         }
       };
       const syncAssets = async () => {
-        const { syncThemeAssets } = await import("./chunks/themeSync-DX5Kv3G4.mjs");
+        const { syncThemeAssets } = await import("./chunks/themeSync-CKwVwkUo.mjs");
         await syncThemeAssets(s.host.themes.listThemes(), s.settings().themeConfigs, s.log);
       };
       switch (what) {
@@ -1996,7 +1996,7 @@ async function run$b({ io, options, positionals }) {
           const { fetchAllPosts, invalidateAllPostsCache } = await import("./chunks/posts-D28k7tn_.mjs");
           invalidateAllPostsCache();
           const after = [...await fetchAllPosts({ type: "post" }), ...await fetchAllPosts({ type: "page" })];
-          const m = await import("./chunks/adminCommon-C-9C14oR.mjs");
+          const m = await import("./chunks/adminCommon-DK5a9uhY.mjs");
           const staleLinks = m.reportStaleLinks(s, m.pathMoves(before, after));
           return { what, ...res, staleLinks, seconds: Math.round((Date.now() - started) / 1e3) };
         }
@@ -2005,7 +2005,7 @@ async function run$b({ io, options, positionals }) {
           break;
         }
         case "everything": {
-          await (await import("./chunks/regenerateAll-kO3hvzxl.mjs")).regenerateEverything(s);
+          await (await import("./chunks/regenerateAll-CFmyfRui.mjs")).regenerateEverything(s);
           break;
         }
         default: {
@@ -2049,7 +2049,7 @@ function usage(t, all) {
   return using.map((p) => ({ id: p.id, title: p.title, status: p.status, primary: p.primaryTermId === t.id, path: p.lastPublishedPath ?? null }));
 }
 async function summarize$2(t, terms, all) {
-  const { iso } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+  const { iso } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
   const parent = t.parentId ? terms.find((x) => x.id === t.parentId) : void 0;
   return {
     id: t.id,
@@ -2066,7 +2066,7 @@ async function summarize$2(t, terms, all) {
   };
 }
 async function readFields(options) {
-  const { readJsonOption, readTextOption } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+  const { readJsonOption, readTextOption } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
   const data = readJsonOption(options.data, "data") ?? {};
   if (typeof data !== "object" || Array.isArray(data)) throw new CliError("usage", "--data must be a JSON object.", void 0, 2);
   const str = (flag, key) => typeof flag === "string" ? flag : typeof data[key] === "string" ? data[key] : void 0;
@@ -2122,7 +2122,7 @@ function multilangLanguages(settings) {
 }
 async function run$a({ io, options, positionals }) {
   const [action, ref] = positionals;
-  requireCommon = await import("./chunks/adminCommon-C-9C14oR.mjs");
+  requireCommon = await import("./chunks/adminCommon-DK5a9uhY.mjs");
   const { runAdmin, requireTerm, findTerm, menuReferences, menuRemoveHints, menuLabelHints, reportStaleLinks, pathMoves } = requireCommon;
   const alias = options.site;
   const type = typeOption(options.type);
@@ -2563,7 +2563,7 @@ function positionOption(v, length) {
 }
 async function run$9({ io, options, positionals }) {
   const [action, ref] = positionals;
-  const common = await import("./chunks/adminCommon-C-9C14oR.mjs");
+  const common = await import("./chunks/adminCommon-DK5a9uhY.mjs");
   const { runAdmin, findPost, findTerm, readJsonOption } = common;
   const alias = options.site;
   const describeAll = async (menus, c) => ({
@@ -2760,7 +2760,7 @@ function boolValue(v, name) {
   throw new CliError("usage", `--${name} is true or false (got "${String(v)}").`, void 0, 2);
 }
 async function readInput(options) {
-  const { readJsonOption, readTextOption } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+  const { readJsonOption, readTextOption } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
   const data = readJsonOption(options.data, "data") ?? {};
   if (typeof data !== "object" || Array.isArray(data)) throw new CliError("usage", "--data must be a JSON object.", void 0, 2);
   const known = ["title", "description", "language", "baseUrl", "postsPerPage", "homeMode", "homePage", "homePageId", "discourageIndexing", "editorStyle", "paginationMode"];
@@ -2804,7 +2804,7 @@ async function readInput(options) {
 }
 async function run$8({ io, options, positionals }) {
   const [action, sub] = positionals;
-  const { runAdmin, findPost } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+  const { runAdmin, findPost } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
   const alias = options.site;
   switch (action) {
     case "get": {
@@ -3007,7 +3007,7 @@ function nextSteps(id, alias) {
   }
 }
 async function muPlugins() {
-  return (await import("./chunks/media-Bj4j0oQO.mjs").then((n) => n.h)).listMuPlugins();
+  return (await import("./chunks/media-9UyLuwBC.mjs").then((n) => n.h)).listMuPlugins();
 }
 async function pluginRows(s) {
   const { readBackendRegistryForCli } = await import("./chunks/sessionRegistry-gjzuaydG.mjs");
@@ -3098,7 +3098,7 @@ function requireBaseUrl(s, id) {
   return baseUrl;
 }
 async function resolveRssTerms(s, cfg) {
-  const { findTerm } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+  const { findTerm } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
   const terms = await s.terms();
   const idOf = (ref) => {
     const t = typeof ref === "string" ? findTerm(terms, ref, "category") : void 0;
@@ -3125,7 +3125,7 @@ function pwaInput(cfg, settings) {
   };
 }
 async function readPwaOption(value) {
-  const { readJsonOption } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+  const { readJsonOption } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
   const raw = readJsonOption(value, "pwa");
   if (raw === void 0) return {};
   if (typeof raw !== "object" || raw === null || Array.isArray(raw)) throw new CliError("usage", "--pwa must be a JSON object.", void 0, 2);
@@ -3199,7 +3199,7 @@ function summarizeScan(summary, statusMode) {
   };
 }
 async function importOptions(s, m, options) {
-  const { DEFAULT_IMPORT_OPTIONS } = await import("./chunks/media-Bj4j0oQO.mjs").then((n) => n.i);
+  const { DEFAULT_IMPORT_OPTIONS } = await import("./chunks/media-9UyLuwBC.mjs").then((n) => n.i);
   const stored = pluginConfigOf(s, m).options ?? {};
   const opts = { ...DEFAULT_IMPORT_OPTIONS, ...stored };
   if (options.status !== void 0) {
@@ -3212,7 +3212,7 @@ async function importOptions(s, m, options) {
   return opts;
 }
 async function runImportAction(options, s, m, action, arg) {
-  const imp = await import("./chunks/media-Bj4j0oQO.mjs").then((n) => n.i);
+  const imp = await import("./chunks/media-9UyLuwBC.mjs").then((n) => n.i);
   if (action === "init") {
     await batched$1(() => imp.initializeFolder());
     return { action, folder: imp.IMPORT_FOLDER };
@@ -3228,7 +3228,7 @@ async function runImportAction(options, s, m, action, arg) {
   const bundle = fromHosting ? await imp.buildBundleFromFolder() : bundleFromDisk(arg);
   if (bundle.markdown.length === 0 && bundle.xml.length === 0) throw new CliError("no-sources", "No Markdown or WordPress XML file found to import.", void 0, 2);
   const opts = await importOptions(s, m, options);
-  const { currentUserId } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+  const { currentUserId } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
   const { posts, pages: pages2 } = await corpus();
   const scanCtx = { posts, pages: pages2, terms: await s.terms(), media: await s.media(), users: await s.users(), importerUserId: await currentUserId() };
   const summary = imp.scanBundle(bundle, scanCtx, opts);
@@ -3270,7 +3270,7 @@ async function pluginAction(options, s, m, action, arg) {
   switch (m.id) {
     case "agentcms-sitemaps": {
       const baseUrl = requireBaseUrl(s, m.id);
-      const gen = await import("./chunks/generator-DkfEHnCu.mjs");
+      const gen = await import("./chunks/generator-CAsNhwGF.mjs");
       if (action === "regenerate") {
         await runTarget(s, m.id);
         return { action };
@@ -3293,7 +3293,7 @@ async function pluginAction(options, s, m, action, arg) {
         await runTarget(s, m.id);
         return { action };
       }
-      const gen = await import("./chunks/generator-BK06MKru.mjs");
+      const gen = await import("./chunks/generator-BE3-TLX4.mjs");
       await batched$1(() => gen.regenerateStylesheet({ settings: s.settings() }));
       return { action, uploaded: ["rss.xsl"] };
     }
@@ -3303,7 +3303,7 @@ async function pluginAction(options, s, m, action, arg) {
       return { action };
     case "agentcms-favicon": {
       const gen = await import("./chunks/generator-DQlMwbpp.mjs");
-      const { DEFAULT_FAVICON_CONFIG } = await import("./chunks/media-Bj4j0oQO.mjs").then((n) => n.S);
+      const { DEFAULT_FAVICON_CONFIG } = await import("./chunks/media-9UyLuwBC.mjs").then((n) => n.S);
       const cfg = pluginConfigOf(s, m);
       const draft = { ...cfg, ...await readPwaOption(options.pwa) };
       const regen = [`agentcms regenerate all --site ${alias}`];
@@ -3339,7 +3339,7 @@ async function applyConfig(s, m, prev, next) {
   const effects = [];
   switch (m.id) {
     case "agentcms-rss": {
-      const gen = await import("./chunks/generator-BK06MKru.mjs");
+      const gen = await import("./chunks/generator-BE3-TLX4.mjs");
       const resolved = await resolveRssTerms(s, next);
       return batched$1(async () => {
         const cleanup = await gen.cleanupRemovedFeeds({ prevConfig: prev, nextConfig: resolved });
@@ -3373,7 +3373,7 @@ async function applyConfig(s, m, prev, next) {
 }
 async function run$7({ io, options, positionals }) {
   const [action, id, sub, arg] = positionals;
-  const { runAdmin } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+  const { runAdmin } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
   const alias = options.site;
   const write = { write: true, hosting: true, extensions: true, lock: true };
   switch (action) {
@@ -3413,7 +3413,7 @@ async function run$7({ io, options, positionals }) {
 Regenerate the site for it to show: ${r.next.join(" ; ")}` : ""}${r.warnings.map((w) => `
   warning: ${w}`).join("")}`);
     case "config": {
-      const { readConfigRequest } = await import("./chunks/configEdit-IFVzGEmy.mjs");
+      const { readConfigRequest } = await import("./chunks/configEdit-BtaThQg1.mjs");
       const req = readConfigRequest(options);
       const readOnly = req.mode === "get" || req.mode === "schema";
       return runAdmin(io, alias, readOnly ? { extensions: true } : write, async (s) => {
@@ -3421,13 +3421,13 @@ Regenerate the site for it to show: ${r.next.join(" ; ")}` : ""}${r.warnings.map
         if (!manifest.settings) throw new CliError("no-settings", `${manifest.id} has no settings.`, void 0, 2);
         const defaults = manifest.settings.defaultConfig;
         if (req.mode === "schema") {
-          const { describeSettings } = await import("./chunks/configEdit-IFVzGEmy.mjs");
+          const { describeSettings } = await import("./chunks/configEdit-BtaThQg1.mjs");
           return { id: manifest.id, documented: !!manifest.settings.schema, settings: describeSettings(defaults, manifest.settings.schema), defaultConfig: defaults, actions: ACTIONS[manifest.id] ?? [] };
         }
         const prev = pluginConfigOf(s, manifest);
         if (req.mode === "get") return { id: manifest.id, config: prev, stored: s.settings().pluginConfigs?.[manifest.id] ?? null };
-        const { deepMerge, shapeWarnings, changedKeys, schemaErrors } = await import("./chunks/configEdit-IFVzGEmy.mjs");
-        const { keepManaged } = await import("./chunks/configEdit-IFVzGEmy.mjs");
+        const { deepMerge, shapeWarnings, changedKeys, schemaErrors } = await import("./chunks/configEdit-BtaThQg1.mjs");
+        const { keepManaged } = await import("./chunks/configEdit-BtaThQg1.mjs");
         const next = req.mode === "set" ? keepManaged(prev, req.value, manifest.settings.schema) : deepMerge(prev, req.value);
         const invalid = schemaErrors(manifest.settings.schema, next, prev);
         if (invalid.length) throw new CliError("invalid-value", `${manifest.id}: ${invalid.join(" ")}`, `See \`agentcms plugins config ${manifest.id} --schema\`.`, 2);
@@ -3618,7 +3618,7 @@ function logoState(cfg, slot) {
 }
 async function run$6({ io, options, positionals }) {
   const [action, id, arg] = positionals;
-  const { runAdmin } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+  const { runAdmin } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
   const alias = options.site;
   const write = { write: true, hosting: true, extensions: true, lock: true };
   switch (action) {
@@ -3657,7 +3657,7 @@ Nothing changed — re-run with --yes once the user agrees.`);
           const { updateSettings } = await import("./chunks/settings-CEBDXaTg.mjs");
           await updateSettings({ activeThemeId: theme.id });
           const settings = await s.refresh();
-          const { syncThemeAssets } = await import("./chunks/themeSync-DX5Kv3G4.mjs");
+          const { syncThemeAssets } = await import("./chunks/themeSync-CKwVwkUo.mjs");
           await syncThemeAssets(dedupe(s.host.themes.listThemes()), settings.themeConfigs, s.log);
           const ctx = await s.context();
           await s.host.publisher.regenerateAll(ctx, s.log);
@@ -3670,7 +3670,7 @@ Nothing changed — re-run with --yes once the user agrees.`);
             }
           }
         });
-        const { planMediaRegeneration } = await import("./chunks/mediaRegenerate-BsTt9OBT.mjs");
+        const { planMediaRegeneration } = await import("./chunks/mediaRegenerate-B19oeaI-.mjs");
         const needCrop = planMediaRegeneration(await s.media(), s.settings()).filter((m) => m.formats.length).length;
         const next = needCrop ? [`agentcms media regenerate --site ${s.site.alias} --yes`, `agentcms regenerate all --site ${s.site.alias}`] : [];
         return { from, to: theme.id, seconds: Math.round((Date.now() - started) / 1e3), mediaMissingFormats: needCrop, next };
@@ -3678,7 +3678,7 @@ Nothing changed — re-run with --yes once the user agrees.`);
 ${r.mediaMissingFormats} media lack ${r.to}'s image formats: ${r.next.join(" ; ")}` : ""}`);
     }
     case "config": {
-      const { readConfigRequest } = await import("./chunks/configEdit-IFVzGEmy.mjs");
+      const { readConfigRequest } = await import("./chunks/configEdit-BtaThQg1.mjs");
       const req = readConfigRequest(options);
       const readOnly = req.mode === "get" || req.mode === "schema";
       return runAdmin(io, alias, readOnly ? { extensions: true } : write, async (s) => {
@@ -3686,13 +3686,13 @@ ${r.mediaMissingFormats} media lack ${r.to}'s image formats: ${r.next.join(" ; "
         if (!theme.settings) throw new CliError("no-settings", `Theme ${theme.id} has no settings.`, void 0, 2);
         const defaults = theme.settings.defaultConfig;
         if (req.mode === "schema") {
-          const { describeSettings } = await import("./chunks/configEdit-IFVzGEmy.mjs");
+          const { describeSettings } = await import("./chunks/configEdit-BtaThQg1.mjs");
           return { id: theme.id, documented: !!theme.settings.schema, settings: describeSettings(defaults, theme.settings.schema), defaultConfig: defaults, cssVariables: cssVariablesOf(theme.cssText) };
         }
         const prev = themeConfigOf(s, theme);
         if (req.mode === "get") return { id: theme.id, config: prev, stored: s.settings().themeConfigs?.[theme.id] ?? null };
-        const { deepMerge, shapeWarnings, changedKeys, schemaErrors } = await import("./chunks/configEdit-IFVzGEmy.mjs");
-        const { keepManaged } = await import("./chunks/configEdit-IFVzGEmy.mjs");
+        const { deepMerge, shapeWarnings, changedKeys, schemaErrors } = await import("./chunks/configEdit-BtaThQg1.mjs");
+        const { keepManaged } = await import("./chunks/configEdit-BtaThQg1.mjs");
         let next = req.mode === "set" ? keepManaged(prev, { ...req.value }, theme.settings.schema) : deepMerge(prev, req.value);
         if ("cssUpdatedAt" in defaults && JSON.stringify(prev.style) !== JSON.stringify(next.style)) next = { ...next, cssUpdatedAt: Date.now() };
         const invalid = schemaErrors(theme.settings.schema, next, prev);
@@ -3713,7 +3713,7 @@ ${r.mediaMissingFormats} media lack ${r.to}'s image formats: ${r.next.join(" ; "
           const css = await saveThemeConfig(s, theme, next);
           if (css) effects.push(`uploaded ${css}`);
           if (catalogMove) {
-            const { cleanupOldCatalogPath } = await import("./chunks/catalogPublisher-BFxxwzl9.mjs");
+            const { cleanupOldCatalogPath } = await import("./chunks/catalogPublisher-DSvY00CW.mjs");
             await cleanupOldCatalogPath(catalogMove[0], catalogMove[1]);
             if (catalogMove[0] && catalogMove[0] !== catalogMove[1]) effects.push(`deleted ${catalogMove[0]}`);
           }
@@ -3768,7 +3768,7 @@ ${r.mediaMissingFormats} media lack ${r.to}'s image formats: ${r.next.join(" ; "
     }
     case "sync-assets":
       return runAdmin(io, alias, write, async (s) => {
-        const { syncThemeAssets } = await import("./chunks/themeSync-DX5Kv3G4.mjs");
+        const { syncThemeAssets } = await import("./chunks/themeSync-CKwVwkUo.mjs");
         const themes = dedupe(s.host.themes.listThemes());
         await batched(() => syncThemeAssets(themes, s.settings().themeConfigs, s.log));
         return { themes: themes.map((t) => t.id) };
@@ -3814,9 +3814,22 @@ async function loadFormatSpecs(s) {
   for (const [name, f] of Object.entries(theme)) formatSpecs[name] = { fit: f.fit ?? "cover", adminOnly: false };
   for (const [name, f] of Object.entries(ADMIN_FORMATS)) formatSpecs[name] = { fit: f.fit ?? "cover", adminOnly: true };
 }
+function parseTranslations(raw, file2) {
+  if (raw === void 0 || raw === null) return void 0;
+  if (typeof raw !== "object" || Array.isArray(raw)) throw new CliError("usage", `--data: "translations" of ${file2} must be an object { "<lang>": { "alt", "caption" } }.`, void 0, 2);
+  const out = {};
+  for (const [lang, v] of Object.entries(raw)) {
+    const t = v ?? {};
+    const entry = {};
+    if (t.alt) entry.alt = String(t.alt);
+    if (t.caption) entry.caption = String(t.caption);
+    if (entry.alt || entry.caption) out[lang] = entry;
+  }
+  return Object.keys(out).length ? out : void 0;
+}
 async function summarize$1(m) {
   const { pickMediaUrl } = await import("./chunks/media-K2GXb5Xy.mjs");
-  const { iso } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+  const { iso } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
   const formats = {};
   for (const [name, v] of Object.entries(m.formats ?? {})) formats[name] = { url: v.url, width: v.width, height: v.height, bytes: v.bytes, ...formatSpecs[name] ?? {} };
   return {
@@ -3824,6 +3837,7 @@ async function summarize$1(m) {
     name: m.name,
     alt: m.alt ?? null,
     caption: m.caption ?? null,
+    translations: m.translations ?? {},
     contentType: m.contentType,
     size: m.size,
     url: pickMediaUrl(m) || null,
@@ -3865,7 +3879,7 @@ async function allEntries$1() {
 }
 async function run$5({ io, options, positionals }) {
   const [action, ...refs] = positionals;
-  const { runAdmin } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+  const { runAdmin } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
   const alias = options.site;
   const str = (v) => v === void 0 || v === false ? void 0 : String(v);
   switch (action) {
@@ -3895,7 +3909,7 @@ async function run$5({ io, options, positionals }) {
     case "upload": {
       const items = refs.map((f) => ({ path: resolve(f), alt: str(options.alt), caption: str(options.caption) }));
       if (options.data !== void 0) {
-        const { readJsonOption } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+        const { readJsonOption } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
         const raw = readJsonOption(options.data, "data");
         const base = typeof options.data === "string" && options.data.startsWith("@") ? dirname(resolve(options.data.slice(1))) : process.cwd();
         const list2 = Array.isArray(raw) ? raw : null;
@@ -3903,7 +3917,7 @@ async function run$5({ io, options, positionals }) {
           throw new CliError("usage", '--data must be a JSON array of { "file", "alt", "caption" }.', `e.g. --data '[{"file":"fjord.jpg","alt":"…"}]' or --data @media.json`, 2);
         }
         for (const x of list2) {
-          items.push({ path: resolve(base, x.file), alt: x.alt === void 0 ? str(options.alt) : String(x.alt), caption: x.caption === void 0 ? str(options.caption) : String(x.caption) });
+          items.push({ path: resolve(base, x.file), alt: x.alt === void 0 ? str(options.alt) : String(x.alt), caption: x.caption === void 0 ? str(options.caption) : String(x.caption), translations: parseTranslations(x.translations, x.file) });
         }
       }
       if (!items.length) throw new CliError("usage", "media upload needs one or more image files.", 'e.g. `agentcms media upload photo.jpg --alt "…"`, or --data @media.json for one alt text per file.', 2);
@@ -3912,9 +3926,9 @@ async function run$5({ io, options, positionals }) {
         if (!existsSync(f) || !statSync(f).isFile()) throw new CliError("not-found", `${f} does not exist.`, void 0, 2);
       }
       return runAdmin(io, alias, { write: true, hosting: true, extensions: true, lock: true }, async (s) => {
-        const { uploadMedia, updateMedia, validateMediaFile, listAllMedia } = await import("./chunks/media-Bj4j0oQO.mjs").then((n) => n.n);
+        const { uploadMedia, updateMedia, validateMediaFile, listAllMedia } = await import("./chunks/media-9UyLuwBC.mjs").then((n) => n.n);
         const { withStorageBatch } = await import("./chunks/siteFiles-BbBoVJww.mjs").then((n) => n.s);
-        const { currentUserId } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+        const { currentUserId } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
         const settings = s.settings();
         await loadFormatSpecs(s);
         let inputFormats;
@@ -3936,8 +3950,8 @@ async function run$5({ io, options, positionals }) {
           for (const [i, file2] of prepared.entries()) {
             try {
               const created = await uploadMedia(file2, uploadedBy, settings);
-              const { alt, caption } = items[i];
-              if (alt !== void 0 || caption !== void 0) await updateMedia(created.id, { alt, caption });
+              const { alt, caption, translations } = items[i];
+              if (alt !== void 0 || caption !== void 0 || translations) await updateMedia(created.id, { alt, caption, ...translations ? { translations } : {} });
               const fresh = (await listAllMedia()).find((m) => m.id === created.id) ?? created;
               const sum = await summarize$1(fresh);
               out.push({ file: files[i], ok: true, id: created.id, url: sum.url, formats: sum.formats });
@@ -3954,13 +3968,27 @@ async function run$5({ io, options, positionals }) {
       const alt = str(options.alt);
       const caption = str(options.caption);
       if (alt === void 0 && caption === void 0) throw new CliError("usage", 'media update needs --alt and/or --caption ("" clears).', void 0, 2);
+      const lang = str(options.lang);
+      if (lang !== void 0 && !/^[a-z]{2,3}(-[a-z0-9]{2,8})?$/i.test(lang)) throw new CliError("usage", `--lang must be a language code (e.g. en, pt-br), not "${lang}".`, void 0, 2);
       return runAdmin(io, alias, { write: true, lock: true }, async (s) => {
         const m = requireMedia(await s.media(), refs[0]);
-        const { updateMedia, listAllMedia } = await import("./chunks/media-Bj4j0oQO.mjs").then((n) => n.n);
-        await updateMedia(m.id, { alt, caption });
+        const { updateMedia, listAllMedia } = await import("./chunks/media-9UyLuwBC.mjs").then((n) => n.n);
+        if (lang) {
+          const tr = { ...m.translations?.[lang] ?? {} };
+          if (alt !== void 0) tr.alt = alt;
+          if (caption !== void 0) tr.caption = caption;
+          if (!tr.alt) delete tr.alt;
+          if (!tr.caption) delete tr.caption;
+          const translations = { ...m.translations ?? {} };
+          if (tr.alt || tr.caption) translations[lang] = tr;
+          else delete translations[lang];
+          await updateMedia(m.id, { translations });
+        } else {
+          await updateMedia(m.id, { alt, caption });
+        }
         const fresh = (await listAllMedia()).find((x) => x.id === m.id) ?? m;
-        return { id: m.id, alt: fresh.alt ?? null, caption: fresh.caption ?? null, note: `Published pages keep the old alt text until they are republished (\`agentcms regenerate all --site ${s.site.alias}\`).` };
-      }, (r) => `Updated ${r.id}: alt=${JSON.stringify(r.alt)} caption=${JSON.stringify(r.caption)}
+        return { id: m.id, lang: lang ?? null, alt: fresh.alt ?? null, caption: fresh.caption ?? null, translations: fresh.translations ?? {}, note: `Published pages keep the old alt text until they are republished (\`agentcms regenerate all --site ${s.site.alias}\`).` };
+      }, (r) => `Updated ${r.id}${r.lang ? ` (${r.lang})` : ""}: alt=${JSON.stringify(r.lang ? r.translations[r.lang]?.alt ?? null : r.alt)} caption=${JSON.stringify(r.lang ? r.translations[r.lang]?.caption ?? null : r.caption)}
 ${r.note}`);
     }
     case "regenerate": {
@@ -3968,7 +3996,7 @@ ${r.note}`);
       const plan = async (s) => {
         const all = await s.media();
         const targets = refs.length ? refs.map((r) => requireMedia(all, r)) : all;
-        const { planMediaRegeneration } = await import("./chunks/mediaRegenerate-BsTt9OBT.mjs");
+        const { planMediaRegeneration } = await import("./chunks/mediaRegenerate-B19oeaI-.mjs");
         return { targets, plan: planMediaRegeneration(targets, s.settings(), { all: allFormats }) };
       };
       const theme = (s) => s.settings().activeThemeId ?? "default";
@@ -3981,7 +4009,7 @@ ${r.note}`);
       }
       return runAdmin(io, alias, { write: true, hosting: true, extensions: true, lock: true }, async (s) => {
         const { targets, plan: p } = await plan(s);
-        const { regenerateMediaFormats } = await import("./chunks/mediaRegenerate-BsTt9OBT.mjs");
+        const { regenerateMediaFormats } = await import("./chunks/mediaRegenerate-B19oeaI-.mjs");
         const { withStorageBatch } = await import("./chunks/siteFiles-BbBoVJww.mjs").then((n) => n.s);
         const out = [];
         await withStorageBatch(async () => {
@@ -4034,7 +4062,7 @@ ${r.note}`);
       }
       return runAdmin(io, alias, { write: true, hosting: true, lock: true }, async (s) => {
         const found = await inspect(s);
-        const { deleteMedia } = await import("./chunks/media-Bj4j0oQO.mjs").then((n) => n.n);
+        const { deleteMedia } = await import("./chunks/media-9UyLuwBC.mjs").then((n) => n.n);
         const { withStorageBatch } = await import("./chunks/siteFiles-BbBoVJww.mjs").then((n) => n.s);
         const out = [];
         for (const { media, usages } of found) {
@@ -4054,14 +4082,15 @@ ${r.note}`);
 }
 const mediaCommand = {
   name: "media",
-  summary: "The Media library: list [--search], get <id> (variants, URLs, where it is used), upload <file…> (the admin's pipeline: the active theme's variants + admin formats, then the record; --alt / --caption, or --data @media.json for one alt / caption per file; one commit per command), update <id> --alt/--caption, delete <id…> (files + record; plan first, --yes; warns about posts / avatars still using it), regenerate [id…] (after a theme switch: re-crops media to the active theme's formats from their high-resolution copy; plan first, --yes; then `regenerate all`).",
-  usage: "media <list|get|upload|update|delete|regenerate> [ids|files…] --site <alias> [--search <q>] [--alt <text>] [--caption <text>] [--data <json>|@file] [--all-formats] [--yes]",
+  summary: "The Media library: list [--search], get <id> (variants, URLs, where it is used), upload <file…> (the admin's pipeline: the active theme's variants + admin formats, then the record; --alt / --caption, or --data @media.json for one alt / caption per file; one commit per command), update <id> --alt/--caption [--lang <code>] (per-language alt / caption for multilang sites), delete <id…> (files + record; plan first, --yes; warns about posts / avatars still using it), regenerate [id…] (after a theme switch: re-crops media to the active theme's formats from their high-resolution copy; plan first, --yes; then `regenerate all`).",
+  usage: "media <list|get|upload|update|delete|regenerate> [ids|files…] --site <alias> [--search <q>] [--alt <text>] [--caption <text>] [--lang <code>] [--data <json>|@file] [--all-formats] [--yes]",
   options: [
     { name: "site", type: "string", description: "Site alias." },
     { name: "search", type: "string", description: "list: words that must all appear in the name, alt or caption." },
     { name: "alt", type: "string", description: 'upload/update: alternative text ("" clears).' },
     { name: "caption", type: "string", description: 'upload/update: caption ("" clears).' },
-    { name: "data", type: "string", description: 'upload: JSON array (or @file.json) of { "file", "alt", "caption" } — one alt text / caption per file; paths are relative to the JSON file. All files go up in one commit.' },
+    { name: "lang", type: "string", description: 'update: set the alt text / caption of this language (agentcms-multilang) instead of the primary one; "" clears a field.' },
+    { name: "data", type: "string", description: 'upload: JSON array (or @file.json) of { "file", "alt", "caption", "translations": { "<lang>": { "alt", "caption" } } } — one alt text / caption per file (and per language); paths are relative to the JSON file. All files go up in one commit.' },
     { name: "all-formats", type: "boolean", description: "regenerate: redo every format of the active theme, not only the missing / wrong-size ones." },
     { name: "yes", type: "boolean", description: "delete / regenerate: apply (otherwise only the plan)." }
   ],
@@ -4156,7 +4185,7 @@ function parseSocials(value) {
   return out;
 }
 async function readProfile(options, current) {
-  const { readJsonOption, readTextOption } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+  const { readJsonOption, readTextOption } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
   const data = readJsonOption(options.data, "data") ?? {};
   if (typeof data !== "object" || Array.isArray(data)) throw new CliError("usage", "--data must be a JSON object.", void 0, 2);
   const patch = {};
@@ -4196,7 +4225,7 @@ function refuseNoAccounts(kind, what) {
 }
 async function run$4({ io, options, positionals }) {
   const [action, ...refs] = positionals;
-  const { runAdmin } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+  const { runAdmin } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
   const alias = options.site;
   const writeOpen = { write: true, lock: true };
   const loadUsers = async (s) => s.users();
@@ -4417,16 +4446,16 @@ function withoutTarget(data) {
 }
 async function run$3({ io, options, positionals }) {
   const [action, file2] = positionals;
-  const { runAdmin } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+  const { runAdmin } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
   const alias = options.site;
   switch (action) {
     case "export": {
       const out = resolve(String(options.out ?? file2 ?? `agentcms-export-${(/* @__PURE__ */ new Date()).toISOString().slice(0, 10)}.json`));
       return runAdmin(io, alias, {}, async (s) => {
-        const { exportContent } = await import("./chunks/contentTransfer-DvfWbCIY.mjs");
+        const { exportContent } = await import("./chunks/contentTransfer-Das1DPA3.mjs");
         const data = await exportContent();
         if (!data.collections.config?.some((d) => d.id === "externalRegistry")) {
-          const { fallbackRegistry, siteHostingReader } = await import("./chunks/adminFiles-vEEBF_3w.mjs");
+          const { fallbackRegistry, siteHostingReader } = await import("./chunks/adminFiles-DaySk4Kz.mjs");
           const registry = await fallbackRegistry(s.site, await siteHostingReader(s.site));
           if (registry.plugins.length || registry.themes.length) (data.collections.config ??= []).push({ ...registry, id: "externalRegistry" });
         }
@@ -4445,7 +4474,7 @@ async function run$3({ io, options, positionals }) {
       const data = keepTarget ? withoutTarget(raw) : raw;
       const next = (a) => `agentcms regenerate everything --site ${a}`;
       const check2 = async () => {
-        const { canImportContent } = await import("./chunks/contentTransfer-DvfWbCIY.mjs");
+        const { canImportContent } = await import("./chunks/contentTransfer-Das1DPA3.mjs");
         if (!canImportContent()) {
           throw new CliError("unsupported-backend", "Import only works on Markdown-in-git and SQLite-file sites.", "Firebase sites can be exported, not imported into.", 2);
         }
@@ -4485,7 +4514,7 @@ async function run$3({ io, options, positionals }) {
       return runAdmin(io, alias, { write: true, lock: true }, async (s) => {
         await check2();
         const warning = await targetWarning();
-        const { importContent } = await import("./chunks/contentTransfer-DvfWbCIY.mjs");
+        const { importContent } = await import("./chunks/contentTransfer-Das1DPA3.mjs");
         const imported = await importContent(data, mode);
         return {
           imported,
@@ -4515,7 +4544,7 @@ const transferCommand = {
   run: run$3
 };
 async function run$2({ io, options }) {
-  const { runAdmin } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+  const { runAdmin } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
   return runAdmin(io, options.site, {}, async (s) => {
     const { fetchAllPosts, invalidateAllPostsCache } = await import("./chunks/posts-D28k7tn_.mjs");
     invalidateAllPostsCache();
@@ -4563,7 +4592,7 @@ function cleanPath(raw) {
 async function run$1({ io, options, positionals }) {
   const [action, a, b] = positionals;
   const alias = options.site;
-  const { runAdmin, confirmOrPlan } = await import("./chunks/adminCommon-C-9C14oR.mjs");
+  const { runAdmin, confirmOrPlan } = await import("./chunks/adminCommon-DK5a9uhY.mjs");
   switch (action) {
     case "list":
       return runAdmin(io, alias, { hosting: true }, async () => {

@@ -2,6 +2,16 @@
   "$comment": "Newest first. Read by agents (agentcms status) to tell users what changed and what to run. `breaking`: an older admin, skill or site setup stops working without action. `actions`: steps a hosted site needs after updating — deploy-admin, regenerate-all, sync-theme-assets. Keep every entry in English.",
   "versions": [
     {
+      "version": "0.3.6",
+      "date": "2026-10-29",
+      "breaking": false,
+      "changes": [
+        "Image alt text and caption per language (agentcms-multilang 1.6.7): `media update <id> --lang <code> --alt … --caption …`, `\"translations\": {\"<lang>\": {\"alt\", \"caption\"}}` per file in `media upload --data`, and one alt / caption pair per secondary language in the admin's media library. A language's pages (featured image, cards, home blocks) use them, falling back to the primary language's texts. Before, every language showed the primary language's alt text.",
+        "Hermes: `upload_media.py` passes `translations`; in a translation file, `publish_markdown.py` sends `hero_alt` / `hero_caption` to the featured image's texts in that language (new `hero_caption` front matter key)."
+      ],
+      "actions": ["deploy-admin", "regenerate-all"]
+    },
+    {
       "version": "0.3.5",
       "date": "2026-10-29",
       "breaking": false,

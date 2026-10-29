@@ -72,7 +72,7 @@ const PLUGINS = [
   {
     id: "agentcms-multilang",
     name: "Multi-language",
-    version: "1.6.6",
+    version: "1.6.7",
     srcDir: "external/plugins/agentcms-multilang/src",
   },
 ];

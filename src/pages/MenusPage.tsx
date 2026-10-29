@@ -9,6 +9,7 @@ import { updateSettings } from "../services/settings";
 import { publishMenuJson } from "../services/menuPublisher";
 import { toast } from "../lib/toast";
 import type { MenuItem, Post, SiteSettings } from "../core/types";
+import { getEnabledLanguages } from "../lib/siteLanguages";
 
 type MenuItemKind = "home" | "post" | "term" | "external";
 
@@ -48,28 +49,6 @@ function buildItem(item: MenuItem, kind: MenuItemKind): MenuItem {
         ref: item.ref?.kind === "term" ? { kind: "term", id: item.ref.id } : { kind: "term" },
       };
   }
-}
-
-// Reads enabled secondary languages from the multilang plugin's stored
-// config. Returns an empty array when the plugin isn't installed /
-// enabled / has no secondary languages — the MenusPage uses that to
-// hide the per-language label inputs entirely on mono-lingual sites.
-//
-// Plugins are enabled by default: PluginsPage's toggle stores `false`
-// only when the user explicitly disables one. A missing entry means
-// "active with defaults" — so we check `=== false`, not truthiness.
-//
-// We read the plugin config as an opaque blob rather than importing
-// the multilang types: the menu UI lives in core and can't take a
-// hard dependency on a plugin's TypeScript surface.
-function getEnabledLanguages(settings: SiteSettings): string[] {
-  if (settings.enabledPlugins?.["agentcms-multilang"] === false) return [];
-  const config = settings.pluginConfigs?.["agentcms-multilang"] as
-    | { enabledLanguages?: unknown }
-    | undefined;
-  const raw = config?.enabledLanguages;
-  if (!Array.isArray(raw)) return [];
-  return raw.filter((l): l is string => typeof l === "string" && l.length > 0);
 }
 
 // Cheap structural equality for the menu shape. Items are simple plain

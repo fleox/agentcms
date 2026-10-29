@@ -8,7 +8,7 @@ async function regenerateEverything(s) {
   const started = Date.now();
   const { withStorageBatch } = await import("./siteFiles-BbBoVJww.mjs").then((n) => n.s);
   await withStorageBatch(async () => {
-    const { syncThemeAssets } = await import("./themeSync-DX5Kv3G4.mjs");
+    const { syncThemeAssets } = await import("./themeSync-CKwVwkUo.mjs");
     await syncThemeAssets(s.host.themes.listThemes(), s.settings().themeConfigs, s.log);
     const ctx = await s.context({ refreshTerms: true });
     await s.host.publisher.regenerateAll(ctx, s.log);

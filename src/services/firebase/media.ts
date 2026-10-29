@@ -168,11 +168,13 @@ export async function uploadMedia(
 
 export async function updateMedia(
   id: string,
-  patch: Partial<Pick<Media, "alt" | "caption">>,
+  patch: Partial<Pick<Media, "alt" | "caption" | "translations">>,
 ): Promise<void> {
   const update: Record<string, unknown> = {};
   if (patch.alt !== undefined) update.alt = patch.alt;
   if (patch.caption !== undefined) update.caption = patch.caption;
+  // The whole per-language map is replaced (callers pass the merged map).
+  if (patch.translations !== undefined) update.translations = patch.translations;
   if (Object.keys(update).length === 0) return;
   await updateDoc(mediaDoc(id), update);
 }

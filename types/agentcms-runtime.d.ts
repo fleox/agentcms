@@ -299,6 +299,8 @@ export interface Media {
   url?: string;
   alt?: string;
   caption?: string;
+  /** Alt text / caption per language (agentcms-multilang); `alt` / `caption` are the primary language's. */
+  translations?: Record<string, { alt?: string; caption?: string }>;
   /** Epoch milliseconds. */
   uploadedAt: number;
   uploadedBy: string;

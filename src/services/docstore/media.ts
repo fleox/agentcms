@@ -50,6 +50,9 @@ function docToMedia(d: StoredDoc): Media {
   if (d.defaultFormat) media.defaultFormat = d.defaultFormat as string;
   if (d.alt) media.alt = d.alt as string;
   if (d.caption) media.caption = d.caption as string;
+  if (d.translations && typeof d.translations === "object") {
+    media.translations = JSON.parse(JSON.stringify(d.translations)) as Media["translations"];
+  }
   if (d.storagePath) media.storagePath = d.storagePath as string;
   if (d.url) media.url = d.url as string;
   return media;
@@ -203,9 +206,9 @@ export async function uploadMedia(
 
 export async function updateMedia(
   id: string,
-  patch: Partial<Pick<Media, "alt" | "caption">>,
+  patch: Partial<Pick<Media, "alt" | "caption" | "translations">>,
 ): Promise<void> {
-  if (patch.alt === undefined && patch.caption === undefined) return;
+  if (patch.alt === undefined && patch.caption === undefined && patch.translations === undefined) return;
   const store = getDocStore();
   await store.ready();
   const existing = store.get(COLLECTION, id);
@@ -213,6 +216,10 @@ export async function updateMedia(
   const next: StoredDoc = { ...existing };
   if (patch.alt !== undefined) next.alt = patch.alt;
   if (patch.caption !== undefined) next.caption = patch.caption;
+  if (patch.translations !== undefined) {
+    if (Object.keys(patch.translations).length) next.translations = patch.translations;
+    else delete next.translations;
+  }
   await store.write([{ op: "set", collection: COLLECTION, doc: next }], {
     message: `Update media: ${(existing.name as string) || id}`,
   });

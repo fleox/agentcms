@@ -9,7 +9,8 @@ import { deleteMedia, updateMedia, uploadMedia } from "../services/media";
 import { ADMIN_THUMB_KEY } from "../services/imageFormats";
 import { pickMediaUrl } from "../core/media";
 import { formatBytes } from "../lib/utils";
-import type { Media, SiteSettings } from "../core/types";
+import { getEnabledLanguages } from "../lib/siteLanguages";
+import type { Media, MediaTranslation, SiteSettings } from "../core/types";
 import { RemoteImage } from "../components/ui/RemoteImage";
 
 // Locally-tracked upload that hasn't (yet) made it into Firestore. Each
@@ -50,6 +51,7 @@ export function MediaLibraryPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { media, settings } = useCmsData();
+  const languages = useMemo(() => getEnabledLanguages(settings), [settings]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<PendingUpload[]>([]);
 
@@ -182,6 +184,7 @@ export function MediaLibraryPage() {
             <MediaCard
               key={entry.key}
               entry={entry}
+              languages={languages}
               onRetry={() => entry.pending && retryPending(entry.pending.id)}
               onDismissError={() => entry.pending && dismissPending(entry.pending.id)}
               onDelete={(m) => forgetPending(m.id)}
@@ -206,12 +209,14 @@ export function MediaLibraryPage() {
 // unmounting.
 interface MediaCardProps {
   entry: CardEntry;
+  // Secondary languages (agentcms-multilang): one alt / caption pair each.
+  languages: string[];
   onRetry: () => void;
   onDismissError: () => void;
   onDelete: (media: Media) => void;
 }
 
-function MediaCard({ entry, onRetry, onDismissError, onDelete }: MediaCardProps) {
+function MediaCard({ entry, languages, onRetry, onDismissError, onDelete }: MediaCardProps) {
   const { t } = useTranslation();
   const m = entry.media;
   const p = entry.pending;
@@ -221,6 +226,7 @@ function MediaCard({ entry, onRetry, onDismissError, onDelete }: MediaCardProps)
 
   const [alt, setAlt] = useState(m?.alt ?? "");
   const [caption, setCaption] = useState(m?.caption ?? "");
+  const [translations, setTranslations] = useState<Record<string, MediaTranslation>>(m?.translations ?? {});
   const [busy, setBusy] = useState(false);
 
   // Hydrate the editable fields when the linked media first arrives
@@ -231,13 +237,26 @@ function MediaCard({ entry, onRetry, onDismissError, onDelete }: MediaCardProps)
     if (!m) return;
     setAlt((cur) => (cur === "" && m.alt ? m.alt : cur));
     setCaption((cur) => (cur === "" && m.caption ? m.caption : cur));
+    setTranslations((cur) => (Object.keys(cur).length === 0 && m.translations ? m.translations : cur));
   }, [m?.id]);
+
+  function patchTranslation(lang: string, field: keyof MediaTranslation, value: string) {
+    setTranslations((cur) => {
+      const entry: MediaTranslation = { ...(cur[lang] ?? {}), [field]: value };
+      if (!entry[field]) delete entry[field];
+      const next = { ...cur };
+      if (entry.alt || entry.caption) next[lang] = entry;
+      else delete next[lang];
+      return next;
+    });
+  }
 
   async function handleSave() {
     if (!m) return;
     setBusy(true);
     try {
-      await updateMedia(m.id, { alt, caption });
+      // Languages no longer enabled keep their stored texts.
+      await updateMedia(m.id, languages.length ? { alt, caption, translations } : { alt, caption });
     } finally {
       setBusy(false);
     }
@@ -330,6 +349,25 @@ function MediaCard({ entry, onRetry, onDismissError, onDelete }: MediaCardProps)
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
           />
+          {languages.map((lang) => (
+            <div key={lang} className="space-y-1">
+              <span className="text-[10px] uppercase font-semibold text-surface-500">{lang}</span>
+              <input
+                type="text"
+                className="input text-xs"
+                placeholder={alt || t("media.alt")}
+                value={translations[lang]?.alt ?? ""}
+                onChange={(e) => patchTranslation(lang, "alt", e.target.value)}
+              />
+              <input
+                type="text"
+                className="input text-xs"
+                placeholder={caption || t("media.caption")}
+                value={translations[lang]?.caption ?? ""}
+                onChange={(e) => patchTranslation(lang, "caption", e.target.value)}
+              />
+            </div>
+          ))}
           <div className="flex gap-1">
             <button
               type="button"

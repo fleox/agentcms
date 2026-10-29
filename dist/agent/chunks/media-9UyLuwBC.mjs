@@ -18320,7 +18320,7 @@ function HtmlBlockView({ node: node2, selected }) {
   );
 }
 const CodeEditor$1 = reactExports.lazy(
-  () => import("./CodeEditor-BEDemOPS.mjs").then((m) => ({ default: m.CodeEditor }))
+  () => import("./CodeEditor-DG2ypJkr.mjs").then((m) => ({ default: m.CodeEditor }))
 );
 function HtmlInspector({ editor }) {
   const { t: t2 } = useTranslation("agentcms-blocks");
@@ -18706,7 +18706,7 @@ const DEFAULT_CUSTOM_CODE_CONFIG = {
   bodyEnd: ""
 };
 const CodeEditor = reactExports.lazy(
-  () => import("./CodeEditor-BEDemOPS.mjs").then((m) => ({ default: m.CodeEditor }))
+  () => import("./CodeEditor-DG2ypJkr.mjs").then((m) => ({ default: m.CodeEditor }))
 );
 function CustomCodeSettingsPage({
   config,
@@ -26248,6 +26248,7 @@ async function updateMedia$2(id, patch) {
   const update = {};
   if (patch.alt !== void 0) update.alt = patch.alt;
   if (patch.caption !== void 0) update.caption = patch.caption;
+  if (patch.translations !== void 0) update.translations = patch.translations;
   if (Object.keys(update).length === 0) return;
   await updateDoc(mediaDoc(id), update);
 }
@@ -26298,6 +26299,9 @@ function docToMedia(d) {
   if (d.defaultFormat) media2.defaultFormat = d.defaultFormat;
   if (d.alt) media2.alt = d.alt;
   if (d.caption) media2.caption = d.caption;
+  if (d.translations && typeof d.translations === "object") {
+    media2.translations = JSON.parse(JSON.stringify(d.translations));
+  }
   if (d.storagePath) media2.storagePath = d.storagePath;
   if (d.url) media2.url = d.url;
   return media2;
@@ -26414,7 +26418,7 @@ async function uploadMedia$1(file, uploadedBy, settings) {
   return media2;
 }
 async function updateMedia$1(id, patch) {
-  if (patch.alt === void 0 && patch.caption === void 0) return;
+  if (patch.alt === void 0 && patch.caption === void 0 && patch.translations === void 0) return;
   const store = getDocStore();
   await store.ready();
   const existing = store.get(COLLECTION, id);
@@ -26422,6 +26426,10 @@ async function updateMedia$1(id, patch) {
   const next2 = { ...existing };
   if (patch.alt !== void 0) next2.alt = patch.alt;
   if (patch.caption !== void 0) next2.caption = patch.caption;
+  if (patch.translations !== void 0) {
+    if (Object.keys(patch.translations).length) next2.translations = patch.translations;
+    else delete next2.translations;
+  }
   await store.write([{ op: "set", collection: COLLECTION, doc: next2 }], {
     message: `Update media: ${existing.name || id}`
   });

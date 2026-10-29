@@ -5,7 +5,8 @@
 
 Each image needs its own alternative text describing what it SHOWS (look at
 it first). Give them in a JSON file mapping file name → alt (or → {"alt",
-"caption"}); images without one get a placeholder from the file name and are
+"caption", "translations": {"<lang>": {"alt", "caption"}}} on a multilang
+site); images without one get a placeholder from the file name and are
 listed under "needsAlt" so you can fix them with `media update <id> --alt …`.
 
 Prints {"ok": true, "data": {"media": [{"file", "id", "url", "formats"}], "needsAlt": [...]}}.
@@ -50,7 +51,7 @@ def upload(paths: List[str], site: str, alts: Dict[str, Any]) -> Dict[str, Any]:
         given = alts.get(os.path.basename(f)) or alts.get(f)
         entry: Dict[str, Any] = {"file": f}
         if isinstance(given, dict):
-            entry.update({k: v for k, v in given.items() if k in ("alt", "caption")})
+            entry.update({k: v for k, v in given.items() if k in ("alt", "caption", "translations")})
         elif isinstance(given, str):
             entry["alt"] = given
         if not entry.get("alt"):
@@ -71,7 +72,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Upload images (files or folders) in one command.")
     ap.add_argument("paths", nargs="+")
     ap.add_argument("--site", required=True)
-    ap.add_argument("--alts", help="JSON file: file name → alt text (or {alt, caption}).")
+    ap.add_argument("--alts", help="JSON file: file name → alt text (or {alt, caption, translations: {lang: {alt, caption}}}).")
     a = ap.parse_args()
     try:
         alts = json.load(open(a.alts, encoding="utf-8")) if a.alts else {}

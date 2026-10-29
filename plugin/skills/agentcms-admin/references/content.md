@@ -99,7 +99,7 @@ After writing a body with blocks, run `content preview <ref> --screenshots` to c
   - One command = one commit on git hostings: upload all images in one command rather than one per image (each commit starts a Pages build).
 - **Other commands:**
   - `media list [--search]` / `media get <id>`: `get` shows where the media is used.
-  - `media update <id> --alt … --caption …`.
+  - `media update <id> --alt … --caption …`. On a multilang site add `--lang <code>` for another language's texts (see Translations).
   - `media delete <id…> --yes`. Pages that still show it keep a broken image until they are edited and republished; check `usages` first.
 - **After a theme switch:** `media regenerate` (plan) then `--yes` re-crops existing media to the active theme's formats; then `regenerate all`.
 - **Featured image of a post:** `content update <ref> --hero <id>`.
@@ -127,3 +127,4 @@ When the multilang plugin is enabled and languages are configured (`plugins conf
 - Unpublishing or deleting an entry also deletes its translated pages.
 - **Category names per language:** `terms update <ref> --lang fr --name "…" --slug "…"`.
 - **Menu labels per language:** `translations: { "fr": { "label": "…" } }` on menu items (`menus set`).
+- **Image alt text and caption per language:** `media update <id> --lang fr --alt "…" [--caption "…"]`, or `"translations": {"fr": {"alt": "…", "caption": "…"}}` per file in `media upload --data`. `--alt` / `--caption` without `--lang` are the primary language's; a language without its own text shows them. Translate the alt text of every featured image; a caption that is only a credit can stay shared. Then republish the posts that use the image (`regenerate all`). Images inside a body (`![alt](url)`) take their alt text from each translation's Markdown.

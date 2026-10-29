@@ -198,8 +198,17 @@ export interface Media {
 
   alt?: string;
   caption?: string;
+  // Alt text / caption per language (agentcms-multilang), keyed by
+  // language code. `alt` / `caption` above are the primary language's;
+  // a missing entry or field falls back to them.
+  translations?: Record<string, MediaTranslation>;
   uploadedAt: number;
   uploadedBy: string;
+}
+
+export interface MediaTranslation {
+  alt?: string;
+  caption?: string;
 }
 
 // Per-format processing rules. `cover` crops to fill the box; `contain`

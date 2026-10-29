@@ -32,7 +32,7 @@
     },
     {
       "id": "agentcms-multilang",
-      "version": "1.6.6",
+      "version": "1.6.7",
       "apiVersion": "1.6.0",
       "entryPath": "plugins/agentcms-multilang/bundle.js"
     }

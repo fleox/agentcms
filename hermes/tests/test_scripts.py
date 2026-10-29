@@ -171,6 +171,18 @@ class PublishMarkdownTest(FakeEngine):
         self.assertEqual(update[:3], ["content", "update", "dawn"])
         self.assertEqual(update[update.index("--lang") + 1], "fr")
 
+    def test_translation_sets_the_hero_alt_of_its_language(self):
+        md = self.write("fr2.md", "---\ntitle: Aube\ntranslation_of: dawn\nlang: fr\nhero_alt: Une tente\n---\nTexte\n")
+        self.answer(
+            (["content", "get"], admin({"id": "p1", "slug": "dawn", "heroMediaId": "m1"})),
+            (["media", "update"], admin({"id": "m1", "lang": "fr"})),
+            (["content", "update"], admin({"id": "p1", "status": "online"})),
+        )
+        publish_markdown.publish(md, "blog")
+        cmds = self.commands()
+        self.assertEqual([c[:2] for c in cmds], [["content", "get"], ["media", "update"], ["content", "update"]])
+        self.assertEqual(cmds[1][:7], ["media", "update", "m1", "--lang", "fr", "--alt", "Une tente"])
+
     def test_requires_title(self):
         md = self.write("x.md", "---\nslug: x\n---\nB")
         with self.assertRaises(agentcms.AgentcmsError):
@@ -184,10 +196,11 @@ class UploadAndUpdateTest(FakeEngine):
         for n in ("fjord-view.jpg", "dune.png", "notes.txt"):
             open(os.path.join(d, n), "w").close()
         self.answer((["media", "upload"], admin([{"file": "a", "ok": True, "id": "1", "url": "u"}, {"file": "b", "ok": True, "id": "2", "url": "u"}])))
-        out = upload_media.upload([d], "blog", {"dune.png": {"alt": "A dune at night", "caption": "Erg Chebbi"}})
+        out = upload_media.upload([d], "blog", {"dune.png": {"alt": "A dune at night", "caption": "Erg Chebbi", "translations": {"fr": {"alt": "Une dune la nuit"}}}})
         self.assertEqual(out["needsAlt"], ["fjord-view.jpg"])
         manifest = next(c["manifest"] for c in self.calls() if isinstance(c, dict) and "manifest" in c)
         self.assertEqual(manifest[0]["alt"], "A dune at night")
+        self.assertEqual(manifest[0]["translations"], {"fr": {"alt": "Une dune la nuit"}})
         self.assertEqual(manifest[1]["alt"], "fjord view")
 
     def test_update_runs_pending_actions_with_one_retry_on_conflict(self):

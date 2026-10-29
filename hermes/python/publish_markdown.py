@@ -14,7 +14,8 @@ JSON object between `---` lines:
     tags: [dawn, snow]                    # names as readers see them
     excerpt: Ten minutes of light.
     hero: ./images/camp.jpg               # local image (uploaded) or a media id
-    hero_alt: Yellow tent below the peaks
+    hero_alt: Yellow tent below the peaks   # in a translation: that language's alt
+    hero_caption: Photo: Ana Lind           # optional (e.g. the credit)
     seo_title: …
     seo_description: …
     author: editor@example.com
@@ -32,7 +33,8 @@ What it does, with the CLI's own commands (one commit per step on git sites):
    reused, so re-running the script doesn't duplicate them; --reupload);
 2. creates the entry (`content create --create-terms`) or, when the slug
    already exists, updates it (`content update`); a translation goes to
-   `content update <ref> --lang <code>`;
+   `content update <ref> --lang <code>`, after its hero_alt / hero_caption
+   went to the featured image's texts in that language (`media update --lang`);
 3. publishes it unless --draft (`content publish`; an online entry is
    republished by the update itself).
 
@@ -181,7 +183,10 @@ def publish(path: str, site: str, draft: bool = False, dry_run: bool = False, re
     hero = fm.get("hero")
     hero_path = local_image(str(hero), base) if hero else None
     if hero_path:
-        uploads.append({"file": hero_path, "alt": str(fm.get("hero_alt") or title)})
+        u = {"file": hero_path, "alt": str(fm.get("hero_alt") or title)}
+        if fm.get("hero_caption"):
+            u["caption"] = str(fm["hero_caption"])
+        uploads.append(u)
     body_images = {}
     for m in MD_IMAGE.finditer(body):
         p = local_image(m.group(2), base)
@@ -235,6 +240,18 @@ def publish(path: str, site: str, draft: bool = False, dry_run: bool = False, re
         if translation_of:
             if not lang:
                 raise AgentcmsError("usage", "translation_of needs lang (the language of this file).", None, 2)
+            # The featured image's alt text / caption in this language, set
+            # before the update so its republish already shows them.
+            if fm.get("hero_alt") or fm.get("hero_caption"):
+                entry = result(run("content", "get", str(translation_of), "--type", kind, site=site))
+                media_id = (entry or {}).get("heroMediaId")
+                if media_id:
+                    texts: List[str] = []
+                    if fm.get("hero_alt"):
+                        texts += ["--alt", str(fm["hero_alt"])]
+                    if fm.get("hero_caption"):
+                        texts += ["--caption", str(fm["hero_caption"])]
+                    run("media", "update", str(media_id), "--lang", str(lang), *texts, site=site)
             out = result(run("content", "update", str(translation_of), "--type", kind, "--lang", str(lang), *common, site=site))
             return {**plan, "action": "translated", "id": out.get("id"), "status": out.get("status"), "localePaths": out.get("localePaths"), "uploaded": [f for f, r in by_file.items() if not r.get("reused")]}
 

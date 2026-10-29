@@ -5,6 +5,7 @@ import {
   renderMarkdown,
   renderPageToHtml,
   markdownToPlainText,
+  mediaToView,
   type Post,
   type PublishContext,
   type Term,
@@ -21,6 +22,7 @@ import {
   termToPrimaryTranslation,
 } from "../core/urls";
 import { isPrimaryLanguage, localizeSettings } from "../core/config";
+import { localizeMediaMap } from "../core/media";
 
 // Resolves the active theme's settings the same way the core publisher's
 // buildSiteContext does — defaults merged with whatever the user saved.
@@ -115,6 +117,8 @@ function buildLocalizedShadowCtx(
     posts: shadowPosts,
     pages: shadowPages,
     terms: shadowTerms,
+    // Alt texts / captions in the target language.
+    media: localizeMediaMap(ctx.media, language, config),
   };
 }
 
@@ -190,7 +194,8 @@ export async function renderLocalizedSingle(args: {
   // core passes (html, post) only, and filters that need the target
   // language (e.g. marketplace-core's code-block labels) read
   // `ctx.settings.language` from it when present.
-  const shadowCtx: PublishContext = { ...ctx, settings: site.settings };
+  const media = localizeMediaMap(ctx.media, language, config);
+  const shadowCtx: PublishContext = { ...ctx, settings: site.settings, media };
   let bodyHtml = renderMarkdown(trans.contentMarkdown);
   bodyHtml = await applyFilters<string>("post.html.body", bodyHtml, post, shadowCtx);
   const tags = ctx.terms.filter((t) => post.termIds.includes(t.id) && t.type === "tag");
@@ -198,7 +203,7 @@ export async function renderLocalizedSingle(args: {
     ? ctx.terms.find((t) => t.id === post.primaryTermId && t.type === "category")
     : undefined;
   const author = ctx.authorLookup(post.authorId);
-  const hero = post.heroMediaId ? ctx.media.get(post.heroMediaId) : undefined;
+  const hero = post.heroMediaId ? mediaToView(media.get(post.heroMediaId)) : undefined;
   const description = trans.seo?.description ?? markdownToPlainText(trans.contentMarkdown, 160);
 
   // The term we hand to the theme drives the breadcrumb's category
@@ -240,14 +245,7 @@ export async function renderLocalizedSingle(args: {
     },
     bodyHtml,
     author,
-    hero: hero
-      ? {
-          alt: hero.alt,
-          caption: hero.caption,
-          default: hero.formats?.[hero.defaultFormat ?? ""]?.url ?? hero.url ?? "",
-          formats: hero.formats ?? {},
-        }
-      : undefined,
+    hero,
     primaryTerm: localisedTerm,
     tags,
   };
@@ -302,6 +300,7 @@ export function renderLocalizedCategory(args: {
   // category gets its localised title + URL.
   const isPrimary = isPrimaryLanguage(config, language);
   const langPrefix = isPrimary ? "" : `${language}/`;
+  const media = localizeMediaMap(ctx.media, language, config);
   const cards = ctx.posts
     .filter((p) => p.status === "online" && p.primaryTermId === term.id)
     .filter((p) => (isPrimary ? true : getPostTranslation(p, language) !== null))
@@ -317,21 +316,14 @@ export function renderLocalizedCategory(args: {
         language,
         config,
       });
-      const hero = p.heroMediaId ? ctx.media.get(p.heroMediaId) : undefined;
+      const hero = p.heroMediaId ? mediaToView(media.get(p.heroMediaId)) : undefined;
       return {
         ...p,
         title: trans.title,
         slug: trans.slug,
         excerpt: trans.excerpt,
         url,
-        hero: hero
-          ? {
-              alt: hero.alt,
-              caption: hero.caption,
-              default: hero.formats?.[hero.defaultFormat ?? ""]?.url ?? hero.url ?? "",
-              formats: hero.formats ?? {},
-            }
-          : undefined,
+        hero,
         category: {
           name: termTrans.name,
           url: `/${langPrefix}${termTrans.slug}/index.html`,

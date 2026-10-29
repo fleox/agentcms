@@ -123,7 +123,7 @@ async function warmRegistry(): Promise<void> {
 const manifest: PluginManifest<MultilangConfig> = {
   id: "agentcms-multilang",
   name: "Multi-language",
-  version: "1.6.6",
+  version: "1.6.7",
   description:
     "Multi-language site support — translated posts/pages/terms, hreflang SEO, per-language sitemap entries, per-language RSS feeds.",
   author: "AgentCMS",

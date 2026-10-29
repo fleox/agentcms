@@ -169,6 +169,38 @@ describe("media, users, transfer, stats (fake GitHub)", () => {
     expect((await run(["media", "regenerate", "--site", "pics"])).body.data.result.media).toEqual([]);
   }, 120_000);
 
+  it("publishes the alt text / caption of each language (multilang)", async () => {
+    const pics = (args: string[]) => run([...args, "--site", "pics"]);
+    expect((await pics(["plugins", "config", "agentcms-multilang", "--merge", '{"primaryLanguage":"en","enabledLanguages":["fr"]}'])).code).toBe(0);
+    const dir = join(root, "multilang");
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, "dawn.png"), await encodeImage(gradient(400, 300), "image/png", 100));
+    writeFileSync(join(dir, "media.json"), JSON.stringify([{ file: "dawn.png", alt: "A tent at dawn", caption: "Photo: Ana", translations: { fr: { alt: "Une tente au lever du jour" } } }]));
+    const [up] = (await pics(["media", "upload", "--data", `@${join(dir, "media.json")}`])).body.data.result as Array<{ id: string }>;
+    expect((await pics(["media", "get", up.id])).body.data.result.translations).toEqual({ fr: { alt: "Une tente au lever du jour" } });
+    const upd = await pics(["media", "update", up.id, "--lang", "fr", "--caption", "Photo : Ana"]);
+    expect(upd.body.data.result).toMatchObject({ lang: "fr", alt: "A tent at dawn", translations: { fr: { alt: "Une tente au lever du jour", caption: "Photo : Ana" } } });
+    expect((await pics(["media", "update", up.id, "--lang", "not a lang", "--alt", "x"])).body.error?.code).toBe("usage");
+
+    expect((await pics(["content", "create", "--title", "Dawn", "--body", "Text.", "--category", "Trips", "--create-terms", "--hero", up.id])).code).toBe(0);
+    expect((await pics(["terms", "update", "trips", "--type", "category", "--lang", "fr", "--name", "Voyages", "--slug", "voyages"])).code).toBe(0);
+    expect((await pics(["content", "update", "dawn", "--lang", "fr", "--title", "Aube", "--body", "Texte."])).code).toBe(0);
+    expect((await pics(["content", "publish", "dawn"])).code).toBe(0);
+    const en = gh.files("me/site3").get("trips/dawn.html")!;
+    const fr = gh.files("me/site3").get("fr/voyages/aube.html")!;
+    expect(en).toContain('alt="A tent at dawn"');
+    expect(en).toContain("Photo: Ana");
+    expect(fr).toContain('alt="Une tente au lever du jour"');
+    expect(fr).toContain("Photo : Ana");
+    expect(fr).not.toContain("A tent at dawn");
+    // The localised category archive too.
+    expect(gh.files("me/site3").get("fr/voyages/index.html")).not.toContain("A tent at dawn");
+
+    // "" clears a field; an empty translation is removed.
+    await pics(["media", "update", up.id, "--lang", "fr", "--caption", ""]);
+    expect((await pics(["media", "update", up.id, "--lang", "fr", "--alt", ""])).body.data.result.translations).toEqual({});
+  }, 120_000);
+
   it("updates an author profile and republishes authors.json + the author archive", async () => {
     const post = await run(["content", "create", "--site", "blog", "--title", "Hello world", "--body", "First post.", "--hero", mediaId, "--publish"]);
     expect(post.code).toBe(0);

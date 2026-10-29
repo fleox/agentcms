@@ -42,6 +42,21 @@ async function loadFormatSpecs(s: { settings(): { activeThemeId?: string }; host
   for (const [name, f] of Object.entries(ADMIN_FORMATS)) formatSpecs[name] = { fit: f.fit ?? "cover", adminOnly: true };
 }
 
+// --data `translations`: { "<lang>": { "alt", "caption" } } (agentcms-multilang).
+function parseTranslations(raw: unknown, file: string): Media["translations"] | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  if (typeof raw !== "object" || Array.isArray(raw)) throw new CliError("usage", `--data: "translations" of ${file} must be an object { "<lang>": { "alt", "caption" } }.`, undefined, 2);
+  const out: NonNullable<Media["translations"]> = {};
+  for (const [lang, v] of Object.entries(raw as Record<string, unknown>)) {
+    const t = (v ?? {}) as { alt?: unknown; caption?: unknown };
+    const entry: { alt?: string; caption?: string } = {};
+    if (t.alt) entry.alt = String(t.alt);
+    if (t.caption) entry.caption = String(t.caption);
+    if (entry.alt || entry.caption) out[lang] = entry;
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+
 async function summarize(m: Media) {
   const { pickMediaUrl } = await import("../../src/core/media");
   const { iso } = await import("../ops/adminCommon");
@@ -52,6 +67,7 @@ async function summarize(m: Media) {
     name: m.name,
     alt: m.alt ?? null,
     caption: m.caption ?? null,
+    translations: m.translations ?? {},
     contentType: m.contentType,
     size: m.size,
     url: pickMediaUrl(m) || null,
@@ -142,7 +158,7 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
       // Files from the arguments (shared --alt / --caption) and / or from
       // --data: [{ "file", "alt", "caption" }] (paths relative to the JSON
       // file), each with its own texts.
-      type Item = { path: string; alt?: string; caption?: string };
+      type Item = { path: string; alt?: string; caption?: string; translations?: Media["translations"] };
       const items: Item[] = refs.map((f) => ({ path: resolve(f), alt: str(options.alt), caption: str(options.caption) }));
       if (options.data !== undefined) {
         const { readJsonOption } = await import("../ops/adminCommon");
@@ -152,8 +168,8 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
         if (!list || list.some((x) => !x || typeof x !== "object" || typeof (x as { file?: unknown }).file !== "string")) {
           throw new CliError("usage", "--data must be a JSON array of { \"file\", \"alt\", \"caption\" }.", "e.g. --data '[{\"file\":\"fjord.jpg\",\"alt\":\"…\"}]' or --data @media.json", 2);
         }
-        for (const x of list as Array<{ file: string; alt?: unknown; caption?: unknown }>) {
-          items.push({ path: resolve(base, x.file), alt: x.alt === undefined ? str(options.alt) : String(x.alt), caption: x.caption === undefined ? str(options.caption) : String(x.caption) });
+        for (const x of list as Array<{ file: string; alt?: unknown; caption?: unknown; translations?: unknown }>) {
+          items.push({ path: resolve(base, x.file), alt: x.alt === undefined ? str(options.alt) : String(x.alt), caption: x.caption === undefined ? str(options.caption) : String(x.caption), translations: parseTranslations(x.translations, x.file) });
         }
       }
       if (!items.length) throw new CliError("usage", "media upload needs one or more image files.", "e.g. `agentcms media upload photo.jpg --alt \"…\"`, or --data @media.json for one alt text per file.", 2);
@@ -189,8 +205,8 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
           for (const [i, file] of prepared.entries()) {
             try {
               const created = await uploadMedia(file, uploadedBy, settings);
-              const { alt, caption } = items[i];
-              if (alt !== undefined || caption !== undefined) await updateMedia(created.id, { alt, caption });
+              const { alt, caption, translations } = items[i];
+              if (alt !== undefined || caption !== undefined || translations) await updateMedia(created.id, { alt, caption, ...(translations ? { translations } : {}) });
               const fresh = (await listAllMedia()).find((m) => m.id === created.id) ?? created;
               const sum = await summarize(fresh);
               out.push({ file: files[i], ok: true, id: created.id, url: sum.url, formats: sum.formats });
@@ -208,13 +224,29 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
       const alt = str(options.alt);
       const caption = str(options.caption);
       if (alt === undefined && caption === undefined) throw new CliError("usage", "media update needs --alt and/or --caption (\"\" clears).", undefined, 2);
+      const lang = str(options.lang);
+      if (lang !== undefined && !/^[a-z]{2,3}(-[a-z0-9]{2,8})?$/i.test(lang)) throw new CliError("usage", `--lang must be a language code (e.g. en, pt-br), not "${lang}".`, undefined, 2);
       return runAdmin(io, alias, { write: true, lock: true }, async (s) => {
         const m = requireMedia(await s.media(), refs[0]);
         const { updateMedia, listAllMedia } = await import("../../src/services/media");
-        await updateMedia(m.id, { alt, caption });
+        if (lang) {
+          // A translation (agentcms-multilang): media.translations[lang];
+          // "" clears a field, an entry with no field left is removed.
+          const tr = { ...(m.translations?.[lang] ?? {}) };
+          if (alt !== undefined) tr.alt = alt;
+          if (caption !== undefined) tr.caption = caption;
+          if (!tr.alt) delete tr.alt;
+          if (!tr.caption) delete tr.caption;
+          const translations = { ...(m.translations ?? {}) };
+          if (tr.alt || tr.caption) translations[lang] = tr;
+          else delete translations[lang];
+          await updateMedia(m.id, { translations });
+        } else {
+          await updateMedia(m.id, { alt, caption });
+        }
         const fresh = (await listAllMedia()).find((x) => x.id === m.id) ?? m;
-        return { id: m.id, alt: fresh.alt ?? null, caption: fresh.caption ?? null, note: `Published pages keep the old alt text until they are republished (\`agentcms regenerate all --site ${s.site.alias}\`).` };
-      }, (r) => `Updated ${r.id}: alt=${JSON.stringify(r.alt)} caption=${JSON.stringify(r.caption)}\n${r.note}`);
+        return { id: m.id, lang: lang ?? null, alt: fresh.alt ?? null, caption: fresh.caption ?? null, translations: fresh.translations ?? {}, note: `Published pages keep the old alt text until they are republished (\`agentcms regenerate all --site ${s.site.alias}\`).` };
+      }, (r) => `Updated ${r.id}${r.lang ? ` (${r.lang})` : ""}: alt=${JSON.stringify(r.lang ? r.translations[r.lang]?.alt ?? null : r.alt)} caption=${JSON.stringify(r.lang ? r.translations[r.lang]?.caption ?? null : r.caption)}\n${r.note}`);
     }
 
     case "regenerate": {
@@ -320,14 +352,15 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
 export const mediaCommand: Command = {
   name: "media",
   summary:
-    "The Media library: list [--search], get <id> (variants, URLs, where it is used), upload <file…> (the admin's pipeline: the active theme's variants + admin formats, then the record; --alt / --caption, or --data @media.json for one alt / caption per file; one commit per command), update <id> --alt/--caption, delete <id…> (files + record; plan first, --yes; warns about posts / avatars still using it), regenerate [id…] (after a theme switch: re-crops media to the active theme's formats from their high-resolution copy; plan first, --yes; then `regenerate all`).",
-  usage: "media <list|get|upload|update|delete|regenerate> [ids|files…] --site <alias> [--search <q>] [--alt <text>] [--caption <text>] [--data <json>|@file] [--all-formats] [--yes]",
+    "The Media library: list [--search], get <id> (variants, URLs, where it is used), upload <file…> (the admin's pipeline: the active theme's variants + admin formats, then the record; --alt / --caption, or --data @media.json for one alt / caption per file; one commit per command), update <id> --alt/--caption [--lang <code>] (per-language alt / caption for multilang sites), delete <id…> (files + record; plan first, --yes; warns about posts / avatars still using it), regenerate [id…] (after a theme switch: re-crops media to the active theme's formats from their high-resolution copy; plan first, --yes; then `regenerate all`).",
+  usage: "media <list|get|upload|update|delete|regenerate> [ids|files…] --site <alias> [--search <q>] [--alt <text>] [--caption <text>] [--lang <code>] [--data <json>|@file] [--all-formats] [--yes]",
   options: [
     { name: "site", type: "string", description: "Site alias." },
     { name: "search", type: "string", description: "list: words that must all appear in the name, alt or caption." },
     { name: "alt", type: "string", description: "upload/update: alternative text (\"\" clears)." },
     { name: "caption", type: "string", description: "upload/update: caption (\"\" clears)." },
-    { name: "data", type: "string", description: "upload: JSON array (or @file.json) of { \"file\", \"alt\", \"caption\" } — one alt text / caption per file; paths are relative to the JSON file. All files go up in one commit." },
+    { name: "lang", type: "string", description: "update: set the alt text / caption of this language (agentcms-multilang) instead of the primary one; \"\" clears a field." },
+    { name: "data", type: "string", description: "upload: JSON array (or @file.json) of { \"file\", \"alt\", \"caption\", \"translations\": { \"<lang>\": { \"alt\", \"caption\" } } } — one alt text / caption per file (and per language); paths are relative to the JSON file. All files go up in one commit." },
     { name: "all-formats", type: "boolean", description: "regenerate: redo every format of the active theme, not only the missing / wrong-size ones." },
     { name: "yes", type: "boolean", description: "delete / regenerate: apply (otherwise only the plan)." },
   ],

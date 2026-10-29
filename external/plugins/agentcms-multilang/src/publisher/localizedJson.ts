@@ -7,6 +7,7 @@ import {
 } from "@agent-cms/runtime";
 import type { MultilangConfig } from "../types";
 import { getMultilangConfig, isPrimaryLanguage, localizeSettings } from "../core/config";
+import { localizeMediaMap } from "../core/media";
 import {
   getPostTranslation,
   getTermTranslation,
@@ -90,6 +91,7 @@ export async function publishLocalizedDataJson(ctx: PublishContext): Promise<voi
     // primary `index.html`) must not apply to the localised view — the
     // locale home page already carries its `<lang>/index` slug above.
     const localisedSettings = { ...localizeSettings(ctx.settings, language, config), homePageId: undefined };
+    const media = localizeMediaMap(ctx.media, language, config);
     const postsPath = `${language}/data/posts.json`;
     const authorsPath = `${language}/data/authors.json`;
     try {
@@ -98,7 +100,7 @@ export async function publishLocalizedDataJson(ctx: PublishContext): Promise<voi
         shadow.posts,
         shadow.pages,
         shadow.terms,
-        ctx.media,
+        media,
         postsPath,
       );
     } catch {
@@ -107,7 +109,7 @@ export async function publishLocalizedDataJson(ctx: PublishContext): Promise<voi
     try {
       await publishAuthorsJson(
         ctx.users,
-        ctx.media,
+        media,
         shadow.posts,
         shadow.pages,
         authorsPath,

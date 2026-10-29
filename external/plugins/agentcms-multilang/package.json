@@ -1,7 +1,7 @@
 {
   "name": "agentcms-multilang",
   "private": true,
-  "version": "1.6.6",
+  "version": "1.6.7",
   "description": "Multi-language support for AgentCMS — translated posts/pages/terms, hreflang SEO, per-language sitemap entries, per-language RSS feeds.",
   "type": "module",
   "scripts": {
