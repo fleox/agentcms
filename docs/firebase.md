@@ -218,6 +218,8 @@ All three are enabled in **Firebase console → Authentication → Sign-in metho
 2. **Email link** — open *Email/Password* again and also turn on **Email link (passwordless sign-in)** → **Save**.
 3. **Google** — *Google* → **Enable**, choose the *Project support email* → **Save**.
 
+On an installed site, change the list with `npx -y @agent-cms/agentcms site sign-in-methods password,emailLink,google --site <alias>` (rewrites the hosted admin's `config.js`; without a list it shows the current methods).
+
 Then, for the email link and Google, add the domain the admin is served from to **Authentication → Settings → Authorized domains → Add domain**: e.g. `my-login.github.io`, `my-site.pages.dev`, `www.example.com` (without `https://` or a path). `localhost` and `<project>.firebaseapp.com` are there by default. Without it, sign-in fails with *"This domain isn't allowed to sign in"*.
 
 > [!TIP]

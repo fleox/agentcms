@@ -2,6 +2,15 @@
   "$comment": "Newest first. Read by agents (agentcms status) to tell users what changed and what to run. `breaking`: an older admin, skill or site setup stops working without action. `actions`: steps a hosted site needs after updating — deploy-admin, regenerate-all, sync-theme-assets. Keep every entry in English.",
   "versions": [
     {
+      "version": "0.3.13",
+      "date": "2026-10-29",
+      "breaking": false,
+      "changes": [
+        "New `site sign-in-methods [password,emailLink,google] --site <alias>`: shows or changes the sign-in methods of an installed Firebase site (rewrites only the hosted admin's config.js; password always stays) and lists the console steps that go with it."
+      ],
+      "actions": []
+    },
+    {
       "version": "0.3.12",
       "date": "2026-10-29",
       "breaking": false,

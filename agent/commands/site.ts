@@ -23,10 +23,10 @@ function missingCredentials(site: import("../sites").SiteRecord): string[] {
 export const siteCommand: Command = {
   name: "site",
   summary:
-    "Manage the registry of sites this computer drives: list, show, use <alias> (default), rename <from> <to>, forget <alias> (local only — nothing is deleted online), add <alias> --admin-url <url> (register an existing site; warns about missing credentials), credentials <alias> --data-credential|--hosting-credential|--passphrase-credential <account> (attach accounts to a registered site), screenshot [path…] (PNG captures of the live public site, desktop + mobile; default: the home page).",
-  usage: "site <list|show|use|rename|forget|add|credentials|screenshot> [args] [--site <alias>] [--admin-url <url>] [--site-url <url>] [--data-credential <account>] [--hosting-credential <account>] [--passphrase-credential <account>] [--out <dir>] [--max-height <px>] [--color-scheme light|dark] [--screenshot-js <code>]",
+    "Manage the registry of sites this computer drives: list, show, use <alias> (default), rename <from> <to>, forget <alias> (local only — nothing is deleted online), add <alias> --admin-url <url> (register an existing site; warns about missing credentials), credentials <alias> --data-credential|--hosting-credential|--passphrase-credential <account> (attach accounts to a registered site), sign-in-methods [password,emailLink,google] --site <alias> (Firebase: the login screen's methods; rewrites the hosted config.js; no argument = show), screenshot [path…] (PNG captures of the live public site, desktop + mobile; default: the home page).",
+  usage: "site <list|show|use|rename|forget|add|credentials|sign-in-methods|screenshot> [args] [--site <alias>] [--admin-url <url>] [--site-url <url>] [--data-credential <account>] [--hosting-credential <account>] [--passphrase-credential <account>] [--out <dir>] [--max-height <px>] [--color-scheme light|dark] [--screenshot-js <code>]",
   options: [
-    { name: "site", type: "string", description: "Site alias (show, screenshot)." },
+    { name: "site", type: "string", description: "Site alias (show, sign-in-methods, screenshot)." },
     { name: "out", type: "string", description: "screenshot: folder for the PNGs (default: <system temp>/agentcms-screenshots/<alias>; absolute paths in the result)." },
     { name: "screenshot-js", type: "string", description: "screenshot: JavaScript run in each page before the capture (await allowed), e.g. 'document.querySelector(\"[data-cms-search]\")?.click()'." },
     { name: "color-scheme", type: "string", description: "screenshots: prefers-color-scheme of the captures, light (default) or dark." },
@@ -127,6 +127,56 @@ export const siteCommand: Command = {
         printResult(io, { alias: site.alias, credentials: next, warnings }, () => [`${site.alias}: ${JSON.stringify(next)}`, ...warnings.map((w) => `  warning: ${w}`)].join("\n"));
         return;
       }
+      case "sign-in-methods": {
+        // Firebase: which buttons the admin's login screen shows. Lives in
+        // the hosted config.js (public): rewrite only that file.
+        const site = resolveSite(options.site as string | undefined);
+        if (site.runtime.backend !== "firebase") {
+          throw new CliError("unsupported-backend", `${site.alias} doesn't use Firebase: it has no sign-in methods to choose.`, undefined, 2);
+        }
+        const { FIREBASE_SIGN_IN_METHODS } = await import("../../src/lib/runtimeConfig");
+        const current = site.runtime.signInMethods?.length ? site.runtime.signInMethods : ["password"];
+        if (!a) {
+          printResult(io, { alias: site.alias, signInMethods: current, available: FIREBASE_SIGN_IN_METHODS }, () => `${site.alias}: ${current.join(", ")}`);
+          return;
+        }
+        const wanted = a.split(",").map((m) => m.trim()).filter(Boolean);
+        const bad = wanted.filter((m) => !(FIREBASE_SIGN_IN_METHODS as readonly string[]).includes(m));
+        if (bad.length) throw new CliError("usage", `Unknown sign-in method(s): ${bad.join(", ")}.`, `Use a comma-separated list of ${FIREBASE_SIGN_IN_METHODS.join(", ")}.`, 2);
+        // Password always: the bootstrap admin and this CLI sign in with it.
+        const methods = FIREBASE_SIGN_IN_METHODS.filter((m) => m === "password" || wanted.includes(m));
+        const runtime = { ...site.runtime, ...(methods.length > 1 ? { signInMethods: methods } : {}) };
+        if (methods.length === 1) delete (runtime as { signInMethods?: unknown }).signInMethods;
+        let configJs: string | null = null;
+        if (site.adminFolder) {
+          if (!site.credentials.hosting) {
+            throw new CliError("credential-required", `No hosting credential recorded for ${site.alias}: config.js can't be updated.`, `\`agentcms site credentials ${site.alias} --hosting-credential <account>\`.`);
+          }
+          installBrowserEnv();
+          const { requireCredential } = await import("../credentials");
+          const { buildConfigJsSource } = await import("../../src/lib/runtimeConfig");
+          const { applyOps, hostingConnector } = await import("../ops/hosting");
+          const { settleHosting } = await import("../ops/install");
+          const target = { connectorId: site.hosting.connectorId, settings: { ...site.hosting.settings, ...requireCredential(site.credentials.hosting).values } };
+          configJs = `${site.adminFolder.replace(/^\/+|\/+$/g, "")}/config.js`;
+          await applyOps(hostingConnector(target), [{ type: "put", path: configJs, content: buildConfigJsSource(runtime) }]);
+          await settleHosting(target);
+        }
+        putSite({ ...site, runtime, updatedAt: new Date().toISOString() });
+        const next = methods.filter((m) => m !== "password").length
+          ? [
+              "Enable the same methods in Firebase console → Authentication → Sign-in method (Email link: inside Email/Password; Google: Add new provider).",
+              `Add the admin's domain (${new URL(secureAdminUrlOf(site) ?? adminUrlOf(site) ?? site.siteUrl).host}) to Authentication → Settings → Authorized domains.`,
+              `Only invited addresses get access: \`agentcms users invite <email> --site ${site.alias}\`.`,
+            ]
+          : [];
+        printResult(
+          io,
+          { alias: site.alias, signInMethods: methods, updated: configJs, next },
+          () => [`${site.alias}: ${methods.join(", ")}${configJs ? ` (${configJs} updated)` : " (no hosted admin: saved in the registry only)"}`, ...next.map((n) => `- ${n}`)].join("\n"),
+        );
+        return;
+      }
       case "screenshot": {
         const site = resolveSite(options.site as string | undefined);
         const paths = positionals.slice(1);
@@ -151,7 +201,7 @@ export const siteCommand: Command = {
         return r.errors.length ? 1 : 0;
       }
       default:
-        throw new CliError("usage", `Unknown action "${action}".`, "Use list, show, use, rename, forget, add, credentials or screenshot.", 2);
+        throw new CliError("usage", `Unknown action "${action}".`, "Use list, show, use, rename, forget, add, credentials, sign-in-methods or screenshot.", 2);
     }
   },
 };

@@ -185,6 +185,8 @@ describe("install markdown-git + GitHub Pages (fake GitHub)", () => {
       }),
     );
     expect((await run(["install", "--plan", planFile, "--dry-run"])).body.error?.code).toBe("content-public");
+    // Sign-in methods are a Firebase setting.
+    expect((await run(["site", "sign-in-methods", "google", "--site", "blog"])).body.error?.code).toBe("unsupported-backend");
     const allowed = await run(["install", "--plan", planFile, "--dry-run", "--allow-public-content"]);
     expect(allowed.body.ok).toBe(true);
     expect(allowed.body.data.warnings.join(" ")).toContain("me/open-content is public");

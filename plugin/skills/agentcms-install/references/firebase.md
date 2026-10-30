@@ -45,6 +45,7 @@ It prompts for email and password (hidden).
 - **Email link** - no password, Firebase emails a one-time link. Console: Authentication → Sign-in method → Email/Password → also turn on *Email link (passwordless sign-in)*.
 - **Google** - *Continue with Google*. Console: Sign-in method → Add new provider → Google → Enable.
 - For both: Authentication → Settings → **Authorized domains → Add domain** with the site's host (e.g. `my-login.github.io`), or sign-in fails with `auth/unauthorized-domain`.
+- Change them later on an installed site with `npx -y @agent-cms/agentcms@0.3.12 site sign-in-methods password,emailLink,google --site <alias> --json` (rewrites the hosted admin's config.js; no argument = show the current ones).
 
 Pair it with any hosting (GitHub Pages, S3, …) as usual.
 
