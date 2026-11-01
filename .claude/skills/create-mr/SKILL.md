@@ -1,6 +1,6 @@
 ---
 name: create-mr
-description: Use when the user types `/create-mr`, asks to "open a PR", "create a pull request", "ship this work", "open the PR with what I just did", or any phrase meaning they want to push the current changes for review. Walks through a structured auto-review (Symfony linters + Claude-driven code review with interactive fixes), infers a conventional-commits commit message, builds an English PR description, and pushes the branch. If `gh` CLI is installed and authenticated it opens the PR automatically; otherwise it prints a pre-filled GitHub "compare" URL the user clicks once in the browser (zero extra install, zero token). Asks the user at every destructive step. GitHub-only.
+description: Use when the user types `/create-mr`, asks to "open a PR", "create a pull request", "ship this work", "open the PR with what I just did", or any phrase meaning they want to push the current changes for review. Walks through a structured auto-review (repo checks + Claude-driven code review with interactive fixes), infers a conventional-commits commit message, builds an English PR description, and pushes the branch. If `gh` CLI is installed and authenticated it opens the PR automatically; otherwise it prints a pre-filled GitHub "compare" URL the user clicks once in the browser (zero extra install, zero token). Asks the user at every destructive step. GitHub-only.
 version: 1.0.0
 ---
 
@@ -19,9 +19,11 @@ push + PR open. Every destructive step is gated by `AskUserQuestion`.
   - `gh` CLI installed and authenticated (`gh auth status`) → fully automated PR creation, OR
   - Nothing extra → the skill falls back to printing a pre-filled GitHub "compare" URL that
     the user clicks once in their browser to finalize the PR. Zero install, zero token.
-- Docker dev stack running if full PHP linting matters (`docker compose ps app`).
-  If the container is down, fall back to `php -l` on the host and skip Twig /
-  YAML / Doctrine checks — tell the user explicitly which checks were skipped.
+- Dependencies installed (`npm install --legacy-peer-deps`).
+
+`gh` isn't installed on the maintainer's machine, so expect `MODE = "compare-url"`.
+Most work on this repo goes straight to `master` through a release: use this
+skill only when a PR is what the user wants.
 
 ## Workflow
 
@@ -103,71 +105,42 @@ git diff --staged
 
 If both outgoing AND working files are empty → "Nothing to ship." Stop.
 
-### Step 5 — Symfony linters on changed files
+### Step 5 — repo checks on what changed
 
-Run linters scoped to **what this branch actually touches** — flagging
-pre-existing errors in untouched files is out of scope.
+Pick the checks from the changed paths:
 
-For each PHP file changed:
+| Changed | Run |
+|---|---|
+| Any `.ts` / `.tsx` | `npm run typecheck` |
+| `src/`, `agent/` | `npx vitest run <related test files>`, then `npm test` before shipping |
+| `src/`, `agent/`, `external/` bundled entries, `docs/firebase.md`, `public/` | `npm run build`, then commit the refreshed `dist/` (CI rejects a stale one) |
+| `plugin/skills/`, `changelog.json` | `npm run check:skills` |
+| `plugin/skills/`, `hermes/python/` | `npm run hermes:build`, then `npm run check:hermes` (never edit `hermes/skills/`) |
+| `external/<kind>/<id>/`, bundled themes or plugins | `node dist/agent/agentcms.mjs ext check <folder>` |
+| Firestore rules in `docs/firebase.md` | The emulator harness of the `firebase-internals` skill |
 
-```bash
-docker compose exec -T app php -l <file>
-```
+Don't run `npm run build` while another agent is running tests against `dist/`.
 
-For each Twig file changed:
-
-```bash
-docker compose exec -T app php bin/console lint:twig --no-interaction <file>
-```
-
-For each YAML in `config/` or `translations/`:
-
-```bash
-docker compose exec -T app php bin/console lint:yaml --no-interaction <file>
-```
-
-If any Doctrine entity changed (`src/Entity/*.php` or migrations):
-
-```bash
-docker compose exec -T app php bin/console doctrine:schema:validate --skip-sync
-```
-
-If `composer.json` or `composer.lock` changed:
-
-```bash
-docker compose exec -T app composer validate --strict
-```
-
-When the `app` container is not running, fall back to `php -l <file>` on the
-host. Skip Twig / YAML / Doctrine checks and tell the user explicitly: "Skipped
-Twig/YAML/schema linting — Docker dev stack not running."
-
-For each tool that reports errors, list the findings and ask the user (via
-`AskUserQuestion`) whether to fix them as part of this PR.
+For each check that reports errors, list the findings and ask the user (via
+`AskUserQuestion`) whether to fix them as part of this PR. Tell the user which
+checks you skipped and why.
 
 ### Step 6 — Claude auto-review
 
 Read each modified file with surrounding context, classify findings into five
 buckets (see [`reference/review-checklist.md`](reference/review-checklist.md)):
 
-1. **Bugs** — null deref, off-by-one, unhandled exceptions, race conditions,
+1. **Bugs** — null deref, off-by-one, unhandled rejections, race conditions,
    missing error handling at system boundaries.
-2. **Architecture** — fat controllers (move logic to services), god-classes,
-   tight coupling, missing dependency injection, public methods that should be
-   private. The project's [CLAUDE.md](../../../CLAUDE.md) describes the
-   controller / service split — respect it.
-3. **Style / conventions** — variable naming clarity, missing PHP 8.4 types /
-   return types, magic numbers, dead code, inconsistent casing. Use
-   `readonly`, `enum`, and constructor property promotion where they fit.
-4. **Documentation** — missing or non-English docblocks, parameters without
-   `@param`, return types without `@return`, complex blocks without inline
-   `why`-comments. Per the project conventions (CLAUDE.md): default to *no*
-   comment unless the *why* is non-obvious.
-5. **Security** — SQL injection via raw queries, missing CSRF on
-   state-changing routes, path traversal in file APIs (the project has
-   `FileApiController` patterns for this), secrets in `.env` instead of
-   secret vaults, missing authentication on routes under `/account/*` or
-   `/api/*` that should require it.
+2. **Architecture** — the dispatcher / backend split, the public vs admin
+   worlds, the storage facade. The project's [CLAUDE.md](../../../CLAUDE.md)
+   describes them — respect them.
+3. **Style / conventions** — `strict` TypeScript, naming, dead code, matching
+   the surrounding code. UI strings go through `t()` in all 7 locales.
+4. **Documentation** — comments in English, only when the *why* is non-obvious.
+   Skills, `changelog.json` and docs follow the code (AGENTS.md).
+5. **Security** — secrets in `config.js`, a repo, a plan or logs; Firestore
+   rules; unsanitized HTML; path handling in connectors.
 
 For each finding, ask via `AskUserQuestion` (single-select):
 
@@ -183,7 +156,7 @@ options:
     description: "Propose a different approach in chat first."
 ```
 
-Process findings sequentially. After applying, **re-run Step 5 linters** on
+Process findings sequentially. After applying, **re-run the Step 5 checks** for
 the touched files to confirm nothing regressed.
 
 #### Tests are a suggestion, not a blocker
@@ -194,8 +167,8 @@ If the diff adds/modifies code without touching tests:
 header: "Tests?"
 question: "No tests cover the new logic in <file>. Add a test scaffold?"
 options:
-  - label: "Yes, scaffold a PHPUnit test (Recommended for non-trivial logic)"
-    description: "I'll add a skeleton covering the main path. You fill in the assertions."
+  - label: "Yes, add a Vitest test (Recommended for non-trivial logic)"
+    description: "Next to the code (`*.test.ts`), or an `agent/e2e-*.test.ts` on the in-memory fakes for a CLI behaviour."
   - label: "Skip"
     description: "Open the PR without test coverage."
 ```
@@ -205,12 +178,13 @@ options:
 Conventional commits format:
 
 ```
-<type>(<scope>): <subject in imperative present, 50 chars max>
+<type>(<scope>): <subject in imperative present, 72 chars max>
 
 <body — bullet list of what changed, why, anything reviewers must know>
-
-Co-Authored-By: Claude <noreply@anthropic.com>
 ```
+
+Never add `Co-Authored-By: Claude` or a "Generated with Claude Code" line, in the
+commit or the PR body.
 
 Infer `<type>`, `<scope>`, `<subject>` from the diff content. Show the draft in
 chat, then confirm via `AskUserQuestion`:
@@ -236,8 +210,6 @@ question: "Is this work linked to an issue?"
 options:
   - label: "GitHub issue"
     description: "I'll close it automatically via `Closes #N` in the PR body."
-  - label: "Sentry issue"
-    description: "Provide the short ID and permalink in chat — I'll embed them in the PR body."
   - label: "None / other"
     description: "Skip the linking. You can edit the PR later if needed."
 ```
@@ -254,12 +226,12 @@ Use the [`reference/pr-template.md`](reference/pr-template.md) template, in
 
 ## Motivation
 
-<Why this change is needed. Reference the issue / Sentry issue / bug report.
+<Why this change is needed. Reference the issue or bug report.
 Explain the problem before the solution.>
 
 ## Changes
 
-- <bullet 1: imperative voice — "Add SentryTraceMiddleware…">
+- <bullet 1: imperative voice — "Add the `sign-in-methods` action…">
 - <bullet 2>
 - <bullet 3>
 
@@ -272,7 +244,6 @@ Explain the problem before the solution.>
 ## Related
 
 - Closes #N                                ← if GitHub issue
-- Sentry: [SENTRY-XYZ](<permalink>)        ← if Sentry
 
 ## Risk & rollback
 
@@ -382,11 +353,11 @@ final click happens in the browser.
 ### Step 12 — final summary
 
 ```
-✓ Branch:     feat/sentry-trace-context (new) → master
-✓ Linters:    php -l ✓, lint:twig ✓, lint:yaml ✓
+✓ Branch:     feat/site-sign-in-methods (new) → master
+✓ Checks:     typecheck ✓, tests ✓, build ✓, check:skills ✓
 ✓ Review:     3 findings, 3 applied
-✓ Commit:     feat(sentry): forward trace context to all outgoing HTTP calls
-✓ Pushed:     origin/feat/sentry-trace-context
+✓ Commit:     feat(cli): site sign-in-methods for Firebase sites
+✓ Pushed:     origin/feat/site-sign-in-methods
 ✓ PR:         https://github.com/<org>/<repo>/pull/137
 ```
 
@@ -394,7 +365,7 @@ final click happens in the browser.
 
 - Creating a new branch when on default (Step 2).
 - How to handle uncommitted changes (Step 3).
-- Whether to fix linter errors (Step 5).
+- Whether to fix check failures (Step 5).
 - Every individual auto-review finding (Step 6).
 - Whether to add a test scaffold (Step 6).
 - Whether the commit message is OK (Step 7).
@@ -408,14 +379,17 @@ final click happens in the browser.
   hook.
 - Merge the PR after creating it. The skill **only opens** the PR; review and
   merge are humans' jobs.
-- Modify `.env`, `.env.local`, `composer.json`, `package.json` outside of what
-  the user's diff already touches.
+- Modify `.env`, `.env.local`, `package.json` outside of what the user's diff
+  already touches.
+- Edit `hermes/skills/` or `dist/` by hand: both are generated.
+- Run `npm version` or push a `v*` tag: that publishes to npm.
+- Add Claude attribution to a commit or PR.
 - Edit files unrelated to the diff to "improve" them — stay scoped.
 - Run destructive git operations (`reset --hard`, `clean -fd`,
   `checkout -- <file>` against modified files).
 
 ## Reference
 
-- [`reference/review-checklist.md`](reference/review-checklist.md) — what Claude checks in a Symfony 8 project, bucket by bucket.
+- [`reference/review-checklist.md`](reference/review-checklist.md) — what Claude checks in this repository, bucket by bucket.
 - [`reference/pr-template.md`](reference/pr-template.md) — the canonical English PR body template.
 - [`reference/conventional-commits.md`](reference/conventional-commits.md) — type / scope / subject rules.

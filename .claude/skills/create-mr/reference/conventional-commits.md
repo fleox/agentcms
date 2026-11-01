@@ -6,9 +6,9 @@ The skill writes commit messages and PR titles in this exact format:
 <type>(<scope>): <subject>
 
 <body — optional, bullet list>
-
-Co-Authored-By: Claude <noreply@anthropic.com>
 ```
+
+Never add a `Co-Authored-By: Claude` or "Generated with Claude Code" line.
 
 ## Type
 
@@ -21,8 +21,8 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 | `style`    | Formatting, whitespace (rare — usually folded into `chore`)           |
 | `docs`     | Documentation only (CLAUDE.md, README, code comments)                 |
 | `test`     | Adding or modifying tests                                             |
-| `build`    | Build system, deps, lockfiles (composer.lock, package-lock.json)      |
-| `ci`       | CI/CD config (.github/workflows, Dockerfile dev stages)               |
+| `build`    | Build system, deps, lockfile, `dist/` refreshes                       |
+| `ci`       | CI/CD config (.github/workflows)                                      |
 | `chore`    | Routine maintenance, no production impact                             |
 | `revert`   | Revert a previous commit                                              |
 
@@ -44,7 +44,9 @@ Scopes that fit this repo:
 - `themes` — in-tree and external themes
 - `plugins` — in-tree, must-use and external plugins
 - `runtime` — @agent-cms/runtime API for external bundles
-- `agent` — the agentcms CLI
+- `agent` or `cli` — the agentcms CLI
+- `install` — the install command and its skill
+- `media` — media library and image pipeline
 - `skills` — Claude Code plugin and skills
 - `i18n` — translations
 - `release` — versioning, CI, npm publishing
@@ -55,7 +57,7 @@ misleading one.
 ## Subject
 
 - Imperative mood ("add", "fix", "rename" — not "added", "fixes", "renaming").
-- ≤ 50 characters total including the `<type>(<scope>):` prefix.
+- ≤ 72 characters total including the `<type>(<scope>):` prefix.
 - No trailing period.
 - Lowercase first letter (after the colon).
 
@@ -64,27 +66,22 @@ misleading one.
 Optional, but encouraged for anything non-trivial:
 
 ```
-feat(ai): support Google Gemini 2.5 models
+feat(cli): site sign-in-methods for Firebase sites
 
-- Add gemini-2.5-flash, -pro, -flash-lite to the model registry
-- Update GoogleAiProvider to format messages as `contents[]`
-- Migrate users on deprecated gemini-1.5-flash to gemini-2.5-flash
-- Drop the `--provider=google-ai` shortcut nobody uses
-
-Refs: https://ai.google.dev/gemini-api/docs/changelog
-
-Co-Authored-By: Claude <noreply@anthropic.com>
+- Show the methods of a site, or change them
+- Rewrite only the hosted admin's config.js
+- Keep password: the CLI signs in with it
+- List the console steps in `next`
 ```
 
 - Wrap at 72 chars.
 - Use bullets, not paragraphs, unless context truly warrants prose.
-- Reference issues / PRs / Sentry permalinks in a trailing `Refs:` or
-  `Closes #N` line.
+- Reference issues / PRs in a trailing `Refs:` or `Closes #N` line.
 
 ## What to AVOID
 
 - Mixing two concerns in one commit: never do
-  `feat(api): add new endpoint and fix unrelated bug` — split into two.
+  `feat(cli): add a command and fix an unrelated bug` — split into two.
 - Generic subjects: "fix bug", "update files", "wip" — useless in `git log`.
 - Translating "what the user said" verbatim: the message describes the *code
   change*, not the request that prompted it.

@@ -11,7 +11,7 @@ This skill covers what is specific to working **inside** the AgentCMS repository
 - [`docs/creating-a-plugin.md`](../../../docs/creating-a-plugin.md), [`docs/creating-a-theme.md`](../../../docs/creating-a-theme.md), [`docs/runtime-api-reference.md`](../../../docs/runtime-api-reference.md);
 - the API contract of record: [`types/agentcms-runtime.d.ts`](../../../types/agentcms-runtime.d.ts).
 
-Read [CLAUDE.md](../../../CLAUDE.md) and [AGENTS.md](../../../AGENTS.md) first. Don't commit unless asked. For the `agentcms` CLI, the distributed skills, the Hermes skills and multi-agent QA runs, see [`agent-cli-internals`](../agent-cli-internals/SKILL.md).
+Read [CLAUDE.md](../../../CLAUDE.md) and [AGENTS.md](../../../AGENTS.md) first. Don't commit unless asked. For the `agentcms` CLI, the distributed skills, the Hermes skills, releases and multi-agent QA runs, see [`agent-cli-internals`](../agent-cli-internals/SKILL.md).
 
 ## Where extensions live
 
@@ -84,7 +84,12 @@ Hooks fired by a bundled plugin (e.g. `sitemap.*` in `src/plugins/agentcms-sitem
 - Localized renders go through a shadow ctx; use `localizeSettings(settings, lang, config)` (translated `siteTexts.title/description`) for anything that shows the site title / description — plugins that build their own context (archives) read `pluginConfigs["agentcms-multilang"].siteTexts[lang]` themselves.
 - A post translation is published only when its category is translated in that language (`computeAdditional.ts`).
 - Removing a language: `lastPublishedLanguages` drives `cleanupRemovedLanguages` (deleteFolder `<lang>/` when the target can, else known paths). Never delete the primary language or a code equal to a category slug.
+- **Image alt text and caption per language** (multilang 1.6.7): `Media.translations[lang]`, resolved by `external/plugins/agentcms-multilang/src/core/media.ts` for the language's pages, cards and home blocks, falling back to the primary language. Anything that renders an image in a localized page must go through it, or every language shows the primary alt text. CLI: `media update <id> --lang <code> --alt … --caption …`.
 - The core deletes `lastPublishedPathsByLocale` paths on unpublish / delete (`publisher.ts`) and orphaned ones on publish / regenerate-all.
+
+## Plugin config must tolerate defaults
+
+`plugins|themes config --set` fills omitted keys with `defaultConfig` (`deepMerge`), so `defaultConfig` must be complete: every key a plugin reads, arrays included. Settings pages and generators may rely on those keys. A key missing from `defaultConfig` can reach the code as `undefined`, as in the agentcms-rss crash fixed in 0.3.9.
 
 ## Checks before handing over
 

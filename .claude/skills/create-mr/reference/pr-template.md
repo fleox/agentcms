@@ -10,12 +10,12 @@ The canonical body written to `/tmp/create-mr-body.md` and passed to
 
 ## Motivation
 
-<Why this change is needed. Reference the issue / Sentry issue / bug report.
+<Why this change is needed. Reference the issue or bug report.
 Explain the problem before the solution.>
 
 ## Changes
 
-- <bullet 1: imperative voice — "Add SentryTraceMiddleware…">
+- <bullet 1: imperative voice — "Add the `sign-in-methods` action…">
 - <bullet 2>
 - <bullet 3>
 
@@ -28,7 +28,6 @@ Explain the problem before the solution.>
 ## Related
 
 - Closes #N                                ← if GitHub issue
-- Sentry: [SENTRY-XYZ](<permalink>)        ← if Sentry
 
 ## Risk & rollback
 
@@ -42,7 +41,7 @@ revert if it goes wrong (`git revert <sha>` is the default).>
 |--------------------|---------------------------------------------------------------|
 | `Motivation`       | Trivial fix where the motivation is in the subject line       |
 | `How to test`      | Pure docs / typo fix that needs no manual verification        |
-| `Related`          | No linked issue / Sentry permalink                            |
+| `Related`          | No linked issue                                               |
 | `Risk & rollback`  | Truly trivial change (one-line typo, comment, doc-only)       |
 
 `Summary` and `Changes` are **mandatory** — a reviewer must be able to grasp
@@ -66,5 +65,6 @@ what changed without reading the diff.
 - Speculation about future work ("we should also …"). Open a follow-up
   issue instead and link it.
 - Credentials, API keys, internal hostnames, customer data.
+- Claude attribution (`Co-Authored-By`, "Generated with Claude Code").
 - Copy-pasted shell sessions — link to the relevant lines of code or
   paste a tight `<details><summary>` block if absolutely necessary.
