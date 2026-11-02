@@ -26,10 +26,10 @@
 </p>
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/editor-dark.jpg">
-    <img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/editor-light.jpg" width="900" alt="The AgentCMS post editor: a long-form article with its featured image, category, tags and excerpt">
-  </picture>
+  <a href="https://www.youtube.com/watch?v=2zuIQnjCB9o">
+    <img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/tutorial-video.jpg" width="900" alt="Watch the video tutorial on YouTube: Claude Code installs AgentCMS, puts a site online, then creates a custom theme and a plugin">
+  </a>
+  <br><sub>▶️ <a href="https://www.youtube.com/watch?v=2zuIQnjCB9o">Watch the 7-minute tutorial</a>: from an empty folder to a live site with Claude Code, with a custom theme and a plugin.</sub>
 </p>
 
 ---
@@ -101,6 +101,13 @@ This starts the admin on your computer (Node.js 20+). Open the printed URL and f
 More options, including a local build, a hand-made deploy and Firebase, are in [docs/self-hosting.md](https://github.com/fleox/agentcms/blob/master/docs/self-hosting.md).
 
 ## Features
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/editor-dark.jpg">
+    <img src="https://raw.githubusercontent.com/fleox/agentcms/master/.github/assets/editor-light.jpg" width="900" alt="The AgentCMS post editor: a long-form article with its featured image, category, tags and excerpt">
+  </picture>
+</p>
 
 **Writing**
 - Block editor with a slash inserter, drag-and-drop, columns, embeds (YouTube, Vimeo, X, Spotify), custom HTML and theme blocks
