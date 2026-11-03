@@ -152,6 +152,31 @@
       "draft": "Concept",
       "online": "Online"
     },
+    "customFields": {
+      "help": "Opties van dit item die je thema of plugins kunnen lezen (bijv. header-photo). De documentatie van het thema, of je agent, vertelt welke namen het gebruikt.",
+      "name": "Naam",
+      "namePlaceholder": "naam, bijv. header-photo",
+      "type": "Type",
+      "value": "Waarde",
+      "valuePlaceholder": "Waarde",
+      "listPlaceholder": "a, b, c",
+      "kinds": {
+        "text": "Tekst",
+        "number": "Getal",
+        "boolean": "Ja / Nee",
+        "list": "Lijst"
+      },
+      "yes": "Ja",
+      "no": "Nee",
+      "add": "Veld toevoegen",
+      "remove": "Dit veld verwijderen",
+      "errors": {
+        "invalidName": "Ongeldige veldnaam \"{{name}}\": kleine letters, cijfers, - of _, beginnend met een letter.",
+        "duplicate": "Het veld \"{{name}}\" komt twee keer voor.",
+        "invalidNumber": "Het veld \"{{name}}\" heeft een getal nodig.",
+        "tooMany": "Maximaal 50 aangepaste velden per item."
+      }
+    },
     "fields": {
       "title": "Titel",
       "slug": "Slug",
@@ -210,7 +235,8 @@
         "featured": "Uitgelichte afbeelding",
         "seo": "SEO",
         "excerpt": "Samenvatting",
-        "dates": "Datums"
+        "dates": "Datums",
+        "customFields": "Aangepaste velden"
       },
       "blocks": {
         "addBlock": "Blok toevoegen",

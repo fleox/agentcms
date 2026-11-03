@@ -28,7 +28,7 @@ Everything else (`@tiptap/*`, `lucide-react`, `react-dom/server`, `react/jsx-dev
 
 ## Versions
 
-`manifest.json`'s `apiVersion` must be within `[CMS_API_MIN_VERSION, CMS_API_VERSION]` (exported constants) — currently `[1.0.0, 1.6.0]` — or the admin refuses the install and skips the bundle at boot. Declare the **lowest** version that has everything you use:
+`manifest.json`'s `apiVersion` must be within `[CMS_API_MIN_VERSION, CMS_API_VERSION]` (exported constants) — currently `[1.0.0, 1.7.0]` — or the admin refuses the install and skips the bundle at boot. Declare the **lowest** version that has everything you use:
 
 | API | Adds |
 |---|---|
@@ -38,6 +38,7 @@ Everything else (`@tiptap/*`, `lucide-react`, `react-dom/server`, `react/jsx-dev
 | 1.3.0 | `registerEditorVariantProvider` |
 | 1.4.0 | publish connectors (site files routed to the active target, `getStorageCapabilities`, `withStorageBatch`, `StorageError`, `registerStorageConnector`), `basePathFromBaseUrl` / `withBasePath`, `publish.before(post, ctx)`, `regenerate.listings.before`, `sitemap.news.locales` |
 | 1.5.0 | `settings.schema` (`SettingsSchema` / `SettingDoc`) on plugin and theme manifests: documents each setting for `agentcms … config <id> --schema` |
+| 1.7.0 | Custom fields: optional `Post.fields` (`PostFields` / `PostFieldValue`), read by templates as `post.fields?.["name"]` and included in `data/posts.json` entries |
 | 1.6.0 | `search.index.locales` filter (`SearchLocaleEntry`): per-language search indexes (agentcms-search ↔ agentcms-multilang); `BlockManifest.attrsSchema` (documented block attributes, shown by `agentcms content blocks <id>`) |
 
 The loader does not gate features by `apiVersion`; an older admin simply lacks the function (`api.registerEditorVariantProvider` is `undefined` before 1.3).

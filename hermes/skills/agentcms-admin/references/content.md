@@ -16,8 +16,9 @@
 | featured image | `--hero <media id>` | From `media upload` / `media list`. `""` removes it. |
 | author | `--author <user id\|email>` | Default on create: the signed-in user |
 | SEO | `--seo-title`, `--seo-description`, `--seo-image <url>` | `<title>`, meta description, og:image. Themes append " — <site title>" to `<title>` (unless the SEO title already contains it): don't add the brand yourself. |
+| custom fields | `--field key=value` (repeatable) | Options of the entry that the theme or a plugin reads, see [Custom fields](#custom-fields). `key=` removes one. |
 | dates | `--created-at`, `--published-at` (ISO 8601) | Listings are ordered by creation date. The publication date is set by the first publish (now, or `--published-at`) and kept by later republishes and regenerations. |
-| all at once | `--data @entry.json` | `{ title, slug, body, excerpt, category, tags[], hero, author, seo{…}, createdAt, publishedAt }`. Flags override it. |
+| all at once | `--data @entry.json` | `{ title, slug, body, excerpt, category, tags[], hero, author, seo{…}, fields{…}, createdAt, publishedAt }`. Flags override it. |
 
 ### Lifecycle
 
@@ -32,7 +33,18 @@
 
 `<ref>` is an id, a slug, or a published path (`news/my-post`). Add `--type page` when a post and a page share a slug.
 
-`content list [--type] [--status draft|online] [--search …] [--category …]` and `content get <ref>`: `get` returns the Markdown body and the translations.
+`content list [--type] [--status draft|online] [--search …] [--category …]` and `content get <ref>`: `get` returns the Markdown body, the custom fields and the translations.
+
+### Custom fields
+
+Each post or page can carry free options, its **custom fields**: `fields: { "header-photo": true, "label": "New", "prep-time": 45 }`. Editors see them in the admin's Document panel, and themes and plugins read them when the page is published (`post.fields`). Use them whenever a theme or plugin needs a per-entry switch or value, instead of misusing a tag, a category or a word in the excerpt: tags are public, appear in listings and archives, and mix content with layout.
+
+- Set: `content update <ref> --field header-photo=true --field label="New" --site <alias>`. `true` / `false` and plain numbers (`45`, `4.5`) become booleans and numbers; anything else stays text. For a list of texts or exact types, use `--data '{"fields":{"tags-extra":["a","b"],"code":"007"}}'`.
+- Remove: `--field header-photo=` (or `null` in `--data`). Other fields are kept: `--field` only changes the keys it names.
+- Names: lower-case letters, digits, `-` or `_`, starting with a letter (`header-photo`, `prep_time`). At most 50 per entry.
+- They do nothing by themselves: the active theme or a plugin must read them. Check what the theme supports (its README or AGENTS.md, `themes config <id> --schema`), or add the support to the theme (agentcms-extensions skill), then republish the entries (an online entry is republished by `content update`).
+- Custom fields are **public**: themes may print them and they are copied into `data/posts.json`. Never store secrets or private notes in them.
+- They belong to the entry, not to a language: `--lang` refuses them.
 
 ## Markdown
 

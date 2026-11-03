@@ -152,6 +152,31 @@
       "draft": "Brouillon",
       "online": "En ligne"
     },
+    "customFields": {
+      "help": "Options de ce contenu que votre thème ou vos plugins peuvent lire (ex. header-photo). La documentation du thème, ou votre agent, indique les noms utilisés.",
+      "name": "Nom",
+      "namePlaceholder": "nom, ex. header-photo",
+      "type": "Type",
+      "value": "Valeur",
+      "valuePlaceholder": "Valeur",
+      "listPlaceholder": "a, b, c",
+      "kinds": {
+        "text": "Texte",
+        "number": "Nombre",
+        "boolean": "Oui / Non",
+        "list": "Liste"
+      },
+      "yes": "Oui",
+      "no": "Non",
+      "add": "Ajouter un champ",
+      "remove": "Supprimer ce champ",
+      "errors": {
+        "invalidName": "Nom de champ invalide « {{name}} » : lettres minuscules, chiffres, - ou _, en commençant par une lettre.",
+        "duplicate": "Le champ « {{name}} » apparaît deux fois.",
+        "invalidNumber": "Le champ « {{name}} » doit contenir un nombre.",
+        "tooMany": "50 champs personnalisés au maximum par contenu."
+      }
+    },
     "fields": {
       "title": "Titre",
       "slug": "Slug",
@@ -210,7 +235,8 @@
         "featured": "Image à la une",
         "seo": "SEO",
         "excerpt": "Extrait",
-        "dates": "Dates"
+        "dates": "Dates",
+        "customFields": "Champs personnalisés"
       },
       "blocks": {
         "addBlock": "Ajouter un bloc",

@@ -58,6 +58,8 @@ Every template gets `site: SiteContext` plus its own props. `BaseLayout` gets `B
 | `themeConfig` | Your settings merged over `defaultConfig` (shallow). `undefined` without `settings`; cast it to your type. |
 | `homePath` | Set by multilingual plugins on localized pages. Use `site.homePath ?? "/index.html"` for every home link. |
 
+**Custom fields** (API ≥ 1.7): every `post` a template receives (single, cards in listings) carries the entry's `fields?: Record<string, string | number | boolean | string[]>`, set in the admin's Document panel or with `agentcms content update --field key=value`. Use them for per-entry options instead of reserving a tag: `const photoHeader = post.fields?.["header-photo"] === true && !!post.hero;`. Always guard (`?.`, a type check, a fallback): the field is absent on most entries, and editors can type any value. Name the fields your theme reads in its README / AGENTS.md (name, type, effect), so editors and agents know they exist.
+
 **BaseLayoutProps**: `{ site, pageTitle, pageDescription?, ogImage?, currentPath, currentLocale?, children }`
 
 | Page | `pageTitle` | `pageDescription` | `ogImage` | `currentPath` |
@@ -136,7 +138,7 @@ Published HTML stays stable; things that change often are read at runtime from J
 | File | Shape |
 |---|---|
 | `data/menu.json` | `{ header: Item[], footer: Item[], branding?: { logoUrl } }`, with Item `{ id, label, href, children?, labels?: { <lang>: label } }` |
-| `data/posts.json` | `{ generatedAt, posts: [{ id, type, title, url (no leading slash), excerpt, publishedAt (ms), dateLabel, primaryTermId?, category?: { name, url }, hero? (URL) }] }`: the newest 100 posts and pages |
+| `data/posts.json` | `{ generatedAt, posts: [{ id, type, title, url (no leading slash), excerpt, publishedAt (ms), dateLabel, primaryTermId?, category?: { name, url }, hero? (URL), fields? (custom fields) }] }`: the newest 100 posts and pages |
 | `data/authors.json` | `{ generatedAt, authors: { [id]: { id, displayName, title?, bio?, avatar?, url, socials? } } }` |
 
 Recommended menu pattern (what `ext new theme` generates):

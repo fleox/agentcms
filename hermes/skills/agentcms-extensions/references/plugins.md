@@ -232,10 +232,10 @@ export default defineConfig({
 
 `manifest.json` (install metadata, at the ZIP root; the admin reads only these fields and ignores any other):
 ```json
-{ "id": "acme-tools", "name": "Acme Tools", "version": "1.0.0", "apiVersion": "1.6.0", "entry": "bundle.js", "kind": "plugin" }
+{ "id": "acme-tools", "name": "Acme Tools", "version": "1.0.0", "apiVersion": "1.7.0", "entry": "bundle.js", "kind": "plugin" }
 ```
 
-`apiVersion` is the extension API the code needs. 1.6.0 is the current one (the scaffold writes it); older admins refuse newer values. What each version added:
+`apiVersion` is the extension API the code needs. 1.7.0 is the current one (the scaffold writes it); older admins refuse newer values. What each version added:
 
 | Version | Added |
 |---|---|
@@ -245,6 +245,7 @@ export default defineConfig({
 | 1.4 | Hosting-agnostic file API, `withStorageBatch`, `registerStorageConnector`, base path helpers, `publish.before(post, ctx)` |
 | 1.5 | `settings.schema` (documented settings for `config --schema`) |
 | 1.6 | `search.index.locales` filter (per-language search indexes), `BlockManifest.attrsSchema` (documented block attributes) |
+| 1.7 | Custom fields: `Post.fields` (per-entry options, read as `post.fields?.["name"]`; also in `data/posts.json`) |
 
 Assets:
 - Import CSS and other text with `?raw` (or `?inline` for SCSS).

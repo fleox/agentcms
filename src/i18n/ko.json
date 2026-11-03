@@ -152,6 +152,31 @@
       "draft": "초안",
       "online": "온라인"
     },
+    "customFields": {
+      "help": "테마나 플러그인이 읽을 수 있는 이 항목의 옵션입니다(예: header-photo). 사용하는 이름은 테마 문서나 에이전트가 알려 줍니다.",
+      "name": "이름",
+      "namePlaceholder": "이름, 예: header-photo",
+      "type": "유형",
+      "value": "값",
+      "valuePlaceholder": "값",
+      "listPlaceholder": "a, b, c",
+      "kinds": {
+        "text": "텍스트",
+        "number": "숫자",
+        "boolean": "예 / 아니요",
+        "list": "목록"
+      },
+      "yes": "예",
+      "no": "아니요",
+      "add": "필드 추가",
+      "remove": "이 필드 삭제",
+      "errors": {
+        "invalidName": "잘못된 필드 이름 \"{{name}}\": 소문자, 숫자, - 또는 _만 사용하고 문자로 시작해야 합니다.",
+        "duplicate": "\"{{name}}\" 필드가 두 번 있습니다.",
+        "invalidNumber": "\"{{name}}\" 필드에는 숫자가 필요합니다.",
+        "tooMany": "항목당 사용자 정의 필드는 최대 50개입니다."
+      }
+    },
     "fields": {
       "title": "제목",
       "slug": "슬러그",
@@ -210,7 +235,8 @@
         "featured": "대표 이미지",
         "seo": "SEO",
         "excerpt": "발췌문",
-        "dates": "날짜"
+        "dates": "날짜",
+        "customFields": "사용자 정의 필드"
       },
       "blocks": {
         "addBlock": "블록 추가",

@@ -113,6 +113,7 @@ More options, including a local build, a hand-made deploy and Firebase, are in [
 - Block editor with a slash inserter, drag-and-drop, columns, embeds (YouTube, Vimeo, X, Spotify), custom HTML and theme blocks
 - Posts, pages, categories, tags, authors, menus and a media library with automatic responsive WebP variants
 - Drafts, previews, bulk actions and search, plus Markdown and WordPress import
+- Custom fields on any post or page (`header-photo: true`, `price: 4.5`…) that themes and plugins read at publish time
 
 **Publishing**
 - One click renders the page *in your browser* and uploads only what changed (content hashing)

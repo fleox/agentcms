@@ -152,6 +152,31 @@
       "draft": "Borrador",
       "online": "En línea"
     },
+    "customFields": {
+      "help": "Opciones de esta entrada que tu tema o tus plugins pueden leer (p. ej. header-photo). La documentación del tema, o tu agente, te indica qué nombres usa.",
+      "name": "Nombre",
+      "namePlaceholder": "nombre, p. ej. header-photo",
+      "type": "Tipo",
+      "value": "Valor",
+      "valuePlaceholder": "Valor",
+      "listPlaceholder": "a, b, c",
+      "kinds": {
+        "text": "Texto",
+        "number": "Número",
+        "boolean": "Sí / No",
+        "list": "Lista"
+      },
+      "yes": "Sí",
+      "no": "No",
+      "add": "Añadir un campo",
+      "remove": "Eliminar este campo",
+      "errors": {
+        "invalidName": "Nombre de campo no válido «{{name}}»: minúsculas, cifras, - o _, empezando por una letra.",
+        "duplicate": "El campo «{{name}}» aparece dos veces.",
+        "invalidNumber": "El campo «{{name}}» necesita un número.",
+        "tooMany": "Como máximo 50 campos personalizados por entrada."
+      }
+    },
     "fields": {
       "title": "Título",
       "slug": "Slug",
@@ -210,7 +235,8 @@
         "featured": "Imagen destacada",
         "seo": "SEO",
         "excerpt": "Extracto",
-        "dates": "Fechas"
+        "dates": "Fechas",
+        "customFields": "Campos personalizados"
       },
       "blocks": {
         "addBlock": "Añadir bloque",

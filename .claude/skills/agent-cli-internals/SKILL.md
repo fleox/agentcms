@@ -27,6 +27,7 @@ A behaviour change in `agent/` or the admin it reproduces → update `plugin/ski
 - **Errors**: throw `CliError(code, message, hint)`; known admin errors are mapped in `agent/output.ts` `knownError` (`passphrase-required/-wrong`, `conflict`). An `internal` code reaching an agent is a bug: map it.
 - **`--set` vs `--merge`** (`plugins|themes config`): `--set` = `deepMerge(defaults, keepManaged(prev, value))`, so keys left out return to their default and plugins never see a missing key (the raw replace crashed agentcms-rss in 0.3.8). `--merge` changes only the given keys; skills recommend it.
 - **Changing a site's public config** without a redeploy: rewrite only `<adminFolder>/config.js` through `hostingConnector` + `applyOps` + `buildConfigJsSource`, then `putSite` (see `site sign-in-methods`). The served file can lag behind on Pages hosts.
+- **Repeatable options**: `multiple: true` joins the values with a space in `options` (fine for space-separated syntaxes like `users update --social`); `multiple: "list"` also keeps each value apart in `ctx.lists[name]` — use it whenever a value may contain spaces (`content --field label="New today"`).
 - **Plans**: a command that needs `--yes` answers `needsConfirmation: true`. Skills test that field, never the human "re-run with --yes" text, which only exists without `--json`.
 - **`next` hints are commands an agent runs**: always include `--site <alias>`, never admin UI wording ("Regenerate → Everything").
 - Writes on git hostings: one storage batch = one commit = one Pages build. Data-branch (`agentcms-data`) and Markdown content commits carry `[skip ci]` (Cloudflare / Netlify would otherwise build every save).
@@ -44,6 +45,7 @@ A behaviour change in `agent/` or the admin it reproduces → update `plugin/ski
 ## Tests
 
 - In-memory fakes: `agent/testing/fakeGithub.ts` (git API + Pages; `writeFiles()` commits directly, `holdPages(repo, true)` simulates a Pages build still running), `fakeS3.ts`. E2E files `agent/e2e-*.test.ts` run real commands through `main()`.
+- **Memory budget of e2e files**: every publish on `fakeGithub` keeps the whole commit in memory, and `agent/e2e-admin-github.test.ts` is close to the default heap limit (one more scenario with publishes made the worker die with "JavaScript heap out of memory", while it passed with `--max-old-space-size=8000`). Add new scenarios in their own file (e.g. `agent/e2e-admin-fields.test.ts` copies the setup), prefer drafts and publish once.
 - `agent/testing/tmpdirSetup.ts` (vitest `globalSetup`) points every temp folder of a run at one directory removed at the end: workers are killed without their own cleanups, and leaked `agentcms-*` folders once filled the disk. New tests use `os.tmpdir()`, nothing else.
 - Python: `hermes/tests/` with `fake_engine.py` (`AGENTCMS_CMD` → records calls, scripted answers).
 - Before handing over: `npm run build` (typecheck + dist), `npx vitest run`, `npm run check:skills`, `npm run check:hermes`, `npm run smoke:scaffold` (network). CI rejects a stale `dist/` or `hermes/skills/`.

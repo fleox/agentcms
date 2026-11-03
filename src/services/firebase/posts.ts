@@ -1,6 +1,7 @@
 import {
   collection,
   deleteDoc,
+  deleteField,
   doc,
   getCountFromServer,
   getDocs,
@@ -18,7 +19,7 @@ import {
   type QueryDocumentSnapshot,
 } from "firebase/firestore";
 import { collections, getDb } from "../firebaseClient";
-import type { Post, PostStatus, PostType, SeoMeta } from "../../core/types";
+import type { Post, PostFields, PostStatus, PostType, SeoMeta } from "../../core/types";
 
 const postsCollection = () => collection(getDb(), collections.posts);
 const postDoc = (id: string) => doc(getDb(), collections.posts, id);
@@ -68,6 +69,8 @@ export interface CreatePostInput {
   termIds?: string[];
   primaryTermId?: string;
   seo?: SeoMeta;
+  // Custom fields (see Post.fields).
+  fields?: PostFields;
   // Optional creation timestamp override. Used by the import plugin
   // to preserve the original publication date from the source file
   // (markdown frontmatter `publishedAt:` or WP `<wp:post_date>`).
@@ -97,6 +100,7 @@ export async function createPost(input: CreatePostInput): Promise<string> {
   if (input.heroMediaId) data.heroMediaId = input.heroMediaId;
   if (input.primaryTermId) data.primaryTermId = input.primaryTermId;
   if (input.seo) data.seo = input.seo;
+  if (input.fields && Object.keys(input.fields).length > 0) data.fields = input.fields;
   if (input.publishedAt) data.publishedAt = input.publishedAt;
   if (input.translations && Object.keys(input.translations).length > 0) {
     data.translations = input.translations;
@@ -117,6 +121,8 @@ export interface UpdatePostInput {
   termIds?: string[];
   primaryTermId?: string | null;
   seo?: SeoMeta;
+  // Custom fields: the whole map (null or {} removes it).
+  fields?: PostFields | null;
   // Manual overrides for the timestamp fields. Firestore accepts JS
   // Dates and stamps them as Timestamps. Skipped when undefined so the
   // existing value remains untouched.
@@ -132,6 +138,11 @@ export async function updatePost(id: string, patch: UpdatePostInput): Promise<vo
   const update: Record<string, unknown> = { updatedAt: serverTimestamp() };
   for (const [key, value] of Object.entries(patch)) {
     if (value === undefined) continue;
+    // Replaced as a whole; an empty map is removed like the docstore does.
+    if (key === "fields" && (value === null || Object.keys(value as object).length === 0)) {
+      update[key] = deleteField();
+      continue;
+    }
     update[key] = value;
   }
   await updateDoc(postDoc(id), update);

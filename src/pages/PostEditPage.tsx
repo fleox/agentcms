@@ -22,6 +22,7 @@ import { EditorTopbar } from "../components/editor/EditorTopbar";
 import { InlineTitle } from "../components/editor/InlineTitle";
 import { InlineSlug } from "../components/editor/InlineSlug";
 import { EditorInspector, InspectorSection } from "../components/editor/EditorInspector";
+import { CustomFieldsEditor, fieldsToRows, rowsToFields, type FieldRow } from "../components/editor/CustomFieldsEditor";
 import { PreviewModal } from "../components/editor/PreviewModal";
 import { VariantTabBar } from "../components/editor/VariantTabBar";
 import {
@@ -150,6 +151,7 @@ export function PostOrPageEditPage({ type }: PostOrPageEditPageProps) {
   const [heroMediaId, setHeroMediaId] = useState<string | undefined>();
   const [seoTitle, setSeoTitle] = useState("");
   const [seoDescription, setSeoDescription] = useState("");
+  const [fieldRows, setFieldRows] = useState<FieldRow[]>([]);
   // Date inputs use the "YYYY-MM-DDTHH:mm" format expected by
   // <input type="datetime-local">. Empty string = "no override" — the
   // existing Firestore value is left untouched on save.
@@ -418,6 +420,7 @@ export function PostOrPageEditPage({ type }: PostOrPageEditPageProps) {
     setHeroMediaId(existing.heroMediaId);
     setSeoTitle(existing.seo?.title ?? "");
     setSeoDescription(existing.seo?.description ?? "");
+    setFieldRows(fieldsToRows(existing.fields));
     setCreatedAtInput(timestampToInputValue(existing.createdAt));
     setPublishedAtInput(timestampToInputValue(existing.publishedAt));
     // Tell the auto-slug-from-title effect that runs later in this
@@ -669,6 +672,12 @@ export function PostOrPageEditPage({ type }: PostOrPageEditPageProps) {
       return;
     }
 
+    const custom = rowsToFields(fieldRows);
+    if (custom.error) {
+      toast.error(t(`posts.customFields.errors.${custom.error}`, { name: custom.field ?? "" }));
+      return;
+    }
+
     setSaving(true);
     setLogEntries([]);
     try {
@@ -686,6 +695,7 @@ export function PostOrPageEditPage({ type }: PostOrPageEditPageProps) {
           primaryTermId: primaryTermId || undefined,
           heroMediaId,
           seo,
+          fields: custom.fields ?? undefined,
         });
         // Optimistic insert — closes the latency gap between the
         // write and the next subscription tick (~100 ms in
@@ -706,6 +716,7 @@ export function PostOrPageEditPage({ type }: PostOrPageEditPageProps) {
           primaryTermId: primaryTermId || undefined,
           status: "draft",
           seo,
+          ...(custom.fields ? { fields: custom.fields } : {}),
           createdAt: nowTs,
           updatedAt: nowTs,
         });
@@ -738,6 +749,7 @@ export function PostOrPageEditPage({ type }: PostOrPageEditPageProps) {
         // deleteField() sentinel — handled later if a UI affordance is
         // added.
         seo: seo ?? undefined,
+        fields: custom.fields,
         createdAt: createdAtOverride,
         publishedAt: publishedAtOverride,
       });
@@ -814,6 +826,7 @@ export function PostOrPageEditPage({ type }: PostOrPageEditPageProps) {
     const seo: SeoMeta = {};
     if (seoTitle.trim()) seo.title = seoTitle.trim();
     if (seoDescription.trim()) seo.description = seoDescription.trim();
+    const previewFields = rowsToFields(fieldRows).fields ?? undefined;
     const draft: Post = existing
       ? {
           ...existing,
@@ -825,6 +838,7 @@ export function PostOrPageEditPage({ type }: PostOrPageEditPageProps) {
           primaryTermId: primaryTermId || undefined,
           heroMediaId: heroMediaId ?? undefined,
           seo: Object.keys(seo).length ? seo : undefined,
+          fields: previewFields,
         }
       : {
           id: "__preview__",
@@ -838,6 +852,7 @@ export function PostOrPageEditPage({ type }: PostOrPageEditPageProps) {
           primaryTermId: primaryTermId || undefined,
           heroMediaId,
           seo: Object.keys(seo).length ? seo : undefined,
+          fields: previewFields,
           status: "draft",
         };
 
@@ -1191,6 +1206,10 @@ export function PostOrPageEditPage({ type }: PostOrPageEditPageProps) {
                     onChange={(e) => setSeoDescription(e.target.value)}
                   />
                 </div>
+              </InspectorSection>
+
+              <InspectorSection title={t("posts.edit.inspector.customFields")}>
+                <CustomFieldsEditor rows={fieldRows} onChange={setFieldRows} />
               </InspectorSection>
             </>
           }

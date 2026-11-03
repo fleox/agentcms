@@ -5,13 +5,17 @@ export interface OptionSpec {
   type: "string" | "boolean";
   description: string;
   default?: string | boolean;
-  // Can be given several times (values joined with a space).
-  multiple?: boolean;
+  // Can be given several times: true = values joined with a space in
+  // `options`; "list" = each value kept apart in `lists` (values that may
+  // contain spaces, e.g. --field label="New today").
+  multiple?: boolean | "list";
 }
 
 export interface CommandContext {
   io: Io;
   options: Record<string, string | boolean | undefined>;
+  // Every value of the `multiple: "list"` options, in order.
+  lists?: Record<string, string[]>;
   positionals: string[];
 }
 

@@ -2,6 +2,16 @@
   "$comment": "Newest first. Read by agents (agentcms status) to tell users what changed and what to run. `breaking`: an older admin, skill or site setup stops working without action. `actions`: steps a hosted site needs after updating — deploy-admin, regenerate-all, sync-theme-assets. Keep every entry in English.",
   "versions": [
     {
+      "version": "0.4.0",
+      "date": "2026-11-03",
+      "breaking": false,
+      "changes": [
+        "Custom fields on posts and pages (`Post.fields`): free per-entry options such as `header-photo: true`, `label: \"New\"` or `price: 4.5` (text, numbers, yes / no, lists of texts). Edited in the editor's Document panel (new Custom fields section), set from the CLI with `content create|update --field key=value` (repeatable; `key=` removes one) or `--data '{\"fields\":{…}}'`, returned by `content get`, stored in every backend (one `fields:` front-matter line in Markdown) and exported to `data/posts.json`.",
+        "Themes and plugins read them at publish time as `post.fields?.[\"name\"]` (runtime API 1.7.0, typed in `@agent-cms/runtime`). The skills now tell agents to use a custom field for per-entry options instead of misusing a tag."
+      ],
+      "actions": ["deploy-admin"]
+    },
+    {
       "version": "0.3.13",
       "date": "2026-10-29",
       "breaking": false,

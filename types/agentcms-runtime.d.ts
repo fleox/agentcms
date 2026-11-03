@@ -1,8 +1,8 @@
 /**
  * @agent-cms/runtime — public API contract for AgentCMS external plugins and themes.
  *
- * Describes CMS runtime API **1.6.0** (`CMS_API_VERSION`; bundles declaring an
- * `apiVersion` between `CMS_API_MIN_VERSION` = 1.0.0 and 1.6.0 are loaded).
+ * Describes CMS runtime API **1.7.0** (`CMS_API_VERSION`; bundles declaring an
+ * `apiVersion` between `CMS_API_MIN_VERSION` = 1.0.0 and 1.7.0 are loaded).
  *
  * What this file is
  * -----------------
@@ -216,6 +216,11 @@ export interface SeoMeta {
  * A post or a page. URL: page → `<slug>.html`; post with a category →
  * `<category-slug>/<slug>.html`; post without → `<slug>.html` (see `buildPostUrl`).
  */
+/** A custom field value (API ≥ 1.7): flat and JSON-safe. */
+export type PostFieldValue = string | number | boolean | string[];
+/** Custom fields of an entry, keyed by lower-case names such as `header-photo` (API ≥ 1.7). */
+export type PostFields = Record<string, PostFieldValue>;
+
 export interface Post {
   id: string;
   type: PostType;
@@ -233,6 +238,12 @@ export interface Post {
   primaryTermId?: string;
   status: PostStatus;
   seo?: SeoMeta;
+  /**
+   * Custom fields (API ≥ 1.7): options set per entry in the editor's Document
+   * panel or with `agentcms content update --field key=value`, e.g.
+   * `post.fields?.["header-photo"] === true`. Absent when empty; always guard.
+   */
+  fields?: PostFields;
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
   publishedAt?: Timestamp;

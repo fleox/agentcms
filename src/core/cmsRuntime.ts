@@ -304,7 +304,12 @@ declare global {
 // SearchLocaleEntry) and BlockManifest.attrsSchema (documented block
 // attributes for `agentcms content blocks`). Backwards compatible — every 1.5.x bundle still
 // loads.
-export const CMS_API_VERSION = "1.6.0";
+// 1.7.0 — custom fields: optional `Post.fields` (PostFields, flat
+// key → text / number / boolean / list of texts), set in the editor's
+// Document panel or with `agentcms content update --field`, and exposed
+// to templates and data/posts.json. Backwards compatible — every 1.6.x
+// bundle still loads.
+export const CMS_API_VERSION = "1.7.0";
 export const CMS_API_MIN_VERSION = "1.0.0";
 
 // Snapshot of the public runtime API. Each named property is

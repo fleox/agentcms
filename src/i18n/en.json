@@ -152,6 +152,31 @@
       "draft": "Draft",
       "online": "Online"
     },
+    "customFields": {
+      "help": "Options for this entry that your theme or plugins can read (e.g. header-photo). Your theme's docs, or your agent, tell you which names it uses.",
+      "name": "Name",
+      "namePlaceholder": "name, e.g. header-photo",
+      "type": "Type",
+      "value": "Value",
+      "valuePlaceholder": "Value",
+      "listPlaceholder": "a, b, c",
+      "kinds": {
+        "text": "Text",
+        "number": "Number",
+        "boolean": "Yes / No",
+        "list": "List"
+      },
+      "yes": "Yes",
+      "no": "No",
+      "add": "Add a field",
+      "remove": "Remove this field",
+      "errors": {
+        "invalidName": "Invalid field name \"{{name}}\": lower-case letters, digits, - or _, starting with a letter.",
+        "duplicate": "The field \"{{name}}\" appears twice.",
+        "invalidNumber": "The field \"{{name}}\" needs a number.",
+        "tooMany": "At most 50 custom fields per entry."
+      }
+    },
     "fields": {
       "title": "Title",
       "slug": "Slug",
@@ -210,7 +235,8 @@
         "featured": "Featured image",
         "seo": "SEO",
         "excerpt": "Excerpt",
-        "dates": "Dates"
+        "dates": "Dates",
+        "customFields": "Custom fields"
       },
       "blocks": {
         "addBlock": "Add block",

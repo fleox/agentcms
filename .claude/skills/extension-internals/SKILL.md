@@ -87,6 +87,16 @@ Hooks fired by a bundled plugin (e.g. `sitemap.*` in `src/plugins/agentcms-sitem
 - **Image alt text and caption per language** (multilang 1.6.7): `Media.translations[lang]`, resolved by `external/plugins/agentcms-multilang/src/core/media.ts` for the language's pages, cards and home blocks, falling back to the primary language. Anything that renders an image in a localized page must go through it, or every language shows the primary alt text. CLI: `media update <id> --lang <code> --alt … --caption …`.
 - The core deletes `lastPublishedPathsByLocale` paths on unpublish / delete (`publisher.ts`) and orphaned ones on publish / regenerate-all.
 
+## Custom fields (`Post.fields`, API 1.7)
+
+Per-entry options for themes and plugins (`post.fields?.["header-photo"] === true`), so nobody has to misuse a tag for them.
+
+- Shape and rules live in `src/core/postFields.ts`: `PostFields = Record<string, string | number | boolean | string[]>`, names match `FIELD_KEY_PATTERN` (`^[a-z][a-z0-9_-]{0,63}$`), at most `MAX_FIELDS` (50). `validateFields`, `parseFieldAssignment` (CLI `key=value`: only exact `true` / `false` / plain numbers are typed, `key=` = remove), `mergeFields` (patch with `null` = remove; returns `null` when empty).
+- Storage: `updatePost({ fields })` **replaces the whole map** (callers merge first); `null` or `{}` removes it — docstore drops the key, Firebase writes `deleteField()`. `docToPost` copies `fields` (the docstore drops unknown keys there, so a new Post field must be added to `docToPost`, `createPost` and `UPDATABLE_FIELDS`). Markdown-git writes it as one JSON-flow front-matter line `fields: {…}` with no layout change.
+- Exposure: templates get the raw `Post` (single) and `CardPost` (`...post`), so `fields` reaches every template without publisher changes; `data/posts.json` entries carry `fields` when non-empty (`postsJsonPublisher.ts`). Custom fields are public — never document them as a place for secrets.
+- Editor: `src/components/editor/CustomFieldsEditor.tsx` (`fieldsToRows` / `rowsToFields`, errors as `posts.customFields.errors.*` keys), a Document-panel section in `PostEditPage.tsx`; the map is included in create, update and preview drafts. Fields are per entry, not per language (multilang variants don't touch them; the CLI refuses `--field` with `--lang`).
+- A theme that reads a field documents it (name, type, effect) in its README / AGENTS.md; the distributed skills tell agents to look there.
+
 ## Plugin config must tolerate defaults
 
 `plugins|themes config --set` fills omitted keys with `defaultConfig` (`deepMerge`), so `defaultConfig` must be complete: every key a plugin reads, arrays included. Settings pages and generators may rely on those keys. A key missing from `defaultConfig` can reach the code as `undefined`, as in the agentcms-rss crash fixed in 0.3.9.

@@ -41,12 +41,19 @@ async function run(name: string, args: string[], io: Io): Promise<number | void>
     throw new CliError("usage", (e as Error).message, `Usage: agentcms ${command.usage}`, 2);
   }
   if (parsed.values.help && command.name !== "help") return run("help", [command.name], io);
+  const listNames = new Set(command.options.filter((o) => o.multiple === "list").map((o) => o.name));
   return command.run({
     io,
-    // Repeated options arrive joined with a space.
+    // Repeated options arrive joined with a space…
     options: Object.fromEntries(
       Object.entries(parsed.values).map(([k, v]) => [k, Array.isArray(v) ? v.join(" ") : v]),
     ) as Record<string, string | boolean | undefined>,
+    // …except "list" ones, also kept value by value.
+    lists: Object.fromEntries(
+      Object.entries(parsed.values)
+        .filter(([k]) => listNames.has(k))
+        .map(([k, v]) => [k, (Array.isArray(v) ? v : [v]).map(String)]),
+    ),
     positionals: parsed.positionals,
   });
 }

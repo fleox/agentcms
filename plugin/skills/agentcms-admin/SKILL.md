@@ -27,6 +27,7 @@ Every command is `npx -y @agent-cms/agentcms@0.3.13 <command> … --site <alias>
 - **Editing an online entry republishes it** (`content update`), like the editor's Save button. Use `--no-publish` to keep the published version unchanged.
 - **Many other saves change nothing on the public site.** Settings, categories and tags, enabling a plugin, plugin or theme layout config, favicon all need a regeneration. Every command returns the exact one in `data.result.next`; run it, or tell the user why not.
 - **Confirmation.** Destructive or site-wide commands only print a plan without `--yes`: delete content, media, terms or users, `themes activate`, `transfer import`, `plugins action agentcms-import run`. Show the plan and get the user's go before re-running with `--yes`. In JSON a plan is marked by `needsConfirmation: true` (in `data.result`; on `data` for `deploy-admin`, `ext install`, `compact-data`): nothing was written. Detect plans by that field, never by the human text.
+- **Per-entry options go in custom fields.** When a theme or plugin needs a switch or value on one post or page ("photo header", "badge", "price"), store it as a custom field (`content update <ref> --field header-photo=true`) and read `post.fields` in the theme. Never misuse a tag, a category or the excerpt for it. See [Custom fields](references/content.md#custom-fields).
 - **Identify the site.** Say which site you are working on ("Working on **my-blog** (https://...)"). Never switch sites silently.
 
 ## Commands at a glance
@@ -47,7 +48,7 @@ Every command is `npx -y @agent-cms/agentcms@0.3.13 <command> … --site <alias>
 | Other files on the hosting (verification file, stray old page) | `files list / put / delete` |
 | Install plugin / theme ZIPs | `ext install / list / uninstall` (see `agentcms-extensions`) |
 
-Details, examples and every option: [references/content.md](references/content.md) (writing, blocks, images, SEO, translations, publishing) and [references/site.md](references/site.md) (settings, menus, terms, plugins, themes, users, regeneration, transfer).
+Details, examples and every option: [references/content.md](references/content.md) (writing, blocks, images, SEO, custom fields, translations, publishing) and [references/site.md](references/site.md) (settings, menus, terms, plugins, themes, users, regeneration, transfer).
 
 ## Typical workflows
 

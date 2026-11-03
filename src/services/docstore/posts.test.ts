@@ -107,6 +107,21 @@ describe("docstore posts", () => {
     await expect(updatePost("missing", { title: "x" })).rejects.toThrow();
   });
 
+  it("stores custom fields, replaces them as a whole and drops an empty map", async () => {
+    const id = await createPost({ type: "post", title: "F", slug: "f", authorId: "u", fields: { "header-photo": true, price: 4.5 } });
+    expect((await fetchAllPosts({ type: "post" })).find((p) => p.id === id)?.fields).toEqual({ "header-photo": true, price: 4.5 });
+    await updatePost(id, { fields: { label: "New", tags: ["a", "b"] } });
+    expect(store.get("posts", id)!.fields).toEqual({ label: "New", tags: ["a", "b"] });
+    await updatePost(id, { title: "G" });
+    expect(store.get("posts", id)!.fields).toEqual({ label: "New", tags: ["a", "b"] });
+    await updatePost(id, { fields: {} });
+    expect(store.get("posts", id)!.fields).toBeUndefined();
+    await updatePost(id, { fields: { a: 1 } });
+    await updatePost(id, { fields: null });
+    expect(store.get("posts", id)!.fields).toBeUndefined();
+    expect((await fetchAllPosts({ type: "post" })).find((p) => p.id === id)?.fields).toBeUndefined();
+  });
+
   it("markPostOnline / markPostDraft keep the publish-state semantics", async () => {
     await updatePost("p2", { lastPublishedPathsByLocale: { fr: "fr/two.html" } });
     await markPostOnline("p2", {

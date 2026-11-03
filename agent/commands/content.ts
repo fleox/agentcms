@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import type { Post, SeoMeta, Term } from "../../src/core/types";
+import type { Post, PostFieldValue, SeoMeta, Term } from "../../src/core/types";
 import { CliError } from "../output";
 import type { Command, CommandContext } from "./types";
 
@@ -56,11 +56,13 @@ interface EntryFields {
   hero?: string | null;
   author?: string;
   seo?: SeoMeta;
+  // Custom fields to set (null = remove), merged into the entry's own.
+  fields?: Record<string, PostFieldValue | null>;
   createdAt?: Date;
   publishedAt?: Date;
 }
 
-async function readFields(options: CommandContext["options"]): Promise<EntryFields> {
+async function readFields(options: CommandContext["options"], lists?: CommandContext["lists"]): Promise<EntryFields> {
   const { readTextOption, readJsonOption, listOption, dateOption } = await import("../ops/adminCommon");
   const data = (readJsonOption(options.data, "data") ?? {}) as Record<string, unknown>;
   if (typeof data !== "object" || Array.isArray(data)) throw new CliError("usage", "--data must be a JSON object.", undefined, 2);
@@ -84,9 +86,45 @@ async function readFields(options: CommandContext["options"]): Promise<EntryFiel
   if (options["seo-description"] !== undefined) seo.description = String(options["seo-description"]);
   if (options["seo-image"] !== undefined) seo.ogImage = String(options["seo-image"]);
   if (Object.keys(seo).length) f.seo = Object.fromEntries(Object.entries(seo).filter(([, v]) => v !== "" && v != null)) as SeoMeta;
+  f.fields = await readFieldPatch(lists?.field ?? options.field, data.fields);
   f.createdAt = dateOption(options["created-at"] ?? data.createdAt, "created-at");
   f.publishedAt = dateOption(options["published-at"] ?? data.publishedAt, "published-at");
   return f;
+}
+
+// --field key=value (repeatable; "key=" removes) over --data's "fields"
+// object (null removes). Undefined when neither was given.
+async function readFieldPatch(flag: unknown, json: unknown): Promise<Record<string, PostFieldValue | null> | undefined> {
+  const { isFieldValue, isValidFieldKey, parseFieldAssignment } = await import("../../src/core/postFields");
+  const flags = flag === undefined ? [] : Array.isArray(flag) ? flag.map(String) : [String(flag)];
+  if (json === undefined && !flags.length) return undefined;
+  const patch: Record<string, PostFieldValue | null> = {};
+  if (json !== undefined && json !== null) {
+    if (typeof json !== "object" || Array.isArray(json)) throw new CliError("usage", "--data fields must be an object of key → value.", undefined, 2);
+    for (const [key, value] of Object.entries(json as Record<string, unknown>)) {
+      if (!isValidFieldKey(key)) throw new CliError("usage", `Invalid field name "${key}".`, 'Lower-case letters, digits, "-" or "_", starting with a letter (e.g. header-photo).', 2);
+      if (value !== null && !isFieldValue(value)) throw new CliError("usage", `Invalid value for field "${key}".`, "Use text, a number, true / false, a list of texts, or null to remove it.", 2);
+      patch[key] = value as PostFieldValue | null;
+    }
+  }
+  for (const raw of flags) {
+    try {
+      const { key, value } = parseFieldAssignment(raw);
+      patch[key] = value;
+    } catch (err) {
+      throw new CliError("usage", (err as Error).message, 'Write --field key=value (e.g. --field header-photo=true); "key=" removes it.', 2);
+    }
+  }
+  return patch;
+}
+
+// The entry's fields after the patch; checks the limits.
+async function nextFields(current: Post["fields"], patch: Record<string, PostFieldValue | null>) {
+  const { mergeFields, validateFields } = await import("../../src/core/postFields");
+  const merged = mergeFields(current, patch);
+  const { errors } = validateFields(merged);
+  if (errors.length) throw new CliError("usage", errors[0], undefined, 2);
+  return merged;
 }
 
 // Category + tags → { primaryTermId, termIds }; creates missing tags
@@ -166,7 +204,7 @@ function decodeB64Json(v: string): unknown {
 function encodeB64Json(v: unknown): string {
   return Buffer.from(JSON.stringify(v), "utf8").toString("base64");
 }
-async function run({ io, options, positionals }: CommandContext): Promise<number | void> {
+async function run({ io, options, lists, positionals }: CommandContext): Promise<number | void> {
   const [action, ...refs] = positionals;
   const { runAdmin, findPost, currentUserId, menuReferences, menuRemoveHints, pathMoves, reportStaleLinks } = await import("../ops/adminCommon");
   const alias = options.site as string | undefined;
@@ -203,6 +241,7 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
           heroMediaId: p.heroMediaId ?? null,
           authorId: p.authorId,
           seo: p.seo ?? null,
+          fields: p.fields ?? {},
           createdAt: iso(p.createdAt),
           translations: p.translations ?? null,
           body: p.contentMarkdown,
@@ -212,7 +251,7 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
 
     case "create": {
       const kind = kindOption(options.type, "post")!;
-      const f = await readFields(options);
+      const f = await readFields(options, lists);
       if (!f.title) throw new CliError("usage", "content create needs --title.", undefined, 2);
       return runAdmin(io, alias, { write: true, hosting: !!options.publish, extensions: !!options.publish, lock: true }, async (s) => {
         const { slugify, findAvailableSlug, buildPostUrl } = await import("../../src/core/slug");
@@ -232,6 +271,7 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
             !!detectPathCollision(buildPostUrl({ post: { type: kind, slug: cand }, primaryTerm: term }), all.filter((p) => p.type === "post"), all.filter((p) => p.type === "page"), terms),
           );
         }
+        const fields = f.fields ? await nextFields(undefined, f.fields) : null;
         const { createPost } = await import("../../src/services/posts");
         const id = await createPost({
           type: kind,
@@ -244,6 +284,7 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
           termIds,
           primaryTermId,
           seo: f.seo,
+          fields: fields ?? undefined,
           createdAt: f.createdAt,
           publishedAt: f.publishedAt,
         });
@@ -259,13 +300,14 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
 
     case "update": {
       if (!refs[0]) throw new CliError("usage", "content update needs an id or slug.", undefined, 2);
-      const f = await readFields(options);
+      const f = await readFields(options, lists);
       const lang = options.lang as string | undefined;
       return runAdmin(io, alias, { write: true, hosting: true, extensions: true, lock: true }, async (s) => {
         const all = await allEntries();
         const p = findPost(all, refs[0], type);
         const { updatePost } = await import("../../src/services/posts");
         let createdTerms: Array<{ type: "category" | "tag"; name: string; slug: string }> = [];
+        if (lang && f.fields) throw new CliError("usage", "Custom fields belong to the entry, not to one translation: drop --lang to set them.", undefined, 2);
         if (lang && options.remove) {
           // Drop a translation; republishing (below) deletes its page.
           if (!p.translations?.[lang]) throw new CliError("not-found", `${p.title} has no ${lang} translation.`, undefined, 2);
@@ -311,6 +353,7 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
             termIds: f.category !== undefined || f.tags !== undefined ? termIds : undefined,
             primaryTermId: f.category !== undefined ? primaryTermId ?? null : undefined,
             seo: f.seo ? { ...(p.seo ?? {}), ...f.seo } : undefined,
+            fields: f.fields ? await nextFields(p.fields, f.fields) : undefined,
             authorId,
             createdAt: f.createdAt,
             publishedAt: f.publishedAt,
@@ -427,7 +470,7 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
         const all = await allEntries();
         const p = findPost(all, refs[0], type);
         // Unsaved changes can be previewed too: same flags as update.
-        const f = await readFields(options);
+        const f = await readFields(options, lists);
         const draft: Post = {
           ...p,
           ...(f.title !== undefined ? { title: f.title } : {}),
@@ -540,7 +583,7 @@ export const contentCommand: Command = {
   summary:
     "Posts and pages, like the admin's editor: list, get <id|slug>, create (draft; --publish to put it online), update <id|slug> (an online entry is republished, like Save; warnings name theme / plugin settings and menu URLs that still link to a moved page, with the fixing command), publish / unpublish <id|slug…> (several = bulk mode, one cascade), delete <id|slug…> (plan first, --yes), preview <id|slug> (HTML file: --out <file>, default in the system temp folder; --screenshots = desktop + phone PNGs in .screenshots/ next to it, absolute paths in the result), blocks [<block id>] (the editor blocks this site offers, as the Markdown to write; --attrs <json> fills a block's attributes).",
   usage:
-    "content <list|get|create|update|publish|unpublish|delete|preview|blocks> [ids…] --site <alias> [--type post|page] [--status draft|online] [--search <q>] [--title <t>] [--slug <s>] [--body <md>|@file|-] [--excerpt <t>] [--category <slug|name>] [--tags a,b] [--create-terms] [--hero <media id>] [--author <user id|email>] [--seo-title <t>] [--seo-description <t>] [--seo-image <url>] [--created-at <iso>] [--published-at <iso>] [--data <json>|@file] [--lang <code> [--remove]] [--publish] [--no-publish] [--out <file>] [--screenshots] [--color-scheme light|dark] [--attrs <json>] [--yes]",
+    "content <list|get|create|update|publish|unpublish|delete|preview|blocks> [ids…] --site <alias> [--type post|page] [--status draft|online] [--search <q>] [--title <t>] [--slug <s>] [--body <md>|@file|-] [--excerpt <t>] [--category <slug|name>] [--tags a,b] [--create-terms] [--hero <media id>] [--author <user id|email>] [--seo-title <t>] [--seo-description <t>] [--seo-image <url>] [--created-at <iso>] [--published-at <iso>] [--field <key=value>…] [--data <json>|@file] [--lang <code> [--remove]] [--publish] [--no-publish] [--out <file>] [--screenshots] [--color-scheme light|dark] [--attrs <json>] [--yes]",
   options: [
     { name: "site", type: "string", description: "Site alias." },
     { name: "type", type: "string", description: "post or page (create: default post)." },
@@ -560,7 +603,8 @@ export const contentCommand: Command = {
     { name: "seo-image", type: "string", description: "og:image URL." },
     { name: "created-at", type: "string", description: "Creation date (ISO 8601) — drives the ordering." },
     { name: "published-at", type: "string", description: "Publication date (ISO 8601)." },
-    { name: "data", type: "string", description: "All fields as JSON (or @file.json): title, slug, body, excerpt, category, tags[], hero, author, seo{title,description,ogImage}, createdAt, publishedAt. Flags override it." },
+    { name: "field", type: "string", multiple: "list", description: "create/update: a custom field, key=value (repeatable). true / false / plain numbers are typed, anything else is text; \"key=\" removes it. Themes read it as post.fields.<key>." },
+    { name: "data", type: "string", description: "All fields as JSON (or @file.json): title, slug, body, excerpt, category, tags[], hero, author, seo{title,description,ogImage}, fields{key: value|null}, createdAt, publishedAt. Flags override it." },
     { name: "color-scheme", type: "string", description: "screenshots: prefers-color-scheme of the captures, light (default) or dark." },
     { name: "lang", type: "string", description: "update: edit the translation in this language (agentcms-multilang) instead of the main text." },
     { name: "remove", type: "boolean", description: "update --lang: delete that translation (an online entry is republished, which removes its page)." },

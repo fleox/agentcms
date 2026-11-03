@@ -84,6 +84,10 @@ export interface SeoMeta {
   ogImage?: string;
 }
 
+// Custom fields (see core/postFields.ts): flat, JSON-safe values.
+export type PostFieldValue = string | number | boolean | string[];
+export type PostFields = Record<string, PostFieldValue>;
+
 export interface Post {
   id: string;
   type: PostType;
@@ -100,6 +104,10 @@ export interface Post {
   primaryTermId?: string;
   status: PostStatus;
   seo?: SeoMeta;
+  // Custom fields: options an editor or an agent sets per entry and that
+  // themes / plugins read at publish time (`post.fields["header-photo"]`).
+  // Absent when empty. Keys match FIELD_KEY_PATTERN.
+  fields?: PostFields;
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
   publishedAt?: Timestamp;

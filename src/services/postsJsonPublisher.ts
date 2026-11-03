@@ -3,7 +3,7 @@ import { mediaToView, pickFormat } from "../core/media";
 import { markdownToPlainText } from "../core/markdown";
 import { postSortMillis } from "../core/postSort";
 import { siteRelativeUrl } from "../core/basePath";
-import type { Media, Post, SiteSettings, Term } from "../core/types";
+import type { Media, Post, PostFields, SiteSettings, Term } from "../core/types";
 import { uploadFile } from "./siteFiles";
 
 // Site path of the public-side posts feed. Grouped under `data/`
@@ -47,6 +47,9 @@ export interface PostsJsonEntry {
   // Medium-variant URL of the hero image, when one is set. Useful for
   // future widgets (latest with thumbnails) — opt-in for the loader.
   hero?: string;
+  // The entry's custom fields (Post.fields), for runtime loaders that
+  // filter or badge entries. Public like the rest of the file.
+  fields?: PostFields;
 }
 
 export interface PostsJson {
@@ -137,6 +140,7 @@ export function buildPostsJson(
       primaryTermId: post.primaryTermId,
       category,
       hero: hero || undefined,
+      ...(post.fields && Object.keys(post.fields).length ? { fields: post.fields } : {}),
     });
   }
 

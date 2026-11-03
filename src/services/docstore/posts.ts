@@ -12,7 +12,7 @@
 
 import type { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 import { getDocStore, newDocId, toTimestamp, type StoredDoc } from "./index";
-import type { Post, PostStatus, PostType, SeoMeta } from "../../core/types";
+import type { Post, PostFields, PostStatus, PostType, SeoMeta } from "../../core/types";
 
 const COLLECTION = "posts" as const;
 
@@ -37,6 +37,7 @@ function docToPost(d: StoredDoc): Post {
   if (d.heroMediaId) post.heroMediaId = d.heroMediaId as string;
   if (d.primaryTermId) post.primaryTermId = d.primaryTermId as string;
   if (d.seo && typeof d.seo === "object") post.seo = { ...(d.seo as SeoMeta) };
+  if (isNonEmptyObject(d.fields)) post.fields = JSON.parse(JSON.stringify(d.fields)) as PostFields;
   if (d.publishedAt) post.publishedAt = toTimestamp(d.publishedAt);
   if (d.lastPublishedPath) post.lastPublishedPath = d.lastPublishedPath as string;
   if (Array.isArray(d.previousPublishedPaths) && d.previousPublishedPaths.length > 0) {
@@ -154,6 +155,7 @@ export interface CreatePostInput {
   termIds?: string[];
   primaryTermId?: string;
   seo?: SeoMeta;
+  fields?: PostFields;
   createdAt?: Date;
   publishedAt?: Date;
   translations?: Record<string, unknown>;
@@ -181,6 +183,7 @@ export async function createPost(input: CreatePostInput): Promise<string> {
   if (input.heroMediaId) doc.heroMediaId = input.heroMediaId;
   if (input.primaryTermId) doc.primaryTermId = input.primaryTermId;
   if (input.seo) doc.seo = input.seo;
+  if (isNonEmptyObject(input.fields)) doc.fields = input.fields;
   if (input.publishedAt) doc.publishedAt = input.publishedAt.getTime();
   if (isNonEmptyObject(input.translations)) doc.translations = input.translations;
   const store = getDocStore();
@@ -204,6 +207,7 @@ export interface UpdatePostInput {
   termIds?: string[];
   primaryTermId?: string | null;
   seo?: SeoMeta;
+  fields?: PostFields | null;
   createdAt?: Date;
   publishedAt?: Date;
   translations?: Record<string, unknown> | null;
@@ -220,6 +224,7 @@ const UPDATABLE_FIELDS: ReadonlyArray<keyof UpdatePostInput> = [
   "termIds",
   "primaryTermId",
   "seo",
+  "fields",
   "createdAt",
   "publishedAt",
   "translations",
@@ -227,7 +232,7 @@ const UPDATABLE_FIELDS: ReadonlyArray<keyof UpdatePostInput> = [
 ];
 
 // Applies a partial patch: undefined = untouched, null = cleared (same
-// as the SQLite NULL column), empty translation maps are dropped.
+// as the SQLite NULL column), empty translation / field maps are dropped.
 export async function updatePost(id: string, patch: UpdatePostInput): Promise<void> {
   const existing = await requireDoc(id);
   const next: StoredDoc = { ...existing };
@@ -239,7 +244,7 @@ export async function updatePost(id: string, patch: UpdatePostInput): Promise<vo
     } else if (value instanceof Date) {
       next[key] = value.getTime();
     } else if (
-      (key === "translations" || key === "lastPublishedPathsByLocale") &&
+      (key === "translations" || key === "lastPublishedPathsByLocale" || key === "fields") &&
       !isNonEmptyObject(value)
     ) {
       delete next[key];

@@ -37,7 +37,7 @@ const distAdmin = resolve(root, "dist/admin");
 // stamps this on every produced manifest.json + external.json entry
 // so the admin's external loader can reject stale bundles built
 // against an older API.
-const CMS_API_VERSION = "1.6.0";
+const CMS_API_VERSION = "1.7.0";
 
 // Externalised at build time; resolved via the import-map at runtime.
 // Keep in sync with the import-map in index.html.

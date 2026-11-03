@@ -20,6 +20,7 @@ const post: StoredDoc = {
   primaryTermId: "T1",
   authorId: "github:fred",
   seo: { title: "SEO" },
+  fields: { "header-photo": true, price: 4.5, label: "New: today", list: ["a", "b"] },
   createdAt: Date.UTC(2026, 0, 2),
   updatedAt: Date.UTC(2026, 0, 3),
   lastPublishedPath: "news/hello.html",
@@ -37,6 +38,7 @@ describe("markdown layout", () => {
     const main = files.get("posts/hello.md")!;
     expect(main).toContain("createdAt: \"2026-01-02T00:00:00.000Z\"");
     expect(main).not.toContain("lastPublishedPath");
+    expect(main).toContain('fields: {"header-photo":true,"price":4.5,"label":"New: today","list":["a","b"]}');
     expect(main).not.toContain("Bonjour");
     expect(main.endsWith("# Hi\n\nBody")).toBe(true);
     expect(JSON.parse(files.get(PUBLISH_STATE_FILE)!)).toEqual({
