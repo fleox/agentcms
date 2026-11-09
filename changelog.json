@@ -2,6 +2,16 @@
   "$comment": "Newest first. Read by agents (agentcms status) to tell users what changed and what to run. `breaking`: an older admin, skill or site setup stops working without action. `actions`: steps a hosted site needs after updating — deploy-admin, regenerate-all, sync-theme-assets. Keep every entry in English.",
   "versions": [
     {
+      "version": "0.4.2",
+      "date": "2026-11-09",
+      "breaking": false,
+      "changes": [
+        "Fix (GitHub): a burst of commits could fail with \"Publishing changes failed (422): Tree SHA does not exist\" (GitHub's replicas lagging behind the commit just made). The commit is now retried.",
+        "`settings target set --site-url` can be run again to finish an interrupted run: it also rebases media still under the URL the site was registered with."
+      ],
+      "actions": ["deploy-admin"]
+    },
+    {
       "version": "0.4.1",
       "date": "2026-11-09",
       "breaking": false,

@@ -92,6 +92,16 @@ describe("GitHub transport", () => {
     expect(commit).toEqual({ message: "Publish", tree: "t2", parents: ["c1"] });
   });
 
+  it("retries when GitHub doesn't know the base tree yet (replica lag)", async () => {
+    repoAt("c1", "t1", []);
+    let tries = 0;
+    route("POST", "/git/trees", () => (++tries === 1 ? [422, { message: "Tree SHA does not exist" }] : [201, { sha: "t2" }]));
+    route("POST", "/git/commits", () => [201, { sha: "c2" }]);
+    route("PATCH", "/git/refs/heads/main", () => [200, { object: { sha: "c2" } }]);
+    expect(await gh().commit([{ type: "put", path: "a.md", content: "x" }], { message: "m" })).toBe("c2");
+    expect(tries).toBe(2);
+  });
+
   it("refuses with GitConflictError when the expected head moved", async () => {
     repoAt("c9", "t9", []);
     await expect(

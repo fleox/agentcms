@@ -1,6 +1,7 @@
 import { getCachedTexts, putCachedTexts } from "./blobCache";
 import { base64ToBytes, base64ToUtf8 } from "./encoding";
 import { gitFetch, mapLimit } from "./http";
+import { StorageError } from "../storage/types";
 import {
   GitConflictError,
   type GitChange,
@@ -24,6 +25,11 @@ type GitHubConfig = Extract<GitRemoteConfig, { provider: "github" }>;
 const TREE_CHUNK = 300;
 const GRAPHQL_BATCH = 50;
 const MAX_REF_RETRIES = 3;
+
+function isTreeLag(err: unknown): boolean {
+  if (!(err instanceof StorageError) || err.status !== 422) return false;
+  return /tree sha does not exist/i.test(`${err.body ?? ""} ${err.message}`);
+}
 
 interface RawTreeItem {
   path: string;
@@ -245,12 +251,20 @@ export function createGitHubTransport(cfg: GitHubConfig): GitTransport {
       }
 
       let tree = baseTree;
-      for (let i = 0; i < items.length; i += TREE_CHUNK) {
-        const res = await postJson<{ sha: string }>(`${repoUrl}/git/trees`, {
-          base_tree: tree,
-          tree: items.slice(i, i + TREE_CHUNK),
-        });
-        tree = res.sha;
+      try {
+        for (let i = 0; i < items.length; i += TREE_CHUNK) {
+          const res = await postJson<{ sha: string }>(`${repoUrl}/git/trees`, {
+            base_tree: tree,
+            tree: items.slice(i, i + TREE_CHUNK),
+          });
+          tree = res.sha;
+        }
+      } catch (err) {
+        // Right after a commit, GitHub's replicas may not know its tree yet
+        // ("Tree SHA does not exist"): transient during bursts of commits.
+        if (!isTreeLag(err) || attempt >= MAX_REF_RETRIES) throw err;
+        await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
+        continue;
       }
       // Identical content → no empty commit.
       if (tree === baseTree) return head;

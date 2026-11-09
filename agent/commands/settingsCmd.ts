@@ -332,10 +332,20 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
           const stored = await readPublishTarget();
           const merged = { ...s.site.hosting.settings, ...stored.settings };
           const before = targetSiteUrl({ connectorId: stored.connectorId, settings: merged });
-          if (before === raw) return { connectorId: stored.connectorId, siteUrl: raw, changed: false, media: 0, next: [] as string[] };
           // Only the stored (secret-free) settings are saved, like the admin.
-          await savePublishTarget({ connectorId: stored.connectorId, settings: { ...stored.settings, siteUrl: raw } });
-          const media = before ? await rebaseAllMediaUrls(await listAllMedia(), before, raw) : [];
+          if (before !== raw) await savePublishTarget({ connectorId: stored.connectorId, settings: { ...stored.settings, siteUrl: raw } });
+          // Media still under the previous URL — or under the one the site was
+          // registered with, so a run interrupted halfway is finished by
+          // running it again.
+          const registered = targetSiteUrl({ connectorId: stored.connectorId, settings: s.site.hosting.settings });
+          let all = await listAllMedia();
+          const rebased = new Set<string>();
+          for (const from of new Set([before, registered].filter((u) => u && u !== raw))) {
+            for (const id of await rebaseAllMediaUrls(all, from, raw)) rebased.add(id);
+            if (rebased.size) all = await listAllMedia();
+          }
+          const media = [...rebased];
+          if (before === raw && media.length === 0) return { connectorId: stored.connectorId, previous: before, siteUrl: raw, changed: false, media: 0, next: [] as string[] };
           const base = (s.settings().baseUrl ?? "").replace(/\/+$/, "");
           const next = [`agentcms regenerate all --site ${s.site.alias}`];
           if (base && base !== raw) next.push(`settings.baseUrl is ${base}: \`agentcms settings set --base-url ${raw}\` if the site moved there.`);
