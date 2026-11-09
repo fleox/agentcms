@@ -35,7 +35,7 @@ Regeneration commands:
   - `--pagination-mode global|paginated` (Firebase only, for very large sites; needs composite indexes);
   - `--data @settings.json` for several at once.
 - `settings target show` shows the publish target (secrets hidden). `settings target test` is the admin's "Test connection".
-- `settings target set --site-url <https://…>` changes the URL the current hosting serves the site at — typically its custom domain, added after the install (`settings target show` then reports `baseUrlMismatch`). Stored media URLs under the previous URL are rewritten (files don't move); then `regenerate all`. To move to another hosting, use `install` instead.
+- `settings target set --site-url <https://…>` changes the URL the current hosting serves the site at — typically its custom domain, added after the install (`settings target show` then reports `baseUrlMismatch`). Stored media URLs are rewritten to it (files don't move; rerun the command if it was interrupted); then `regenerate all`. To move to another hosting, use `install` instead.
 - The **base URL** must be the public address of the site (`site list` → `publicUrl`, the hosting's site URL). Canonical links, sitemaps, RSS and sub-folder links depend on it. The admin can be reached at another address (e.g. an S3 bucket's HTTPS endpoint): that is `siteUrl` / `adminUrl` in the registry.
 
 ## Menus (`menus`)

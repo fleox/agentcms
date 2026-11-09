@@ -15,13 +15,20 @@ describe("rebaseMediaFormats", () => {
     },
   } as unknown as Media;
 
-  it("rewrites only the variants under the previous target URL", () => {
+  it("rewrites legacy media (no folder) only under the previous target URL", () => {
     expect(rebaseMediaFormats(media, "https://me.github.io/site/", "https://example.com")).toEqual({
       large: { url: "https://example.com/media/a/large.webp", width: 1, height: 1 },
     });
+    expect(rebaseMediaFormats(media, "https://me.github.io/si", "https://example.com")).toBeNull();
   });
 
-  it("returns null when nothing matches (no partial prefix match)", () => {
-    expect(rebaseMediaFormats(media, "https://me.github.io/si", "https://example.com")).toBeNull();
+  it("rebuilds every variant from its folder, whatever URL it was stored with", () => {
+    const m = { ...media, storageBase: "media/a" } as Media;
+    expect(rebaseMediaFormats(m, null, "https://example.com/")).toEqual({
+      large: { url: "https://example.com/media/a/large.webp", width: 1, height: 1 },
+      thumb: { url: "https://example.com/media/a/thumb.webp", width: 1, height: 1 },
+    });
+    const done = { ...m, formats: { large: { url: "https://example.com/media/a/large.webp", width: 1, height: 1 } } } as unknown as Media;
+    expect(rebaseMediaFormats(done, null, "https://example.com")).toBeNull();
   });
 });

@@ -146,11 +146,15 @@ async function regenerateMediaFormats(media, formatNames, settings) {
   return Object.keys(out);
 }
 function rebaseMediaFormats(media, from, to) {
-  const prefix = from.replace(/\/+$/, "") + "/";
   const base = to.replace(/\/+$/, "") + "/";
+  const prefix = from ? from.replace(/\/+$/, "") + "/" : null;
+  const folder = media.storageBase ? `/${media.storageBase.replace(/^\/+|\/+$/g, "")}/` : null;
   const out = {};
   for (const [name, v] of Object.entries(media.formats ?? {})) {
-    if (v.url?.startsWith(prefix)) out[name] = { ...v, url: base + v.url.slice(prefix.length) };
+    if (!v.url || v.url.startsWith(base)) continue;
+    const at = folder ? v.url.indexOf(folder) : -1;
+    if (at >= 0) out[name] = { ...v, url: base + v.url.slice(at + 1) };
+    else if (prefix && v.url.startsWith(prefix)) out[name] = { ...v, url: base + v.url.slice(prefix.length) };
   }
   return Object.keys(out).length ? out : null;
 }

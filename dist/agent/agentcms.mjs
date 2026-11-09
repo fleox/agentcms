@@ -1452,7 +1452,7 @@ async function scaffold({ io, options, positionals }) {
   printResult(io, res, () => [`Created ${kind} "${id}" in ${dir}:`, ...res.files.map((f) => `  ${f}`), "", ...res.next].join("\n"));
 }
 async function install(ctx) {
-  const { installExtensionCommand } = await import("./chunks/extInstall-B6KBkuNB.mjs");
+  const { installExtensionCommand } = await import("./chunks/extInstall-BNO5KEMa.mjs");
   return installExtensionCommand(ctx);
 }
 const extCommand = {
@@ -3058,19 +3058,13 @@ async function run$8({ io, options, positionals }) {
         return runAdmin(io, alias, { write: true, lock: true }, async (s) => {
           const { readPublishTarget, savePublishTarget, targetSiteUrl } = await import("./chunks/target-DrbprW6x.mjs");
           const { listAllMedia } = await import("./chunks/media-BFe-Dv3c.mjs").then((n) => n.n);
-          const { rebaseAllMediaUrls } = await import("./chunks/mediaRegenerate-egSIXjHc.mjs");
+          const { rebaseAllMediaUrls } = await import("./chunks/mediaRegenerate-DdGZ-DT6.mjs");
           const stored = await readPublishTarget();
           const merged = { ...s.site.hosting.settings, ...stored.settings };
           const before = targetSiteUrl({ connectorId: stored.connectorId, settings: merged });
           if (before !== raw) await savePublishTarget({ connectorId: stored.connectorId, settings: { ...stored.settings, siteUrl: raw } });
-          const registered = targetSiteUrl({ connectorId: stored.connectorId, settings: s.site.hosting.settings });
-          let all = await listAllMedia();
-          const rebased = /* @__PURE__ */ new Set();
-          for (const from of new Set([before, registered].filter((u) => u && u !== raw))) {
-            for (const id of await rebaseAllMediaUrls(all, from, raw)) rebased.add(id);
-            if (rebased.size) all = await listAllMedia();
-          }
-          const media = [...rebased];
+          const rebased = await rebaseAllMediaUrls(await listAllMedia(), before || null, raw);
+          const media = rebased;
           if (before === raw && media.length === 0) return { connectorId: stored.connectorId, previous: before, siteUrl: raw, changed: false, media: 0, next: [] };
           const base = (s.settings().baseUrl ?? "").replace(/\/+$/, "");
           const next = [`agentcms regenerate all --site ${s.site.alias}`];
@@ -3801,7 +3795,7 @@ Nothing changed — re-run with --yes once the user agrees.`);
             }
           }
         });
-        const { planMediaRegeneration } = await import("./chunks/mediaRegenerate-egSIXjHc.mjs");
+        const { planMediaRegeneration } = await import("./chunks/mediaRegenerate-DdGZ-DT6.mjs");
         const needCrop = planMediaRegeneration(await s.media(), s.settings()).filter((m) => m.formats.length).length;
         const next = needCrop ? [`agentcms media regenerate --site ${s.site.alias} --yes`, `agentcms regenerate all --site ${s.site.alias}`] : [];
         return { from, to: theme.id, seconds: Math.round((Date.now() - started) / 1e3), mediaMissingFormats: needCrop, next };
@@ -4127,7 +4121,7 @@ ${r.note}`);
       const plan = async (s) => {
         const all = await s.media();
         const targets = refs.length ? refs.map((r) => requireMedia(all, r)) : all;
-        const { planMediaRegeneration } = await import("./chunks/mediaRegenerate-egSIXjHc.mjs");
+        const { planMediaRegeneration } = await import("./chunks/mediaRegenerate-DdGZ-DT6.mjs");
         return { targets, plan: planMediaRegeneration(targets, s.settings(), { all: allFormats }) };
       };
       const theme = (s) => s.settings().activeThemeId ?? "default";
@@ -4140,7 +4134,7 @@ ${r.note}`);
       }
       return runAdmin(io, alias, { write: true, hosting: true, extensions: true, lock: true }, async (s) => {
         const { targets, plan: p } = await plan(s);
-        const { regenerateMediaFormats } = await import("./chunks/mediaRegenerate-egSIXjHc.mjs");
+        const { regenerateMediaFormats } = await import("./chunks/mediaRegenerate-DdGZ-DT6.mjs");
         const { withStorageBatch } = await import("./chunks/siteFiles-Ck0S2KS_.mjs").then((n) => n.s);
         const out = [];
         await withStorageBatch(async () => {

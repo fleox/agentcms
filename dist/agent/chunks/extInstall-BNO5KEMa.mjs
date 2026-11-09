@@ -228,7 +228,7 @@ async function installExtensionCommand({ io, options, positionals }) {
         for (const w of s.warnings) toasts.notices.push({ level: "warn", message: w });
         regenerated = { seconds: r.seconds, errors };
         if (kind === "themes" && activated) {
-          const { planMediaRegeneration } = await import("./mediaRegenerate-egSIXjHc.mjs");
+          const { planMediaRegeneration } = await import("./mediaRegenerate-DdGZ-DT6.mjs");
           mediaMissingFormats = planMediaRegeneration(await s.media(), s.settings()).filter((m) => m.formats.length).length;
         }
       } finally {

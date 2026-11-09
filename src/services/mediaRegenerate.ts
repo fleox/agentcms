@@ -110,21 +110,28 @@ export async function regenerateMediaFormats(media: Media, formatNames: string[]
   return Object.keys(out);
 }
 
-// Variants whose stored URL starts with `from` (the publish target's
-// previous public URL), rewritten under `to`. Null when none does.
-export function rebaseMediaFormats(media: Media, from: string, to: string): Record<string, MediaVariant> | null {
-  const prefix = from.replace(/\/+$/, "") + "/";
+// Variants whose stored URL is not under `to` (the publish target's
+// public URL), rewritten under it. A variant lives at
+// `<storageBase>/<name>.<ext>` on the hosting, so its URL is rebuilt from
+// that folder whatever address it was stored with; legacy media without
+// a folder only move when they start with `from`. Null when none moves.
+export function rebaseMediaFormats(media: Media, from: string | null, to: string): Record<string, MediaVariant> | null {
   const base = to.replace(/\/+$/, "") + "/";
+  const prefix = from ? from.replace(/\/+$/, "") + "/" : null;
+  const folder = media.storageBase ? `/${media.storageBase.replace(/^\/+|\/+$/g, "")}/` : null;
   const out: Record<string, MediaVariant> = {};
   for (const [name, v] of Object.entries(media.formats ?? {})) {
-    if (v.url?.startsWith(prefix)) out[name] = { ...v, url: base + v.url.slice(prefix.length) };
+    if (!v.url || v.url.startsWith(base)) continue;
+    const at = folder ? v.url.indexOf(folder) : -1;
+    if (at >= 0) out[name] = { ...v, url: base + v.url.slice(at + 1) };
+    else if (prefix && v.url.startsWith(prefix)) out[name] = { ...v, url: base + v.url.slice(prefix.length) };
   }
   return Object.keys(out).length ? out : null;
 }
 
 // After the publish target's public URL changed (custom domain…): points
 // the stored variant URLs of every media at the new one. Files don't move.
-export async function rebaseAllMediaUrls(media: Media[], from: string, to: string): Promise<string[]> {
+export async function rebaseAllMediaUrls(media: Media[], from: string | null, to: string): Promise<string[]> {
   const done: string[] = [];
   for (const m of media) {
     const formats = rebaseMediaFormats(m, from, to);
