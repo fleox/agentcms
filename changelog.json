@@ -2,6 +2,17 @@
   "$comment": "Newest first. Read by agents (agentcms status) to tell users what changed and what to run. `breaking`: an older admin, skill or site setup stops working without action. `actions`: steps a hosted site needs after updating — deploy-admin, regenerate-all, sync-theme-assets. Keep every entry in English.",
   "versions": [
     {
+      "version": "0.4.1",
+      "date": "2026-11-09",
+      "breaking": false,
+      "changes": [
+        "Sitemaps (agentcms-sitemaps 1.0.4): new `sitemaps/sitemap-archives.xml`, referenced from the index, lists the home page and every category archive with online posts (lastmod = their newest post). On by default; `archivesEnabled: false` turns it off.",
+        "SEO (core-seo 1.0.1): the latest-posts home no longer gets an empty `twitter:title` (falls back to the site title), and pages without an image get a `summary` card instead of an empty large one.",
+        "New `settings target set --site-url <url>`: the URL the current hosting serves the site at (custom domain added after the install). Rewrites stored media URLs that still pointed at the hosting's default address — they were used for featured images and `og:image`. `settings target show` now suggests it when the base URL and the target disagree, instead of only proposing to change the base URL."
+      ],
+      "actions": ["deploy-admin", "regenerate-all"]
+    },
+    {
       "version": "0.4.0",
       "date": "2026-11-03",
       "breaking": false,

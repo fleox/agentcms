@@ -1,4 +1,4 @@
-const r = `# Core SEO
+const s = `# Core SEO
 
 Adds the basic SEO meta tags every published page needs to look right when shared on social platforms and identified by crawlers.
 
@@ -19,37 +19,38 @@ None. The plugin is intentionally zero-config. Per-post SEO overrides (title, de
 
 Disable Core SEO if your theme already emits Twitter Card tags itself, or if you want to handle social meta entirely through a different plugin (e.g. a future Yoast-style SEO plugin). Disabling has no impact on the rest of the publish pipeline — page titles, descriptions and Open Graph tags survive because they come from the theme.
 `;
-function o() {
+function g() {
   return '<meta name="generator" content="AgentCMS" />';
 }
-function s(e) {
-  const t = e.pageDescription ? `<meta name="twitter:description" content="${n(e.pageDescription)}" />` : "", a = e.ogImage ? `<meta name="twitter:image" content="${n(e.ogImage)}" />` : "";
+function l(e) {
+  var r, o;
+  const t = e.pageDescription ? `<meta name="twitter:description" content="${i(e.pageDescription)}" />` : "", n = e.ogImage ? `<meta name="twitter:image" content="${i(e.ogImage)}" />` : "", a = e.pageTitle || ((o = (r = e.site) == null ? void 0 : r.settings) == null ? void 0 : o.title) || "";
   return [
-    '<meta name="twitter:card" content="summary_large_image" />',
-    `<meta name="twitter:title" content="${n(e.pageTitle ?? "")}" />`,
+    `<meta name="twitter:card" content="${e.ogImage ? "summary_large_image" : "summary"}" />`,
+    `<meta name="twitter:title" content="${i(a)}" />`,
     t,
-    a
+    n
   ].filter(Boolean).join(`
 `);
 }
-function n(e) {
+function i(e) {
   return e.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
-const g = {
+const m = {
   id: "core-seo",
   name: "SEO",
-  version: "1.0.0",
+  version: "1.0.1",
   author: "AgentCMS",
   description: "Adds Twitter card meta tags and a generator hint to every published page.",
-  readme: r,
+  readme: s,
   register(e) {
-    e.addFilter("page.head.extra", (t, ...a) => {
-      const i = a[0];
-      return i ? [t, o(), s(i)].filter(Boolean).join(`
+    e.addFilter("page.head.extra", (t, ...n) => {
+      const a = n[0];
+      return a ? [t, g(), l(a)].filter(Boolean).join(`
 `) : t;
     });
   }
 };
 export {
-  g as manifest
+  m as manifest
 };

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Post, SiteSettings } from "../../core/types";
+import type { Post, SiteSettings, Term } from "../../core/types";
 
 const uploads = new Map<string, string>();
 vi.mock("@agent-cms/runtime", async () => {
@@ -89,6 +89,37 @@ describe("agentcms-sitemaps — static-page home", () => {
     expect(isStaticHomePage(pages[0], s)).toBe(true);
     expect(isStaticHomePage(pages[1], s)).toBe(false);
     expect(isStaticHomePage(pages[0], { ...s, homeMode: "latest-posts" })).toBe(false);
+  });
+});
+
+describe("agentcms-sitemaps — archives sitemap", () => {
+  const cat = (id: string, slug: string) => ({ id, type: "category", slug, name: slug }) as unknown as Term;
+  const inCat = (id: string, slug: string, termId: string, updated: string): Post =>
+    ({ ...entity(id, "post", slug), primaryTermId: termId, termIds: [termId], updatedAt: ts(updated) }) as Post;
+
+  it("lists the home and each category with online posts, dated by their newest post", async () => {
+    await regenerateSitemaps({
+      posts: [inCat("a", "a", "c1", "2026-04-01T00:00:00Z"), inCat("b", "b", "c1", "2026-05-01T00:00:00Z"), { ...inCat("c", "c", "c2", "2026-06-01T00:00:00Z"), status: "draft" } as Post],
+      pages,
+      terms: [cat("c1", "guides"), cat("c2", "empty")],
+      settings: baseSettings,
+      config: DEFAULT_SITEMAPS_CONFIG,
+    });
+    const xml = uploads.get("sitemaps/sitemap-archives.xml") ?? "";
+    expect(locs(xml)).toEqual(["https://example.com/", "https://example.com/guides/"]);
+    expect(xml).toContain("<lastmod>2026-05-01</lastmod>");
+    expect(locs(uploads.get("sitemaps/sitemap-index.xml") ?? "")).toContain("https://example.com/sitemaps/sitemap-archives.xml");
+  });
+
+  it("does not repeat a static home already listed, and is off when disabled", async () => {
+    const terms = [cat("c1", "guides")];
+    const list = [inCat("a", "a", "c1", "2026-04-01T00:00:00Z")];
+    await regenerateSitemaps({ posts: list, pages, terms, settings: { ...baseSettings, homeMode: "static-page", homePageId: "home" }, config: DEFAULT_SITEMAPS_CONFIG });
+    expect(locs(uploads.get("sitemaps/sitemap-archives.xml") ?? "")).toEqual(["https://example.com/guides/"]);
+    uploads.clear();
+    await regenerateSitemaps({ posts: list, pages, terms, settings: baseSettings, config: { ...DEFAULT_SITEMAPS_CONFIG, archivesEnabled: false } });
+    expect(uploads.has("sitemaps/sitemap-archives.xml")).toBe(false);
+    expect(uploads.get("sitemaps/sitemap-index.xml")).not.toContain("sitemap-archives");
   });
 });
 

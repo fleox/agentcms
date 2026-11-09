@@ -10,6 +10,10 @@ export const SETTINGS_SCHEMA: SettingsSchema = {
       "What the yearly sitemaps (/sitemaps/sitemap-<year>.xml) list: online posts only, or posts and pages.",
     values: ["posts", "posts-pages"],
   },
+  archivesEnabled: {
+    description:
+      "Also publish /sitemaps/sitemap-archives.xml, referenced from the index: the home page and every category archive listing at least one online post.",
+  },
   newsEnabled: {
     description:
       "Also publish a Google News sitemap (/sitemaps/sitemap-news.xml, posts only) referenced from the index. The default robots.txt then lists it too; re-run the robots and stylesheets actions after toggling.",

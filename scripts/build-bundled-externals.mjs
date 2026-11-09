@@ -60,8 +60,8 @@ const EXTERNAL_DEPS = [
 //      manifest for the admin's own use; this metadata is purely for
 //      the install-side artefacts (manifest.json + external.json).
 const PLUGINS = [
-  { id: "core-seo", name: "Core SEO", version: "1.0.0" },
-  { id: "agentcms-sitemaps", name: "Sitemaps", version: "1.0.3" },
+  { id: "core-seo", name: "Core SEO", version: "1.0.1" },
+  { id: "agentcms-sitemaps", name: "Sitemaps", version: "1.0.4" },
   { id: "agentcms-rss", name: "RSS", version: "1.1.1" },
   { id: "agentcms-archives", name: "Archives", version: "1.0.3" },
   { id: "agentcms-search", name: "Search", version: "1.0.3" },

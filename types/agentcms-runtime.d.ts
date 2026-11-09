@@ -1021,6 +1021,8 @@ export interface SitemapsConfig {
   newsEnabled: boolean;
   newsWindowDays: number;
   contentTypes: "posts" | "posts-pages";
+  /** Publish sitemaps/sitemap-archives.xml (home + category archives). */
+  archivesEnabled: boolean;
   robotsTxt: string;
 }
 

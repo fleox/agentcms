@@ -152,6 +152,20 @@ export function SitemapsSettingsPage({ config, save }: PluginSettingsPageProps<S
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
+              checked={draft.archivesEnabled}
+              onChange={(e) => patch({ archivesEnabled: e.target.checked })}
+            />
+            <span className="text-sm font-medium">{t("archives.enabled")}</span>
+          </label>
+          <p className="text-xs text-surface-500 mt-1 dark:text-surface-400">
+            {t("archives.enabledHelp")}
+          </p>
+        </div>
+
+        <div>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
               checked={draft.newsEnabled}
               onChange={(e) => patch({ newsEnabled: e.target.checked })}
             />

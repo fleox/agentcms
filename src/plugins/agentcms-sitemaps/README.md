@@ -8,6 +8,7 @@ Every time a post or page is published, unpublished or deleted, the plugin **inc
 
 - **`sitemaps/sitemap-<year>.xml`** — one per year, listing every published URL whose `createdAt` falls in that year.
 - **`sitemaps/sitemap-index.xml`** — top-level index referencing every yearly sitemap. This is the URL you submit to Google Search Console.
+- **`sitemaps/sitemap-archives.xml`** — the home page and every category archive that lists at least one online post (lastmod = newest post in it). On by default; turn it off with *List the home page and categories* (`archivesEnabled`). Not written when a static home page is the only listing and no category has posts.
 - **`sitemaps/sitemap-news.xml`** — optional Google News sitemap, scoped to posts published in a configurable rolling window (default: last 2 days).
 - **`robots.txt`** (at site root) — editable text file pointing crawlers at the sitemap index.
 - **`sitemaps/sitemap.xsl` / `sitemaps/sitemap-news.xsl`** — XSLT stylesheets that turn the raw XML into a styled HTML table when a human opens the URL directly. Invisible to crawlers.

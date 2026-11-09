@@ -109,3 +109,28 @@ export async function regenerateMediaFormats(media: Media, formatNames: string[]
   await setMediaFormats(media.id, out, size);
   return Object.keys(out);
 }
+
+// Variants whose stored URL starts with `from` (the publish target's
+// previous public URL), rewritten under `to`. Null when none does.
+export function rebaseMediaFormats(media: Media, from: string, to: string): Record<string, MediaVariant> | null {
+  const prefix = from.replace(/\/+$/, "") + "/";
+  const base = to.replace(/\/+$/, "") + "/";
+  const out: Record<string, MediaVariant> = {};
+  for (const [name, v] of Object.entries(media.formats ?? {})) {
+    if (v.url?.startsWith(prefix)) out[name] = { ...v, url: base + v.url.slice(prefix.length) };
+  }
+  return Object.keys(out).length ? out : null;
+}
+
+// After the publish target's public URL changed (custom domain…): points
+// the stored variant URLs of every media at the new one. Files don't move.
+export async function rebaseAllMediaUrls(media: Media[], from: string, to: string): Promise<string[]> {
+  const done: string[] = [];
+  for (const m of media) {
+    const formats = rebaseMediaFormats(m, from, to);
+    if (!formats) continue;
+    await setMediaFormats(m.id, formats, m.size);
+    done.push(m.id);
+  }
+  return done;
+}

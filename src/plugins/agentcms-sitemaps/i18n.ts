@@ -29,6 +29,10 @@ export const en = {
     posts: "Posts only",
     postsPages: "Posts and pages",
   },
+  archives: {
+    enabled: "List the home page and categories",
+    enabledHelp: "Publishes sitemap-archives.xml with the home page and every category archive that has online posts.",
+  },
   news: {
     enabled: "Generate sitemap-news.xml",
     enabledHelp: "Enable to publish a Google News sitemap alongside the index.",
@@ -81,6 +85,10 @@ export const fr: typeof en = {
     label: "Types de contenu dans les sitemaps",
     posts: "Articles uniquement",
     postsPages: "Articles et pages",
+  },
+  archives: {
+    enabled: "Lister l'accueil et les catégories",
+    enabledHelp: "Publie sitemap-archives.xml avec la page d'accueil et chaque archive de catégorie contenant des articles en ligne.",
   },
   news: {
     enabled: "Générer sitemap-news.xml",
@@ -136,6 +144,10 @@ export const de: typeof en = {
     posts: "Nur Artikel",
     postsPages: "Artikel und Seiten",
   },
+  archives: {
+    enabled: "Startseite und Kategorien aufnehmen",
+    enabledHelp: "Veröffentlicht sitemap-archives.xml mit der Startseite und jedem Kategoriearchiv, das online Beiträge enthält.",
+  },
   news: {
     enabled: "sitemap-news.xml erzeugen",
     enabledHelp: "Aktivieren, um eine Google-News-Sitemap neben dem Index zu veröffentlichen.",
@@ -188,6 +200,10 @@ export const es: typeof en = {
     label: "Tipos de contenido en sitemaps",
     posts: "Solo entradas",
     postsPages: "Entradas y páginas",
+  },
+  archives: {
+    enabled: "Incluir la portada y las categorías",
+    enabledHelp: "Publica sitemap-archives.xml con la portada y cada archivo de categoría que tenga entradas publicadas.",
   },
   news: {
     enabled: "Generar sitemap-news.xml",
@@ -242,6 +258,10 @@ export const nl: typeof en = {
     posts: "Alleen berichten",
     postsPages: "Berichten en pagina's",
   },
+  archives: {
+    enabled: "Startpagina en categorieën opnemen",
+    enabledHelp: "Publiceert sitemap-archives.xml met de startpagina en elk categoriearchief met online berichten.",
+  },
   news: {
     enabled: "sitemap-news.xml genereren",
     enabledHelp: "Inschakelen om een Google News-sitemap naast de index te publiceren.",
@@ -295,6 +315,10 @@ export const pt: typeof en = {
     posts: "Apenas artigos",
     postsPages: "Artigos e páginas",
   },
+  archives: {
+    enabled: "Incluir a página inicial e as categorias",
+    enabledHelp: "Publica sitemap-archives.xml com a página inicial e cada arquivo de categoria que tenha artigos publicados.",
+  },
   news: {
     enabled: "Gerar sitemap-news.xml",
     enabledHelp: "Ativa para publicar um sitemap Google News ao lado do índice.",
@@ -347,6 +371,10 @@ export const ko: typeof en = {
     label: "사이트맵에 포함할 콘텐츠 유형",
     posts: "게시물만",
     postsPages: "게시물 및 페이지",
+  },
+  archives: {
+    enabled: "홈과 카테고리 포함",
+    enabledHelp: "홈 페이지와 게시된 글이 있는 모든 카테고리 아카이브를 담은 sitemap-archives.xml을 게시합니다.",
   },
   news: {
     enabled: "sitemap-news.xml 생성",

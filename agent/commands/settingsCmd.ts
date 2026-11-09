@@ -10,8 +10,10 @@ import type { Command, CommandContext } from "./types";
 // with the credentials this CLI holds for the site).
 //
 // Like the admin, saving settings republishes nothing: the result's
-// `next` lists the regeneration the change needs. Saving a new publish
-// target is out of scope (use `agentcms install` / `site add`).
+// `next` lists the regeneration the change needs. Moving to another
+// hosting is out of scope (use `agentcms install` / `site add`); `target
+// set --site-url` only changes the URL the current one is served at
+// (custom domain) and points stored media URLs at it.
 
 type Section = "site" | "editor" | "performance" | "target";
 const SECTIONS: Section[] = ["site", "editor", "performance", "target"];
@@ -71,7 +73,19 @@ async function readSection(section: Section, settings: SiteSettings, s: import("
         settings: mask(merged),
         siteUrl: siteUrl || null,
         credential: s.site.credentials.hosting ?? null,
-        baseUrlMismatch: siteUrl && base && siteUrl !== base ? { baseUrl: base, targetSiteUrl: siteUrl, fix: `agentcms settings set --base-url ${siteUrl}` } : null,
+        // Either URL can be the stale one: a custom domain added after the
+        // install leaves the target on the host's default URL (media URLs
+        // then point there), a moved site leaves an old base URL.
+        baseUrlMismatch:
+          siteUrl && base && siteUrl !== base
+            ? {
+                baseUrl: base,
+                targetSiteUrl: siteUrl,
+                fix: `agentcms settings target set --site-url ${base}`,
+                fixIfBaseUrlIsWrong: `agentcms settings set --base-url ${siteUrl}`,
+                hint: `If the site is served at ${base} (custom domain), set the target's URL to it; if ${siteUrl} is the real address, change the base URL instead.`,
+              }
+            : null,
       };
     }
   }
@@ -288,7 +302,7 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
     case "target": {
       const what = sub ?? "show";
       if (what === "show") {
-        return runAdmin(io, alias, {}, async (s) => readSection("target", s.settings(), s), (r) => `${r.connectorId}${r.siteUrl ? ` → ${r.siteUrl}` : ""}${r.baseUrlMismatch ? `\n  note: settings.baseUrl is ${r.baseUrlMismatch.baseUrl} — fix: ${r.baseUrlMismatch.fix}` : ""}`);
+        return runAdmin(io, alias, {}, async (s) => readSection("target", s.settings(), s), (r) => `${r.connectorId}${r.siteUrl ? ` → ${r.siteUrl}` : ""}${r.baseUrlMismatch ? `\n  note: ${r.baseUrlMismatch.hint}\n  fix: ${r.baseUrlMismatch.fix}` : ""}`);
       }
       if (what === "test") {
         return runAdmin(io, alias, {}, async (s) => {
@@ -306,7 +320,29 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
           return { connectorId, ok: true, detail: res.detail };
         }, (r) => `✓ ${r.connectorId}: ${r.detail}`);
       }
-      throw new CliError("usage", `Unknown target action "${what}".`, "settings target [show|test].", 2);
+      if (what === "set") {
+        const raw = typeof options["site-url"] === "string" ? (options["site-url"] as string).trim().replace(/\/+$/, "") : "";
+        if (!/^https?:\/\/[^\s/]+/.test(raw)) {
+          throw new CliError("usage", "settings target set needs --site-url <https://…>.", "The public URL the current hosting serves the site at, e.g. its custom domain.", 2);
+        }
+        return runAdmin(io, alias, { write: true, lock: true }, async (s) => {
+          const { readPublishTarget, savePublishTarget, targetSiteUrl } = await import("../../src/services/storage/target");
+          const { listAllMedia } = await import("../../src/services/media");
+          const { rebaseAllMediaUrls } = await import("../../src/services/mediaRegenerate");
+          const stored = await readPublishTarget();
+          const merged = { ...s.site.hosting.settings, ...stored.settings };
+          const before = targetSiteUrl({ connectorId: stored.connectorId, settings: merged });
+          if (before === raw) return { connectorId: stored.connectorId, siteUrl: raw, changed: false, media: 0, next: [] as string[] };
+          // Only the stored (secret-free) settings are saved, like the admin.
+          await savePublishTarget({ connectorId: stored.connectorId, settings: { ...stored.settings, siteUrl: raw } });
+          const media = before ? await rebaseAllMediaUrls(await listAllMedia(), before, raw) : [];
+          const base = (s.settings().baseUrl ?? "").replace(/\/+$/, "");
+          const next = [`agentcms regenerate all --site ${s.site.alias}`];
+          if (base && base !== raw) next.push(`settings.baseUrl is ${base}: \`agentcms settings set --base-url ${raw}\` if the site moved there.`);
+          return { connectorId: stored.connectorId, previous: before || null, siteUrl: raw, changed: true, media: media.length, next };
+        }, (r) => [r.changed ? `Target URL: ${r.siteUrl} (${r.media} media rebased).` : "Nothing changed.", ...r.next.map((n) => `  next: ${n}`)].join("\n"));
+      }
+      throw new CliError("usage", `Unknown target action "${what}".`, "settings target [show|test|set --site-url <url>].", 2);
     }
 
     default:
@@ -317,11 +353,12 @@ async function run({ io, options, positionals }: CommandContext): Promise<number
 export const settingsCommand: Command = {
   name: "settings",
   summary:
-    "Settings → General, like the admin: get [site|editor|performance|target|all], set (title, description, language, base URL, posts per page, home mode + page, discourage indexing, editor typography, pagination mode on Firebase), target [show|test] (publish target without secrets / Test connection). Saving republishes nothing: run the `next` regeneration.",
+    "Settings → General, like the admin: get [site|editor|performance|target|all], set (title, description, language, base URL, posts per page, home mode + page, discourage indexing, editor typography, pagination mode on Firebase), target [show|test|set] (publish target without secrets / Test connection / set --site-url: the URL the hosting serves the site at, e.g. a custom domain — rebases stored media URLs). Saving republishes nothing: run the `next` regeneration.",
   usage:
-    "settings <get [section]|set|target [show|test]> --site <alias> [--section site|editor|performance|target|all] [--title <t>] [--description <t>|@file] [--language <bcp47>] [--base-url <url>] [--posts-per-page <n>] [--home-mode latest-posts|static-page] [--home-page <page id|slug>] [--discourage-indexing true|false] [--editor-font <name>] [--editor-body-size <len>] [--editor-h1-size <len>] [--editor-h2-size <len>] [--editor-h3-size <len>] [--pagination-mode global|paginated] [--data <json>|@file]",
+    "settings <get [section]|set|target [show|test|set]> --site <alias> [--site-url <url>] [--section site|editor|performance|target|all] [--title <t>] [--description <t>|@file] [--language <bcp47>] [--base-url <url>] [--posts-per-page <n>] [--home-mode latest-posts|static-page] [--home-page <page id|slug>] [--discourage-indexing true|false] [--editor-font <name>] [--editor-body-size <len>] [--editor-h1-size <len>] [--editor-h2-size <len>] [--editor-h3-size <len>] [--pagination-mode global|paginated] [--data <json>|@file]",
   options: [
     { name: "site", type: "string", description: "Site alias." },
+    { name: "site-url", type: "string", description: "target set: public URL the current hosting serves the site at (custom domain…). Stored media URLs under the previous one are rewritten; then regenerate all." },
     { name: "section", type: "string", description: "get: site, editor, performance, target or all (default)." },
     { name: "title", type: "string", description: "Site title." },
     { name: "description", type: "string", description: "Site description (text, @file or -)." },

@@ -7,6 +7,8 @@
 //     news sitemap when enabled.
 //   - sitemap-news.xml:   Google News urlset of articles modified within
 //     the configured rolling window (default 2 days).
+//   - sitemap-archives.xml: the home page and every category archive that
+//     lists at least one online post (when `archivesEnabled`).
 //
 // The plugin also owns robots.txt — when the user-supplied content is
 // blank, a sensible default is generated that points to sitemap-index.xml
@@ -17,6 +19,7 @@ import {
   applyFiltersSync,
   basePathFromBaseUrl,
   buildPostUrl,
+  buildTermUrl,
   canonicalUrl,
   pathToPublicUrl,
   deleteFile,
@@ -41,6 +44,9 @@ export interface SitemapsConfig {
   // bypass the news sitemap regardless of this flag — News is for
   // article-style content only.
   contentTypes: "posts" | "posts-pages";
+  // Whether sitemap-archives.xml lists the home page and the category
+  // archives (the listing pages crawlers otherwise only reach by links).
+  archivesEnabled: boolean;
   // User-supplied robots.txt body. Blank means "use the generated default".
   robotsTxt: string;
 }
@@ -49,6 +55,7 @@ export const DEFAULT_SITEMAPS_CONFIG: SitemapsConfig = {
   newsEnabled: false,
   newsWindowDays: 2,
   contentTypes: "posts-pages",
+  archivesEnabled: true,
   robotsTxt: "",
 };
 
@@ -60,6 +67,7 @@ export const DEFAULT_SITEMAPS_CONFIG: SitemapsConfig = {
 const SITEMAPS_FOLDER = "sitemaps";
 export const SITEMAP_INDEX_PATH = `${SITEMAPS_FOLDER}/sitemap-index.xml`;
 export const SITEMAP_NEWS_PATH = `${SITEMAPS_FOLDER}/sitemap-news.xml`;
+export const SITEMAP_ARCHIVES_PATH = `${SITEMAPS_FOLDER}/sitemap-archives.xml`;
 export const ROBOTS_PATH = "robots.txt";
 
 function yearlySitemapPath(year: number): string {
@@ -223,6 +231,52 @@ function gatherEntities(
   return out;
 }
 
+// Listing pages: the home (unless a static home page already lists it as
+// the site root) and each category archive with at least one online post.
+// Their lastmod is the newest update among the posts they list.
+function gatherArchiveEntities(
+  posts: Post[],
+  terms: Term[],
+  settings: SiteSettings,
+  entities: SitemapEntity[],
+): SitemapEntity[] {
+  const online = posts.filter((p) => p.status === "online");
+  if (online.length === 0) return [];
+  const updated = (p: Post) => p.updatedAt?.toMillis?.() ?? p.publishedAt?.toMillis?.() ?? p.createdAt?.toMillis?.() ?? 0;
+  const newest = (list: Post[]) => Math.max(...list.map(updated));
+  const out: SitemapEntity[] = [];
+  if (!entities.some((e) => e.path === STATIC_HOME_PATH)) {
+    const ms = newest(online);
+    out.push({ path: STATIC_HOME_PATH, createdAtMs: ms, updatedAtMs: ms, title: settings.title || "" });
+  }
+  for (const term of terms) {
+    if (term.type !== "category") continue;
+    const listed = online.filter((p) => p.primaryTermId === term.id || p.termIds?.includes(term.id));
+    if (listed.length === 0) continue;
+    let path: string;
+    try {
+      path = buildTermUrl(term);
+    } catch {
+      continue;
+    }
+    const ms = newest(listed);
+    out.push({ path, createdAtMs: ms, updatedAtMs: ms, title: term.name });
+  }
+  return out;
+}
+
+function buildArchivesSitemap(entities: SitemapEntity[], baseUrl: string, xslHref: string): string {
+  const lines = [preamble(xslHref), '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'];
+  for (const e of entities) {
+    lines.push("  <url>");
+    lines.push(`    <loc>${escapeXml(locUrl(baseUrl, e.path))}</loc>`);
+    lines.push(`    <lastmod>${isoDateOnly(e.updatedAtMs)}</lastmod>`);
+    lines.push("  </url>");
+  }
+  lines.push("</urlset>");
+  return lines.join("\n");
+}
+
 function groupByYear(entities: SitemapEntity[]): Map<number, SitemapEntity[]> {
   const map = new Map<number, SitemapEntity[]>();
   for (const e of entities) {
@@ -324,6 +378,7 @@ function buildYearSitemap(
 
 function buildSitemapIndex(
   years: number[],
+  includeArchives: boolean,
   includeNews: boolean,
   baseUrl: string,
   lastmodMs: number,
@@ -338,6 +393,12 @@ function buildSitemapIndex(
   for (const year of [...years].sort((a, b) => a - b)) {
     lines.push("  <sitemap>");
     lines.push(`    <loc>${escapeXml(pathToPublicUrl(baseUrl, yearlySitemapPath(year)))}</loc>`);
+    lines.push(`    <lastmod>${date}</lastmod>`);
+    lines.push("  </sitemap>");
+  }
+  if (includeArchives) {
+    lines.push("  <sitemap>");
+    lines.push(`    <loc>${escapeXml(pathToPublicUrl(baseUrl, SITEMAP_ARCHIVES_PATH))}</loc>`);
     lines.push(`    <lastmod>${date}</lastmod>`);
     lines.push("  </sitemap>");
   }
@@ -486,6 +547,23 @@ export async function regenerateSitemaps(args: {
     uploaded.push(path);
   }
 
+  // Archives sitemap: rebuilt with the index (every publish can change a
+  // category's newest post), deleted when disabled or empty.
+  const archives = config.archivesEnabled ? gatherArchiveEntities(posts, terms, settings, entities) : [];
+  if (scope?.index !== false) {
+    if (archives.length > 0) {
+      await uploadFile({ path: SITEMAP_ARCHIVES_PATH, content: buildArchivesSitemap(archives, baseUrl, xslHref) });
+      uploaded.push(SITEMAP_ARCHIVES_PATH);
+    } else {
+      try {
+        await deleteFile(SITEMAP_ARCHIVES_PATH);
+        deleted.push(SITEMAP_ARCHIVES_PATH);
+      } catch {
+        // Already gone.
+      }
+    }
+  }
+
   if (scope?.index !== false) {
     // Index always reflects the *full* set of populated years, not just
     // the years we re-rendered above. Re-derive `allYears` from the live
@@ -500,6 +578,7 @@ export async function regenerateSitemaps(args: {
     );
     const xml = buildSitemapIndex(
       livingYears,
+      archives.length > 0,
       config.newsEnabled,
       baseUrl,
       Date.now(),

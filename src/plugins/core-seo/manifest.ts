@@ -17,9 +17,13 @@ function twitterCardTags(props: BaseLayoutProps): string {
   const image = props.ogImage
     ? `<meta name="twitter:image" content="${escapeAttr(props.ogImage)}" />`
     : "";
+  // The latest-posts home renders with an empty pageTitle (themes show the
+  // site title there): fall back to it. Without an image, a large card
+  // would show an empty frame.
+  const title = props.pageTitle || props.site?.settings?.title || "";
   return [
-    '<meta name="twitter:card" content="summary_large_image" />',
-    `<meta name="twitter:title" content="${escapeAttr(props.pageTitle ?? "")}" />`,
+    `<meta name="twitter:card" content="${props.ogImage ? "summary_large_image" : "summary"}" />`,
+    `<meta name="twitter:title" content="${escapeAttr(title)}" />`,
     description,
     image,
   ]
@@ -38,7 +42,7 @@ function escapeAttr(value: string): string {
 export const manifest: PluginManifest = {
   id: "core-seo",
   name: "SEO",
-  version: "1.0.0",
+  version: "1.0.1",
   author: "AgentCMS",
   description: "Adds Twitter card meta tags and a generator hint to every published page.",
   readme,
