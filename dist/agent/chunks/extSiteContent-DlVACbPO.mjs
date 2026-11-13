@@ -37,7 +37,7 @@ async function snapshotSiteContent(alias) {
   const active = content.settings?.activeThemeId;
   if (active && active !== "default") {
     const entry = registry?.themes?.find((t) => t.id === active);
-    const { readAdminFile, siteHostingReader } = await import("./adminFiles-dIy93UYH.mjs");
+    const { readAdminFile, siteHostingReader } = await import("./adminFiles-Bvfm63r-.mjs");
     const file = await readAdminFile(site, entry?.entryPath ?? `themes/${active}/bundle.js`, await siteHostingReader(site)).catch(() => null);
     themeBundle = file?.text ?? null;
   }
@@ -49,11 +49,11 @@ async function snapshotSiteContent(alias) {
   return { alias: site.alias, content, themeBundle };
 }
 async function snapshotFirebase(site) {
-  const { connectSiteData } = await import("./session-Bm0eXSWM.mjs");
+  const { connectSiteData } = await import("./session-nChbt8eo.mjs");
   await connectSiteData(site);
   const { fetchAllPosts, invalidateAllPostsCache } = await import("./posts-tZW4EodY.mjs");
   const { fetchAllTerms } = await import("./taxonomies-Dxw1ZjU6.mjs");
-  const { listAllMedia } = await import("./media-BFe-Dv3c.mjs").then((n) => n.n);
+  const { listAllMedia } = await import("./media-CYICAuGq.mjs").then((n) => n.n);
   const { subscribeToUsers } = await import("./users-BbipnEeI.mjs").then((n) => n.u);
   const { getSettings } = await import("./settings-DbFWHkbl.mjs");
   const { readBackendRegistryForCli } = await import("./sessionRegistry-DSb4ZMBc.mjs");

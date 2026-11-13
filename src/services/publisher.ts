@@ -20,6 +20,7 @@ import type {
   BaseLayoutProps,
   CardPost,
   CategoryTemplateProps,
+  HomeCategory,
   HomeTemplateProps,
   MediaView,
   SingleTemplateProps,
@@ -172,6 +173,33 @@ function postToCardData(post: Post, ctx: PublishContext): CardPost {
   };
 }
 
+// Newest posts of every category for the home (ThemeManifest.homeCategoryPosts).
+// Categories without online posts are left out; order = category name, like
+// `allCategories` on archive pages. Uses the corpus already in memory.
+export function buildHomeCategories(ctx: PublishContext, perCategory: number | undefined): HomeCategory[] | undefined {
+  const limit = Math.min(100, Math.floor(Number(perCategory) || 0));
+  if (limit < 1) return undefined;
+  const byTerm = new Map<string, Post[]>();
+  for (const p of ctx.posts) {
+    if (p.status !== "online" || !p.primaryTermId) continue;
+    const list = byTerm.get(p.primaryTermId);
+    if (list) list.push(p);
+    else byTerm.set(p.primaryTermId, [p]);
+  }
+  return ctx.terms
+    .filter((t) => t.type === "category" && byTerm.has(t.id))
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((term) => {
+      const posts = byTerm.get(term.id)!.sort((a, b) => postSortMillis(b) - postSortMillis(a));
+      return {
+        term,
+        url: `/${buildTermUrl(term)}`,
+        posts: posts.slice(0, limit).map((p) => postToCardData(p, ctx)),
+        total: posts.length,
+      };
+    });
+}
+
 // Public entry point for the editor's Preview modal. Renders the
 // post's HTML using the same pipeline that produces the published
 // page — same filters, same template, same plugin hooks — without
@@ -306,6 +334,8 @@ export async function renderHome(
   // plugin is off, the home toggle is off, or no posts exist yet —
   // so the link never appears spuriously.
   const archivesLink = resolveArchivesLink(ctx.settings, ctx.posts, "home");
+  // Per-category blocks, only for themes that ask for them.
+  const categories = buildHomeCategories(ctx, theme.homeCategoryPosts);
 
   // Default theme delegates the hero + grid to its own block render
   // functions so the home shares variants with the editor's Hero /
@@ -461,12 +491,14 @@ export async function renderHome(
         posts: onlinePosts,
         staticPage: { post: page, bodyHtml },
         archivesLink,
+      categories,
       };
     } else {
       templateProps = {
         site,
         posts: onlinePosts,
         archivesLink,
+      categories,
         heroHtml,
         listHtml,
         mostReadHtml,
@@ -478,6 +510,7 @@ export async function renderHome(
       site,
       posts: onlinePosts,
       archivesLink,
+      categories,
       heroHtml,
       listHtml,
       mostReadHtml,

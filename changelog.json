@@ -2,6 +2,15 @@
   "$comment": "Newest first. Read by agents (agentcms status) to tell users what changed and what to run. `breaking`: an older admin, skill or site setup stops working without action. `actions`: steps a hosted site needs after updating — deploy-admin, regenerate-all, sync-theme-assets. Keep every entry in English.",
   "versions": [
     {
+      "version": "0.4.4",
+      "date": "2026-11-13",
+      "breaking": false,
+      "changes": [
+        "Themes: new manifest option `homeCategoryPosts` (1–100). The home template then also receives `categories`: for every category with online posts, its newest posts (`{ term, url, posts, total }`), independently of `postsPerPage`. A home with one block per section no longer needs a large `postsPerPage`. Typed as `HomeCategory` in `@agent-cms/runtime`; `ext check` validates the value."
+      ],
+      "actions": ["deploy-admin"]
+    },
+    {
       "version": "0.4.3",
       "date": "2026-11-09",
       "breaking": false,

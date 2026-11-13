@@ -14644,6 +14644,26 @@ function postToCardData(post, ctx) {
     dateLabel
   };
 }
+function buildHomeCategories(ctx, perCategory) {
+  const limit = Math.min(100, Math.floor(Number(perCategory) || 0));
+  if (limit < 1) return void 0;
+  const byTerm = /* @__PURE__ */ new Map();
+  for (const p of ctx.posts) {
+    if (p.status !== "online" || !p.primaryTermId) continue;
+    const list = byTerm.get(p.primaryTermId);
+    if (list) list.push(p);
+    else byTerm.set(p.primaryTermId, [p]);
+  }
+  return ctx.terms.filter((t2) => t2.type === "category" && byTerm.has(t2.id)).sort((a2, b) => a2.name.localeCompare(b.name)).map((term) => {
+    const posts = byTerm.get(term.id).sort((a2, b) => postSortMillis(b) - postSortMillis(a2));
+    return {
+      term,
+      url: `/${buildTermUrl(term)}`,
+      posts: posts.slice(0, limit).map((p) => postToCardData(p, ctx)),
+      total: posts.length
+    };
+  });
+}
 async function renderPreviewHtml(post, ctx) {
   if (isStaticHome(post, ctx.settings)) {
     return renderHome(ctx);
@@ -14700,6 +14720,7 @@ async function renderHome(ctx, options = {}) {
   const site = homeHref ? { ...baseSite, homePath: homeHref } : baseSite;
   const onlinePosts = ctx.posts.filter((p) => p.status === "online").sort((a2, b) => postSortMillis(b) - postSortMillis(a2)).slice(0, ctx.settings.postsPerPage).map((p) => postToCardData(p, ctx));
   const archivesLink = resolveArchivesLink(ctx.settings, ctx.posts, "home");
+  const categories = buildHomeCategories(ctx, theme.homeCategoryPosts);
   let heroHtml;
   let listHtml;
   let mostReadHtml;
@@ -14801,13 +14822,15 @@ async function renderHome(ctx, options = {}) {
         site,
         posts: onlinePosts,
         staticPage: { post: page, bodyHtml },
-        archivesLink
+        archivesLink,
+        categories
       };
     } else {
       templateProps = {
         site,
         posts: onlinePosts,
         archivesLink,
+        categories,
         heroHtml,
         listHtml,
         mostReadHtml,
@@ -14819,6 +14842,7 @@ async function renderHome(ctx, options = {}) {
       site,
       posts: onlinePosts,
       archivesLink,
+      categories,
       heroHtml,
       listHtml,
       mostReadHtml,
@@ -15300,6 +15324,7 @@ function deletePostAndUnpublish(...args) {
 }
 const publisher = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
+  buildHomeCategories,
   buildPublishContext,
   buildSiteContext,
   deletePostAndUnpublish,
@@ -18322,7 +18347,7 @@ function HtmlBlockView({ node: node2, selected }) {
   );
 }
 const CodeEditor$1 = reactExports.lazy(
-  () => import("./CodeEditor-DhxV_iV3.mjs").then((m) => ({ default: m.CodeEditor }))
+  () => import("./CodeEditor-BZrJtpiP.mjs").then((m) => ({ default: m.CodeEditor }))
 );
 function HtmlInspector({ editor }) {
   const { t: t2 } = useTranslation("agentcms-blocks");
@@ -18708,7 +18733,7 @@ const DEFAULT_CUSTOM_CODE_CONFIG = {
   bodyEnd: ""
 };
 const CodeEditor = reactExports.lazy(
-  () => import("./CodeEditor-DhxV_iV3.mjs").then((m) => ({ default: m.CodeEditor }))
+  () => import("./CodeEditor-BZrJtpiP.mjs").then((m) => ({ default: m.CodeEditor }))
 );
 function CustomCodeSettingsPage({
   config,

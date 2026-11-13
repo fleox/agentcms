@@ -71,7 +71,7 @@ export default manifest;
 | `author/<slug>.html` | `author` | after a publish by that author, on Regenerate |
 | `404.html` | `notFound` | **only** by *Regenerate → All HTML / Everything* and theme activation |
 
-There are **no tag archives** (`buildTermUrl` throws for a tag) and **no pagination**: the home lists the newest `settings.postsPerPage` posts, a category or author page lists all of its posts. A page chosen as the static home renders inside `home`, not as its own file.
+There are **no tag archives** (`buildTermUrl` throws for a tag) and **no pagination**: the home lists the newest `settings.postsPerPage` posts, a category or author page lists all of its posts. A home made of one block per section doesn't need a bigger `postsPerPage`: set `homeCategoryPosts` in the theme manifest (below). A page chosen as the static home renders inside `home`, not as its own file.
 
 ## Props
 
@@ -80,7 +80,7 @@ Every template receives `site: SiteContext` (`settings`, `resolvedMenus`, `theme
 | Template | Props |
 |---|---|
 | `single` | `post`, `bodyHtml` (sanitised and already transformed by `post.html.body` filters — render with `dangerouslySetInnerHTML`), `author?`, `hero?` (MediaView), `primaryTerm?`, `tags`. Extended by `post.template.props` filters. |
-| `home` | `posts: CardPost[]`, `staticPage?: { post, bodyHtml }` (set when Settings → General uses a static page as the home — render it instead of the list), `archivesLink?`. `heroHtml` / `listHtml` / `mostReadHtml` / `promoCardHtml` are only filled for the built-in `default` and `magazine` themes. |
+| `home` | `posts: CardPost[]`, `staticPage?: { post, bodyHtml }` (set when Settings → General uses a static page as the home — render it instead of the list), `archivesLink?`, `categories?: HomeCategory[]` (`{ term, url, posts, total }` per category with online posts, sorted by name — only when the manifest sets `homeCategoryPosts: n`, 1–100: the newest `n` posts of each category, whatever `postsPerPage` is). `heroHtml` / `listHtml` / `mostReadHtml` / `promoCardHtml` are only filled for the built-in `default` and `magazine` themes. |
 | `category` | `term`, `posts`, `categoryRssUrl?`, `archivesLink?`, `allCategories?`, `popularTags?` |
 | `author` | `author: AuthorView`, `posts` |
 | `notFound` | `site` only (`message` is never passed). |

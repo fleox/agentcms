@@ -6,7 +6,7 @@ const __filename = __acmsPath(import.meta.url);
 const __dirname = __acmsDirname(__filename);
 import { readFileSync, existsSync } from "node:fs";
 import { a as installBrowserEnv, p as printResult, C as CliError } from "../agentcms.mjs";
-import { openSession } from "./session-Bm0eXSWM.mjs";
+import { openSession } from "./session-nChbt8eo.mjs";
 import "node:util";
 import "node:path";
 import "node:url";
@@ -14,7 +14,7 @@ import "node:os";
 import "node:child_process";
 import "node:crypto";
 import "node:http";
-import "./extHost-DEGvzsL7.mjs";
+import "./extHost-DKZMclpa.mjs";
 import "node:module";
 async function runAdmin(io, alias, open, work, human) {
   installBrowserEnv();

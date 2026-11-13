@@ -54,6 +54,7 @@ export type {
   CardPost,
   CategoryTemplateProps,
   AuthorTemplateProps,
+  HomeCategory,
   HomeTemplateProps,
   MediaView,
   NotFoundTemplateProps,

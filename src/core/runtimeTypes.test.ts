@@ -215,6 +215,7 @@ export type _MutualChecks = [
   Expect<Mutual<Real.BaseLayoutProps, Curated.BaseLayoutProps>>,
   Expect<Mutual<Real.SingleTemplateProps, Curated.SingleTemplateProps>>,
   Expect<Mutual<Real.HomeTemplateProps, Curated.HomeTemplateProps>>,
+  Expect<Mutual<Real.HomeCategory, Curated.HomeCategory>>,
   Expect<Mutual<Real.CategoryTemplateProps, Curated.CategoryTemplateProps>>,
   Expect<Mutual<Real.AuthorTemplateProps, Curated.AuthorTemplateProps>>,
   Expect<Mutual<Real.NotFoundTemplateProps, Curated.NotFoundTemplateProps>>,

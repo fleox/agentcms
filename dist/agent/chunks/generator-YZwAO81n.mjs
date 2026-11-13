@@ -4,7 +4,7 @@ import { dirname as __acmsDirname } from "node:path";
 const require2 = __acmsRequire(import.meta.url);
 const __filename = __acmsPath(import.meta.url);
 const __dirname = __acmsDirname(__filename);
-import "./media-BFe-Dv3c.mjs";
+import "./media-CYICAuGq.mjs";
 import { p as pickPublicLocale } from "./index-DBIUL8mC.mjs";
 import { c as basePathFromBaseUrl } from "./authorsJsonPublisher-Dr0A8OSq.mjs";
 import { pathToPublicUrl, buildTermUrl, buildPostUrl, canonicalUrl } from "./slug-CZzRNKy4.mjs";

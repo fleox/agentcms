@@ -10,10 +10,10 @@ import { join } from "node:path";
 import { Script } from "node:vm";
 import { tryBlocks, blockTestMarkdown, blockOutput } from "./extBlocks-BM6tQ2F9.mjs";
 import { d as compareVersions } from "../agentcms.mjs";
-import { bootExtensionHost, importExtensionBundle, IMPORT_MAP_SPECIFIERS } from "./extHost-DEGvzsL7.mjs";
+import { bootExtensionHost, importExtensionBundle, IMPORT_MAP_SPECIFIERS } from "./extHost-DKZMclpa.mjs";
 import { bundleSource } from "./extPackage-4xwZnrUQ.mjs";
-import { renderPreview } from "./extPreview-D_n2q0nT.mjs";
-import { listFiles } from "./extPreview-D_n2q0nT.mjs";
+import { renderPreview } from "./extPreview-C97wEXP2.mjs";
+import { listFiles } from "./extPreview-C97wEXP2.mjs";
 import { schemaErrors } from "./settingsSchema-DP7hBiko.mjs";
 import "node:util";
 import "node:url";
@@ -270,6 +270,12 @@ function checkTheme(t, issues) {
       } catch (err) {
         issues.push({ level: "error", code: "compile-css-throws", message: `compileCss(defaultConfig) threw: ${err.message}` });
       }
+    }
+  }
+  if (t.homeCategoryPosts != null) {
+    const n = t.homeCategoryPosts;
+    if (typeof n !== "number" || !Number.isInteger(n) || n < 1 || n > 100) {
+      issues.push({ level: "error", code: "home-category-posts", message: `homeCategoryPosts must be an integer from 1 to 100, got ${JSON.stringify(n)}.`, hint: "It is the number of newest posts per category passed to the home template as props.categories." });
     }
   }
   checkCompanionScript("jsText", t.jsText, issues);

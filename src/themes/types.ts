@@ -155,6 +155,23 @@ export interface HomeTemplateProps {
   // so the template stays a pure props consumer.
   mostReadHtml?: string;
   promoCardHtml?: string;
+  // Newest posts of every category, set only when the active theme
+  // declares `homeCategoryPosts` in its manifest. Lets a home show one
+  // block per section without raising `postsPerPage` (which also sizes
+  // `posts` and the category archives).
+  categories?: HomeCategory[];
+}
+
+// One category's block on the home (see ThemeManifest.homeCategoryPosts).
+export interface HomeCategory {
+  term: Term;
+  // Archive URL of the category, with a leading slash (like CardPost.category.url).
+  url: string;
+  // Newest online posts whose primary category is this term, newest first,
+  // at most `homeCategoryPosts`.
+  posts: CardPost[];
+  // Number of online posts in the category.
+  total: number;
 }
 
 export interface CategoryTemplateProps {
@@ -257,6 +274,11 @@ export interface ThemeManifest<TConfig = unknown> {
     post?: string;
     page?: string;
   };
+  // When set (1–100), the home template also receives `categories`: for
+  // every category with online posts, its newest `homeCategoryPosts`
+  // posts. Computed from the posts already loaded for publishing, so it
+  // costs no extra read on any backend.
+  homeCategoryPosts?: number;
   templates: {
     base: ComponentType<BaseLayoutProps>;
     home: ComponentType<HomeTemplateProps & { site: SiteContext }>;

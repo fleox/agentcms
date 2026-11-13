@@ -25,13 +25,13 @@ const IMPORT_MAP_SPECIFIERS = {
 let booted = null;
 let bundleDir = null;
 async function loadModules() {
-  const cmsRuntime = await import("./media-BFe-Dv3c.mjs").then((n) => n.f);
+  const cmsRuntime = await import("./media-CYICAuGq.mjs").then((n) => n.f);
   const [plugins, themes, registry, publisher, themeSync, docstore, storageRegistry, users, markdown, pluginRegistry, blocks, cards] = await Promise.all([
-    import("./media-BFe-Dv3c.mjs").then((n) => n.k),
-    import("./media-BFe-Dv3c.mjs").then((n) => n.m),
+    import("./media-CYICAuGq.mjs").then((n) => n.k),
+    import("./media-CYICAuGq.mjs").then((n) => n.m),
     import("./externalRegistry-DuO0IV8e.mjs"),
-    import("./media-BFe-Dv3c.mjs").then((n) => n.p),
-    import("./themeSync-HG_txIpU.mjs"),
+    import("./media-CYICAuGq.mjs").then((n) => n.p),
+    import("./themeSync-DUZ7WMaf.mjs"),
     import("./registry-DeFCNiUl.mjs").then((n) => n.B),
     import("./registry-DeFCNiUl.mjs").then((n) => n.D),
     import("./users-BbipnEeI.mjs").then((n) => n.u),

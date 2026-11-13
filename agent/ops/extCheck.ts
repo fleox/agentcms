@@ -335,6 +335,12 @@ function checkTheme(t: ThemeManifest, issues: CheckIssue[]): void {
       }
     }
   }
+  if (t.homeCategoryPosts != null) {
+    const n = t.homeCategoryPosts;
+    if (typeof n !== "number" || !Number.isInteger(n) || n < 1 || n > 100) {
+      issues.push({ level: "error", code: "home-category-posts", message: `homeCategoryPosts must be an integer from 1 to 100, got ${JSON.stringify(n)}.`, hint: "It is the number of newest posts per category passed to the home template as props.categories." });
+    }
+  }
   checkCompanionScript("jsText", t.jsText, issues);
   checkCompanionScript("jsTextPosts", t.jsTextPosts, issues);
   for (const b of t.blocks ?? []) checkBlock(b, issues);
