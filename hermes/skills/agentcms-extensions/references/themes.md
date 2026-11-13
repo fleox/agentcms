@@ -42,7 +42,7 @@ The admin also shows `readme` (Markdown, `import readme from "../README.md?raw"`
 | `author/<slug>.html` | `author` | Authors with at least one published post |
 | `404.html` | `notFound` | Written only by Regenerate → All HTML / Everything |
 
-There are no tag archives and no pagination. The home gets the newest `settings.postsPerPage` posts (never pages). Category and author pages get all their posts, newest first. If you need pagination, do it client-side in runtime JS.
+There are no tag archives and no pagination. The home gets the newest `settings.postsPerPage` posts (never pages). Category and author pages get all their posts, newest first. For a home with one block per section, set `homeCategoryPosts` in the manifest instead of raising `postsPerPage` (see **home** below). If you need pagination, do it client-side in runtime JS.
 
 ## Props
 
@@ -72,7 +72,8 @@ Every template gets `site: SiteContext` plus its own props. `BaseLayout` gets `B
 | 404 | `"Page not found"` | — | — | `404.html` |
 
 - **single**: `{ post: Post, bodyHtml: string, author?: AuthorView, hero?: MediaView, primaryTerm?: Term, tags: Term[] }`. `bodyHtml` is sanitised HTML already processed by the `post.html.body` filters: render it with `dangerouslySetInnerHTML`. No related posts are provided. Render a placeholder and fill it at runtime from `data/posts.json` if you want them.
-- **home**: `{ posts: CardPost[], staticPage?: { post, bodyHtml }, archivesLink?: { href, label } }` (`label` is already translated and ends with " →": print it as is). `heroHtml`, `listHtml`, `mostReadHtml` and `promoCardHtml` are only filled for built-in themes, never for yours. When `staticPage` is set, render its `bodyHtml` (a page made of blocks is the usual way to build a landing page).
+- **home**: `{ posts: CardPost[], staticPage?: { post, bodyHtml }, archivesLink?: { href, label }, categories?: HomeCategory[] }` (`label` is already translated and ends with " →": print it as is).
+  - `categories` is set only when the manifest declares `homeCategoryPosts: n` (integer 1–100). It holds one `{ term, url, posts: CardPost[], total }` per category that has online posts, sorted by category name: `posts` = its newest `n` online posts (primary category), `url` = `/<slug>/index.html`, `total` = its number of online posts. It is independent of `postsPerPage`, so a section-per-block home works with `posts` kept short (`posts[0]` is still the newest post of the site), and it costs no extra data read. Reorder or filter the list in the template (`categories.find((c) => c.term.slug === "news")`). `heroHtml`, `listHtml`, `mostReadHtml` and `promoCardHtml` are only filled for built-in themes, never for yours. When `staticPage` is set, render its `bodyHtml` (a page made of blocks is the usual way to build a landing page).
 - **category**: `{ term, posts: CardPost[], categoryRssUrl?, archivesLink?, allCategories?: Term[], popularTags?: Term[] }`.
 - **author**: `{ author: AuthorView, posts: CardPost[] }`.
 - **notFound**: only `{ site }`.

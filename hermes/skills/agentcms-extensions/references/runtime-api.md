@@ -104,7 +104,7 @@ Not exported: deleting posts, listing all media, raw settings writes, user manag
 
 The types you meet most:
 - **Content:** `Post`, `Term`, `Media`, `SiteSettings`, `MenuItem`, `UserRecord`.
-- **Themes:** `ThemeManifest`, `BaseLayoutProps`, `HomeTemplateProps`, `SingleTemplateProps`, `CategoryTemplateProps`, `AuthorTemplateProps`, `NotFoundTemplateProps`, `SiteContext`, `CardPost`, `MediaView`, `AuthorView`, `ResolvedMenuItem`.
+- **Themes:** `ThemeManifest`, `BaseLayoutProps`, `HomeTemplateProps`, `HomeCategory`, `SingleTemplateProps`, `CategoryTemplateProps`, `AuthorTemplateProps`, `NotFoundTemplateProps`, `SiteContext`, `CardPost`, `MediaView`, `AuthorView`, `ResolvedMenuItem`.
 - **Plugins:** `PluginManifest`, `PluginApi`, `PluginSettingsPageProps`, `ThemeSettingsPageProps`.
 - **Editor:** `BlockManifest`, `DashboardCardManifest`, `InspectorTabManifest`, `TermEditorSectionManifest`, `EditorVariantProvider`.
 - **Publishing:** `PublishContext`, `AdditionalRender`, `MenuJson`, `RssChannel`, `RegenerationTarget`.
